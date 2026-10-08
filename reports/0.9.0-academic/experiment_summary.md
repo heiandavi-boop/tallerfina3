@@ -75,6 +75,7 @@ Selection uses TRAIN fit and VALIDATION metrics; TEST is only evaluated after fr
 - Selection: candidate selected on validation only; automatic promotion disabled
 - Selected candidate: median_train_project_baseline
 - TEST after freeze: MAE 27.8503125, RMSE 38.99882017780046, R² -0.014210966177522932.
+- Candidate vs incumbent TEST (descriptive only): {'candidate_test_mae_minus_incumbent': 0.139844157409712, 'candidate_test_rmse_minus_incumbent': 1.760798889331177, 'candidate_test_r2_minus_incumbent': -0.08951586556158286, 'decision_use': 'descriptive only; TEST values were not used to select or promote a model'}.
 - Promoted automatically: False
 
 ## Feature importance
@@ -94,8 +95,8 @@ No real PRUNIN validation exists. External projects are not joined to Mendeley. 
 Python: 3.12.15
 Random seed: 42
 Dataset SHA256: 32b7586db9dda0b3994573a3985c114dafe65dee93c948254b69f00d194c0ac3
-Timestamp UTC: 2026-10-08T23:36:23.654734+00:00
-Commit: dd890b529083b5efc8e27914a596bae30b0bc4b0
+Timestamp UTC: 2026-10-08T23:51:00.372949+00:00
+Commit: 6aa6c2039d3808f7edb8641050c7e1f6028206b7
 
 ## Qué no se puede concluir
 These synthetic results do not establish causal effects, operational validity, or expected performance on live PRUNIN projects.

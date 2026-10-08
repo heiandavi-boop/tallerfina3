@@ -118,6 +118,26 @@
       "mape_percent": null,
       "mape_status": "not reported; target contains zero or negative actual values"
     },
+    "incumbent_test_metrics_already_reported": {
+      "mae": 27.71046834259029,
+      "median_absolute_error": 26.764043042885124,
+      "rmse": 37.238021288469284,
+      "r2": 0.07530489938405993,
+      "absolute_error_percentiles": {
+        "p50": 26.764043042885124,
+        "p75": 33.52334971276538,
+        "p90": 59.97350643276207,
+        "p95": 74.8558290586143
+      },
+      "mape_percent": null,
+      "mape_status": "not reported; target contains zero or negative actual values"
+    },
+    "candidate_vs_incumbent_test": {
+      "candidate_test_mae_minus_incumbent": 0.139844157409712,
+      "candidate_test_rmse_minus_incumbent": 1.760798889331177,
+      "candidate_test_r2_minus_incumbent": -0.08951586556158286,
+      "decision_use": "descriptive only; TEST values were not used to select or promote a model"
+    },
     "evaluation_note": "single evaluation of validation-selected train-median baseline"
   },
   "promoted_to_delay_days_joblib": false,

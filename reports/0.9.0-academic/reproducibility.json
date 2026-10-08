@@ -6,7 +6,7 @@
     "sklearn": "1.9.1",
     "lightgbm": "4.7.0"
   },
-  "git_commit_sha": "dd890b529083b5efc8e27914a596bae30b0bc4b0",
+  "git_commit_sha": "6aa6c2039d3808f7edb8641050c7e1f6028206b7",
   "random_seed": 42,
   "dataset_sha256": {
     "processed": "32b7586db9dda0b3994573a3985c114dafe65dee93c948254b69f00d194c0ac3",
@@ -73,7 +73,7 @@
     }
   },
   "artifact_version": "0.9.0-academic",
-  "timestamp_utc": "2026-10-08T23:36:23.654734+00:00",
+  "timestamp_utc": "2026-10-08T23:51:00.372949+00:00",
   "platform": "macOS-27.0.1-arm64-arm-64bit",
   "split_project_counts": {
     "train": 2800,
