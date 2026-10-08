@@ -16,7 +16,10 @@ def check(name, ok, detail=''):
 check('Frontend precompilado', (ROOT/'frontend/dist/index.html').exists())
 check('Artefactos seleccionados', runtime.artifact_dir.exists(), str(runtime.artifact_dir))
 for model in ['health','final_status','delay_days','cost_overrun_ratio']:
-    check(f'Modelo {model}', (runtime.artifact_dir/f'{model}.joblib').exists())
+    is_derived_status = model == 'final_status' and runtime.manifest.get('final_status_mode') == 'derived_from_health'
+    present = (runtime.artifact_dir/f'{model}.joblib').exists()
+    check(f'Modelo {model}', present or is_derived_status,
+          'derivado de Health' if is_derived_status else '')
 
 client = TestClient(app)
 schema = client.get('/api/schema')

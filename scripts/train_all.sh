@@ -28,7 +28,7 @@ echo "Python ..................... OK"
 
 echo "Dependencies ..............."
 "$PY" -m pip check
-"$PY" -c 'import importlib.util,sys; modules=("pandas","numpy","sklearn","lightgbm","yaml","openpyxl","requests","pyarrow"); missing=[name for name in modules if importlib.util.find_spec(name) is None]; print("Faltan dependencias: " + ", ".join(missing), file=sys.stderr) if missing else None; raise SystemExit(bool(missing))'
+"$PY" -c 'import importlib.util,sys; modules=("pandas","numpy","sklearn","lightgbm","yaml","openpyxl","requests","pyarrow","matplotlib"); missing=[name for name in modules if importlib.util.find_spec(name) is None]; print("Faltan dependencias: " + ", ".join(missing), file=sys.stderr) if missing else None; raise SystemExit(bool(missing))'
 echo "Dependencies ............... OK"
 
 echo "Mendeley metadata .........."
@@ -92,9 +92,13 @@ echo "Health training ............"
 if ! "$PY" scripts/train_core.py --input "$INPUT" --version "$VERSION"; then
   block_training "Academic training failed."
 fi
-"$PY" -c 'import json,sys; m=json.load(open(sys.argv[1],encoding="utf-8")); targets=("health","final_status","delay_days","cost_overrun_ratio"); failed=[name for name in targets if m.get(name,{}).get("status")!="trained"]; print("Untrained targets: " + ", ".join(failed),file=sys.stderr) if failed else None; raise SystemExit(bool(failed))' "$ARTIFACT/metrics.json"
+"$PY" -c 'import json,sys; m=json.load(open(sys.argv[1],encoding="utf-8")); r=json.load(open(sys.argv[2],encoding="utf-8")); targets=("health","delay_days","cost_overrun_ratio"); failed=[name for name in targets if m.get(name,{}).get("status")!="trained"]; final=m.get("final_status",{}); expected="derived" if r.get("final_status_mode")=="derived_from_health" else "trained"; failed += ["final_status"] if final.get("status")!=expected else []; print("Invalid model targets: " + ", ".join(failed),file=sys.stderr) if failed else None; raise SystemExit(bool(failed))' "$ARTIFACT/metrics.json" "$READINESS"
 echo "Health training ............ OK"
-echo "Final Status training ...... OK"
+if "$PY" -c 'import json,sys; sys.exit(0 if json.load(open(sys.argv[1]))["final_status"]["status"]=="derived" else 1)' "$ARTIFACT/metrics.json"; then
+  echo "Final Status ............... derived from Health"
+else
+  echo "Final Status training ...... OK"
+fi
 echo "Delay training ............. OK"
 echo "Cost training .............. OK"
 
@@ -102,8 +106,43 @@ echo "Evaluation ................."
 "$PY" scripts/evaluate_core.py --artifact "$ARTIFACT"
 echo "Evaluation ................. OK"
 
+echo "Temporal evaluation ........"
+"$PY" scripts/evaluate_temporal.py
+test -s "$ARTIFACT/temporal_evaluation.json"
+test -s "$ARTIFACT/temporal_evaluation.csv"
+echo "Temporal evaluation ........ OK"
+
+echo "Feature importance ........."
+for report in feature_importance_health.csv feature_importance_delay.csv feature_importance_cost.csv; do
+  test -s "$ARTIFACT/$report"
+done
+if [[ "$("$PY" -c 'import json,sys; print(json.load(open(sys.argv[1]))["final_status_mode"])' "$ARTIFACT/feature_manifest.json")" == "independent_model" ]]; then
+  test -s "$ARTIFACT/feature_importance_final_status.csv"
+fi
+echo "Feature importance ......... OK"
+
+echo "Report export .............."
+"$PY" scripts/export_report.py --artifacts "$ARTIFACT" --output "reports/$VERSION"
+for report in metrics.json data_readiness.json feature_manifest.json training_summary.json \
+  experiment_summary.md health_confusion_matrix.csv health_classification_report.csv \
+  temporal_evaluation.json temporal_evaluation.csv dataset_summary.json dataset_summary.md \
+  split_summary.json reproducibility.json; do
+  test -s "reports/$VERSION/$report"
+done
+echo "Report export .............. OK"
+
+echo "Evaluation figures ........."
+"$PY" scripts/generate_evaluation_plots.py --artifacts "$ARTIFACT" --reports "reports/$VERSION"
+for figure in health_confusion_matrix.png health_metrics.png delay_actual_vs_predicted.png \
+  cost_actual_vs_predicted.png temporal_health_macro_f1.png temporal_delay_mae.png \
+  temporal_cost_mae.png feature_importance_health.png feature_importance_delay.png \
+  feature_importance_cost.png; do
+  test -s "reports/$VERSION/figures/$figure"
+done
+echo "Evaluation figures ......... OK"
+
 echo "Artifacts .................."
-for model in health final_status delay_days cost_overrun_ratio; do
+for model in health delay_days cost_overrun_ratio; do
   test -s "$ARTIFACT/$model.joblib"
 done
 test -s "$ARTIFACT/metrics.json"
@@ -123,5 +162,7 @@ echo "Tests ...................... PASS"
 echo "Playground ................."
 PRUNIN_ARTIFACT_DIR="$ARTIFACT" ./scripts/preflight_demo.sh
 echo "Playground ................. READY"
-echo "Model:"
-echo "$VERSION"
+echo "PRUNIN AI CORE ACADEMIC READY"
+echo "Model: $VERSION"
+echo "Reports: reports/$VERSION/"
+echo "Playground: READY"

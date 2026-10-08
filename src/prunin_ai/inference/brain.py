@@ -7,18 +7,32 @@ import numpy as np
 import pandas as pd
 from ..features.team_health import compute_team_health
 
+FINAL_STATUS_FROM_HEALTH = {
+    "healthy": "successful",
+    "at_risk": "challenged",
+    "critical": "critical",
+}
+
+
+def derive_final_status(health: str) -> str:
+    return FINAL_STATUS_FROM_HEALTH.get(str(health), "incomplete")
+
 
 class PruninAcademicBrain:
     def __init__(self, artifact_dir: str | Path, config: dict):
         self.artifact_dir = Path(artifact_dir)
         self.config = config
         self.models = {}
-        for name in ["health", "final_status", "delay_days", "cost_overrun_ratio"]:
+        manifest_path = self.artifact_dir / "feature_manifest.json"
+        self.manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
+        self.final_status_mode = self.manifest.get("final_status_mode", "independent_model")
+        model_names = ["health", "delay_days", "cost_overrun_ratio"]
+        if self.final_status_mode != "derived_from_health":
+            model_names.insert(1, "final_status")
+        for name in model_names:
             p = self.artifact_dir / f"{name}.joblib"
             if p.exists():
                 self.models[name] = joblib.load(p)
-        manifest_path = self.artifact_dir / "feature_manifest.json"
-        self.manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
         self.feature_names = list(self.manifest.get("numeric_features", [])) + list(self.manifest.get("categorical_features", []))
 
     def _frame(self, row: dict) -> pd.DataFrame:
@@ -52,6 +66,12 @@ class PruninAcademicBrain:
             if p is not None:
                 result[f"{name}_probabilities"] = p
                 result[f"{name}_confidence"] = max(p.values()) if p else None
+
+        if self.final_status_mode == "derived_from_health":
+            result["final_status"] = derive_final_status(str(result.get("health", "incomplete")))
+            result["final_status_source"] = "derived_from_health"
+        elif "final_status" in result:
+            result["final_status_source"] = "independent_model"
 
         team = compute_team_health(row, self.config["team_health"])
         result["team_health"] = team.to_dict()

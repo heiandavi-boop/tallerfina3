@@ -125,6 +125,8 @@ class ModelRuntime:
         return drivers[:limit]
 
     def metadata(self) -> dict[str, Any]:
+        dataset_source = self.manifest.get("dataset_source", "synthetic_demo")
+        dataset_type = self.manifest.get("dataset_type", "synthetic")
         return {
             "version": self.version,
             "mode": self.mode,
@@ -132,5 +134,10 @@ class ModelRuntime:
             "models_loaded": sorted(self.brain.models.keys()),
             "manifest": self.manifest,
             "metrics": self.metrics,
+            "dataset_source": dataset_source,
+            "dataset_type": dataset_type,
+            "model_type": self.manifest.get("model_type", "LightGBM"),
+            "trained_features": list(self.manifest.get("numeric_features", [])) + list(self.manifest.get("categorical_features", [])),
+            "final_status_mode": self.manifest.get("final_status_mode", "independent_model"),
             "minimum_feature_coverage": float(os.getenv("PRUNIN_MIN_FEATURE_COVERAGE", "0.60")),
         }

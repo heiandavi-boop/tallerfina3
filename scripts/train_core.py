@@ -7,6 +7,7 @@ import pandas as pd
 from prunin_ai.config import load_config
 from prunin_ai.data.local_input import require_local_training_input
 from prunin_ai.training.core import train_core
+from prunin_ai.training.reproducibility import build_reproducibility
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--input", required=True)
@@ -49,8 +50,16 @@ cfg = load_config(args.config)
 out = ROOT / "artifacts" / args.version
 result = train_core(df, cfg, out, split_manifest=split_manifest)
 if args.version == "0.9.0-academic":
+	if readiness.get("leakage_check", {}).get("status") != "passed":
+		ap.error("TRAINING BLOCKED: project leakage verification is not PASS.")
+	if readiness.get("final_status_mode") == "derived_from_health":
+		(out / "final_status.joblib").unlink(missing_ok=True)
 	(out / "data_readiness.json").write_text(
 		json.dumps(readiness, indent=2, ensure_ascii=False), encoding="utf-8"
+	)
+	reproducibility = build_reproducibility(ROOT, args.version, cfg, readiness, split_manifest)
+	(out / "reproducibility.json").write_text(
+		json.dumps(reproducibility, indent=2, ensure_ascii=False), encoding="utf-8"
 	)
 print(json.dumps(result, indent=2, ensure_ascii=False))
 print(f"Artefactos: {out}")

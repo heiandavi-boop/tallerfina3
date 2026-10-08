@@ -18,7 +18,7 @@ source .venv/bin/activate
 ./scripts/train_all.sh
 ```
 
-El orden obligatorio es: Python/dependencias, metadata y descarga, validación raw/hash/esquema, preparación Mendeley, auditoría, `artifacts/data_readiness.json`, split agrupado y chequeos `isdisjoint`, entrenamiento, evaluación, artifacts, inferencia, tests y `scripts/preflight_demo.sh`. `train_core.py` vuelve a validar raw y exige readiness, fingerprint procesado y split aprobados para el modelo académico.
+El orden obligatorio es: Python/dependencias, metadata y descarga, validación raw/hash/esquema, preparación Mendeley, auditoría, `artifacts/data_readiness.json`, split agrupado y chequeos `isdisjoint`, entrenamiento, evaluación estándar, evaluación temporal, verificación de importance, export de reports, figuras, inferencia, tests y `scripts/preflight_demo.sh`. `train_core.py` vuelve a validar raw y exige readiness, fingerprint procesado y split aprobados para el modelo académico.
 
 `python scripts/download_datasets.py` usa metadata oficial para Mendeley v2, Itemlet (Parquet preferido y sus metadatos) y Collaboration. Los archivos válidos se reutilizan desde caché; `python scripts/download_datasets.py --validate-only` valida Mendeley sin red. Los originales se conservan en `data/raw/`; `python scripts/prepare_datasets.py` escribe solo en `data/processed/` y no concatena datasets.
 
@@ -34,11 +34,17 @@ La validación sigue siendo sintética y no es una evaluación prospectiva: outc
 
 El reporte `artifacts/data_readiness.json` registra cobertura, distribuciones, procedencia y el estado del leakage gate. Un readiness falso, falta de Mendeley o fallo de auditoría detiene el flujo antes de entrenar.
 
+`reports/0.9.0-academic/` contiene métricas, resumen del dataset/split, readiness, feature manifest, reproducibilidad, clasificación por clase y evaluación temporal. `scripts/export_report.py` exporta solo resultados ligeros; no copia datasets ni `.joblib`. `scripts/generate_evaluation_plots.py` produce figuras analíticas de confusion matrix, predicción/actual, evolución por cutoff e importance nativa.
+
+Health classification report incluye accuracy, balanced accuracy, macro/weighted F1, precision/recall macro y weighted, soporte/precision/recall/F1 por clase y confusion matrix en validation/test. Regresión agrega mediana y percentiles absolutos del error. MAPE se deja nulo si hay valores cero/negativos; Cost Overrun incluye MAE en puntos porcentuales.
+
+Final Status no es independiente en Mendeley v2: el record no tiene target original de estado y el target del proyecto era una traducción uno-a-uno de Health. Se mantiene como estado de negocio derivado sin segundo modelo ML.
+
 ## Criterios de aceptación antes de reportar resultados
 
 1. No hay solapamiento de `project_id` entre train/validation/test.
-2. `health` contiene al menos dos clases en train y test.
-3. `health`, `final_status`, `delay_days` y `cost_overrun_ratio` superan la cobertura mínima configurada en `train_all.sh`.
+2. `health` contiene al menos dos clases en train y test; Final Status se deriva de Health en Mendeley v2.
+3. `health`, `delay_days` y `cost_overrun_ratio` superan la cobertura mínima de readiness.
 4. Se informa por separado si la fuente es sintética o real.
 5. No se presenta `team_health_index` como moral, satisfacción o salud mental.
 6. La fusión con Team Health se identifica como heurística hasta contar con calibración real.

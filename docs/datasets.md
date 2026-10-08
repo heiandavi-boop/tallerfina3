@@ -42,3 +42,5 @@ Toda fila estandarizada debe mantener:
 Cada fuente conserva un `data_source` propio y un `source_project_id`. Los IDs internos llevan namespace (`mendeley::...`, `itemlet::...`, `collaboration::...`, `squad::...`). No se permite hacer `concat`, join por posición ni relacionar proyectos de fuentes distintas solo por similitud de atributos. Features ausentes quedan ausentes, no se rellenan con valores inventados.
 
 El modelo `0.9.0-academic` se entrena exclusivamente con Mendeley v2, que es sintético. Itemlet, Collaboration y SQuaD se registran como fuentes complementarias independientes; sus descargas fallidas son warnings y no cambian la población del modelo principal. SQuaD se limita a subsets seleccionados porque el record puede referenciar volúmenes muy grandes.
+
+La inspección de columnas Mendeley v2 encontró outcomes de duración, delay y cost overrun, pero no un estado final independiente. `final_status` se deriva de `health` con una traducción de negocio documentada; no se entrena un clasificador duplicado. Las distribuciones y cobertura se exportan a `reports/0.9.0-academic/dataset_summary.json`.

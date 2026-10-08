@@ -54,9 +54,17 @@ def run_prediction(data: dict[str, Any]) -> dict[str, Any]:
     drivers = runtime.local_drivers(data, pred)
     recommendations = build_recommendations(data, pred, drivers)
     elapsed = (time.perf_counter() - started) * 1000
+    model_metadata = runtime.metadata()
     return serialize({
         "prediction_id": str(uuid.uuid4()),
-        "model": {"version": runtime.version, "mode": runtime.mode, "execution": "LIVE"},
+        "model": {
+            "version": runtime.version,
+            "mode": runtime.mode,
+            "execution": "LIVE",
+            "dataset_source": model_metadata["dataset_source"],
+            "dataset_type": model_metadata["dataset_type"],
+            "model_type": model_metadata["model_type"],
+        },
         "prediction": pred,
         "drivers": drivers,
         "recommendations": recommendations,

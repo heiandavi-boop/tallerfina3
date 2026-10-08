@@ -33,6 +33,17 @@ def test_predict_live():
     assert isinstance(body['prediction']['delay_days'], (int,float))
     assert isinstance(body['prediction']['cost_overrun_ratio'], (int,float))
     assert body['prediction_id']
+    assert body['model']['dataset_source']
+    assert body['model']['dataset_type']
+    assert body['model']['model_type']
+    assert isinstance(body['inference_ms'], (int,float))
+    assert body['prediction']['final_status_source'] in {'derived_from_health','independent_model'}
+    expected_status_source = (
+        'derived_from_health'
+        if schema['model']['final_status_mode'] == 'derived_from_health'
+        else 'independent_model'
+    )
+    assert body['prediction']['final_status_source'] == expected_status_source
 
 
 def test_what_if():

@@ -10,8 +10,10 @@ from lightgbm import LGBMClassifier, LGBMRegressor
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import (
-    accuracy_score, balanced_accuracy_score, f1_score,
-    mean_absolute_error, mean_squared_error, r2_score,
+    accuracy_score, balanced_accuracy_score, classification_report,
+    confusion_matrix, f1_score, mean_absolute_error,
+    mean_squared_error, median_absolute_error, precision_score,
+    r2_score, recall_score,
 )
 from sklearn.model_selection import GroupShuffleSplit
 from sklearn.pipeline import Pipeline
@@ -99,20 +101,100 @@ def _regressor(cfg: dict, seed: int):
     )
 
 
-def _classification_metrics(y_true, y_pred):
+def _classification_metrics(y_true, y_pred, labels=None):
+    labels = list(labels if labels is not None else sorted(set(y_true) | set(y_pred)))
+    names = [str(label) for label in labels]
+    report = classification_report(
+        y_true, y_pred, labels=labels, target_names=names,
+        output_dict=True, zero_division=0,
+    )
+    per_class = {
+        name: {
+            "precision": float(report[name]["precision"]),
+            "recall": float(report[name]["recall"]),
+            "f1": float(report[name]["f1-score"]),
+            "support": int(report[name]["support"]),
+        }
+        for name in names
+    }
     return {
         "accuracy": float(accuracy_score(y_true, y_pred)),
         "balanced_accuracy": float(balanced_accuracy_score(y_true, y_pred)),
-        "macro_f1": float(f1_score(y_true, y_pred, average="macro")),
+        "macro_f1": float(f1_score(y_true, y_pred, labels=labels, average="macro", zero_division=0)),
+        "weighted_f1": float(f1_score(y_true, y_pred, labels=labels, average="weighted", zero_division=0)),
+        "precision_macro": float(precision_score(y_true, y_pred, labels=labels, average="macro", zero_division=0)),
+        "recall_macro": float(recall_score(y_true, y_pred, labels=labels, average="macro", zero_division=0)),
+        "precision_weighted": float(precision_score(y_true, y_pred, labels=labels, average="weighted", zero_division=0)),
+        "recall_weighted": float(recall_score(y_true, y_pred, labels=labels, average="weighted", zero_division=0)),
+        "labels": names,
+        "per_class": per_class,
+        "confusion_matrix": confusion_matrix(y_true, y_pred, labels=labels).tolist(),
+        "classification_report": report,
     }
 
 
 def _regression_metrics(y_true, y_pred):
-    return {
-        "mae": float(mean_absolute_error(y_true, y_pred)),
+    actual = np.asarray(y_true, dtype=float)
+    predicted = np.asarray(y_pred, dtype=float)
+    absolute_errors = np.abs(actual - predicted)
+    result = {
+        "mae": float(mean_absolute_error(actual, predicted)),
+        "median_absolute_error": float(median_absolute_error(actual, predicted)),
         "rmse": float(mean_squared_error(y_true, y_pred) ** 0.5),
         "r2": float(r2_score(y_true, y_pred)),
+        "absolute_error_percentiles": {
+            f"p{percentile}": float(np.percentile(absolute_errors, percentile))
+            for percentile in (50, 75, 90, 95)
+        },
     }
+    if np.all(actual > 0):
+        result["mape_percent"] = float(np.mean(absolute_errors / actual) * 100)
+        result["mape_status"] = "reported; all actual values are positive"
+    else:
+        result["mape_percent"] = None
+        result["mape_status"] = "not reported; target contains zero or negative actual values"
+    return result
+
+
+def _project_latest_snapshots(frame: pd.DataFrame) -> pd.DataFrame:
+    order = ["project_id"]
+    if "snapshot_index" in frame.columns:
+        order.append("snapshot_index")
+    return frame.sort_values(order, kind="stable").groupby("project_id", sort=False).tail(1)
+
+
+def _model_tasks(final_status_mode: str) -> list[tuple[str, str]]:
+    tasks = [("health", "classification")]
+    if final_status_mode != "derived_from_health":
+        tasks.append(("final_status", "classification"))
+    tasks.extend([("delay_days", "regression"), ("cost_overrun_ratio", "regression")])
+    return tasks
+
+
+def _feature_importance(model_pipe: Pipeline, artifact_dir: Path, model_name: str) -> None:
+    estimator = model_pipe.named_steps["model"]
+    preprocessor = model_pipe.named_steps["prep"]
+    names = preprocessor.get_feature_names_out()
+    split_values = estimator.booster_.feature_importance(importance_type="split")
+    gain_values = estimator.booster_.feature_importance(importance_type="gain")
+    importance = pd.DataFrame({
+        "feature": names,
+        "gain": gain_values,
+        "split": split_values,
+    }).sort_values(["gain", "split"], ascending=False, kind="stable")
+    importance["gain_fraction"] = importance["gain"] / max(float(importance["gain"].sum()), 1.0)
+    importance.insert(0, "rank", np.arange(1, len(importance) + 1))
+    report_name = {
+        "health": "health",
+        "final_status": "final_status",
+        "delay_days": "delay",
+        "cost_overrun_ratio": "cost",
+    }.get(model_name, model_name)
+    importance.to_csv(artifact_dir / f"feature_importance_{report_name}.csv", index=False)
+
+
+def _business_status(health: pd.Series) -> pd.Series:
+    return health.map({"healthy": "successful", "at_risk": "challenged", "critical": "critical"})
 
 
 def train_core(
@@ -155,13 +237,14 @@ def train_core(
     out = Path(artifact_dir)
     out.mkdir(parents=True, exist_ok=True)
     metrics = {}
+    mendeley_only = (
+        "data_source" in data
+        and set(data["data_source"].dropna().astype(str)) == {"mendeley_2p5sz57wh2_v2"}
+    )
 
-    tasks = [
-        ("health", "classification"),
-        ("final_status", "classification"),
-        ("delay_days", "regression"),
-        ("cost_overrun_ratio", "regression"),
-    ]
+    final_status_mode = "derived_from_health" if mendeley_only else "independent_model"
+    tasks = _model_tasks(final_status_mode)
+    predictions = None
 
     for target, kind in tasks:
         tr = splits["train"].dropna(subset=[target])
@@ -181,23 +264,102 @@ def train_core(
             warnings.filterwarnings("ignore", message=r"X does not have valid feature names.*", category=UserWarning)
             pred_val = pipe.predict(va[features]) if len(va) else np.array([])
             pred_test = pipe.predict(te[features])
-        calc = _classification_metrics if kind == "classification" else _regression_metrics
+        if kind == "classification":
+            labels = list(model.classes_)
+            row_validation = _classification_metrics(va[target], pred_val, labels) if len(va) else None
+            row_test = _classification_metrics(te[target], pred_test, labels)
+        else:
+            row_validation = _regression_metrics(va[target], pred_val) if len(va) else None
+            row_test = _regression_metrics(te[target], pred_test)
+            if target == "cost_overrun_ratio":
+                row_validation["mae_percentage_points"] = row_validation["mae"] * 100 if row_validation else None
+                row_test["mae_percentage_points"] = row_test["mae"] * 100
+        project_validation = _project_latest_snapshots(va) if len(va) else va
+        project_test = _project_latest_snapshots(te)
+        if len(project_validation):
+            project_val_pred = pipe.predict(project_validation[features])
+        else:
+            project_val_pred = np.array([])
+        project_test_pred = pipe.predict(project_test[features])
+        if kind == "classification":
+            project_validation_metrics = (
+                _classification_metrics(project_validation[target], project_val_pred, labels)
+                if len(project_validation) else None
+            )
+            project_test_metrics = _classification_metrics(project_test[target], project_test_pred, labels)
+        else:
+            project_validation_metrics = (
+                _regression_metrics(project_validation[target], project_val_pred)
+                if len(project_validation) else None
+            )
+            project_test_metrics = _regression_metrics(project_test[target], project_test_pred)
+            if target == "cost_overrun_ratio":
+                if project_validation_metrics:
+                    project_validation_metrics["mae_percentage_points"] = project_validation_metrics["mae"] * 100
+                project_test_metrics["mae_percentage_points"] = project_test_metrics["mae"] * 100
         metrics[target] = {
             "status": "trained",
-            "validation": calc(va[target], pred_val) if len(va) else None,
-            "test": calc(te[target], pred_test),
+            "evaluation_unit": "snapshot rows; each project can contribute multiple snapshots",
+            "validation": row_validation,
+            "test": row_test,
+            "row_level_metrics": {"validation": row_validation, "test": row_test},
+            "project_level_metrics": {
+                "method": "latest available snapshot per project within the split",
+                "validation": project_validation_metrics,
+                "test": project_test_metrics,
+                "validation_project_count": int(project_validation["project_id"].nunique()),
+                "test_project_count": int(project_test["project_id"].nunique()),
+            },
             "train_rows": int(len(tr)), "validation_rows": int(len(va)), "test_rows": int(len(te)),
         }
         joblib.dump(pipe, out / f"{target}.joblib")
+        _feature_importance(pipe, out, target)
+        if target == "health":
+            predictions = project_test[[
+                column for column in ("project_id", "source_project_id", "snapshot_index", "true_progress")
+                if column in project_test
+            ]].copy()
+            predictions["actual_health"] = project_test["health"].astype(str).to_numpy()
+            predictions["predicted_health"] = project_test_pred
+        elif target == "final_status" and predictions is not None:
+            predictions["actual_final_status"] = project_test[target].astype(str).to_numpy()
+            predictions["predicted_final_status"] = project_test_pred
+        elif target in {"delay_days", "cost_overrun_ratio"} and predictions is not None:
+            suffix = "delay_days" if target == "delay_days" else "cost_overrun_ratio"
+            predictions[f"actual_{suffix}"] = project_test[target].to_numpy()
+            predictions[f"predicted_{suffix}"] = project_test_pred
+
+    if mendeley_only:
+        metrics["final_status"] = {
+            "status": "derived",
+            "source": "health",
+            "mapping": {"healthy": "successful", "at_risk": "challenged", "critical": "critical"},
+            "note": "Mendeley v2 has no independent final-status column; no redundant classifier was trained.",
+        }
+        if predictions is not None:
+            predictions["actual_final_status"] = _business_status(predictions["actual_health"]).to_numpy()
+            predictions["predicted_final_status"] = _business_status(predictions["predicted_health"]).to_numpy()
+    if predictions is not None:
+        predictions.to_csv(out / "test_project_predictions.csv", index=False)
 
     manifest = {
         "schema_version": "v9-academic",
+        "dataset_source": "Mendeley Data 2p5sz57wh2 version 2" if mendeley_only else "generated dataset source",
+        "dataset_type": "synthetic external data" if mendeley_only else "synthetic demo data",
+        "model_type": "LightGBM",
         "numeric_features": numeric,
         "categorical_features": categorical,
         "excluded_from_v863": ["reported_progress", "critical_path_delay_days", "team_morale"],
         "operational_derived": ["team_health_index"],
         "target_columns_excluded": sorted(forbidden_features),
         "target_leakage_check": {"status": "passed", "feature_overlap": []},
+        "final_status_mode": final_status_mode,
+        "target_leakage_review": {
+            "direct_leakage": "pass",
+            "temporal_proximity_risk": "SPI, CPI, and progress may be close to final outcomes in late snapshots; see cutoff-specific temporal evaluation.",
+            "excluded_columns": sorted(forbidden_features),
+            "notes": "No raw final outcome fields enter the feature whitelist. Project-grouped split prevents cross-project leakage.",
+        },
         "note": "team_health_index se fusiona operativamente; sólo será feature supervisada cuando exista data histórica emparejada con outcomes.",
     }
     split_manifest = {k: sorted(v) for k, v in project_sets.items()}

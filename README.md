@@ -4,6 +4,15 @@ Repositorio autocontenido para entrenar, validar y demostrar públicamente el AI
 
 La demo **no contiene resultados hardcodeados**: cada análisis llama al backend FastAPI, ejecuta los artefactos `.joblib` cargados y devuelve un `prediction_id`, versión del modelo, tiempos, probabilidades, drivers y recomendaciones.
 
+## Entrenamiento académico reproducible
+
+```bash
+source .venv/bin/activate
+./scripts/train_all.sh
+```
+
+El pipeline ejecuta DOWNLOAD → VALIDATION → PREPARATION → AUDIT → READINESS → SPLIT/LEAKAGE → TRAINING → EVALUATION → TEMPORAL EVALUATION → REPORT/FIGURES → TESTS → PLAYGROUND PREFLIGHT. Mendeley v2 es la única fuente de `0.9.0-academic`; las demás fuentes son opcionales y no se mezclan. Los informes ligeros se exportan a `reports/0.9.0-academic/`; datasets y modelos pesados permanecen locales.
+
 ## Inicio rápido en Mac / VS Code
 
 ### Opción más simple
@@ -173,25 +182,37 @@ Si Ollama falla o excede el timeout, se utiliza automáticamente el fallback fun
 
 ## Entrenamiento académico
 
-Después de preparar Mendeley:
+El uso manual queda como flujo avanzado; para un entrenamiento reproducible usa `./scripts/train_all.sh`.
 
 ```bash
 source .venv/bin/activate
-python scripts/prepare_mendeley.py
+python scripts/download_datasets.py
+python scripts/prepare_datasets.py
 python scripts/audit_dataset.py --input data/processed/mendeley_core.csv
+python scripts/data_readiness.py
+python scripts/verify_split.py
 python scripts/train_core.py --input data/processed/mendeley_core.csv --version 0.9.0-academic
+python scripts/evaluate_temporal.py
+python scripts/export_report.py
+python scripts/generate_evaluation_plots.py
 ```
 
-Reinicia el Playground. Detectará `artifacts/0.9.0-academic` automáticamente.
+Mendeley v2 no contiene una etiqueta independiente de Final Status. El API conserva el campo como estado de negocio derivado de Health, y el Playground lo identifica como `Derived business status`.
+
+Para abrir el Playground tras el entrenamiento:
+
+```bash
+./scripts/run_playground.sh
+```
 
 ## Pruebas
 
 ```bash
 source .venv/bin/activate
-PYTHONPATH=src pytest -q
+pytest -q
 ```
 
-La versión entregada fue validada con **10 pruebas automatizadas**.
+Los resultados de evaluación de cada ejecución se exportan a `reports/0.9.0-academic/`; no se fija aquí un número de tests.
 
 ## Docker
 

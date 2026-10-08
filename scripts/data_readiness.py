@@ -145,6 +145,12 @@ def build_readiness(
         "leakage_check": {"status": "pending", "checked_before_training": False},
         "synthetic_sources": synthetic_sources,
         "real_sources": real_sources,
+        "final_status_mode": (
+            "derived_from_health"
+            if df is not None and set(df.get("data_source", pd.Series(dtype=str)).dropna().astype(str))
+            == {"mendeley_2p5sz57wh2_v2"}
+            else "independent_model"
+        ),
         "processed_sha256": file_sha256(processed_path) if processed_path and processed_path.is_file() else None,
         "leakage_risks": [
             "Project outcomes are repeated across monthly snapshots.",
