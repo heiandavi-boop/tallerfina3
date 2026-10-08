@@ -1,0 +1,738 @@
+{
+  "health": {
+    "status": "trained",
+    "evaluation_unit": "snapshot rows; each project can contribute multiple snapshots",
+    "validation": {
+      "accuracy": 0.6359375,
+      "balanced_accuracy": 0.5273230835087545,
+      "macro_f1": 0.49848913148718105,
+      "weighted_f1": 0.6539609257744294,
+      "precision_macro": 0.4867869010768069,
+      "recall_macro": 0.5273230835087545,
+      "precision_weighted": 0.6866168209292408,
+      "recall_weighted": 0.6359375,
+      "labels": [
+        "at_risk",
+        "critical",
+        "healthy"
+      ],
+      "per_class": {
+        "at_risk": {
+          "precision": 0.8112033195020747,
+          "recall": 0.6876884422110553,
+          "f1": 0.7443568126189829,
+          "support": 7960
+        },
+        "critical": {
+          "precision": 0.2784272051009564,
+          "recall": 0.3488681757656458,
+          "f1": 0.30969267139479906,
+          "support": 751
+        },
+        "healthy": {
+          "precision": 0.37073017862738955,
+          "recall": 0.545412632549562,
+          "f1": 0.4414179104477612,
+          "support": 2169
+        }
+      },
+      "confusion_matrix": [
+        [
+          5474,
+          569,
+          1917
+        ],
+        [
+          398,
+          262,
+          91
+        ],
+        [
+          876,
+          110,
+          1183
+        ]
+      ],
+      "classification_report": {
+        "at_risk": {
+          "precision": 0.8112033195020747,
+          "recall": 0.6876884422110553,
+          "f1-score": 0.7443568126189829,
+          "support": 7960.0
+        },
+        "critical": {
+          "precision": 0.2784272051009564,
+          "recall": 0.3488681757656458,
+          "f1-score": 0.30969267139479906,
+          "support": 751.0
+        },
+        "healthy": {
+          "precision": 0.37073017862738955,
+          "recall": 0.545412632549562,
+          "f1-score": 0.4414179104477612,
+          "support": 2169.0
+        },
+        "accuracy": 0.6359375,
+        "macro avg": {
+          "precision": 0.4867869010768069,
+          "recall": 0.5273230835087545,
+          "f1-score": 0.49848913148718105,
+          "support": 10880.0
+        },
+        "weighted avg": {
+          "precision": 0.6866168209292408,
+          "recall": 0.6359375,
+          "f1-score": 0.6539609257744294,
+          "support": 10880.0
+        }
+      }
+    },
+    "test": {
+      "accuracy": 0.6783518399559512,
+      "balanced_accuracy": 0.582768010376126,
+      "macro_f1": 0.5470548202603385,
+      "weighted_f1": 0.6942235187775262,
+      "precision_macro": 0.5281202566776817,
+      "recall_macro": 0.582768010376126,
+      "precision_weighted": 0.7219397749983391,
+      "recall_weighted": 0.6783518399559512,
+      "labels": [
+        "at_risk",
+        "critical",
+        "healthy"
+      ],
+      "per_class": {
+        "at_risk": {
+          "precision": 0.8369488161066213,
+          "recall": 0.7275080108454524,
+          "f1": 0.7784004747148414,
+          "support": 8114
+        },
+        "critical": {
+          "precision": 0.3443579766536965,
+          "recall": 0.4544287548138639,
+          "f1": 0.39180962921970114,
+          "support": 779
+        },
+        "healthy": {
+          "precision": 0.4030539772727273,
+          "recall": 0.5663672654690619,
+          "f1": 0.470954356846473,
+          "support": 2004
+        }
+      },
+      "confusion_matrix": [
+        [
+          5903,
+          592,
+          1619
+        ],
+        [
+          363,
+          354,
+          62
+        ],
+        [
+          787,
+          82,
+          1135
+        ]
+      ],
+      "classification_report": {
+        "at_risk": {
+          "precision": 0.8369488161066213,
+          "recall": 0.7275080108454524,
+          "f1-score": 0.7784004747148414,
+          "support": 8114.0
+        },
+        "critical": {
+          "precision": 0.3443579766536965,
+          "recall": 0.4544287548138639,
+          "f1-score": 0.39180962921970114,
+          "support": 779.0
+        },
+        "healthy": {
+          "precision": 0.4030539772727273,
+          "recall": 0.5663672654690619,
+          "f1-score": 0.470954356846473,
+          "support": 2004.0
+        },
+        "accuracy": 0.6783518399559512,
+        "macro avg": {
+          "precision": 0.5281202566776817,
+          "recall": 0.582768010376126,
+          "f1-score": 0.5470548202603385,
+          "support": 10897.0
+        },
+        "weighted avg": {
+          "precision": 0.7219397749983391,
+          "recall": 0.6783518399559512,
+          "f1-score": 0.6942235187775262,
+          "support": 10897.0
+        }
+      }
+    },
+    "row_level_metrics": {
+      "validation": {
+        "accuracy": 0.6359375,
+        "balanced_accuracy": 0.5273230835087545,
+        "macro_f1": 0.49848913148718105,
+        "weighted_f1": 0.6539609257744294,
+        "precision_macro": 0.4867869010768069,
+        "recall_macro": 0.5273230835087545,
+        "precision_weighted": 0.6866168209292408,
+        "recall_weighted": 0.6359375,
+        "labels": [
+          "at_risk",
+          "critical",
+          "healthy"
+        ],
+        "per_class": {
+          "at_risk": {
+            "precision": 0.8112033195020747,
+            "recall": 0.6876884422110553,
+            "f1": 0.7443568126189829,
+            "support": 7960
+          },
+          "critical": {
+            "precision": 0.2784272051009564,
+            "recall": 0.3488681757656458,
+            "f1": 0.30969267139479906,
+            "support": 751
+          },
+          "healthy": {
+            "precision": 0.37073017862738955,
+            "recall": 0.545412632549562,
+            "f1": 0.4414179104477612,
+            "support": 2169
+          }
+        },
+        "confusion_matrix": [
+          [
+            5474,
+            569,
+            1917
+          ],
+          [
+            398,
+            262,
+            91
+          ],
+          [
+            876,
+            110,
+            1183
+          ]
+        ],
+        "classification_report": {
+          "at_risk": {
+            "precision": 0.8112033195020747,
+            "recall": 0.6876884422110553,
+            "f1-score": 0.7443568126189829,
+            "support": 7960.0
+          },
+          "critical": {
+            "precision": 0.2784272051009564,
+            "recall": 0.3488681757656458,
+            "f1-score": 0.30969267139479906,
+            "support": 751.0
+          },
+          "healthy": {
+            "precision": 0.37073017862738955,
+            "recall": 0.545412632549562,
+            "f1-score": 0.4414179104477612,
+            "support": 2169.0
+          },
+          "accuracy": 0.6359375,
+          "macro avg": {
+            "precision": 0.4867869010768069,
+            "recall": 0.5273230835087545,
+            "f1-score": 0.49848913148718105,
+            "support": 10880.0
+          },
+          "weighted avg": {
+            "precision": 0.6866168209292408,
+            "recall": 0.6359375,
+            "f1-score": 0.6539609257744294,
+            "support": 10880.0
+          }
+        }
+      },
+      "test": {
+        "accuracy": 0.6783518399559512,
+        "balanced_accuracy": 0.582768010376126,
+        "macro_f1": 0.5470548202603385,
+        "weighted_f1": 0.6942235187775262,
+        "precision_macro": 0.5281202566776817,
+        "recall_macro": 0.582768010376126,
+        "precision_weighted": 0.7219397749983391,
+        "recall_weighted": 0.6783518399559512,
+        "labels": [
+          "at_risk",
+          "critical",
+          "healthy"
+        ],
+        "per_class": {
+          "at_risk": {
+            "precision": 0.8369488161066213,
+            "recall": 0.7275080108454524,
+            "f1": 0.7784004747148414,
+            "support": 8114
+          },
+          "critical": {
+            "precision": 0.3443579766536965,
+            "recall": 0.4544287548138639,
+            "f1": 0.39180962921970114,
+            "support": 779
+          },
+          "healthy": {
+            "precision": 0.4030539772727273,
+            "recall": 0.5663672654690619,
+            "f1": 0.470954356846473,
+            "support": 2004
+          }
+        },
+        "confusion_matrix": [
+          [
+            5903,
+            592,
+            1619
+          ],
+          [
+            363,
+            354,
+            62
+          ],
+          [
+            787,
+            82,
+            1135
+          ]
+        ],
+        "classification_report": {
+          "at_risk": {
+            "precision": 0.8369488161066213,
+            "recall": 0.7275080108454524,
+            "f1-score": 0.7784004747148414,
+            "support": 8114.0
+          },
+          "critical": {
+            "precision": 0.3443579766536965,
+            "recall": 0.4544287548138639,
+            "f1-score": 0.39180962921970114,
+            "support": 779.0
+          },
+          "healthy": {
+            "precision": 0.4030539772727273,
+            "recall": 0.5663672654690619,
+            "f1-score": 0.470954356846473,
+            "support": 2004.0
+          },
+          "accuracy": 0.6783518399559512,
+          "macro avg": {
+            "precision": 0.5281202566776817,
+            "recall": 0.582768010376126,
+            "f1-score": 0.5470548202603385,
+            "support": 10897.0
+          },
+          "weighted avg": {
+            "precision": 0.7219397749983391,
+            "recall": 0.6783518399559512,
+            "f1-score": 0.6942235187775262,
+            "support": 10897.0
+          }
+        }
+      }
+    },
+    "project_level_metrics": {
+      "method": "latest available snapshot per project within the split",
+      "validation": {
+        "accuracy": 0.6833333333333333,
+        "balanced_accuracy": 0.6135647252668529,
+        "macro_f1": 0.5719034207503809,
+        "weighted_f1": 0.6994016142255136,
+        "precision_macro": 0.5544995518443279,
+        "recall_macro": 0.6135647252668529,
+        "precision_weighted": 0.7363393834349066,
+        "recall_weighted": 0.6833333333333333,
+        "labels": [
+          "at_risk",
+          "critical",
+          "healthy"
+        ],
+        "per_class": {
+          "at_risk": {
+            "precision": 0.861671469740634,
+            "recall": 0.706855791962175,
+            "f1": 0.7766233766233767,
+            "support": 423
+          },
+          "critical": {
+            "precision": 0.32786885245901637,
+            "recall": 0.4444444444444444,
+            "f1": 0.37735849056603776,
+            "support": 45
+          },
+          "healthy": {
+            "precision": 0.4739583333333333,
+            "recall": 0.6893939393939394,
+            "f1": 0.5617283950617284,
+            "support": 132
+          }
+        },
+        "confusion_matrix": [
+          [
+            299,
+            30,
+            94
+          ],
+          [
+            18,
+            20,
+            7
+          ],
+          [
+            30,
+            11,
+            91
+          ]
+        ],
+        "classification_report": {
+          "at_risk": {
+            "precision": 0.861671469740634,
+            "recall": 0.706855791962175,
+            "f1-score": 0.7766233766233767,
+            "support": 423.0
+          },
+          "critical": {
+            "precision": 0.32786885245901637,
+            "recall": 0.4444444444444444,
+            "f1-score": 0.37735849056603776,
+            "support": 45.0
+          },
+          "healthy": {
+            "precision": 0.4739583333333333,
+            "recall": 0.6893939393939394,
+            "f1-score": 0.5617283950617284,
+            "support": 132.0
+          },
+          "accuracy": 0.6833333333333333,
+          "macro avg": {
+            "precision": 0.5544995518443279,
+            "recall": 0.6135647252668529,
+            "f1-score": 0.5719034207503809,
+            "support": 600.0
+          },
+          "weighted avg": {
+            "precision": 0.7363393834349066,
+            "recall": 0.6833333333333333,
+            "f1-score": 0.6994016142255136,
+            "support": 600.0
+          }
+        }
+      },
+      "test": {
+        "accuracy": 0.7266666666666667,
+        "balanced_accuracy": 0.6824223458081726,
+        "macro_f1": 0.6275758334320115,
+        "weighted_f1": 0.7405357252418434,
+        "precision_macro": 0.6003878970927546,
+        "recall_macro": 0.6824223458081726,
+        "precision_weighted": 0.7737301994841527,
+        "recall_weighted": 0.7266666666666667,
+        "labels": [
+          "at_risk",
+          "critical",
+          "healthy"
+        ],
+        "per_class": {
+          "at_risk": {
+            "precision": 0.8854748603351955,
+            "recall": 0.7389277389277389,
+            "f1": 0.8055908513341804,
+            "support": 429
+          },
+          "critical": {
+            "precision": 0.38461538461538464,
+            "recall": 0.5681818181818182,
+            "f1": 0.45871559633027525,
+            "support": 44
+          },
+          "healthy": {
+            "precision": 0.5310734463276836,
+            "recall": 0.7401574803149606,
+            "f1": 0.618421052631579,
+            "support": 127
+          }
+        },
+        "confusion_matrix": [
+          [
+            317,
+            35,
+            77
+          ],
+          [
+            13,
+            25,
+            6
+          ],
+          [
+            28,
+            5,
+            94
+          ]
+        ],
+        "classification_report": {
+          "at_risk": {
+            "precision": 0.8854748603351955,
+            "recall": 0.7389277389277389,
+            "f1-score": 0.8055908513341804,
+            "support": 429.0
+          },
+          "critical": {
+            "precision": 0.38461538461538464,
+            "recall": 0.5681818181818182,
+            "f1-score": 0.45871559633027525,
+            "support": 44.0
+          },
+          "healthy": {
+            "precision": 0.5310734463276836,
+            "recall": 0.7401574803149606,
+            "f1-score": 0.618421052631579,
+            "support": 127.0
+          },
+          "accuracy": 0.7266666666666667,
+          "macro avg": {
+            "precision": 0.6003878970927546,
+            "recall": 0.6824223458081726,
+            "f1-score": 0.6275758334320115,
+            "support": 600.0
+          },
+          "weighted avg": {
+            "precision": 0.7737301994841527,
+            "recall": 0.7266666666666667,
+            "f1-score": 0.7405357252418434,
+            "support": 600.0
+          }
+        }
+      },
+      "validation_project_count": 600,
+      "test_project_count": 600
+    },
+    "train_rows": 50772,
+    "validation_rows": 10880,
+    "test_rows": 10897
+  },
+  "delay_days": {
+    "status": "trained",
+    "evaluation_unit": "snapshot rows; each project can contribute multiple snapshots",
+    "validation": {
+      "mae": 33.27945305642288,
+      "median_absolute_error": 29.497845766379,
+      "rmse": 44.890976533510944,
+      "r2": -0.009256922078209273,
+      "absolute_error_percentiles": {
+        "p50": 29.497845766379,
+        "p75": 39.01373816314098,
+        "p90": 70.4419982056768,
+        "p95": 92.48465393130175
+      },
+      "mape_percent": null,
+      "mape_status": "not reported; target contains zero or negative actual values"
+    },
+    "test": {
+      "mae": 32.17595573757554,
+      "median_absolute_error": 29.11360308904004,
+      "rmse": 43.52880713694457,
+      "r2": 0.03305282047934266,
+      "absolute_error_percentiles": {
+        "p50": 29.11360308904004,
+        "p75": 40.19852125294494,
+        "p90": 68.83350050903232,
+        "p95": 88.20811757939708
+      },
+      "mape_percent": null,
+      "mape_status": "not reported; target contains zero or negative actual values"
+    },
+    "row_level_metrics": {
+      "validation": {
+        "mae": 33.27945305642288,
+        "median_absolute_error": 29.497845766379,
+        "rmse": 44.890976533510944,
+        "r2": -0.009256922078209273,
+        "absolute_error_percentiles": {
+          "p50": 29.497845766379,
+          "p75": 39.01373816314098,
+          "p90": 70.4419982056768,
+          "p95": 92.48465393130175
+        },
+        "mape_percent": null,
+        "mape_status": "not reported; target contains zero or negative actual values"
+      },
+      "test": {
+        "mae": 32.17595573757554,
+        "median_absolute_error": 29.11360308904004,
+        "rmse": 43.52880713694457,
+        "r2": 0.03305282047934266,
+        "absolute_error_percentiles": {
+          "p50": 29.11360308904004,
+          "p75": 40.19852125294494,
+          "p90": 68.83350050903232,
+          "p95": 88.20811757939708
+        },
+        "mape_percent": null,
+        "mape_status": "not reported; target contains zero or negative actual values"
+      }
+    },
+    "project_level_metrics": {
+      "method": "latest available snapshot per project within the split",
+      "validation": {
+        "mae": 28.881475896661733,
+        "median_absolute_error": 28.309717313423597,
+        "rmse": 38.67715811791431,
+        "r2": 0.011651779636750237,
+        "absolute_error_percentiles": {
+          "p50": 28.309717313423597,
+          "p75": 33.64447671397426,
+          "p90": 58.554095844379724,
+          "p95": 82.5565822255377
+        },
+        "mape_percent": null,
+        "mape_status": "not reported; target contains zero or negative actual values"
+      },
+      "test": {
+        "mae": 27.71046834259029,
+        "median_absolute_error": 26.764043042885124,
+        "rmse": 37.238021288469284,
+        "r2": 0.07530489938405993,
+        "absolute_error_percentiles": {
+          "p50": 26.764043042885124,
+          "p75": 33.52334971276538,
+          "p90": 59.97350643276207,
+          "p95": 74.8558290586143
+        },
+        "mape_percent": null,
+        "mape_status": "not reported; target contains zero or negative actual values"
+      },
+      "validation_project_count": 600,
+      "test_project_count": 600
+    },
+    "train_rows": 50772,
+    "validation_rows": 10880,
+    "test_rows": 10897
+  },
+  "cost_overrun_ratio": {
+    "status": "trained",
+    "evaluation_unit": "snapshot rows; each project can contribute multiple snapshots",
+    "validation": {
+      "mae": 0.01715680072856085,
+      "median_absolute_error": 0.011621987116616703,
+      "rmse": 0.024463022958777773,
+      "r2": 0.8188269327092383,
+      "absolute_error_percentiles": {
+        "p50": 0.011621987116616703,
+        "p75": 0.024881098925093586,
+        "p90": 0.04089331080465937,
+        "p95": 0.051583028250106744
+      },
+      "mape_percent": null,
+      "mape_status": "not reported; target contains zero or negative actual values",
+      "mae_percentage_points": 1.715680072856085
+    },
+    "test": {
+      "mae": 0.018027032862485026,
+      "median_absolute_error": 0.011649479198188359,
+      "rmse": 0.026432533568949177,
+      "r2": 0.8297066199911258,
+      "absolute_error_percentiles": {
+        "p50": 0.011649479198188359,
+        "p75": 0.025483187922191328,
+        "p90": 0.04373472325144494,
+        "p95": 0.057549580891124545
+      },
+      "mape_percent": null,
+      "mape_status": "not reported; target contains zero or negative actual values",
+      "mae_percentage_points": 1.8027032862485026
+    },
+    "row_level_metrics": {
+      "validation": {
+        "mae": 0.01715680072856085,
+        "median_absolute_error": 0.011621987116616703,
+        "rmse": 0.024463022958777773,
+        "r2": 0.8188269327092383,
+        "absolute_error_percentiles": {
+          "p50": 0.011621987116616703,
+          "p75": 0.024881098925093586,
+          "p90": 0.04089331080465937,
+          "p95": 0.051583028250106744
+        },
+        "mape_percent": null,
+        "mape_status": "not reported; target contains zero or negative actual values",
+        "mae_percentage_points": 1.715680072856085
+      },
+      "test": {
+        "mae": 0.018027032862485026,
+        "median_absolute_error": 0.011649479198188359,
+        "rmse": 0.026432533568949177,
+        "r2": 0.8297066199911258,
+        "absolute_error_percentiles": {
+          "p50": 0.011649479198188359,
+          "p75": 0.025483187922191328,
+          "p90": 0.04373472325144494,
+          "p95": 0.057549580891124545
+        },
+        "mape_percent": null,
+        "mape_status": "not reported; target contains zero or negative actual values",
+        "mae_percentage_points": 1.8027032862485026
+      }
+    },
+    "project_level_metrics": {
+      "method": "latest available snapshot per project within the split",
+      "validation": {
+        "mae": 0.0016000020472449385,
+        "median_absolute_error": 0.0005207663522176689,
+        "rmse": 0.005834420025221031,
+        "r2": 0.9910236372465293,
+        "absolute_error_percentiles": {
+          "p50": 0.0005207663522176689,
+          "p75": 0.0010619400428159018,
+          "p90": 0.002059608973171106,
+          "p95": 0.004050903840485826
+        },
+        "mape_percent": null,
+        "mape_status": "not reported; target contains zero or negative actual values",
+        "mae_percentage_points": 0.16000020472449386
+      },
+      "test": {
+        "mae": 0.0014715785054456153,
+        "median_absolute_error": 0.000538783876791113,
+        "rmse": 0.00598016858871776,
+        "r2": 0.9918156958562626,
+        "absolute_error_percentiles": {
+          "p50": 0.000538783876791113,
+          "p75": 0.0010088775053154597,
+          "p90": 0.0016493314088183043,
+          "p95": 0.0034050073013592885
+        },
+        "mape_percent": null,
+        "mape_status": "not reported; target contains zero or negative actual values",
+        "mae_percentage_points": 0.14715785054456154
+      },
+      "validation_project_count": 600,
+      "test_project_count": 600
+    },
+    "train_rows": 50772,
+    "validation_rows": 10880,
+    "test_rows": 10897
+  },
+  "final_status": {
+    "status": "derived",
+    "source": "health",
+    "mapping": {
+      "healthy": "successful",
+      "at_risk": "challenged",
+      "critical": "critical"
+    },
+    "note": "Mendeley v2 has no independent final-status column; no redundant classifier was trained."
+  }
+}

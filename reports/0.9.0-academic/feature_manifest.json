@@ -1,0 +1,62 @@
+{
+  "schema_version": "v9-academic",
+  "dataset_source": "Mendeley Data 2p5sz57wh2 version 2",
+  "dataset_type": "synthetic external data",
+  "model_type": "LightGBM",
+  "numeric_features": [
+    "planned_duration_weeks",
+    "planned_budget",
+    "true_progress",
+    "spi",
+    "cpi"
+  ],
+  "categorical_features": [
+    "project_type",
+    "methodology"
+  ],
+  "excluded_from_v863": [
+    "reported_progress",
+    "critical_path_delay_days",
+    "team_morale"
+  ],
+  "operational_derived": [
+    "team_health_index"
+  ],
+  "target_columns_excluded": [
+    "actual_cost",
+    "actual_duration",
+    "actual_duration_days",
+    "actual_duration_months",
+    "cost_overrun",
+    "cost_overrun_ratio",
+    "delay_days",
+    "final_status",
+    "health",
+    "schedule_delay",
+    "schedule_delay_days"
+  ],
+  "target_leakage_check": {
+    "status": "passed",
+    "feature_overlap": []
+  },
+  "final_status_mode": "derived_from_health",
+  "target_leakage_review": {
+    "direct_leakage": "pass",
+    "temporal_proximity_risk": "SPI, CPI, and progress may be close to final outcomes in late snapshots; see cutoff-specific temporal evaluation.",
+    "excluded_columns": [
+      "actual_cost",
+      "actual_duration",
+      "actual_duration_days",
+      "actual_duration_months",
+      "cost_overrun",
+      "cost_overrun_ratio",
+      "delay_days",
+      "final_status",
+      "health",
+      "schedule_delay",
+      "schedule_delay_days"
+    ],
+    "notes": "No raw final outcome fields enter the feature whitelist. Project-grouped split prevents cross-project leakage."
+  },
+  "note": "team_health_index se fusiona operativamente; sólo será feature supervisada cuando exista data histórica emparejada con outcomes."
+}

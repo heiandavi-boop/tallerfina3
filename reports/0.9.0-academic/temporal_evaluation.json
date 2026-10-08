@@ -1,0 +1,560 @@
+{
+  "dataset_source": "Mendeley Data 2p5sz57wh2 version 2",
+  "evaluation_split": "test only; project IDs loaded from split_manifest.json",
+  "selection_rule": "For each test project, select the maximum true_progress <= cutoff; ties select the latest snapshot_index.",
+  "cutoffs": [
+    {
+      "cutoff": 0.2,
+      "test_project_count": 236,
+      "excluded_test_project_count": 364,
+      "selected_snapshot_count": 236,
+      "max_selected_progress": 0.1999660477055671,
+      "health": {
+        "accuracy": 0.6059322033898306,
+        "balanced_accuracy": 0.41204704584478785,
+        "macro_f1": 0.39793773109518665,
+        "weighted_f1": 0.627562619273817,
+        "precision_macro": 0.4033408685111472,
+        "recall_macro": 0.41204704584478785,
+        "precision_weighted": 0.6658475908948176,
+        "recall_weighted": 0.6059322033898306,
+        "labels": [
+          "at_risk",
+          "critical",
+          "healthy"
+        ],
+        "per_class": {
+          "at_risk": {
+            "precision": 0.7908496732026143,
+            "recall": 0.6685082872928176,
+            "f1": 0.7245508982035929,
+            "support": 181
+          },
+          "critical": {
+            "precision": 0.14285714285714285,
+            "recall": 0.1111111111111111,
+            "f1": 0.125,
+            "support": 9
+          },
+          "healthy": {
+            "precision": 0.27631578947368424,
+            "recall": 0.45652173913043476,
+            "f1": 0.3442622950819672,
+            "support": 46
+          }
+        },
+        "confusion_matrix": [
+          [
+            121,
+            5,
+            55
+          ],
+          [
+            8,
+            1,
+            0
+          ],
+          [
+            24,
+            1,
+            21
+          ]
+        ],
+        "classification_report": {
+          "at_risk": {
+            "precision": 0.7908496732026143,
+            "recall": 0.6685082872928176,
+            "f1-score": 0.7245508982035929,
+            "support": 181.0
+          },
+          "critical": {
+            "precision": 0.14285714285714285,
+            "recall": 0.1111111111111111,
+            "f1-score": 0.125,
+            "support": 9.0
+          },
+          "healthy": {
+            "precision": 0.27631578947368424,
+            "recall": 0.45652173913043476,
+            "f1-score": 0.3442622950819672,
+            "support": 46.0
+          },
+          "accuracy": 0.6059322033898306,
+          "macro avg": {
+            "precision": 0.4033408685111472,
+            "recall": 0.41204704584478785,
+            "f1-score": 0.39793773109518665,
+            "support": 236.0
+          },
+          "weighted avg": {
+            "precision": 0.6658475908948176,
+            "recall": 0.6059322033898306,
+            "f1-score": 0.627562619273817,
+            "support": 236.0
+          }
+        }
+      },
+      "delay_days": {
+        "mae": 33.146182570492925,
+        "median_absolute_error": 28.360273246616558,
+        "rmse": 44.85608441156631,
+        "r2": 0.08602426000403374,
+        "absolute_error_percentiles": {
+          "p50": 28.360273246616558,
+          "p75": 43.66323270339046,
+          "p90": 75.07581897828524,
+          "p95": 88.35882077066576
+        },
+        "mape_percent": null,
+        "mape_status": "not reported; target contains zero or negative actual values"
+      },
+      "cost_overrun_ratio": {
+        "mae": 0.031369433183519604,
+        "median_absolute_error": 0.024933058230834748,
+        "rmse": 0.04083908938564817,
+        "r2": 0.4223254523787896,
+        "absolute_error_percentiles": {
+          "p50": 0.024933058230834748,
+          "p75": 0.04591552462819967,
+          "p90": 0.06753984020522735,
+          "p95": 0.0814365072975603
+        },
+        "mape_percent": null,
+        "mape_status": "not reported; target contains zero or negative actual values",
+        "mae_percentage_points": 3.1369433183519604
+      },
+      "row_level_metrics": {
+        "status": "not separately aggregated; exactly one selected observation per test project",
+        "observation_count": 236
+      },
+      "project_level_metrics": {
+        "status": "computed; one selected snapshot per test project",
+        "project_count": 236
+      },
+      "final_status": {
+        "status": "derived_from_health",
+        "mapping": {
+          "healthy": "successful",
+          "at_risk": "challenged",
+          "critical": "critical"
+        },
+        "project_count": 236
+      }
+    },
+    {
+      "cutoff": 0.4,
+      "test_project_count": 463,
+      "excluded_test_project_count": 137,
+      "selected_snapshot_count": 463,
+      "max_selected_progress": 0.3999743726235977,
+      "health": {
+        "accuracy": 0.6609071274298056,
+        "balanced_accuracy": 0.5545897228948077,
+        "macro_f1": 0.509354768489031,
+        "weighted_f1": 0.6807703704714967,
+        "precision_macro": 0.48843063541205956,
+        "recall_macro": 0.5545897228948077,
+        "precision_weighted": 0.7142015326080416,
+        "recall_weighted": 0.6609071274298056,
+        "labels": [
+          "at_risk",
+          "critical",
+          "healthy"
+        ],
+        "per_class": {
+          "at_risk": {
+            "precision": 0.8289473684210527,
+            "recall": 0.711864406779661,
+            "f1": 0.7659574468085106,
+            "support": 354
+          },
+          "critical": {
+            "precision": 0.275,
+            "recall": 0.44,
+            "f1": 0.3384615384615385,
+            "support": 25
+          },
+          "healthy": {
+            "precision": 0.36134453781512604,
+            "recall": 0.5119047619047619,
+            "f1": 0.4236453201970443,
+            "support": 84
+          }
+        },
+        "confusion_matrix": [
+          [
+            252,
+            27,
+            75
+          ],
+          [
+            13,
+            11,
+            1
+          ],
+          [
+            39,
+            2,
+            43
+          ]
+        ],
+        "classification_report": {
+          "at_risk": {
+            "precision": 0.8289473684210527,
+            "recall": 0.711864406779661,
+            "f1-score": 0.7659574468085106,
+            "support": 354.0
+          },
+          "critical": {
+            "precision": 0.275,
+            "recall": 0.44,
+            "f1-score": 0.3384615384615385,
+            "support": 25.0
+          },
+          "healthy": {
+            "precision": 0.36134453781512604,
+            "recall": 0.5119047619047619,
+            "f1-score": 0.4236453201970443,
+            "support": 84.0
+          },
+          "accuracy": 0.6609071274298056,
+          "macro avg": {
+            "precision": 0.48843063541205956,
+            "recall": 0.5545897228948077,
+            "f1-score": 0.509354768489031,
+            "support": 463.0
+          },
+          "weighted avg": {
+            "precision": 0.7142015326080416,
+            "recall": 0.6609071274298056,
+            "f1-score": 0.6807703704714967,
+            "support": 463.0
+          }
+        }
+      },
+      "delay_days": {
+        "mae": 30.40682256027908,
+        "median_absolute_error": 28.722677522385368,
+        "rmse": 40.96282138769324,
+        "r2": 0.019973592640045168,
+        "absolute_error_percentiles": {
+          "p50": 28.722677522385368,
+          "p75": 36.72108656364521,
+          "p90": 63.190684510497775,
+          "p95": 84.55091994709052
+        },
+        "mape_percent": null,
+        "mape_status": "not reported; target contains zero or negative actual values"
+      },
+      "cost_overrun_ratio": {
+        "mae": 0.027893733246334856,
+        "median_absolute_error": 0.022783855053382648,
+        "rmse": 0.035744832009881745,
+        "r2": 0.659699584613774,
+        "absolute_error_percentiles": {
+          "p50": 0.022783855053382648,
+          "p75": 0.03832632725526353,
+          "p90": 0.05772408340620525,
+          "p95": 0.07204885511714995
+        },
+        "mape_percent": null,
+        "mape_status": "not reported; target contains zero or negative actual values",
+        "mae_percentage_points": 2.7893733246334858
+      },
+      "row_level_metrics": {
+        "status": "not separately aggregated; exactly one selected observation per test project",
+        "observation_count": 463
+      },
+      "project_level_metrics": {
+        "status": "computed; one selected snapshot per test project",
+        "project_count": 463
+      },
+      "final_status": {
+        "status": "derived_from_health",
+        "mapping": {
+          "healthy": "successful",
+          "at_risk": "challenged",
+          "critical": "critical"
+        },
+        "project_count": 463
+      }
+    },
+    {
+      "cutoff": 0.6,
+      "test_project_count": 576,
+      "excluded_test_project_count": 24,
+      "selected_snapshot_count": 576,
+      "max_selected_progress": 0.5998440113584965,
+      "health": {
+        "accuracy": 0.6423611111111112,
+        "balanced_accuracy": 0.5712254120148857,
+        "macro_f1": 0.5229588790027976,
+        "weighted_f1": 0.6613525809630985,
+        "precision_macro": 0.5032838739360479,
+        "recall_macro": 0.5712254120148857,
+        "precision_weighted": 0.6990239916417453,
+        "recall_weighted": 0.6423611111111112,
+        "labels": [
+          "at_risk",
+          "critical",
+          "healthy"
+        ],
+        "per_class": {
+          "at_risk": {
+            "precision": 0.8173913043478261,
+            "recall": 0.6746411483253588,
+            "f1": 0.7391874180865007,
+            "support": 418
+          },
+          "critical": {
+            "precision": 0.2698412698412698,
+            "recall": 0.4473684210526316,
+            "f1": 0.33663366336633666,
+            "support": 38
+          },
+          "healthy": {
+            "precision": 0.4226190476190476,
+            "recall": 0.5916666666666667,
+            "f1": 0.4930555555555556,
+            "support": 120
+          }
+        },
+        "confusion_matrix": [
+          [
+            282,
+            41,
+            95
+          ],
+          [
+            19,
+            17,
+            2
+          ],
+          [
+            44,
+            5,
+            71
+          ]
+        ],
+        "classification_report": {
+          "at_risk": {
+            "precision": 0.8173913043478261,
+            "recall": 0.6746411483253588,
+            "f1-score": 0.7391874180865007,
+            "support": 418.0
+          },
+          "critical": {
+            "precision": 0.2698412698412698,
+            "recall": 0.4473684210526316,
+            "f1-score": 0.33663366336633666,
+            "support": 38.0
+          },
+          "healthy": {
+            "precision": 0.4226190476190476,
+            "recall": 0.5916666666666667,
+            "f1-score": 0.4930555555555556,
+            "support": 120.0
+          },
+          "accuracy": 0.6423611111111112,
+          "macro avg": {
+            "precision": 0.5032838739360479,
+            "recall": 0.5712254120148857,
+            "f1-score": 0.5229588790027976,
+            "support": 576.0
+          },
+          "weighted avg": {
+            "precision": 0.6990239916417453,
+            "recall": 0.6423611111111112,
+            "f1-score": 0.6613525809630985,
+            "support": 576.0
+          }
+        }
+      },
+      "delay_days": {
+        "mae": 28.3056066326096,
+        "median_absolute_error": 28.26859199901856,
+        "rmse": 38.45500934069916,
+        "r2": 0.03820864306092553,
+        "absolute_error_percentiles": {
+          "p50": 28.26859199901856,
+          "p75": 33.47280558298277,
+          "p90": 60.61376868512408,
+          "p95": 79.31843982420992
+        },
+        "mape_percent": null,
+        "mape_status": "not reported; target contains zero or negative actual values"
+      },
+      "cost_overrun_ratio": {
+        "mae": 0.02143231471500083,
+        "median_absolute_error": 0.01777124354566573,
+        "rmse": 0.027260356165559038,
+        "r2": 0.8250949890776234,
+        "absolute_error_percentiles": {
+          "p50": 0.01777124354566573,
+          "p75": 0.031257299675963565,
+          "p90": 0.04420122097735722,
+          "p95": 0.05508132794580024
+        },
+        "mape_percent": null,
+        "mape_status": "not reported; target contains zero or negative actual values",
+        "mae_percentage_points": 2.143231471500083
+      },
+      "row_level_metrics": {
+        "status": "not separately aggregated; exactly one selected observation per test project",
+        "observation_count": 576
+      },
+      "project_level_metrics": {
+        "status": "computed; one selected snapshot per test project",
+        "project_count": 576
+      },
+      "final_status": {
+        "status": "derived_from_health",
+        "mapping": {
+          "healthy": "successful",
+          "at_risk": "challenged",
+          "critical": "critical"
+        },
+        "project_count": 576
+      }
+    },
+    {
+      "cutoff": 0.8,
+      "test_project_count": 599,
+      "excluded_test_project_count": 1,
+      "selected_snapshot_count": 599,
+      "max_selected_progress": 0.7999771784515177,
+      "health": {
+        "accuracy": 0.672787979966611,
+        "balanced_accuracy": 0.6276501276501277,
+        "macro_f1": 0.5705878972080334,
+        "weighted_f1": 0.6909206709799023,
+        "precision_macro": 0.5468076558145051,
+        "recall_macro": 0.6276501276501277,
+        "precision_weighted": 0.7307466559785493,
+        "recall_weighted": 0.672787979966611,
+        "labels": [
+          "at_risk",
+          "critical",
+          "healthy"
+        ],
+        "per_class": {
+          "at_risk": {
+            "precision": 0.8514285714285714,
+            "recall": 0.6946386946386947,
+            "f1": 0.7650834403080873,
+            "support": 429
+          },
+          "critical": {
+            "precision": 0.3287671232876712,
+            "recall": 0.5454545454545454,
+            "f1": 0.41025641025641024,
+            "support": 44
+          },
+          "healthy": {
+            "precision": 0.4602272727272727,
+            "recall": 0.6428571428571429,
+            "f1": 0.5364238410596026,
+            "support": 126
+          }
+        },
+        "confusion_matrix": [
+          [
+            298,
+            42,
+            89
+          ],
+          [
+            14,
+            24,
+            6
+          ],
+          [
+            38,
+            7,
+            81
+          ]
+        ],
+        "classification_report": {
+          "at_risk": {
+            "precision": 0.8514285714285714,
+            "recall": 0.6946386946386947,
+            "f1-score": 0.7650834403080873,
+            "support": 429.0
+          },
+          "critical": {
+            "precision": 0.3287671232876712,
+            "recall": 0.5454545454545454,
+            "f1-score": 0.41025641025641024,
+            "support": 44.0
+          },
+          "healthy": {
+            "precision": 0.4602272727272727,
+            "recall": 0.6428571428571429,
+            "f1-score": 0.5364238410596026,
+            "support": 126.0
+          },
+          "accuracy": 0.672787979966611,
+          "macro avg": {
+            "precision": 0.5468076558145051,
+            "recall": 0.6276501276501277,
+            "f1-score": 0.5705878972080334,
+            "support": 599.0
+          },
+          "weighted avg": {
+            "precision": 0.7307466559785493,
+            "recall": 0.672787979966611,
+            "f1-score": 0.6909206709799023,
+            "support": 599.0
+          }
+        }
+      },
+      "delay_days": {
+        "mae": 27.522773422256524,
+        "median_absolute_error": 27.61129011189112,
+        "rmse": 37.49074480506258,
+        "r2": 0.06299140797036062,
+        "absolute_error_percentiles": {
+          "p50": 27.61129011189112,
+          "p75": 32.82932942020088,
+          "p90": 59.986309030151574,
+          "p95": 76.44627285925337
+        },
+        "mape_percent": null,
+        "mape_status": "not reported; target contains zero or negative actual values"
+      },
+      "cost_overrun_ratio": {
+        "mae": 0.014067181848647381,
+        "median_absolute_error": 0.01140432186722154,
+        "rmse": 0.01790923711733279,
+        "r2": 0.9261744521913563,
+        "absolute_error_percentiles": {
+          "p50": 0.01140432186722154,
+          "p75": 0.019783949736601976,
+          "p90": 0.028829938269808696,
+          "p95": 0.03600107157369869
+        },
+        "mape_percent": null,
+        "mape_status": "not reported; target contains zero or negative actual values",
+        "mae_percentage_points": 1.406718184864738
+      },
+      "row_level_metrics": {
+        "status": "not separately aggregated; exactly one selected observation per test project",
+        "observation_count": 599
+      },
+      "project_level_metrics": {
+        "status": "computed; one selected snapshot per test project",
+        "project_count": 599
+      },
+      "final_status": {
+        "status": "derived_from_health",
+        "mapping": {
+          "healthy": "successful",
+          "at_risk": "challenged",
+          "critical": "critical"
+        },
+        "project_count": 599
+      }
+    }
+  ],
+  "final_status_mode": "derived_from_health"
+}

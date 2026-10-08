@@ -1,0 +1,73 @@
+{
+  "dataset": "Simulated project risk and earned-value dataset",
+  "source": "Mendeley Data",
+  "doi": "10.17632/2p5sz57wh2.2",
+  "version": 2,
+  "synthetic": true,
+  "project_count": 4000,
+  "snapshot_count": 72549,
+  "train_projects": 2800,
+  "validation_projects": 600,
+  "test_projects": 600,
+  "train_snapshots": 50772,
+  "validation_snapshots": 10880,
+  "test_snapshots": 10897,
+  "health_distribution": {
+    "at_risk": 53690,
+    "healthy": 13625,
+    "critical": 5234
+  },
+  "final_status_distribution": {
+    "challenged": 53690,
+    "successful": 13625,
+    "critical": 5234
+  },
+  "target_coverage": {
+    "health": 1.0,
+    "final_status": 1.0,
+    "delay_days": 1.0,
+    "cost_overrun_ratio": 1.0
+  },
+  "feature_coverage": {
+    "planned_duration_weeks": 1.0,
+    "planned_budget": 1.0,
+    "baseline_scope_units": 0.0,
+    "sector": 0.0,
+    "project_type": 1.0,
+    "methodology": 1.0,
+    "complexity": 0.0,
+    "criticality": 0.0,
+    "true_progress": 1.0,
+    "spi": 1.0,
+    "cpi": 1.0,
+    "team_utilization": 0.0,
+    "team_capacity_ratio": 0.0,
+    "average_productivity": 0.0,
+    "defect_rate": 0.0,
+    "rework_ratio": 0.0,
+    "scope_growth_ratio": 0.0,
+    "dependency_delay_days": 0.0,
+    "normalized_risk_exposure": 0.0,
+    "governance_health_score": 0.0
+  },
+  "missing_features": [
+    "baseline_scope_units",
+    "sector",
+    "complexity",
+    "criticality",
+    "team_utilization",
+    "team_capacity_ratio",
+    "average_productivity",
+    "defect_rate",
+    "rework_ratio",
+    "scope_growth_ratio",
+    "dependency_delay_days",
+    "normalized_risk_exposure",
+    "governance_health_score"
+  ],
+  "features_used": [],
+  "data_sources_not_joined": [
+    "collaboration",
+    "itemlet"
+  ]
+}

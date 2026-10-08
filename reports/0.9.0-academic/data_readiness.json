@@ -1,0 +1,117 @@
+{
+  "ready_for_training": true,
+  "blocking_errors": [],
+  "warnings": [
+    "[WARN] Optional dataset unavailable: squad"
+  ],
+  "datasets_available": [
+    "collaboration",
+    "itemlet",
+    "mendeley_evm"
+  ],
+  "datasets_missing": [
+    "squad"
+  ],
+  "main_dataset_valid": true,
+  "project_count": 4000,
+  "snapshot_count": 72549,
+  "feature_coverage": {
+    "planned_duration_weeks": 1.0,
+    "planned_budget": 1.0,
+    "baseline_scope_units": 0.0,
+    "sector": 0.0,
+    "project_type": 1.0,
+    "methodology": 1.0,
+    "complexity": 0.0,
+    "criticality": 0.0,
+    "true_progress": 1.0,
+    "spi": 1.0,
+    "cpi": 1.0,
+    "team_utilization": 0.0,
+    "team_capacity_ratio": 0.0,
+    "average_productivity": 0.0,
+    "defect_rate": 0.0,
+    "rework_ratio": 0.0,
+    "scope_growth_ratio": 0.0,
+    "dependency_delay_days": 0.0,
+    "normalized_risk_exposure": 0.0,
+    "governance_health_score": 0.0
+  },
+  "target_distribution": {
+    "health": {
+      "at_risk": 53690,
+      "healthy": 13625,
+      "critical": 5234
+    },
+    "final_status": {
+      "challenged": 53690,
+      "successful": 13625,
+      "critical": 5234
+    },
+    "delay_days": {
+      "count": 72549,
+      "min": 0.0,
+      "median": 30.4375,
+      "max": 273.9375
+    },
+    "cost_overrun_ratio": {
+      "count": 72549,
+      "min": -0.1318717124374659,
+      "median": 0.0600684872669469,
+      "max": 0.3430665119396288
+    }
+  },
+  "health_distribution": {
+    "at_risk": 53690,
+    "healthy": 13625,
+    "critical": 5234
+  },
+  "final_status_distribution": {
+    "challenged": 53690,
+    "successful": 13625,
+    "critical": 5234
+  },
+  "missing_features": [
+    "baseline_scope_units",
+    "sector",
+    "complexity",
+    "criticality",
+    "team_utilization",
+    "team_capacity_ratio",
+    "average_productivity",
+    "defect_rate",
+    "rework_ratio",
+    "scope_growth_ratio",
+    "dependency_delay_days",
+    "normalized_risk_exposure",
+    "governance_health_score"
+  ],
+  "leakage_check": {
+    "status": "passed",
+    "checked_before_training": true,
+    "checks": {
+      "train_project_ids.isdisjoint(validation_project_ids)": true,
+      "train_project_ids.isdisjoint(test_project_ids)": true,
+      "validation_project_ids.isdisjoint(test_project_ids)": true
+    },
+    "project_counts": {
+      "train": 2800,
+      "validation": 600,
+      "test": 600
+    }
+  },
+  "synthetic_sources": [
+    "mendeley_evm"
+  ],
+  "real_sources": [
+    "collaboration",
+    "itemlet"
+  ],
+  "final_status_mode": "derived_from_health",
+  "processed_sha256": "32b7586db9dda0b3994573a3985c114dafe65dee93c948254b69f00d194c0ac3",
+  "leakage_risks": [
+    "Project outcomes are repeated across monthly snapshots.",
+    "Same-period SPI/CPI/progress may be temporally close to final outcomes; this is not a prospective time-cutoff evaluation.",
+    "Direct target, actual-duration and actual-cost columns are excluded from the model feature whitelist."
+  ]
+}
