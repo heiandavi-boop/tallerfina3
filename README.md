@@ -11,7 +11,7 @@ source .venv/bin/activate
 ./scripts/train_all.sh
 ```
 
-El pipeline ejecuta DOWNLOAD → VALIDATION → PREPARATION → AUDIT → READINESS → SPLIT/LEAKAGE → TRAINING → EVALUATION → TEMPORAL EVALUATION → REPORT/FIGURES → TESTS → PLAYGROUND PREFLIGHT. Mendeley v2 es la única fuente de `0.9.0-academic`; las demás fuentes son opcionales y no se mezclan. Los informes ligeros se exportan a `reports/0.9.0-academic/`; datasets y modelos pesados permanecen locales.
+El pipeline ejecuta DOWNLOAD → VALIDATION → PREPARATION → AUDIT → READINESS → SPLIT/LEAKAGE → TRAINING → STANDARD EVALUATION → DELAY EXPERIMENT → TEMPORAL EVALUATION → BASELINES/REPORTS/FIGURES → TESTS → PLAYGROUND PREFLIGHT. Mendeley v2 es la única fuente de `0.9.0-academic`; las demás fuentes son opcionales y no se mezclan. Los informes ligeros se exportan a `reports/0.9.0-academic/`; datasets y modelos pesados permanecen locales. `./scripts/train_all.sh --offline` usa raw local validado y no consulta metadata remota.
 
 ## Inicio rápido en Mac / VS Code
 
@@ -43,7 +43,7 @@ Comprueba:
 
 - frontend precompilado;
 - directorio de artefactos;
-- modelos Health / Final Status / Delay / Cost;
+- modelos Health / Delay / Cost y Final Status independiente o derivado según manifest;
 - endpoint de esquema;
 - inferencia real;
 - salida de Health, Delay, Cost y Team Health.
@@ -66,42 +66,19 @@ El fallback está entrenado con datos sintéticos de smoke test y la interfaz lo
 
 ## Variables disponibles en la demo
 
-### Proyecto
+El Playground clasifica los campos en `/api/schema` dinámicamente desde el manifest/config del modelo cargado; no asume que todas las variables del catálogo afectan el modelo.
+
+En `0.9.0-academic`, el manifest actual contiene estas features supervisadas:
 
 - `planned_duration_weeks`
 - `planned_budget`
-- `baseline_scope_units`
-- `sector`
-- `project_type`
-- `methodology`
-- `complexity`
-- `criticality`
-
-### Ejecución
-
 - `true_progress`
 - `spi`
 - `cpi`
+- `project_type`
+- `methodology`
 
-### Equipo
-
-- `team_utilization`
-- `team_capacity_ratio`
-- `average_productivity`
-- `team_stability` *(solo Team Health)*
-- `collaboration_level` *(solo Team Health)*
-
-### Calidad y alcance
-
-- `defect_rate`
-- `rework_ratio`
-- `scope_growth_ratio`
-
-### Riesgo y gobierno
-
-- `dependency_delay_days`
-- `normalized_risk_exposure`
-- `governance_health_score`
+Las señales incluidas en pesos Team Health se muestran aparte con insignia `HEURÍSTICA`. Los demás campos quedan en “Variables disponibles para futura integración PRUNIN”, deshabilitados y fuera de What-if. El template CSV académico contiene ML obligatorias y Team Health opcional, sin `not_used`; la plantilla full-future se solicita con `profile=full_future`.
 
 ### Variables eliminadas de V8.6.3
 
@@ -111,19 +88,19 @@ No se muestran ni se inventan:
 - `critical_path_delay_days`
 - `team_morale`
 
-`team_morale` fue sustituida conceptualmente por `team_health_index`, calculado con señales observables. `team_stability` y `collaboration_level` complementan ese índice, pero no se introducen en los modelos supervisados mientras no exista histórico emparejado con outcomes.
+`team_morale` fue sustituida conceptualmente por `team_health_index`, calculado con señales observables. Team Health es determinístico/operativo, no psicológico. La fusión 0.85/0.15 es una heurística provisional no calibrada con outcomes reales. Final Status se muestra como estado de negocio derivado de Health, no como segunda predicción ML.
 
 ## Funciones del Playground
 
 - tres escenarios precargados: saludable, en riesgo y crítico;
-- edición manual de todas las variables;
+- edición de ML features y señales Team Health; las variables no usadas quedan separadas/deshabilitadas;
 - validaciones de rango en frontend y backend;
-- Health con probabilidades;
-- Final Status con probabilidades;
+- Health ML con probabilidades;
+- Final Status como estado de negocio derivado en Mendeley v2;
 - retraso estimado;
 - sobrecosto estimado;
-- Team Health Index;
-- riesgo fusionado;
+- Team Health Index con score/level/coverage/components;
+- riesgo combinado, separado de Health ML;
 - sensibilidad local de variables;
 - recomendaciones fundamentadas;
 - modo `What-if`;

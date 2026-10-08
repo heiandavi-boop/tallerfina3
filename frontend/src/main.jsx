@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
+import './usage.css';
 
 const API = import.meta.env.VITE_API_URL || '';
 const healthLabel = { healthy: 'Saludable', at_risk: 'En riesgo', critical: 'Crítico', attention: 'Atención', insufficient_data: 'Datos insuficientes' };
@@ -26,20 +27,28 @@ function Header({ model }) {
 
 function Field({ spec, value, onChange, disabled = false }) {
   const display = spec.format === 'percent' && value != null ? `${Math.round(Number(value) * 100)} %` : (spec.name === 'planned_budget' ? fmtMoney(value) : value ?? '');
-  if (spec.type === 'select') return <label className="field"><span>{spec.label}</span><select disabled={disabled} value={value ?? ''} onChange={e => onChange(spec.name, e.target.value)}>{spec.options.map(o => <option key={o} value={o}>{o.replaceAll('_', ' ')}</option>)}</select><small>{spec.description}</small></label>;
-  if (spec.type === 'range') return <label className="field rangeField"><div className="fieldHead"><span>{spec.label}</span><b>{display}</b></div><input disabled={disabled} type="range" min={spec.min} max={spec.max} step={spec.step} value={value ?? spec.reference} onChange={e => onChange(spec.name, Number(e.target.value))} /><small>{spec.description}</small></label>;
-  return <label className="field"><span>{spec.label}</span><input disabled={disabled} type="number" min={spec.min} max={spec.max} step={spec.step} value={value ?? ''} onChange={e => onChange(spec.name, e.target.value === '' ? null : Number(e.target.value))} /><small>{spec.description}</small></label>;
+  const badge = spec.usage === 'ml_feature' ? 'ML' : spec.usage === 'team_health' ? 'HEURÍSTICA' : 'NO UTILIZADA';
+  const title = <>{spec.label} {spec.usage && <b className={`usageBadge ${spec.usage}`}>{badge}</b>}</>;
+  if (spec.type === 'select') return <label className="field"><span>{title}</span><select disabled={disabled} value={value ?? ''} onChange={e => onChange(spec.name, e.target.value)}>{spec.options.map(o => <option key={o} value={o}>{o.replaceAll('_', ' ')}</option>)}</select><small>{spec.description}</small></label>;
+  if (spec.type === 'range') return <label className="field rangeField"><div className="fieldHead"><span>{title}</span><b>{display}</b></div><input disabled={disabled} type="range" min={spec.min} max={spec.max} step={spec.step} value={value ?? spec.reference} onChange={e => onChange(spec.name, Number(e.target.value))} /><small>{spec.description}</small></label>;
+  return <label className="field"><span>{title}</span><input disabled={disabled} type="number" min={spec.min} max={spec.max} step={spec.step} value={value ?? ''} onChange={e => onChange(spec.name, e.target.value === '' ? null : Number(e.target.value))} /><small>{spec.description}</small></label>;
 }
 
 function FormPanel({ fields, values, onChange, onAnalyze, loading, presets, onPreset, title = 'Datos del proyecto' }) {
-  const groups = [...new Set(fields.map(f => f.group))];
+  const mlFields = fields.filter(f => f.usage === 'ml_feature');
+  const teamFields = fields.filter(f => f.usage === 'team_health');
+  const unusedFields = fields.filter(f => f.usage === 'not_used');
+  const groups = [...new Set(mlFields.map(f => f.group))];
   return <section className="panel inputPanel">
     <div className="panelTitle"><div><span className="eyebrow">ENTRADA</span><h2>{title}</h2></div><div className="presetRow">
       <button onClick={() => onPreset('healthy')} className="mini good">Saludable</button>
       <button onClick={() => onPreset('at_risk')} className="mini warn">En riesgo</button>
       <button onClick={() => onPreset('critical')} className="mini bad">Crítico</button>
     </div></div>
-    {groups.map(g => <details key={g} open={g === 'Ejecución' || g === 'Equipo'}><summary>{g}</summary><div className="gridFields">{fields.filter(f => f.group === g).map(f => <Field key={f.name} spec={f} value={values[f.name]} onChange={onChange} />)}</div></details>)}
+    <div className="fieldSectionHeading"><h3>Variables utilizadas por el modelo</h3><p>Estas variables forman parte del modelo supervisado actualmente cargado.</p></div>
+    {groups.map(g => <details key={g} open={g === 'Ejecución' || g === 'Proyecto'}><summary>{g}</summary><div className="gridFields">{mlFields.filter(f => f.group === g).map(f => <Field key={f.name} spec={f} value={values[f.name]} onChange={onChange} />)}</div></details>)}
+    {teamFields.length > 0 && <details className="signalSection"><summary>Señales operativas · Team Health</summary><p className="fineprint">Estas variables alimentan un indicador operativo heurístico. No formaron parte del entrenamiento supervisado de Mendeley v2.</p><div className="gridFields">{teamFields.map(f => <Field key={f.name} spec={f} value={values[f.name]} onChange={onChange} />)}</div></details>}
+    {unusedFields.length > 0 && <details className="unusedSection"><summary>Variables disponibles para futura integración PRUNIN ({unusedFields.length})</summary><p className="muted">No afectan la inferencia del modelo ni Team Health cargados.</p><div className="gridFields">{unusedFields.map(f => <Field key={f.name} spec={f} value={values[f.name]} onChange={() => { }} disabled />)}</div></details>}
     <button className="primary" onClick={onAnalyze} disabled={loading}>{loading ? <><Spinner /> Analizando…</> : 'Analizar proyecto'}</button>
   </section>
 }
@@ -52,22 +61,24 @@ function ProbabilityBars({ probs }) {
 function ResultCards({ result }) {
   if (!result) return <div className="emptyState"><div className="pulseOrb" /><h3>Listo para analizar</h3><p>Modifica las variables o selecciona un proyecto de ejemplo. La inferencia se ejecutará en el backend con el modelo cargado.</p></div>;
   const p = result.prediction;
-  const h = p.fused_health || p.health;
+  const h = p.health;
   const tone = h === 'healthy' ? 'good' : h === 'critical' ? 'bad' : 'warn';
   return <div className="resultsWrap">
-    <div className="heroResult"><div><span className="eyebrow">SALUD DEL PROYECTO</span><h1 className={tone}>{healthLabel[h] || h}</h1><p>Riesgo fusionado: <b>{fmtPct(p.fused_risk_score)}</b></p></div><div className={`scoreRing ${tone}`}><span>{p.fused_risk_score != null ? Math.round(p.fused_risk_score * 100) : '—'}</span><small>riesgo</small></div></div>
+    <div className="heroResult"><div><span className="eyebrow">HEALTH ML</span><h1 className={tone}>{healthLabel[h] || h}</h1><p>Predicción del modelo supervisado</p></div><div className="combinedRisk"><span className="eyebrow">RIESGO COMBINADO</span><strong>{healthLabel[p.fused_health] || p.fused_health || '—'} · {fmtPct(p.fused_risk_score)}</strong><small>Operational heuristic · fusión no calibrada</small></div></div>
     <div className="metricGrid">
       <article><span>Retraso estimado</span><strong>{fmtNum(p.delay_days, 1)} días</strong><small>Predicción ML</small></article>
       <article><span>Sobrecosto estimado</span><strong>{fmtPct(p.cost_overrun_ratio)}</strong><small>Predicción ML</small></article>
-      <article><span>Estado final</span><strong>{statusLabel[p.final_status] || p.final_status}</strong><small>{p.final_status_source === 'derived_from_health' ? 'Derived business status' : 'Predicción ML'}</small></article>
-      <article><span>Team Health</span><strong>{p.team_health?.score == null ? '—' : fmtPct(p.team_health.score)}</strong><small>{healthLabel[p.team_health?.level] || p.team_health?.level}</small></article>
+      <article><span>Estado de negocio</span><strong>{statusLabel[p.final_status] || p.final_status}</strong><small>{p.final_status_source === 'derived_from_health' ? 'Derived business status' : 'Clasificador independiente'}</small></article>
+      <article><span>Team Health · heurística</span><strong>{p.team_health?.score == null ? '—' : fmtPct(p.team_health.score)}</strong><small>{healthLabel[p.team_health?.level] || p.team_health?.level} · coverage {fmtPct(p.team_health?.weight_coverage)}</small></article>
     </div>
+    <p className="fineprint">La fusión ML + Team Health es una regla operativa provisional y no fue calibrada como modelo supervisado con outcomes reales.</p>
+    {p.team_health?.components && <details className="componentDetails"><summary>Componentes Team Health observados ({p.team_health.component_count})</summary><pre>{JSON.stringify(p.team_health.components, null, 2)}</pre></details>}
     <div className="splitBox"><div><h3>Probabilidad Health</h3><ProbabilityBars probs={p.health_probabilities} /></div><div><h3>Calidad de entrada</h3><p className={p.input_quality?.complete ? 'goodText' : 'warnText'}>{p.input_quality?.complete ? '✓ Todas las features entrenadas presentes' : `⚠ ${p.input_quality?.missing_count} feature(s) faltante(s)`}</p>{p.input_quality?.missing_count > 0 && <small>{p.input_quality.missing_trained_features.join(', ')}</small>}</div></div>
   </div>
 }
 
 function Drivers({ drivers = [] }) {
-  return <section className="panel"><span className="eyebrow">EXPLICABILIDAD</span><h2>¿Qué está influyendo?</h2>{drivers.length === 0 ? <p className="muted">No se detectaron impactos locales relevantes.</p> : <div className="driverList">{drivers.map(d => <div className="driver" key={d.feature}><div><b>{d.label}</b><small>{d.direction === 'increases_risk' ? 'Aumenta riesgo' : 'Reduce riesgo'} · referencia {String(d.reference)}</small></div><span className={d.direction === 'increases_risk' ? 'impact bad' : 'impact good'}>{d.risk_impact > 0 ? '+' : ''}{(d.risk_impact * 100).toFixed(1)} pp</span></div>)}</div>}</section>
+  return <section className="panel"><span className="eyebrow">EXPLICABILIDAD · SENSIBILIDAD LOCAL</span><h2>¿Qué está influyendo?</h2><p className="fineprint">La importancia/impacto local muestra sensibilidad del modelo; no demuestra causalidad.</p>{drivers.length === 0 ? <p className="muted">No se detectaron impactos locales relevantes.</p> : <div className="driverList">{drivers.map(d => <div className="driver" key={d.feature}><div><b>{d.label}</b><small>{d.direction === 'increases_risk' ? 'Aumenta riesgo' : 'Reduce riesgo'} · referencia {String(d.reference)}</small></div><span className={d.direction === 'increases_risk' ? 'impact bad' : 'impact good'}>{d.risk_impact > 0 ? '+' : ''}{(d.risk_impact * 100).toFixed(1)} pp</span></div>)}</div>}</section>
 }
 
 function Recommendations({ data }) {
@@ -81,7 +92,7 @@ function Recommendations({ data }) {
 function Technical({ result, model }) {
   const [open, setOpen] = useState(false);
   return <section className="panel tech"><button className="techToggle" onClick={() => setOpen(!open)}><span><span className="eyebrow">EVIDENCIA TÉCNICA</span><b>Detalles de inferencia</b></span><span>{open ? '−' : '+'}</span></button>{open && <div className="techBody">
-    <div className="techGrid"><div><span>Model version</span><b>{model?.version}</b></div><div><span>Dataset source</span><b>{model?.dataset_source}</b></div><div><span>Dataset type</span><b>{model?.dataset_type}</b></div><div><span>Model type</span><b>{model?.model_type}</b></div><div><span>Final Status</span><b>{model?.final_status_mode === 'derived_from_health' ? 'Derived business status' : 'Independent model'}</b></div><div><span>Trained features</span><b>{model?.trained_features?.length ?? 0}</b></div><div><span>Inference time</span><b>{result?.inference_ms ?? '—'} ms</b></div><div><span>Prediction ID</span><b className="mono tiny">{result?.prediction_id ?? '—'}</b></div></div>
+    <div className="techGrid"><div><span>Model version</span><b>{model?.version}</b></div><div><span>Dataset source</span><b>{model?.dataset_source}</b></div><div><span>Dataset type</span><b>{model?.dataset_type}</b></div><div><span>Model type</span><b>{model?.model_type}</b></div><div><span>Final Status</span><b>{model?.final_status_mode === 'derived_from_health' ? 'Derived business status' : 'Independent model'}</b></div><div><span>Fusion</span><b>{model?.fusion?.type} · {model?.fusion?.core_weight}/{model?.fusion?.team_health_weight} · calibrated: {String(model?.fusion?.calibrated)}</b></div><div><span>Trained features</span><b>{model?.trained_features?.length ?? 0}</b></div><div><span>Inference time</span><b>{result?.inference_ms ?? '—'} ms</b></div><div><span>Driver source</span><b>{result?.driver_source ?? '—'}</b></div><div><span>Prediction ID</span><b className="mono tiny">{result?.prediction_id ?? '—'}</b></div></div>
     {model?.trained_features?.length > 0 && <small className="muted">Features: {model.trained_features.join(', ')}</small>}
     {result && <pre>{JSON.stringify(result, null, 2)}</pre>}
   </div>}</section>
@@ -90,17 +101,18 @@ function Technical({ result, model }) {
 function WhatIf({ fields, baseline, onRun, loading }) {
   const [scenario, setScenario] = useState({ ...baseline });
   useEffect(() => setScenario({ ...baseline }), [baseline]);
-  const focusNames = ['spi', 'cpi', 'team_utilization', 'team_capacity_ratio', 'average_productivity', 'defect_rate', 'rework_ratio', 'scope_growth_ratio', 'dependency_delay_days', 'normalized_risk_exposure', 'governance_health_score'];
-  const focus = fields.filter(f => focusNames.includes(f.name));
+  const mlFields = fields.filter(f => f.usage === 'ml_feature');
+  const teamFields = fields.filter(f => f.usage === 'team_health');
   const change = (n, v) => setScenario(s => ({ ...s, [n]: v }));
-  return <section className="panel whatif"><span className="eyebrow">SIMULACIÓN</span><h2>¿Qué pasa si…?</h2><p className="muted">Parte del escenario actual, modifica acciones operativas y vuelve a ejecutar el mismo modelo.</p><div className="gridFields compact">{focus.map(f => <Field key={f.name} spec={f} value={scenario[f.name]} onChange={change} />)}</div><button className="secondary" disabled={loading} onClick={() => onRun(scenario)}>{loading ? <><Spinner /> Simulando…</> : 'Simular escenario'}</button></section>
+  return <section className="panel whatif"><span className="eyebrow">SIMULACIÓN</span><h2>¿Qué pasa si…?</h2><p className="muted">Solo permite modificar variables que afectan el modelo cargado o Team Health.</p><details open><summary>MODELO ML</summary><p className="fineprint">Los cambios aquí afectan inferencia ML.</p><div className="gridFields compact">{mlFields.map(f => <Field key={f.name} spec={f} value={scenario[f.name]} onChange={change} />)}</div></details>{teamFields.length > 0 && <details><summary>TEAM HEALTH · HEURÍSTICA</summary><p className="fineprint">Los cambios aquí afectan Team Health / riesgo fusionado, no directamente Health ML.</p><div className="gridFields compact">{teamFields.map(f => <Field key={f.name} spec={f} value={scenario[f.name]} onChange={change} />)}</div></details>}<button className="secondary" disabled={loading} onClick={() => onRun(scenario)}>{loading ? <><Spinner /> Simulando…</> : 'Simular escenario'}</button></section>
 }
 
 function DeltaCard({ whatif }) {
   if (!whatif) return null;
   const d = whatif.delta; const base = whatif.baseline.prediction; const sc = whatif.scenario.prediction;
   return <section className="panel delta"><span className="eyebrow">COMPARACIÓN</span><h2>Impacto del escenario</h2><div className="deltaGrid">
-    <div><span>Health</span><b>{healthLabel[base.fused_health || base.health]} → {healthLabel[sc.fused_health || sc.health]}</b></div>
+    <div><span>Health ML</span><b>{healthLabel[base.health]} → {healthLabel[sc.health]}</b></div>
+    <div><span>Riesgo combinado</span><b>{healthLabel[base.fused_health || base.health]} → {healthLabel[sc.fused_health || sc.health]}</b></div>
     <div><span>Riesgo</span><b className={d.risk_score <= 0 ? 'goodText' : 'badText'}>{d.risk_score > 0 ? '+' : ''}{fmtPct(d.risk_score)}</b></div>
     <div><span>Retraso</span><b className={d.delay_days <= 0 ? 'goodText' : 'badText'}>{d.delay_days > 0 ? '+' : ''}{fmtNum(d.delay_days, 1)} días</b></div>
     <div><span>Sobrecosto</span><b className={d.cost_overrun_ratio <= 0 ? 'goodText' : 'badText'}>{d.cost_overrun_ratio > 0 ? '+' : ''}{fmtPct(d.cost_overrun_ratio)}</b></div>
@@ -115,7 +127,7 @@ function CsvPanel({ onResults }) {
 
 function CsvResults({ data }) {
   if (!data) return null;
-  return <section className="panel"><span className="eyebrow">RESULTADOS CSV</span><h2>{data.count} fila(s) procesadas</h2><div className="tableWrap"><table><thead><tr><th>Fila</th><th>Health</th><th>Delay</th><th>Cost</th><th>Estado</th></tr></thead><tbody>{data.rows.map(r => <tr key={r.row_number}><td>{r.row_number}</td>{r.error ? <td colSpan="4" className="badText">{r.error}</td> : <><td>{healthLabel[r.prediction.prediction.fused_health || r.prediction.prediction.health]}</td><td>{fmtNum(r.prediction.prediction.delay_days, 1)} d</td><td>{fmtPct(r.prediction.prediction.cost_overrun_ratio)}</td><td>{statusLabel[r.prediction.prediction.final_status]}</td></>}</tr>)}</tbody></table></div></section>
+  return <section className="panel"><span className="eyebrow">RESULTADOS CSV</span><h2>{data.count} fila(s) procesadas</h2><div className="tableWrap"><table><thead><tr><th>Fila</th><th>Health ML</th><th>Riesgo combinado</th><th>Delay</th><th>Cost</th><th>Estado de negocio</th></tr></thead><tbody>{data.rows.map(r => <tr key={r.row_number}><td>{r.row_number}</td>{r.error ? <td colSpan="5" className="badText">{r.error}</td> : <><td>{healthLabel[r.prediction.prediction.health]}</td><td>{healthLabel[r.prediction.prediction.fused_health] || '—'} · {fmtPct(r.prediction.prediction.fused_risk_score)}</td><td>{fmtNum(r.prediction.prediction.delay_days, 1)} d</td><td>{fmtPct(r.prediction.prediction.cost_overrun_ratio)}</td><td>{statusLabel[r.prediction.prediction.final_status]}{r.prediction.prediction.final_status_source === 'derived_from_health' ? ' · Derived business status' : ''}</td></>}</tr>)}</tbody></table></div></section>
 }
 
 function App() {
@@ -128,7 +140,7 @@ function App() {
   return <><Header model={schema.model} /><main>
     {schema.model.mode === 'synthetic_demo' && <div className="notice"><b>Modo demostración:</b> el backend está ejecutando modelos entrenados con datos sintéticos de smoke test. Cuando exista <code>artifacts/0.9.0-academic</code>, la aplicación lo seleccionará automáticamente.</div>}
     {error && <div className="errorBox">{error}</div>}
-    <section className="intro"><div><span className="eyebrow">PREDICCIÓN DE RIESGO DE PROYECTOS</span><h1>Prueba el modelo. Cambia los datos. Comprueba la respuesta.</h1><p>Health, estado final, retraso, sobrecosto y salud operativa del equipo ejecutados en vivo.</p></div><div className="legend"><span><i className="dot observed" />Dato observado</span><span><i className="dot derived" />Variable derivada</span><span><i className="dot predicted" />Predicción ML</span></div></section>
+    <section className="intro"><div><span className="eyebrow">PREDICCIÓN DE RIESGO DE PROYECTOS</span><h1>Health ML, outcomes y señales operativas.</h1><p>El modelo supervisado y Team Health se presentan por separado; la fusión es heurística.</p></div><div className="legend"><span><i className="dot observed" />Dato observado</span><span><i className="dot derived" />Variable derivada</span><span><i className="dot predicted" />Predicción ML</span></div></section>
     <div className="twoCol"><FormPanel fields={schema.fields} values={values} onChange={change} onAnalyze={analyze} loading={loading} presets={schema.presets} onPreset={preset} /><section className="panel resultPanel"><span className="eyebrow">RESULTADO</span><ResultCards result={result} /></section></div>
     {result && <><div className="twoCol lower"><Drivers drivers={result.drivers} /><Recommendations data={result.recommendations} /></div><WhatIf fields={schema.fields} baseline={values} onRun={simulate} loading={whatBusy} /><DeltaCard whatif={whatif} /></>}
     <div className="twoCol lower"><CsvPanel onResults={setCsv} /><Technical result={result} model={schema.model} /></div><CsvResults data={csv} />

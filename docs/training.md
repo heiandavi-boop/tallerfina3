@@ -38,6 +38,8 @@ El reporte `artifacts/data_readiness.json` registra cobertura, distribuciones, p
 
 Health classification report incluye accuracy, balanced accuracy, macro/weighted F1, precision/recall macro y weighted, soporte/precision/recall/F1 por clase y confusion matrix en validation/test. Regresión agrega mediana y percentiles absolutos del error. MAPE se deja nulo si hay valores cero/negativos; Cost Overrun incluye MAE en puntos porcentuales.
 
+Los experimentos comparan candidatos usando TRAIN/VALIDATION; TEST queda para evaluación después de congelar la selección y nunca decide hiperparámetros/promoción. Delay mantiene el artifact vigente salvo promoción manual documentada. El R² alto de Cost tardío puede reflejar la relación estructural entre CPI, progreso y costo final del generador EVM sintético; no es validación productiva.
+
 Final Status no es independiente en Mendeley v2: el record no tiene target original de estado y el target del proyecto era una traducción uno-a-uno de Health. Se mantiene como estado de negocio derivado sin segundo modelo ML.
 
 ## Criterios de aceptación antes de reportar resultados

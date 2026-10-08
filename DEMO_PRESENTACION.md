@@ -28,7 +28,9 @@ Abrir **Detalles de inferencia** y señalar:
 - modo (`academic` o `synthetic_demo`);
 - `LIVE`;
 - tiempo de inferencia;
-- `prediction_id`.
+- `prediction_id`;
+- source/type del dataset y lista dinámica de trained features;
+- fusion type `operational_heuristic`, `calibrated=false`.
 
 ### 2. Ejecutar “En riesgo”
 
@@ -36,12 +38,13 @@ Seleccionar el preset **En riesgo** → **Analizar proyecto**.
 
 Mostrar:
 
-- Health;
+- Health ML (predicción supervisada);
+- Riesgo combinado (ML + Team Health heurístico), separado de Health ML;
 - probabilidades;
 - Delay;
 - Cost;
-- Final Status;
-- Team Health;
+- estado de negocio derivado (Mendeley v2 no tiene target Final Status independiente);
+- Team Health con score, level, coverage y components;
 - drivers.
 
 ### 3. What-if
@@ -68,9 +71,10 @@ Mostrar el QR. Un asistente cambia variables o sube un CSV y obtiene un `predict
 Abrir JSON o descargar resultado. Explicar:
 
 - Inputs = datos observados;
-- Team Health = variable derivada;
-- Health/Delay/Cost/Status = predicciones ML;
-- Drivers = sensibilidad local;
+- features ML = campos del manifest del artifact cargado;
+- Team Health = señal operativa heurística; no es psicológica ni fue entrenada por LightGBM;
+- Health/Delay/Cost = predicciones ML; Final Status = transformación derivada de Health;
+- Drivers = sensibilidad local, no causalidad;
 - Recomendaciones = capa explicativa fundamentada / IA generativa opcional.
 
 ## Si algo falla

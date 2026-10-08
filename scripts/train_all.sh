@@ -2,6 +2,16 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+OFFLINE=0
+if [[ "${1:-}" == "--offline" ]]; then
+  OFFLINE=1
+  shift
+fi
+if [[ "$#" -gt 0 ]]; then
+  echo "Uso: ./scripts/train_all.sh [--offline]" >&2
+  exit 2
+fi
+
 if [[ -n "${PYTHON_BIN:-}" ]]; then
   PY="$PYTHON_BIN"
 elif [[ -x .venv/bin/python ]]; then
@@ -32,7 +42,11 @@ echo "Dependencies ..............."
 echo "Dependencies ............... OK"
 
 echo "Mendeley metadata .........."
-if [[ "${PRUNIN_INCLUDE_SQUAD:-0}" == "1" ]]; then
+if [[ "$OFFLINE" == "1" ]]; then
+  if ! "$PY" scripts/download_datasets.py --offline; then
+    block_training "Offline Mendeley raw validation failed."
+  fi
+elif [[ "${PRUNIN_INCLUDE_SQUAD:-0}" == "1" ]]; then
   if ! "$PY" scripts/download_datasets.py --include-squad; then
     block_training "Mendeley metadata/download/raw validation failed."
   fi
@@ -106,6 +120,12 @@ echo "Evaluation ................."
 "$PY" scripts/evaluate_core.py --artifact "$ARTIFACT"
 echo "Evaluation ................. OK"
 
+echo "Delay experiment ..........."
+"$PY" scripts/experiment_delay.py
+test -s reports/experiments/delay/comparison.json
+test -s reports/experiments/delay/comparison.csv
+echo "Delay experiment ........... OK"
+
 echo "Temporal evaluation ........"
 "$PY" scripts/evaluate_temporal.py
 test -s "$ARTIFACT/temporal_evaluation.json"
@@ -126,7 +146,7 @@ echo "Report export .............."
 for report in metrics.json data_readiness.json feature_manifest.json training_summary.json \
   experiment_summary.md health_confusion_matrix.csv health_classification_report.csv \
   temporal_evaluation.json temporal_evaluation.csv dataset_summary.json dataset_summary.md \
-  split_summary.json reproducibility.json; do
+  split_summary.json reproducibility.json baselines.json baseline_comparison.csv; do
   test -s "reports/$VERSION/$report"
 done
 echo "Report export .............. OK"
@@ -136,7 +156,7 @@ echo "Evaluation figures ........."
 for figure in health_confusion_matrix.png health_metrics.png delay_actual_vs_predicted.png \
   cost_actual_vs_predicted.png temporal_health_macro_f1.png temporal_delay_mae.png \
   temporal_cost_mae.png feature_importance_health.png feature_importance_delay.png \
-  feature_importance_cost.png; do
+  feature_importance_cost.png health_snapshot_confusion_matrix.png baseline_comparison.png; do
   test -s "reports/$VERSION/figures/$figure"
 done
 echo "Evaluation figures ......... OK"
@@ -146,6 +166,8 @@ for model in health delay_days cost_overrun_ratio; do
   test -s "$ARTIFACT/$model.joblib"
 done
 test -s "$ARTIFACT/metrics.json"
+test -s "$ARTIFACT/baselines.json"
+test -s "$ARTIFACT/baseline_comparison.csv"
 test -s "$ARTIFACT/feature_manifest.json"
 test -s "$ARTIFACT/split_manifest.json"
 test -s "$ARTIFACT/data_readiness.json"

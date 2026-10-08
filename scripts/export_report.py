@@ -5,7 +5,6 @@ import argparse
 import json
 import shutil
 import sys
-import sys
 from pathlib import Path
 
 import pandas as pd
@@ -32,26 +31,35 @@ def _write_classification_tables(metrics: dict, report_dir: Path, target: str) -
     target_metrics = metrics.get(target, {})
     if target_metrics.get("status") != "trained":
         return
-    test = target_metrics.get("test") or {}
-    labels = test.get("labels", [])
-    matrix = test.get("confusion_matrix", [])
+    project = target_metrics.get("project_level_metrics", {})
+    project_test = project.get("test") or {}
+    labels = project_test.get("labels", [])
+    matrix = project_test.get("confusion_matrix", [])
     if labels and matrix:
         pd.DataFrame(matrix, index=labels, columns=labels).rename_axis("actual").to_csv(
             report_dir / f"{target}_confusion_matrix.csv"
         )
-    report_rows = []
-    for split_name in ("validation", "test"):
-        split = target_metrics.get(split_name) or {}
-        for label, values in split.get("per_class", {}).items():
-            report_rows.append({"split": split_name, "class": label, **values})
-    if report_rows:
-        pd.DataFrame(report_rows).to_csv(
-            report_dir / f"{target}_classification_report.csv", index=False
+    snapshot_test = target_metrics.get("test") or {}
+    snapshot_labels = snapshot_test.get("labels", [])
+    snapshot_matrix = snapshot_test.get("confusion_matrix", [])
+    if snapshot_labels and snapshot_matrix:
+        pd.DataFrame(snapshot_matrix, index=snapshot_labels, columns=snapshot_labels).rename_axis("actual").to_csv(
+            report_dir / f"{target}_snapshot_confusion_matrix.csv"
         )
+    report_rows = []
+    for unit, splits in (
+        ("project_level", project),
+        ("snapshot_level", target_metrics.get("row_level_metrics", {})),
+    ):
+        for split_name in ("validation", "test"):
+            split = splits.get(split_name) or {}
+            for label, values in split.get("per_class", {}).items():
+                report_rows.append({"evaluation_unit": unit, "split": split_name, "class": label, **values})
+    if report_rows:
+        pd.DataFrame(report_rows).to_csv(report_dir / f"{target}_classification_report.csv", index=False)
 
 
-def _dataset_summary(readiness: dict, split_manifest: dict, metrics: dict) -> dict:
-    feature_manifest = metrics.get("manifest", {})
+def _dataset_summary(readiness: dict, split_manifest: dict, metrics: dict, feature_manifest: dict) -> dict:
     split_project_counts = {name: len(ids) for name, ids in split_manifest.items()}
     split_snapshot_counts = {
         name: metrics.get("health", {}).get(f"{name}_rows")
@@ -100,62 +108,107 @@ def _dataset_markdown(summary: dict) -> str:
         "", "## Health distribution", "", "| Class | Snapshots |", "|---|---:|",
     ]
     lines.extend(f"| {name} | {count} |" for name, count in distribution.items())
-    lines.extend(["", "## Target coverage", "", "| Target | Non-missing |", "|---|---:|"])
-    lines.extend(f"| {name} | {count} |" for name, count in summary["target_coverage"].items())
+    lines.extend(["", "## Target coverage", "", "| Target | Coverage |", "|---|---:|"])
+    lines.extend(f"| {name} | {value:.1%} |" for name, value in summary["target_coverage"].items())
     lines.extend(["", "## Features", "", "Used: " + ", ".join(summary["features_used"]),
                   "", "Missing from this dataset: " + ", ".join(summary["missing_features"]), ""])
     return "\n".join(lines)
 
 
 def _experiment_markdown(metrics: dict, feature_manifest: dict, readiness: dict,
-                         reproducibility: dict, temporal: dict) -> str:
-    dataset = {
-        "projects": readiness.get("project_count"),
-        "snapshots": readiness.get("snapshot_count"),
-    }
+                         reproducibility: dict, temporal: dict, baselines: dict,
+                         delay_experiment: dict | None) -> str:
     split_counts = reproducibility.get("split_project_counts", {})
     final_mode = feature_manifest.get("final_status_mode", "independent_model")
+    features = feature_manifest.get("numeric_features", []) + feature_manifest.get("categorical_features", [])
     lines = [
-        "# PRUNIN AI Core 0.9.0-academic", "", "## Dataset", "Mendeley v2",
-        "", "## Tipo de datos", "Sintético externo (CC BY 4.0). No existe validación productiva todavía.",
-        "", "## Proyectos", str(dataset["projects"]), "", "## Snapshots", str(dataset["snapshots"]),
-        "", "## Split", f"70/15/15 por project_id: {split_counts}",
-        "", "## Modelos", "LightGBM: Health, Delay y Cost Overrun.",
+        "# PRUNIN AI Core 0.9.0-academic", "",
+        "## Problema", "Early risk estimation for project Health, Delay and Cost Overrun.",
+        "", "## Dataset", "Mendeley v2 — DOI 10.17632/2p5sz57wh2.2",
+        "", "## Tipo de datos", "Synthetic external dataset (CC BY 4.0). No production validation exists.",
+        "", "## Proyectos", str(readiness.get("project_count")),
+        "", "## Snapshots", str(readiness.get("snapshot_count")),
+        "", "## Split", f"70/15/15 grouped by project_id: {split_counts}",
+        "", "## Leakage prevention", "Direct targets/outcomes are excluded from the feature whitelist; projects are disjoint across train/validation/test.",
+        "", "## Modelos", "LightGBM: Health, Delay and Cost Overrun.",
     ]
     if final_mode == "derived_from_health":
         lines.append("Final Status: derived business status from Health; no independent classifier was trained.")
     else:
-        lines.append("Final Status: independent classifier.")
-    lines.extend(["", "## Features", ", ".join(feature_manifest.get("numeric_features", []) + feature_manifest.get("categorical_features", [])),
-                  "", "## Variables excluidas", ", ".join(feature_manifest.get("target_columns_excluded", [])),
-                  "", "## Métricas", "", "| Target | Unit | Test summary |", "|---|---|---|"])
-    for target in ("health", "final_status", "delay_days", "cost_overrun_ratio"):
-        result = metrics.get(target, {})
-        test = result.get("test") or {}
-        if result.get("status") == "derived":
-            lines.append(f"| {target} | derived | {result.get('mapping')} |")
-        elif result.get("status") == "trained":
-            summary = {key: test.get(key) for key in ("balanced_accuracy", "macro_f1", "mae", "mae_percentage_points", "rmse", "r2") if key in test}
-            lines.append(f"| {target} | {'classification' if 'accuracy' in test else 'original target unit'} | `{json.dumps(summary, ensure_ascii=False)}` |")
-        else:
-            lines.append(f"| {target} | not available | {result.get('status', 'not trained')} |")
-    lines.extend(["", "## Evaluación temprana", "", "| Cutoff | Test projects | Health Macro-F1 | Delay MAE (days) | Cost MAE (ratio / pp) |",
-                  "|---:|---:|---:|---:|---:|"])
+        lines.append("Final Status: independently trained classifier.")
+    lines.extend([
+        "", "## Features utilizadas", ", ".join(features),
+        "", "## Variables excluidas", ", ".join(feature_manifest.get("target_columns_excluded", [])),
+        "", "## Project-level evaluation", "One latest available snapshot per project within each split.",
+        "", "| Target | Test project metrics |", "|---|---|"])
+    for target in ("health", "delay_days", "cost_overrun_ratio"):
+        project_test = metrics.get(target, {}).get("project_level_metrics", {}).get("test") or {}
+        keys = ("accuracy", "balanced_accuracy", "macro_f1", "weighted_f1", "mae", "mae_percentage_points", "rmse", "r2")
+        summary = {key: project_test[key] for key in keys if key in project_test}
+        if target == "health":
+            per_class = project_test.get("per_class", {})
+            summary["critical_recall"] = per_class.get("critical", {}).get("recall")
+            summary["critical_support"] = per_class.get("critical", {}).get("support")
+            summary["per_class_recall"] = {name: values.get("recall") for name, values in per_class.items()}
+        lines.append(f"| {target} | `{json.dumps(summary, ensure_ascii=False)}` |")
+    lines.append("| final_status | Derived business status from Health; no separate ML metric. |")
+    lines.extend(["", "## Snapshot-level evaluation", "Each available snapshot is one row; projects with more snapshots can carry more weight.",
+                  "", "| Target | Test snapshot metrics |", "|---|---|"])
+    for target in ("health", "delay_days", "cost_overrun_ratio"):
+        snapshot_test = metrics.get(target, {}).get("row_level_metrics", {}).get("test") or {}
+        keys = ("accuracy", "balanced_accuracy", "macro_f1", "weighted_f1", "mae", "mae_percentage_points", "rmse", "r2")
+        summary = {key: snapshot_test[key] for key in keys if key in snapshot_test}
+        if target == "health":
+            per_class = snapshot_test.get("per_class", {})
+            summary["critical_recall"] = per_class.get("critical", {}).get("recall")
+            summary["critical_support"] = per_class.get("critical", {}).get("support")
+        lines.append(f"| {target} | `{json.dumps(summary, ensure_ascii=False)}` |")
+    lines.extend(["", "## Baselines", "Train-only majority-class/median baselines; TEST is descriptive and not used for model selection.",
+                  "", "| Target | Baseline | Project-level TEST comparison |", "|---|---|---|"])
+    for target, baseline in baselines.items():
+        comparison = baseline.get("project_level_test_improvement", {})
+        lines.append(f"| {target} | {baseline.get('method')}: {baseline.get('train_statistic')} | {comparison.get('metric')} improvement={comparison.get('model_minus_baseline')} |")
+    lines.extend(["", "## Evaluación temporal", "TEST only; one snapshot per project with maximum true_progress <= cutoff.",
+                  "", "| Cutoff | Available / TEST projects | Coverage | Max selected progress | Health Macro-F1 | Critical recall | Delay MAE | Delay RMSE | Delay R² | Cost MAE ratio | Cost MAE pp | Cost R² |",
+                  "|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|"])
     for item in temporal.get("cutoffs", []):
         health = item.get("health") or {}
         delay = item.get("delay_days") or {}
         cost = item.get("cost_overrun_ratio") or {}
-        cost_mae = cost.get("mae")
-        cost_points = cost.get("mae_percentage_points")
-        cost_text = f"{cost_mae} / {cost_points}" if cost_mae is not None else "not available"
-        lines.append(f"| {item['cutoff']:.0%} | {item.get('test_project_count', 0)} | {health.get('macro_f1')} | {delay.get('mae')} | {cost_text} |")
-    lines.extend(["", "## Riesgos metodológicos", *[f"- {item}" for item in readiness.get("leakage_risks", [])],
-                  "- SPI/CPI/progress tardíos pueden estar cerca del outcome; evaluar prospectivamente requiere un corte temporal con datos reales.",
-                  "- Los resultados por snapshot pueden dar más peso a proyectos con más observaciones; también se presentan métricas por proyecto.",
-                  "", "## Limitaciones", "Mendeley es sintético. Los datasets externos no se mezclan ni se unen con Mendeley. Team Health continúa como señal operativa heurística.",
-                  "", "## Reproducibilidad", f"Random seed: {reproducibility.get('random_seed')}",
-                  f"Python: {reproducibility.get('python_version')}", f"Commit: {reproducibility.get('git_commit_sha')}",
-                  f"Timestamp UTC: {reproducibility.get('timestamp_utc')}", "", "## Commit", str(reproducibility.get("git_commit_sha")), ""])
+        critical_recall = health.get("per_class", {}).get("critical", {}).get("recall")
+        coverage = item.get("test_project_coverage_percent")
+        coverage_text = f"{coverage:.1f}%" if coverage is not None else "N/A"
+        lines.append(
+            f"| {item['cutoff']:.0%} | {item.get('test_project_count', 0)} / {item.get('total_test_project_count', 0)} | "
+            f"{coverage_text} | {item.get('max_selected_progress')} | {health.get('macro_f1')} | {critical_recall} | "
+            f"{delay.get('mae')} | {delay.get('rmse')} | {delay.get('r2')} | {cost.get('mae')} | "
+            f"{cost.get('mae_percentage_points')} | {cost.get('r2')} |"
+        )
+    lines.extend(["", "## Delay experiment", "", "Selection uses TRAIN fit and VALIDATION metrics; TEST is only evaluated after freezing the selection."])
+    if delay_experiment:
+        decision = delay_experiment.get("decision", {})
+        test_eval = delay_experiment.get("test_evaluation_after_freeze", {})
+        selected_metrics = test_eval.get("metrics", {})
+        lines.extend([
+            f"- Selection: {decision.get('selection_status')}",
+            f"- Selected candidate: {decision.get('selected_candidate')}",
+            f"- TEST after freeze: MAE {selected_metrics.get('mae')}, RMSE {selected_metrics.get('rmse')}, R² {selected_metrics.get('r2')}.",
+            f"- Promoted automatically: {delay_experiment.get('promoted_to_delay_days_joblib', False)}",
+        ])
+    else:
+        lines.append("- Experiment report not present.")
+    lines.extend([
+        "", "## Feature importance", "LightGBM native gain/split; this is predictive sensitivity, not causality.",
+        "", "## Riesgos metodológicos", *[f"- {item}" for item in readiness.get("leakage_risks", [])],
+        "- CPI has a structural relation with final cost in synthetic EVM generation; high late-stage Cost R² is internal synthetic performance, not production evidence.",
+        "- Critical class has limited project-level support and lower recall/F1 than the majority class.",
+        "", "## Limitaciones", "No real PRUNIN validation exists. External projects are not joined to Mendeley. Team Health remains an observable operational heuristic; fusion weights are not empirically calibrated.",
+        "", "## Reproducibilidad", f"Python: {reproducibility.get('python_version')}",
+        f"Random seed: {reproducibility.get('random_seed')}", f"Dataset SHA256: {reproducibility.get('dataset_sha256', {}).get('processed')}",
+        f"Timestamp UTC: {reproducibility.get('timestamp_utc')}", f"Commit: {reproducibility.get('git_commit_sha')}",
+        "", "## Qué no se puede concluir", "These synthetic results do not establish causal effects, operational validity, or expected performance on live PRUNIN projects.",
+        "", "## Qué falta para producción", "Prospective evaluation and calibration on real PRUNIN projects, plus external validation of temporal cutoffs and operational fusion.", "",
+    ])
     return "\n".join(lines)
 
 
@@ -167,7 +220,9 @@ def export_report(artifact_dir: Path, report_dir: Path) -> list[Path]:
     split_manifest = _read_json(artifact_dir / "split_manifest.json")
     reproducibility = _copy_json(artifact_dir, report_dir, "reproducibility.json")
     temporal = _copy_json(artifact_dir, report_dir, "temporal_evaluation.json")
+    baselines = _copy_json(artifact_dir, report_dir, "baselines.json")
     shutil.copy2(artifact_dir / "temporal_evaluation.csv", report_dir / "temporal_evaluation.csv")
+    shutil.copy2(artifact_dir / "baseline_comparison.csv", report_dir / "baseline_comparison.csv")
     _write_json(metrics, report_dir / "metrics.json")
     training_summary = {
         "artifact_version": "0.9.0-academic",
@@ -175,11 +230,12 @@ def export_report(artifact_dir: Path, report_dir: Path) -> list[Path]:
         "final_status_mode": feature_manifest.get("final_status_mode"),
         "models": {name: value.get("status") for name, value in metrics.items()},
         "evaluation_split": "project-level 70/15/15; metrics expose row- and project-level results separately",
+        "baselines": baselines,
     }
     _write_json(training_summary, report_dir / "training_summary.json")
     for target in ("health", "final_status"):
         _write_classification_tables(metrics, report_dir, target)
-    dataset_summary = _dataset_summary(readiness, split_manifest, metrics)
+    dataset_summary = _dataset_summary(readiness, split_manifest, metrics, feature_manifest)
     _write_json(dataset_summary, report_dir / "dataset_summary.json")
     (report_dir / "dataset_summary.md").write_text(_dataset_markdown(dataset_summary), encoding="utf-8")
     split_summary = {
@@ -188,8 +244,18 @@ def export_report(artifact_dir: Path, report_dir: Path) -> list[Path]:
         "project_ids": {name: ids for name, ids in split_manifest.items()},
     }
     _write_json(split_summary, report_dir / "split_summary.json")
+    delay_experiment_path = ROOT / "reports/experiments/delay/comparison.json"
+    delay_experiment = _read_json(delay_experiment_path) if delay_experiment_path.is_file() else None
+    if delay_experiment_path.is_file():
+        delay_report_dir = report_dir.parent / "experiments/delay"
+        delay_report_dir.mkdir(parents=True, exist_ok=True)
+        for name in ("comparison.json", "comparison.csv", "README.md"):
+            source = delay_experiment_path.parent / name
+            destination = delay_report_dir / name
+            if source.is_file() and source.resolve() != destination.resolve():
+                shutil.copy2(source, destination)
     (report_dir / "experiment_summary.md").write_text(
-        _experiment_markdown(metrics, feature_manifest, readiness, reproducibility, temporal),
+        _experiment_markdown(metrics, feature_manifest, readiness, reproducibility, temporal, baselines, delay_experiment),
         encoding="utf-8",
     )
     for importance_name in (

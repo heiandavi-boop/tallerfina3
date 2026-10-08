@@ -15,6 +15,39 @@ from .catalog import FIELD_CATALOG, FIELD_MAP, PRESETS
 ROOT = Path(__file__).resolve().parents[3]
 
 
+def classify_field_usage(field_catalog: list[dict[str, Any]], ml_features: set[str],
+                         team_health_features: set[str]) -> list[dict[str, Any]]:
+    labels = {
+        "ml_feature": "Feature ML",
+        "team_health": "Team Health · heurística",
+        "not_used": "No utilizada por este modelo",
+    }
+    fields = []
+    for original in field_catalog:
+        field = dict(original)
+        name = field["name"]
+        affects_ml = name in ml_features
+        affects_team_health = name in team_health_features
+        usage = "ml_feature" if affects_ml else "team_health" if affects_team_health else "not_used"
+        field.update({
+            "usage": usage,
+            "usage_label": labels[usage],
+            "affects_ml_prediction": affects_ml,
+            "affects_team_health": affects_team_health,
+            "trained": affects_ml,
+        })
+        fields.append(field)
+    return fields
+
+
+def unused_what_if_changes(baseline: dict[str, Any], scenario: dict[str, Any],
+                           field_usage: dict[str, str]) -> list[str]:
+    return sorted(
+        name for name, value in scenario.items()
+        if field_usage.get(name) == "not_used" and value != baseline.get(name)
+    )
+
+
 def choose_artifact_dir() -> tuple[Path, str]:
     explicit = os.getenv("PRUNIN_ARTIFACT_DIR")
     if explicit:
@@ -82,6 +115,13 @@ class ModelRuntime:
         }
         return result
 
+    def field_usage(self) -> list[dict[str, Any]]:
+        ml_features = set(self.manifest.get("numeric_features", [])) | set(
+            self.manifest.get("categorical_features", [])
+        )
+        team_health_features = set(self.config.get("team_health", {}).get("weights", {}))
+        return classify_field_usage(FIELD_CATALOG, ml_features, team_health_features)
+
     def health_risk_score(self, prediction: dict[str, Any]) -> float:
         if prediction.get("fused_risk_score") is not None:
             return float(prediction["fused_risk_score"])
@@ -139,5 +179,11 @@ class ModelRuntime:
             "model_type": self.manifest.get("model_type", "LightGBM"),
             "trained_features": list(self.manifest.get("numeric_features", [])) + list(self.manifest.get("categorical_features", [])),
             "final_status_mode": self.manifest.get("final_status_mode", "independent_model"),
+            "fusion": {
+                "type": "operational_heuristic",
+                "core_weight": float(self.config.get("inference_fusion", {}).get("core_weight", 1.0)),
+                "team_health_weight": float(self.config.get("inference_fusion", {}).get("team_health_weight", 0.0)),
+                "calibrated": False,
+            },
             "minimum_feature_coverage": float(os.getenv("PRUNIN_MIN_FEATURE_COVERAGE", "0.60")),
         }

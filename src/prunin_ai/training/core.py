@@ -178,7 +178,8 @@ def _feature_importance(model_pipe: Pipeline, artifact_dir: Path, model_name: st
     split_values = estimator.booster_.feature_importance(importance_type="split")
     gain_values = estimator.booster_.feature_importance(importance_type="gain")
     importance = pd.DataFrame({
-        "feature": names,
+        "raw_feature": names,
+        "display_feature": [_display_feature_name(str(name)) for name in names],
         "gain": gain_values,
         "split": split_values,
     }).sort_values(["gain", "split"], ascending=False, kind="stable")
@@ -192,9 +193,100 @@ def _feature_importance(model_pipe: Pipeline, artifact_dir: Path, model_name: st
     }.get(model_name, model_name)
     importance.to_csv(artifact_dir / f"feature_importance_{report_name}.csv", index=False)
 
+def _display_feature_name(raw_name: str) -> str:
+    if raw_name.startswith("num__"):
+        return raw_name.removeprefix("num__")
+    if raw_name.startswith("cat__"):
+        feature = raw_name.removeprefix("cat__")
+        categories = ("methodology", "project_type", "sector", "complexity", "criticality")
+        for name in categories:
+            prefix = f"{name}_"
+            if feature.startswith(prefix):
+                return f"{name} = {feature.removeprefix(prefix)}"
+        return feature
+    return raw_name
+
 
 def _business_status(health: pd.Series) -> pd.Series:
     return health.map({"healthy": "successful", "at_risk": "challenged", "critical": "critical"})
+
+
+def _build_baseline_reports(splits: dict[str, pd.DataFrame], model_metrics: dict) -> tuple[dict, pd.DataFrame]:
+    train_projects = _project_latest_snapshots(splits["train"])
+    results = {}
+    comparisons = []
+    for target in ("health", "delay_days", "cost_overrun_ratio"):
+        train_values = train_projects[target].dropna()
+        if train_values.empty:
+            results[target] = {"status": "unavailable", "reason": "no train project targets"}
+            continue
+        if target == "health":
+            method = "majority_class_from_train_projects"
+            class_counts = train_values.astype(str).value_counts().sort_index()
+            baseline_value = str(class_counts.idxmax())
+        else:
+            method = "median_from_train_projects"
+            baseline_value = float(pd.to_numeric(train_values, errors="coerce").median())
+        target_result = {"status": "computed", "method": method, "train_project_count": int(len(train_values)),
+                         "train_statistic": baseline_value, "validation": {}, "test": {}}
+        for split_name in ("validation", "test"):
+            split_rows = splits[split_name].dropna(subset=[target])
+            split_projects = _project_latest_snapshots(split_rows)
+            project_y = split_projects[target]
+            project_prediction = np.repeat(baseline_value, len(split_projects))
+            if target == "health":
+                labels = list(class_counts.index.astype(str))
+                project_metric = _classification_metrics(project_y.astype(str), project_prediction, labels)
+                row_metric = _classification_metrics(
+                    split_rows[target].astype(str), np.repeat(baseline_value, len(split_rows)), labels
+                )
+            else:
+                project_metric = _regression_metrics(project_y, project_prediction)
+                row_metric = _regression_metrics(
+                    split_rows[target], np.repeat(baseline_value, len(split_rows))
+                )
+                if target == "cost_overrun_ratio":
+                    project_metric["mae_percentage_points"] = project_metric["mae"] * 100
+                    row_metric["mae_percentage_points"] = row_metric["mae"] * 100
+            target_result[split_name] = {
+                "snapshot_row_metrics": row_metric,
+                "project_level_metrics": project_metric,
+                "project_count": int(split_projects["project_id"].nunique()),
+            }
+        model_project_test = model_metrics.get(target, {}).get("project_level_metrics", {}).get("test") or {}
+        baseline_project_test = target_result.get("test", {}).get("project_level_metrics", {})
+        compare_metric = "macro_f1" if target == "health" else "mae"
+        model_value = model_project_test.get(compare_metric)
+        baseline_value_metric = baseline_project_test.get(compare_metric)
+        improvement = (
+            model_value - baseline_value_metric if target == "health"
+            else baseline_value_metric - model_value
+        ) if model_value is not None and baseline_value_metric is not None else None
+        target_result["project_level_test_model"] = model_project_test
+        target_result["project_level_test_improvement"] = {
+            "metric": compare_metric,
+            "positive_is_better": True,
+            "model_minus_baseline": improvement,
+            "decision_source": "test is descriptive only; baseline statistic was fitted using TRAIN projects",
+        }
+        results[target] = target_result
+        unit = "macro_f1" if target == "health" else "mae_percentage_points" if target == "cost_overrun_ratio" else "mae"
+        model_test = model_project_test.get(unit)
+        base_test = baseline_project_test.get(unit)
+        comparisons.append({
+            "target": target,
+            "evaluation_unit": "project_level_test",
+            "metric": unit,
+            "baseline_method": method,
+            "baseline_value": base_test,
+            "model_value": model_test,
+            "improvement_positive_is_better": (
+                model_test - base_test if target == "health" and model_test is not None and base_test is not None
+                else base_test - model_test if model_test is not None and base_test is not None else None
+            ),
+            "baseline_fit_split": "train only",
+        })
+    return results, pd.DataFrame(comparisons)
 
 
 def train_core(
@@ -341,6 +433,10 @@ def train_core(
             predictions["predicted_final_status"] = _business_status(predictions["predicted_health"]).to_numpy()
     if predictions is not None:
         predictions.to_csv(out / "test_project_predictions.csv", index=False)
+
+    baselines, baseline_comparison = _build_baseline_reports(splits, metrics)
+    (out / "baselines.json").write_text(json.dumps(baselines, indent=2, ensure_ascii=False), encoding="utf-8")
+    baseline_comparison.to_csv(out / "baseline_comparison.csv", index=False)
 
     manifest = {
         "schema_version": "v9-academic",

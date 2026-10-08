@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def _confusion_matrix(metrics: dict, output: Path) -> None:
-    health = metrics.get("health", {}).get("test", {})
+    health = metrics.get("health", {}).get("project_level_metrics", {}).get("test", {})
     matrix = np.asarray(health.get("confusion_matrix", []), dtype=int)
     labels = health.get("labels", [])
     if not matrix.size or not labels:
@@ -26,7 +26,29 @@ def _confusion_matrix(metrics: dict, output: Path) -> None:
     fig.colorbar(image, ax=axis, label="Projects")
     axis.set(xticks=range(len(labels)), yticks=range(len(labels)),
              xticklabels=labels, yticklabels=labels,
-             xlabel="Predicted", ylabel="Actual", title="Health · Test confusion matrix")
+             xlabel="Predicted", ylabel="Actual", title="Health · Test · Project-level confusion matrix")
+    plt.setp(axis.get_xticklabels(), rotation=25, ha="right")
+    midpoint = matrix.max() / 2 if matrix.size else 0
+    for row in range(matrix.shape[0]):
+        for column in range(matrix.shape[1]):
+            axis.text(column, row, str(matrix[row, column]), ha="center", va="center",
+                      color="white" if matrix[row, column] > midpoint else "black")
+    fig.savefig(output, dpi=120)
+    plt.close(fig)
+
+
+def _snapshot_confusion_matrix(metrics: dict, output: Path) -> None:
+    health = metrics.get("health", {}).get("row_level_metrics", {}).get("test", {})
+    matrix = np.asarray(health.get("confusion_matrix", []), dtype=int)
+    labels = health.get("labels", [])
+    if not matrix.size or not labels:
+        return
+    fig, axis = plt.subplots(figsize=(5.5, 4.5), constrained_layout=True)
+    image = axis.imshow(matrix, cmap="Greys")
+    fig.colorbar(image, ax=axis, label="Snapshots")
+    axis.set(xticks=range(len(labels)), yticks=range(len(labels)), xticklabels=labels,
+             yticklabels=labels, xlabel="Predicted", ylabel="Actual",
+             title="Health · Test · Snapshot-level confusion matrix")
     plt.setp(axis.get_xticklabels(), rotation=25, ha="right")
     midpoint = matrix.max() / 2 if matrix.size else 0
     for row in range(matrix.shape[0]):
@@ -38,14 +60,14 @@ def _confusion_matrix(metrics: dict, output: Path) -> None:
 
 
 def _health_metrics(metrics: dict, output: Path) -> None:
-    health = metrics.get("health", {}).get("test", {})
+    health = metrics.get("health", {}).get("project_level_metrics", {}).get("test", {})
     names = ("balanced_accuracy", "macro_f1", "weighted_f1")
     values = [health.get(name) for name in names]
     if not all(value is not None for value in values):
         return
     fig, axis = plt.subplots(figsize=(6, 4), constrained_layout=True)
     bars = axis.bar(names, values, color=("#2878B5", "#55A868", "#C44E52"))
-    axis.set(ylim=(0, 1), ylabel="Score", title="Health · Test classification metrics")
+    axis.set(ylim=(0, 1), ylabel="Score", title="Health · Test · Project-level metrics")
     axis.bar_label(bars, fmt="%.3f", padding=3)
     fig.savefig(output, dpi=120)
     plt.close(fig)
@@ -93,9 +115,42 @@ def _importance_plot(report_dir: Path, model: str, output: Path) -> None:
     if importance.empty:
         return
     fig, axis = plt.subplots(figsize=(7, 5), constrained_layout=True)
-    axis.barh(importance["feature"], importance["gain"], color="#2878B5")
+    feature_column = "display_feature" if "display_feature" in importance else "feature"
+    axis.barh(importance[feature_column], importance["gain"], color="#2878B5")
     axis.set(xlabel="LightGBM gain", title=f"Global feature importance · {model}")
     fig.savefig(output, dpi=120)
+    plt.close(fig)
+
+
+def _baseline_comparison(report_dir: Path, output: Path) -> None:
+    path = report_dir / "baselines.json"
+    if not path.is_file():
+        return
+    baselines = json.loads(path.read_text(encoding="utf-8"))
+    specs = (
+        ("health", "macro_f1", "Health macro F1", True),
+        ("delay_days", "mae", "Delay MAE (days)", False),
+        ("cost_overrun_ratio", "mae_percentage_points", "Cost MAE (pp)", False),
+    )
+    fig, axes = plt.subplots(1, 3, figsize=(10, 4), constrained_layout=True)
+    drawn = False
+    for axis, (target, metric, title, higher_is_better) in zip(axes, specs, strict=True):
+        baseline = baselines.get(target, {})
+        baseline_metric = baseline.get("test", {}).get("project_level_metrics", {}).get(metric)
+        model_metric = baseline.get("project_level_test_model", {}).get(metric)
+        if baseline_metric is None or model_metric is None:
+            axis.set_axis_off()
+            continue
+        drawn = True
+        bars = axis.bar(["Train baseline", "Model"], [baseline_metric, model_metric],
+                        color=["#8794a7", "#2878B5"])
+        axis.set_title(title)
+        axis.tick_params(axis="x", rotation=15)
+        axis.bar_label(bars, fmt="%.3f", padding=3)
+        if higher_is_better:
+            axis.set_ylim(0, 1)
+    if drawn:
+        fig.savefig(output, dpi=120)
     plt.close(fig)
 
 
@@ -107,6 +162,7 @@ def generate_plots(artifact_dir: Path, report_dir: Path) -> list[Path]:
     prediction_path = artifact_dir / "test_project_predictions.csv"
     predictions = pd.read_csv(prediction_path) if prediction_path.is_file() else pd.DataFrame()
     _confusion_matrix(metrics, figures / "health_confusion_matrix.png")
+    _snapshot_confusion_matrix(metrics, figures / "health_snapshot_confusion_matrix.png")
     _health_metrics(metrics, figures / "health_metrics.png")
     _actual_predicted(predictions, "actual_delay_days", "predicted_delay_days",
                       "Delay · One latest test snapshot per project", figures / "delay_actual_vs_predicted.png")
@@ -121,6 +177,7 @@ def generate_plots(artifact_dir: Path, report_dir: Path) -> list[Path]:
     _importance_plot(report_dir, "health", figures / "feature_importance_health.png")
     _importance_plot(report_dir, "delay", figures / "feature_importance_delay.png")
     _importance_plot(report_dir, "cost", figures / "feature_importance_cost.png")
+    _baseline_comparison(report_dir, figures / "baseline_comparison.png")
     return sorted(path for path in figures.glob("*.png") if path.is_file())
 
 

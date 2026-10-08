@@ -17,6 +17,10 @@ CUTOFFS = (0.20, 0.40, 0.60, 0.80)
 STATUS_FROM_HEALTH = {"healthy": "successful", "at_risk": "challenged", "critical": "critical"}
 
 
+def compute_project_coverage_percent(eligible_count: int, total_test_project_count: int) -> float:
+    return float(eligible_count / max(total_test_project_count, 1) * 100)
+
+
 def select_snapshot_at_cutoff(project_snapshots: pd.DataFrame, cutoff: float) -> pd.Series | None:
     if not 0 < cutoff <= 1:
         raise ValueError("cutoff must be in (0, 1].")
@@ -94,10 +98,15 @@ def evaluate_temporal(
             row = {
                 "cutoff": cutoff,
                 "test_project_count": int(frame["project_id"].nunique()),
+                "total_test_project_count": int(len(test_project_ids)),
                 "excluded_test_project_count": excluded,
+                "test_project_coverage_percent": compute_project_coverage_percent(
+                    int(frame["project_id"].nunique()), len(test_project_ids)
+                ),
                 "selected_snapshot_count": int(len(frame)),
                 "max_selected_progress": float(frame["true_progress"].max()),
                 "health": health_metrics,
+                "health_critical_recall": health_metrics.get("per_class", {}).get("critical", {}).get("recall"),
                 "delay_days": _regression_metrics(frame["delay_days"], delay_pred),
                 "cost_overrun_ratio": temporal_cost_metrics,
                 "row_level_metrics": {
@@ -124,7 +133,9 @@ def evaluate_temporal(
             row = {
                 "cutoff": cutoff,
                 "test_project_count": 0,
+                "total_test_project_count": int(len(test_project_ids)),
                 "excluded_test_project_count": excluded,
+                "test_project_coverage_percent": 0.0,
                 "selected_snapshot_count": 0,
                 "max_selected_progress": None,
                 "health": None,
@@ -156,11 +167,14 @@ def write_temporal_reports(result: dict, artifact_dir: Path) -> None:
         row = {
             "cutoff_percent": cutoff["cutoff"] * 100,
             "test_project_count": cutoff.get("test_project_count", 0),
+            "total_test_project_count": cutoff.get("total_test_project_count", 0),
             "excluded_test_project_count": cutoff.get("excluded_test_project_count", 0),
+            "test_project_coverage_percent": cutoff.get("test_project_coverage_percent"),
             "max_selected_progress": cutoff.get("max_selected_progress"),
             "health_balanced_accuracy": health.get("balanced_accuracy"),
             "health_macro_f1": health.get("macro_f1"),
             "health_weighted_f1": health.get("weighted_f1"),
+            "health_critical_recall": cutoff.get("health_critical_recall"),
             "delay_mae_days": delay.get("mae"),
             "delay_rmse_days": delay.get("rmse"),
             "delay_r2": delay.get("r2"),

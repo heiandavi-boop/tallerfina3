@@ -17,8 +17,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 
-from .catalog import FIELD_CATALOG, PRESETS
-from .model_runtime import ModelRuntime, ROOT
+from .catalog import PRESETS
+from .model_runtime import ModelRuntime, ROOT, unused_what_if_changes
 from .recommendations import build_recommendations
 from .schema import ProjectInput, WhatIfRequest
 
@@ -64,9 +64,14 @@ def run_prediction(data: dict[str, Any]) -> dict[str, Any]:
             "dataset_source": model_metadata["dataset_source"],
             "dataset_type": model_metadata["dataset_type"],
             "model_type": model_metadata["model_type"],
+            "final_status_mode": model_metadata["final_status_mode"],
+            "fusion": model_metadata["fusion"],
+            "trained_features": model_metadata["trained_features"],
         },
         "prediction": pred,
         "drivers": drivers,
+        "driver_source": "local_model_sensitivity",
+        "drivers_disclaimer": "La importancia o el impacto local muestra sensibilidad del modelo; no demuestra causalidad.",
         "recommendations": recommendations,
         "inference_ms": round(elapsed, 2),
         "input": data,
@@ -80,8 +85,19 @@ def health():
 
 @app.get("/api/schema")
 def schema():
+    fields = runtime.field_usage()
+    ml_fields = [field for field in fields if field["usage"] == "ml_feature"]
+    team_health_fields = [field for field in fields if field["usage"] == "team_health"]
+    not_used_fields = [field for field in fields if field["usage"] == "not_used"]
     return {
-        "fields": FIELD_CATALOG,
+        "fields": fields,
+        "field_usage": {field["name"]: field["usage"] for field in fields},
+        "ml_features": [field["name"] for field in ml_fields],
+        "team_health_features": [field["name"] for field in team_health_fields],
+        "not_used_features": [field["name"] for field in not_used_fields],
+        "what_if_fields": [field["name"] for field in ml_fields + team_health_fields],
+        "academic_template_fields": [field["name"] for field in ml_fields + team_health_fields],
+        "optional_team_health_template_fields": [field["name"] for field in team_health_fields],
         "presets": PRESETS,
         "model": runtime.metadata(),
         "excluded_legacy_features": ["reported_progress", "critical_path_delay_days", "team_morale"],
@@ -100,9 +116,15 @@ def predict(payload: ProjectInput):
 
 @app.post("/api/what-if")
 def what_if(payload: WhatIfRequest):
+    baseline_input = payload.baseline.model_dump()
+    scenario_input = payload.scenario.model_dump()
+    usage = {field["name"]: field["usage"] for field in runtime.field_usage()}
+    invalid_changes = unused_what_if_changes(baseline_input, scenario_input, usage)
+    if invalid_changes:
+        raise HTTPException(422, f"What-if no puede modificar variables no utilizadas por este modelo: {invalid_changes}")
     try:
-        baseline = run_prediction(payload.baseline.model_dump())
-        scenario = run_prediction(payload.scenario.model_dump())
+        baseline = run_prediction(baseline_input)
+        scenario = run_prediction(scenario_input)
     except ValueError as exc:
         raise HTTPException(422, str(exc))
     bp, sp = baseline["prediction"], scenario["prediction"]
@@ -151,11 +173,28 @@ def qr(url: str):
 
 
 @app.get("/api/csv-template")
-def csv_template():
-    row = PRESETS["at_risk"]
-    path = ROOT / "artifacts" / "playground_input_template.csv"
-    pd.DataFrame([row]).to_csv(path, index=False)
-    return FileResponse(path, media_type="text/csv", filename="prunin_playground_template.csv")
+def csv_template(profile: str = "academic"):
+    if profile not in {"academic", "full_future"}:
+        raise HTTPException(400, "profile debe ser academic o full_future.")
+    fields = runtime.field_usage()
+    if profile == "academic":
+        columns = [field["name"] for field in fields if field["usage"] in {"ml_feature", "team_health"}]
+        filename = "prunin_academic_template.csv"
+    else:
+        columns = [field["name"] for field in fields]
+        filename = "prunin_full_future_template.csv"
+    row = {name: PRESETS["at_risk"].get(name) for name in columns}
+    path = ROOT / "artifacts" / filename
+    pd.DataFrame([row], columns=columns).to_csv(path, index=False)
+    ml_fields = [field["name"] for field in fields if field["usage"] == "ml_feature"]
+    team_fields = [field["name"] for field in fields if field["usage"] == "team_health"]
+    return FileResponse(
+        path, media_type="text/csv", filename=filename,
+        headers={
+            "X-Required-ML-Features": ",".join(ml_fields),
+            "X-Optional-Team-Health-Features": ",".join(team_fields),
+        },
+    )
 
 
 DIST = ROOT / "frontend" / "dist"

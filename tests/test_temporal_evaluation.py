@@ -7,7 +7,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from evaluate_temporal import select_snapshot_at_cutoff, select_test_project_snapshots
+from evaluate_temporal import compute_project_coverage_percent, select_snapshot_at_cutoff, select_test_project_snapshots
 
 
 def test_cutoff_selects_closest_snapshot_without_future_progress():
@@ -49,3 +49,7 @@ def test_cutoff_with_no_eligible_snapshot_returns_none():
 def test_invalid_cutoff_is_rejected():
     with pytest.raises(ValueError, match="cutoff"):
         select_snapshot_at_cutoff(pd.DataFrame({"true_progress": [0.1]}), 0.0)
+
+
+def test_temporal_coverage_percent_uses_full_test_project_count():
+    assert compute_project_coverage_percent(236, 600) == pytest.approx(39.3333333333)

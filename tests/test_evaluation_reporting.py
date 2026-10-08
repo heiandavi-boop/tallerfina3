@@ -57,7 +57,8 @@ def test_lightgbm_native_feature_importance_exports_gain_and_split(tmp_path):
     _feature_importance(pipe, tmp_path, "health")
     result = pd.read_csv(tmp_path / "feature_importance_health.csv")
 
-    assert result["feature"].tolist() == ["num__spi", "cat__methodology_agile"]
+    assert result["raw_feature"].tolist() == ["num__spi", "cat__methodology_agile"]
+    assert result["display_feature"].tolist() == ["spi", "methodology = agile"]
     assert result["gain"].tolist() == [20, 5]
     assert result["split"].tolist() == [4, 2]
 
@@ -65,10 +66,18 @@ def test_lightgbm_native_feature_importance_exports_gain_and_split(tmp_path):
 def _artifact_fixture(tmp_path):
     artifact = tmp_path / "artifacts/0.9.0-academic"
     artifact.mkdir(parents=True)
-    health = _classification_metrics(["healthy", "at_risk"], ["healthy", "healthy"], ["healthy", "at_risk"])
+    health = _classification_metrics(
+        ["healthy", "at_risk"], ["healthy", "healthy"], ["healthy", "at_risk", "critical"]
+    )
     regression = _regression_metrics([1.0, 2.0], [1.2, 2.4])
     metrics = {
         "health": {"status": "trained", "validation": health, "test": health,
+                   "row_level_metrics": {"validation": health, "test": health},
+                   "project_level_metrics": {
+                       "validation": {**health, "confusion_matrix": [[0, 1, 0], [0, 1, 0], [0, 0, 0]]},
+                       "test": {**health, "confusion_matrix": [[0, 1, 0], [0, 1, 0], [0, 0, 0]]},
+                       "validation_project_count": 1, "test_project_count": 1,
+                   },
                    "train_rows": 4, "validation_rows": 2, "test_rows": 2},
         "delay_days": {"status": "trained", "validation": regression, "test": regression},
         "cost_overrun_ratio": {"status": "trained", "validation": regression, "test": {**regression, "mae_percentage_points": regression["mae"] * 100}},
@@ -98,15 +107,30 @@ def _artifact_fixture(tmp_path):
         "python_version": "3.12.0", "git_commit_sha": "abc", "random_seed": 42,
         "timestamp_utc": "2026-10-08T00:00:00+00:00", "split_project_counts": {"train": 6, "validation": 1, "test": 1},
     }
+    baselines = {
+        "health": {"method": "train-only majority", "train_statistic": "healthy",
+                   "test": {"project_level_metrics": {"macro_f1": 0.3}},
+                   "project_level_test_model": {"macro_f1": 0.5}},
+        "delay_days": {"method": "train-only median", "train_statistic": 20.0,
+                       "test": {"project_level_metrics": {"mae": 12.0}},
+                       "project_level_test_model": {"mae": 10.0}},
+        "cost_overrun_ratio": {"method": "train-only median", "train_statistic": 0.0,
+                               "test": {"project_level_metrics": {"mae_percentage_points": 5.0}},
+                               "project_level_test_model": {"mae_percentage_points": 4.0}},
+    }
     values = {
         "metrics.json": metrics, "feature_manifest.json": manifest,
         "data_readiness.json": readiness, "temporal_evaluation.json": temporal,
         "reproducibility.json": reproducibility,
         "split_manifest.json": {"train": ["p1"], "validation": ["p2"], "test": ["p3"]},
+        "baselines.json": baselines,
     }
     for name, value in values.items():
         (artifact / name).write_text(json.dumps(value), encoding="utf-8")
     pd.DataFrame({"cutoff": [0.2], "project_id": ["p3"]}).to_csv(artifact / "temporal_evaluation.csv", index=False)
+    pd.DataFrame([{"target": "health", "baseline_value": 0.5, "model_value": 0.6}]).to_csv(
+        artifact / "baseline_comparison.csv", index=False
+    )
     return artifact, metrics, temporal
 
 
@@ -120,11 +144,22 @@ def test_export_report_creates_lightweight_versionable_evidence(tmp_path):
         "metrics.json", "data_readiness.json", "feature_manifest.json", "training_summary.json",
         "experiment_summary.md", "health_confusion_matrix.csv", "health_classification_report.csv",
         "temporal_evaluation.json", "temporal_evaluation.csv", "dataset_summary.json",
-        "dataset_summary.md", "split_summary.json", "reproducibility.json",
+        "dataset_summary.md", "split_summary.json", "reproducibility.json", "baselines.json",
+        "baseline_comparison.csv",
     }
     assert expected <= {path.name for path in files}
     assert not any(path.suffix in {".joblib", ".parquet", ".zip"} for path in files)
     assert not (reports / "final_status_confusion_matrix.csv").exists()
+    project_matrix = pd.read_csv(reports / "health_confusion_matrix.csv", index_col=0)
+    snapshot_matrix = pd.read_csv(reports / "health_snapshot_confusion_matrix.csv", index_col=0)
+    assert project_matrix.to_numpy().tolist() == [[0, 1, 0], [0, 1, 0], [0, 0, 0]]
+    assert snapshot_matrix.to_numpy().tolist() == [[1, 0, 0], [1, 0, 0], [0, 0, 0]]
+    dataset_summary = json.loads((reports / "dataset_summary.json").read_text(encoding="utf-8"))
+    assert dataset_summary["features_used"] == ["spi", "methodology"]
+    summary_text = (reports / "experiment_summary.md").read_text(encoding="utf-8")
+    assert "Project-level evaluation" in summary_text
+    assert "Snapshot-level evaluation" in summary_text
+    assert '"critical_recall": 0.0' in summary_text
 
 
 def test_reproducibility_records_versions_hash_seed_and_split_counts(tmp_path):
@@ -163,9 +198,11 @@ def test_plot_generation_creates_diagnostic_images(tmp_path):
 
     names = {path.name for path in generated}
     assert "health_confusion_matrix.png" in names
+    assert "health_snapshot_confusion_matrix.png" in names
     assert "delay_actual_vs_predicted.png" in names
     assert "temporal_health_macro_f1.png" in names
     assert "feature_importance_cost.png" in names
+    assert "baseline_comparison.png" in names
 
 
 def test_train_all_stops_before_download_when_environment_gate_fails():

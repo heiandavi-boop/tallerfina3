@@ -494,12 +494,20 @@ def main() -> int:
     parser.add_argument("--include-squad", action="store_true", help="Descarga solo tablas SQuaD relevantes y bajo el límite configurado.")
     parser.add_argument("--squad-max-bytes", type=int, default=1_000_000_000)
     parser.add_argument("--validate-only", action="store_true", help="Valida únicamente el manifest y archivos locales, sin acceso a red.")
+    parser.add_argument("--offline", action="store_true", help="Usa exclusivamente data/raw/ y dataset_manifest.json; no consulta metadata ni descarga.")
     args = parser.parse_args()
 
     print("# PRUNIN AI Core - Dataset Downloader")
     if args.validate_only:
         manifest = validate_local_datasets()
         print(f"[OK] Archivos locales y hashes válidos: {len(manifest['files'])}")
+        return 0
+    if args.offline:
+        manifest = validate_local_datasets()
+        print("[OK] Offline mode: usando datasets locales validados; no se realizaron solicitudes HTTP.")
+        for warning in manifest.get("warnings", []):
+            print(f"[WARN] Optional dataset unavailable: {warning}")
+        print(f"[OK] Manifest: {MANIFEST_PATH.relative_to(ROOT)} | {len(manifest['files'])} entradas")
         return 0
     print("[3] Resolviendo metadata oficial de datasets...")
     previous = json.loads(MANIFEST_PATH.read_text(encoding="utf-8")) if MANIFEST_PATH.is_file() else {}

@@ -12,9 +12,11 @@ La demo ejecuta inferencia real contra los artefactos `.joblib`; no contiene res
 
 Esto permite ensayar la aplicación antes de finalizar el reentrenamiento sin presentar el modelo demo como resultado definitivo.
 
-## Variables públicas
+## Uso dinámico de variables
 
-El formulario incluye todas las features entrenadas del esquema V9 académico:
+`/api/schema` clasifica cada campo desde `feature_manifest.json` y la configuración Team Health. La superficie principal muestra solo `ml_feature` y separa `team_health`; `not_used` queda en una sección futura deshabilitada. React no mantiene una lista académica fija.
+
+En el artifact académico actual las features ML son:
 
 - `planned_duration_weeks`
 - `planned_budget`
@@ -37,7 +39,9 @@ El formulario incluye todas las features entrenadas del esquema V9 académico:
 - `normalized_risk_exposure`
 - `governance_health_score`
 
-Además acepta `team_stability` y `collaboration_level` para el `team_health_index`. Estas dos señales no se introducen silenciosamente en el modelo supervisado.
+Las señales Team Health se derivan dinámicamente de los pesos configurados. Actualmente incluyen utilización, capacidad, productividad, retrabajo, defectos, estabilidad y colaboración; se muestran como heurística y no como inputs aprendidos por el clasificador académico.
+
+What-if solo permite cambiar features ML y señales Team Health; las agrupa por efecto. La plantilla CSV académica incluye features ML obligatorias y Team Health opcional, nunca `not_used`. `?profile=full_future` ofrece un esquema completo para integraciones futuras.
 
 Se excluyen deliberadamente las variables de V8.6.3 sin soporte suficiente para esta versión:
 
@@ -85,3 +89,5 @@ La aplicación se empaqueta en `Dockerfile.playground`. El contenedor construye 
 ## QR y evidencia descargable
 
 El panel técnico genera un QR con la URL actual mediante `/api/qr`. Cuando la aplicación esté desplegada en una URL pública, el mismo QR permitirá a los asistentes abrirla desde su celular. El resultado individual también se puede descargar como JSON con `prediction_id`, versión, modo, inputs, predicciones, drivers y recomendaciones.
+
+La vista de resultados distingue `Health ML` de `Riesgo combinado`. Team Health y la fusión 0.85/0.15 son heurísticas operativas no calibradas con outcomes reales. Los drivers muestran sensibilidad local, no causalidad. Para Mendeley v2, Final Status se devuelve como estado de negocio derivado, sin probabilidades propias.

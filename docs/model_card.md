@@ -66,7 +66,11 @@ La inspección de Mendeley v2 encontró `Schedule_Delay` y `Cost_Overrun`, entre
 
 1. El dataset Mendeley usado para el core es sintético externo; no existe validación productiva con datos PRUNIN.
 2. Progreso, SPI y CPI de snapshots tardíos pueden estar temporalmente cerca del outcome; la evaluación por cutoff no elimina ese riesgo en datos sintéticos.
-3. Proyectos con más snapshots pueden pesar más en métricas row-level; project-level se informa aparte.
+3. High late-stage cost performance may partly reflect the structural relationship between CPI, progress, and final cost outcomes in the synthetic EVM generator; high R² is internal synthetic performance, not production evidence.
+4. Proyectos con más snapshots pueden pesar más en métricas row-level; project-level se informa aparte.
+5. Itemlet, SQuaD y Collaboration/Delivery son fuentes de proyectos distintos y no se mezclan con Mendeley.
+6. Team Health continúa como señal operativa heurística, no como outcome clínico ni feature supervisada.
+7. La activación productiva exige validación temporal y externa con proyectos reales de PRUNIN.
 4. Itemlet, SQuaD y Collaboration/Delivery son fuentes de proyectos distintos y no se mezclan con Mendeley.
 5. Team Health continúa como señal operativa heurística, no como outcome clínico ni feature supervisada.
 6. La activación productiva exige validación temporal/externa con proyectos reales de PRUNIN.

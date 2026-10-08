@@ -5,7 +5,8 @@
 No se fuerza un único dataset universal. Las fuentes públicas no describen los mismos proyectos y por ello no deben unirse por columnas como si fueran observaciones equivalentes.
 
 ```text
-Mendeley Risk + EVM ──> Core Predictor ──> Health / Status / Delay / Cost
+Mendeley Risk + EVM ──> Core Predictor ──> Health ML / Delay / Cost
+                                      └─> Final Status derivado de Health
                                    │
 PRUNIN operacional ──> Team Health Index ─┤
                                    │       ├─> Fusion / explicación
@@ -32,13 +33,16 @@ Los snapshots se dividen por `project_id`, no por fila. Un proyecto completo per
 
 ## Artefactos
 
-Cada entrenamiento guarda:
+Para Mendeley v2 cada entrenamiento guarda:
 
 - `health.joblib`
-- `final_status.joblib`
 - `delay_days.joblib`
 - `cost_overrun_ratio.joblib`
 - `metrics.json`
 - `feature_manifest.json`
 - `split_manifest.json`
 - `training_config_resolved.yaml`
+- `baselines.json`
+- `baseline_comparison.csv`
+
+`final_status` se devuelve como estado de negocio derivado, no como segundo modelo. El fallback demo puede conservar un clasificador independiente porque su fixture es distinta; el runtime elige según `feature_manifest.json`.
