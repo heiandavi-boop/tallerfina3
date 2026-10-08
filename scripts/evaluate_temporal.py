@@ -89,6 +89,8 @@ def evaluate_temporal(
             health_metrics = _classification_metrics(frame["health"].astype(str), health_pred, health_labels)
             delay_pred = models["delay_days"].predict(inputs)
             cost_pred = models["cost_overrun_ratio"].predict(inputs)
+            temporal_cost_metrics = _regression_metrics(frame["cost_overrun_ratio"], cost_pred)
+            temporal_cost_metrics["mae_percentage_points"] = temporal_cost_metrics["mae"] * 100
             row = {
                 "cutoff": cutoff,
                 "test_project_count": int(frame["project_id"].nunique()),
@@ -97,7 +99,7 @@ def evaluate_temporal(
                 "max_selected_progress": float(frame["true_progress"].max()),
                 "health": health_metrics,
                 "delay_days": _regression_metrics(frame["delay_days"], delay_pred),
-                "cost_overrun_ratio": _regression_metrics(frame["cost_overrun_ratio"], cost_pred),
+                "cost_overrun_ratio": temporal_cost_metrics,
                 "row_level_metrics": {
                     "status": "not separately aggregated; exactly one selected observation per test project",
                     "observation_count": int(len(frame)),

@@ -139,13 +139,16 @@ def _experiment_markdown(metrics: dict, feature_manifest: dict, readiness: dict,
             lines.append(f"| {target} | {'classification' if 'accuracy' in test else 'original target unit'} | `{json.dumps(summary, ensure_ascii=False)}` |")
         else:
             lines.append(f"| {target} | not available | {result.get('status', 'not trained')} |")
-    lines.extend(["", "## Evaluación temprana", "", "| Cutoff | Test projects | Health Macro-F1 | Delay MAE | Cost MAE |",
+    lines.extend(["", "## Evaluación temprana", "", "| Cutoff | Test projects | Health Macro-F1 | Delay MAE (days) | Cost MAE (ratio / pp) |",
                   "|---:|---:|---:|---:|---:|"])
     for item in temporal.get("cutoffs", []):
         health = item.get("health") or {}
         delay = item.get("delay_days") or {}
         cost = item.get("cost_overrun_ratio") or {}
-        lines.append(f"| {item['cutoff']:.0%} | {item.get('test_project_count', 0)} | {health.get('macro_f1')} | {delay.get('mae')} | {cost.get('mae')} |")
+        cost_mae = cost.get("mae")
+        cost_points = cost.get("mae_percentage_points")
+        cost_text = f"{cost_mae} / {cost_points}" if cost_mae is not None else "not available"
+        lines.append(f"| {item['cutoff']:.0%} | {item.get('test_project_count', 0)} | {health.get('macro_f1')} | {delay.get('mae')} | {cost_text} |")
     lines.extend(["", "## Riesgos metodológicos", *[f"- {item}" for item in readiness.get("leakage_risks", [])],
                   "- SPI/CPI/progress tardíos pueden estar cerca del outcome; evaluar prospectivamente requiere un corte temporal con datos reales.",
                   "- Los resultados por snapshot pueden dar más peso a proyectos con más observaciones; también se presentan métricas por proyecto.",
