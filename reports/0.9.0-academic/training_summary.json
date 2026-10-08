@@ -745,5 +745,631 @@
     "cost_overrun_ratio": "trained",
     "final_status": "derived"
   },
-  "evaluation_split": "project-level 70/15/15; metrics expose row- and project-level results separately"
+  "evaluation_split": "project-level 70/15/15; metrics expose row- and project-level results separately",
+  "baselines": {
+    "health": {
+      "status": "computed",
+      "method": "majority_class_from_train_projects",
+      "train_project_count": 2800,
+      "train_statistic": "at_risk",
+      "validation": {
+        "snapshot_row_metrics": {
+          "accuracy": 0.7316176470588235,
+          "balanced_accuracy": 0.3333333333333333,
+          "macro_f1": 0.28167020523708425,
+          "weighted_f1": 0.6182246784063944,
+          "precision_macro": 0.24387254901960784,
+          "recall_macro": 0.3333333333333333,
+          "precision_weighted": 0.5352643814878892,
+          "recall_weighted": 0.7316176470588235,
+          "labels": [
+            "at_risk",
+            "critical",
+            "healthy"
+          ],
+          "per_class": {
+            "at_risk": {
+              "precision": 0.7316176470588235,
+              "recall": 1.0,
+              "f1": 0.8450106157112527,
+              "support": 7960
+            },
+            "critical": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 751
+            },
+            "healthy": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2169
+            }
+          },
+          "confusion_matrix": [
+            [
+              7960,
+              0,
+              0
+            ],
+            [
+              751,
+              0,
+              0
+            ],
+            [
+              2169,
+              0,
+              0
+            ]
+          ],
+          "classification_report": {
+            "at_risk": {
+              "precision": 0.7316176470588235,
+              "recall": 1.0,
+              "f1-score": 0.8450106157112527,
+              "support": 7960.0
+            },
+            "critical": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1-score": 0.0,
+              "support": 751.0
+            },
+            "healthy": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1-score": 0.0,
+              "support": 2169.0
+            },
+            "accuracy": 0.7316176470588235,
+            "macro avg": {
+              "precision": 0.24387254901960784,
+              "recall": 0.3333333333333333,
+              "f1-score": 0.28167020523708425,
+              "support": 10880.0
+            },
+            "weighted avg": {
+              "precision": 0.5352643814878892,
+              "recall": 0.7316176470588235,
+              "f1-score": 0.6182246784063944,
+              "support": 10880.0
+            }
+          }
+        },
+        "project_level_metrics": {
+          "accuracy": 0.705,
+          "balanced_accuracy": 0.3333333333333333,
+          "macro_f1": 0.27565982404692085,
+          "weighted_f1": 0.5830205278592375,
+          "precision_macro": 0.235,
+          "recall_macro": 0.3333333333333333,
+          "precision_weighted": 0.49702499999999994,
+          "recall_weighted": 0.705,
+          "labels": [
+            "at_risk",
+            "critical",
+            "healthy"
+          ],
+          "per_class": {
+            "at_risk": {
+              "precision": 0.705,
+              "recall": 1.0,
+              "f1": 0.8269794721407625,
+              "support": 423
+            },
+            "critical": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 45
+            },
+            "healthy": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 132
+            }
+          },
+          "confusion_matrix": [
+            [
+              423,
+              0,
+              0
+            ],
+            [
+              45,
+              0,
+              0
+            ],
+            [
+              132,
+              0,
+              0
+            ]
+          ],
+          "classification_report": {
+            "at_risk": {
+              "precision": 0.705,
+              "recall": 1.0,
+              "f1-score": 0.8269794721407625,
+              "support": 423.0
+            },
+            "critical": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1-score": 0.0,
+              "support": 45.0
+            },
+            "healthy": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1-score": 0.0,
+              "support": 132.0
+            },
+            "accuracy": 0.705,
+            "macro avg": {
+              "precision": 0.235,
+              "recall": 0.3333333333333333,
+              "f1-score": 0.27565982404692085,
+              "support": 600.0
+            },
+            "weighted avg": {
+              "precision": 0.49702499999999994,
+              "recall": 0.705,
+              "f1-score": 0.5830205278592375,
+              "support": 600.0
+            }
+          }
+        },
+        "project_count": 600
+      },
+      "test": {
+        "snapshot_row_metrics": {
+          "accuracy": 0.7446086078737267,
+          "balanced_accuracy": 0.3333333333333333,
+          "macro_f1": 0.28453702242561324,
+          "weighted_f1": 0.6356061484706137,
+          "precision_macro": 0.24820286929124225,
+          "recall_macro": 0.3333333333333333,
+          "precision_weighted": 0.5544419789196494,
+          "recall_weighted": 0.7446086078737267,
+          "labels": [
+            "at_risk",
+            "critical",
+            "healthy"
+          ],
+          "per_class": {
+            "at_risk": {
+              "precision": 0.7446086078737267,
+              "recall": 1.0,
+              "f1": 0.8536110672768398,
+              "support": 8114
+            },
+            "critical": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 779
+            },
+            "healthy": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2004
+            }
+          },
+          "confusion_matrix": [
+            [
+              8114,
+              0,
+              0
+            ],
+            [
+              779,
+              0,
+              0
+            ],
+            [
+              2004,
+              0,
+              0
+            ]
+          ],
+          "classification_report": {
+            "at_risk": {
+              "precision": 0.7446086078737267,
+              "recall": 1.0,
+              "f1-score": 0.8536110672768398,
+              "support": 8114.0
+            },
+            "critical": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1-score": 0.0,
+              "support": 779.0
+            },
+            "healthy": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1-score": 0.0,
+              "support": 2004.0
+            },
+            "accuracy": 0.7446086078737267,
+            "macro avg": {
+              "precision": 0.24820286929124225,
+              "recall": 0.3333333333333333,
+              "f1-score": 0.28453702242561324,
+              "support": 10897.0
+            },
+            "weighted avg": {
+              "precision": 0.5544419789196494,
+              "recall": 0.7446086078737267,
+              "f1-score": 0.6356061484706137,
+              "support": 10897.0
+            }
+          }
+        },
+        "project_level_metrics": {
+          "accuracy": 0.715,
+          "balanced_accuracy": 0.3333333333333333,
+          "macro_f1": 0.27793974732750243,
+          "weighted_f1": 0.5961807580174927,
+          "precision_macro": 0.2383333333333333,
+          "recall_macro": 0.3333333333333333,
+          "precision_weighted": 0.511225,
+          "recall_weighted": 0.715,
+          "labels": [
+            "at_risk",
+            "critical",
+            "healthy"
+          ],
+          "per_class": {
+            "at_risk": {
+              "precision": 0.715,
+              "recall": 1.0,
+              "f1": 0.8338192419825073,
+              "support": 429
+            },
+            "critical": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 44
+            },
+            "healthy": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 127
+            }
+          },
+          "confusion_matrix": [
+            [
+              429,
+              0,
+              0
+            ],
+            [
+              44,
+              0,
+              0
+            ],
+            [
+              127,
+              0,
+              0
+            ]
+          ],
+          "classification_report": {
+            "at_risk": {
+              "precision": 0.715,
+              "recall": 1.0,
+              "f1-score": 0.8338192419825073,
+              "support": 429.0
+            },
+            "critical": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1-score": 0.0,
+              "support": 44.0
+            },
+            "healthy": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1-score": 0.0,
+              "support": 127.0
+            },
+            "accuracy": 0.715,
+            "macro avg": {
+              "precision": 0.2383333333333333,
+              "recall": 0.3333333333333333,
+              "f1-score": 0.27793974732750243,
+              "support": 600.0
+            },
+            "weighted avg": {
+              "precision": 0.511225,
+              "recall": 0.715,
+              "f1-score": 0.5961807580174927,
+              "support": 600.0
+            }
+          }
+        },
+        "project_count": 600
+      },
+      "project_level_test_model": {
+        "accuracy": 0.7266666666666667,
+        "balanced_accuracy": 0.6824223458081726,
+        "macro_f1": 0.6275758334320115,
+        "weighted_f1": 0.7405357252418434,
+        "precision_macro": 0.6003878970927546,
+        "recall_macro": 0.6824223458081726,
+        "precision_weighted": 0.7737301994841527,
+        "recall_weighted": 0.7266666666666667,
+        "labels": [
+          "at_risk",
+          "critical",
+          "healthy"
+        ],
+        "per_class": {
+          "at_risk": {
+            "precision": 0.8854748603351955,
+            "recall": 0.7389277389277389,
+            "f1": 0.8055908513341804,
+            "support": 429
+          },
+          "critical": {
+            "precision": 0.38461538461538464,
+            "recall": 0.5681818181818182,
+            "f1": 0.45871559633027525,
+            "support": 44
+          },
+          "healthy": {
+            "precision": 0.5310734463276836,
+            "recall": 0.7401574803149606,
+            "f1": 0.618421052631579,
+            "support": 127
+          }
+        },
+        "confusion_matrix": [
+          [
+            317,
+            35,
+            77
+          ],
+          [
+            13,
+            25,
+            6
+          ],
+          [
+            28,
+            5,
+            94
+          ]
+        ],
+        "classification_report": {
+          "at_risk": {
+            "precision": 0.8854748603351955,
+            "recall": 0.7389277389277389,
+            "f1-score": 0.8055908513341804,
+            "support": 429.0
+          },
+          "critical": {
+            "precision": 0.38461538461538464,
+            "recall": 0.5681818181818182,
+            "f1-score": 0.45871559633027525,
+            "support": 44.0
+          },
+          "healthy": {
+            "precision": 0.5310734463276836,
+            "recall": 0.7401574803149606,
+            "f1-score": 0.618421052631579,
+            "support": 127.0
+          },
+          "accuracy": 0.7266666666666667,
+          "macro avg": {
+            "precision": 0.6003878970927546,
+            "recall": 0.6824223458081726,
+            "f1-score": 0.6275758334320115,
+            "support": 600.0
+          },
+          "weighted avg": {
+            "precision": 0.7737301994841527,
+            "recall": 0.7266666666666667,
+            "f1-score": 0.7405357252418434,
+            "support": 600.0
+          }
+        }
+      },
+      "project_level_test_improvement": {
+        "metric": "macro_f1",
+        "positive_is_better": true,
+        "model_minus_baseline": 0.3496360861045091,
+        "decision_source": "test is descriptive only; baseline statistic was fitted using TRAIN projects"
+      }
+    },
+    "delay_days": {
+      "status": "computed",
+      "method": "median_from_train_projects",
+      "train_project_count": 2800,
+      "train_statistic": 30.4375,
+      "validation": {
+        "snapshot_row_metrics": {
+          "mae": 32.73989545036765,
+          "median_absolute_error": 30.4375,
+          "rmse": 46.35128329761564,
+          "r2": -0.07598732710518785,
+          "absolute_error_percentiles": {
+            "p50": 30.4375,
+            "p75": 30.4375,
+            "p90": 60.875,
+            "p95": 91.3125
+          },
+          "mape_percent": null,
+          "mape_status": "not reported; target contains zero or negative actual values"
+        },
+        "project_level_metrics": {
+          "mae": 27.901041666666668,
+          "median_absolute_error": 30.4375,
+          "rmse": 39.13714933836307,
+          "r2": -0.011997061944013732,
+          "absolute_error_percentiles": {
+            "p50": 30.4375,
+            "p75": 30.4375,
+            "p90": 60.875,
+            "p95": 60.875
+          },
+          "mape_percent": null,
+          "mape_status": "not reported; target contains zero or negative actual values"
+        },
+        "project_count": 600
+      },
+      "test": {
+        "snapshot_row_metrics": {
+          "mae": 33.23349316325594,
+          "median_absolute_error": 30.4375,
+          "rmse": 46.14684672016465,
+          "r2": -0.08675908621475914,
+          "absolute_error_percentiles": {
+            "p50": 30.4375,
+            "p75": 30.4375,
+            "p90": 60.875,
+            "p95": 91.3125
+          },
+          "mape_percent": null,
+          "mape_status": "not reported; target contains zero or negative actual values"
+        },
+        "project_level_metrics": {
+          "mae": 27.8503125,
+          "median_absolute_error": 30.4375,
+          "rmse": 38.99882017780046,
+          "r2": -0.014210966177522932,
+          "absolute_error_percentiles": {
+            "p50": 30.4375,
+            "p75": 30.4375,
+            "p90": 60.875,
+            "p95": 91.3125
+          },
+          "mape_percent": null,
+          "mape_status": "not reported; target contains zero or negative actual values"
+        },
+        "project_count": 600
+      },
+      "project_level_test_model": {
+        "mae": 27.71046834259029,
+        "median_absolute_error": 26.764043042885124,
+        "rmse": 37.238021288469284,
+        "r2": 0.07530489938405993,
+        "absolute_error_percentiles": {
+          "p50": 26.764043042885124,
+          "p75": 33.52334971276538,
+          "p90": 59.97350643276207,
+          "p95": 74.8558290586143
+        },
+        "mape_percent": null,
+        "mape_status": "not reported; target contains zero or negative actual values"
+      },
+      "project_level_test_improvement": {
+        "metric": "mae",
+        "positive_is_better": true,
+        "model_minus_baseline": 0.139844157409712,
+        "decision_source": "test is descriptive only; baseline statistic was fitted using TRAIN projects"
+      }
+    },
+    "cost_overrun_ratio": {
+      "status": "computed",
+      "method": "median_from_train_projects",
+      "train_project_count": 2800,
+      "train_statistic": 0.05623971460336885,
+      "validation": {
+        "snapshot_row_metrics": {
+          "mae": 0.04320644903846639,
+          "median_absolute_error": 0.03347468216355445,
+          "rmse": 0.05755327642477243,
+          "r2": -0.002798085413681095,
+          "absolute_error_percentiles": {
+            "p50": 0.03347468216355445,
+            "p75": 0.060033779603679144,
+            "p90": 0.09027296914691646,
+            "p95": 0.12151249177226602
+          },
+          "mape_percent": null,
+          "mape_status": "not reported; target contains zero or negative actual values",
+          "mae_percentage_points": 4.320644903846639
+        },
+        "project_level_metrics": {
+          "mae": 0.04639290713810525,
+          "median_absolute_error": 0.0367993465927296,
+          "rmse": 0.06158111126953081,
+          "r2": -1.293586358031007e-07,
+          "absolute_error_percentiles": {
+            "p50": 0.0367993465927296,
+            "p75": 0.06233219129042958,
+            "p90": 0.09581590565751355,
+            "p95": 0.1281916984079941
+          },
+          "mape_percent": null,
+          "mape_status": "not reported; target contains zero or negative actual values",
+          "mae_percentage_points": 4.639290713810524
+        },
+        "project_count": 600
+      },
+      "test": {
+        "snapshot_row_metrics": {
+          "mae": 0.04953268364905072,
+          "median_absolute_error": 0.03947250433729314,
+          "rmse": 0.06527321658626092,
+          "r2": -0.03846104574995879,
+          "absolute_error_percentiles": {
+            "p50": 0.03947250433729314,
+            "p75": 0.06875585506459315,
+            "p90": 0.10496600827873276,
+            "p95": 0.13683289818694966
+          },
+          "mape_percent": null,
+          "mape_status": "not reported; target contains zero or negative actual values",
+          "mae_percentage_points": 4.953268364905072
+        },
+        "project_level_metrics": {
+          "mae": 0.050974437327970974,
+          "median_absolute_error": 0.041584218320768,
+          "rmse": 0.06636785395557093,
+          "r2": -0.008023030425770239,
+          "absolute_error_percentiles": {
+            "p50": 0.041584218320768,
+            "p75": 0.0700896501772616,
+            "p90": 0.10632061830043303,
+            "p95": 0.1357536051653114
+          },
+          "mape_percent": null,
+          "mape_status": "not reported; target contains zero or negative actual values",
+          "mae_percentage_points": 5.097443732797098
+        },
+        "project_count": 600
+      },
+      "project_level_test_model": {
+        "mae": 0.0014715785054456153,
+        "median_absolute_error": 0.000538783876791113,
+        "rmse": 0.00598016858871776,
+        "r2": 0.9918156958562626,
+        "absolute_error_percentiles": {
+          "p50": 0.000538783876791113,
+          "p75": 0.0010088775053154597,
+          "p90": 0.0016493314088183043,
+          "p95": 0.0034050073013592885
+        },
+        "mape_percent": null,
+        "mape_status": "not reported; target contains zero or negative actual values",
+        "mae_percentage_points": 0.14715785054456154
+      },
+      "project_level_test_improvement": {
+        "metric": "mae",
+        "positive_is_better": true,
+        "model_minus_baseline": 0.04950285882252536,
+        "decision_source": "test is descriptive only; baseline statistic was fitted using TRAIN projects"
+      }
+    }
+  }
 }

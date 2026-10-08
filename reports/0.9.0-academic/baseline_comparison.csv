@@ -1,0 +1,4 @@
+target,evaluation_unit,metric,baseline_method,baseline_value,model_value,improvement_positive_is_better,baseline_fit_split
+health,project_level_test,macro_f1,majority_class_from_train_projects,0.27793974732750243,0.6275758334320115,0.3496360861045091,train only
+delay_days,project_level_test,mae,median_from_train_projects,27.8503125,27.71046834259029,0.139844157409712,train only
+cost_overrun_ratio,project_level_test,mae_percentage_points,median_from_train_projects,5.097443732797098,0.14715785054456154,4.950285882252536,train only

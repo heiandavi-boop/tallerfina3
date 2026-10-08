@@ -6,7 +6,9 @@
     {
       "cutoff": 0.2,
       "test_project_count": 236,
+      "total_test_project_count": 600,
       "excluded_test_project_count": 364,
+      "test_project_coverage_percent": 39.33333333333333,
       "selected_snapshot_count": 236,
       "max_selected_progress": 0.1999660477055671,
       "health": {
@@ -94,6 +96,7 @@
           }
         }
       },
+      "health_critical_recall": 0.1111111111111111,
       "delay_days": {
         "mae": 33.146182570492925,
         "median_absolute_error": 28.360273246616558,
@@ -144,7 +147,9 @@
     {
       "cutoff": 0.4,
       "test_project_count": 463,
+      "total_test_project_count": 600,
       "excluded_test_project_count": 137,
+      "test_project_coverage_percent": 77.16666666666666,
       "selected_snapshot_count": 463,
       "max_selected_progress": 0.3999743726235977,
       "health": {
@@ -232,6 +237,7 @@
           }
         }
       },
+      "health_critical_recall": 0.44,
       "delay_days": {
         "mae": 30.40682256027908,
         "median_absolute_error": 28.722677522385368,
@@ -282,7 +288,9 @@
     {
       "cutoff": 0.6,
       "test_project_count": 576,
+      "total_test_project_count": 600,
       "excluded_test_project_count": 24,
+      "test_project_coverage_percent": 96.0,
       "selected_snapshot_count": 576,
       "max_selected_progress": 0.5998440113584965,
       "health": {
@@ -370,6 +378,7 @@
           }
         }
       },
+      "health_critical_recall": 0.4473684210526316,
       "delay_days": {
         "mae": 28.3056066326096,
         "median_absolute_error": 28.26859199901856,
@@ -420,7 +429,9 @@
     {
       "cutoff": 0.8,
       "test_project_count": 599,
+      "total_test_project_count": 600,
       "excluded_test_project_count": 1,
+      "test_project_coverage_percent": 99.83333333333333,
       "selected_snapshot_count": 599,
       "max_selected_progress": 0.7999771784515177,
       "health": {
@@ -508,6 +519,7 @@
           }
         }
       },
+      "health_critical_recall": 0.5454545454545454,
       "delay_days": {
         "mae": 27.522773422256524,
         "median_absolute_error": 27.61129011189112,

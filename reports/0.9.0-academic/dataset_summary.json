@@ -65,7 +65,15 @@
     "normalized_risk_exposure",
     "governance_health_score"
   ],
-  "features_used": [],
+  "features_used": [
+    "planned_duration_weeks",
+    "planned_budget",
+    "true_progress",
+    "spi",
+    "cpi",
+    "project_type",
+    "methodology"
+  ],
   "data_sources_not_joined": [
     "collaboration",
     "itemlet"

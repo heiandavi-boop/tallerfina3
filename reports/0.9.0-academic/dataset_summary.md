@@ -18,15 +18,15 @@
 
 ## Target coverage
 
-| Target | Non-missing |
+| Target | Coverage |
 |---|---:|
-| health | 1.0 |
-| final_status | 1.0 |
-| delay_days | 1.0 |
-| cost_overrun_ratio | 1.0 |
+| health | 100.0% |
+| final_status | 100.0% |
+| delay_days | 100.0% |
+| cost_overrun_ratio | 100.0% |
 
 ## Features
 
-Used: 
+Used: planned_duration_weeks, planned_budget, true_progress, spi, cpi, project_type, methodology
 
 Missing from this dataset: baseline_scope_units, sector, complexity, criticality, team_utilization, team_capacity_ratio, average_productivity, defect_rate, rework_ratio, scope_growth_ratio, dependency_delay_days, normalized_risk_exposure, governance_health_score
