@@ -1,0 +1,49 @@
+random_seed: 42
+split:
+  train: 0.70
+  validation: 0.15
+  test: 0.15
+
+target_rules:
+  healthy_max_delay_ratio: 0.05
+  healthy_max_cost_overrun_ratio: 0.05
+  at_risk_max_delay_ratio: 0.20
+  at_risk_max_cost_overrun_ratio: 0.20
+
+team_health:
+  minimum_components: 3
+  minimum_weight_coverage: 0.50
+  thresholds:
+    healthy: 0.75
+    attention: 0.50
+  weights:
+    team_utilization: 0.20
+    team_capacity_ratio: 0.20
+    average_productivity: 0.20
+    rework_ratio: 0.15
+    defect_rate: 0.10
+    team_stability: 0.10
+    collaboration_level: 0.05
+
+model:
+  classification:
+    n_estimators: 350
+    learning_rate: 0.04
+    num_leaves: 31
+    max_depth: -1
+    min_child_samples: 20
+    reg_alpha: 0.10
+    reg_lambda: 0.20
+  regression:
+    n_estimators: 400
+    learning_rate: 0.035
+    num_leaves: 31
+    max_depth: -1
+    min_child_samples: 20
+    reg_alpha: 0.10
+    reg_lambda: 0.20
+
+inference_fusion:
+  core_weight: 0.85
+  team_health_weight: 0.15
+  note: "Heurística operativa hasta calibrar con outcomes reales de PRUNIN."

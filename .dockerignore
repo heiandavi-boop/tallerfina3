@@ -1,0 +1,7 @@
+.venv
+frontend/node_modules
+__pycache__
+.pytest_cache
+data/raw
+data/processed
+*.zip

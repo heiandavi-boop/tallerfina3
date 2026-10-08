@@ -1,0 +1,10 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {"label":"PRUNIN: Setup Playground","type":"shell","command":"./scripts/setup_playground.sh","problemMatcher":[]},
+    {"label":"PRUNIN: Run Playground","type":"shell","command":"./scripts/run_playground.sh","isBackground":true,"problemMatcher":[]},
+    {"label":"PRUNIN: Dev Playground","type":"shell","command":"./scripts/dev_playground.sh","isBackground":true,"problemMatcher":[]},
+    {"label":"PRUNIN: Run Tests","type":"shell","command":"source .venv/bin/activate && PYTHONPATH=src pytest -q","problemMatcher":[]},
+    {"label":"PRUNIN: Train Academic","type":"shell","command":"source .venv/bin/activate && PYTHONPATH=src python scripts/train_core.py --input data/processed/mendeley_core.csv --version 0.9.0-academic","problemMatcher":[]}
+  ]
+}

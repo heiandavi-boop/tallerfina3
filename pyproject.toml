@@ -1,0 +1,9 @@
+[project]
+name = "prunin-ai-core-final3"
+version = "0.1.0"
+description = "Academic retraining pipeline for PRUNIN AI Core"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
