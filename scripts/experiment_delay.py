@@ -135,10 +135,25 @@ def run_delay_experiment(input_path: Path, artifact_dir: Path, output_dir: Path 
         test_predictions = candidate_models[selected].predict(test_projects[features])
         test_source = "single evaluation of candidate selected using validation only"
     selected_test_metrics = _regression_metrics(test_projects["delay_days"], test_predictions)
+    standard_metrics_path = artifact_dir / "metrics.json"
+    standard_metrics = json.loads(standard_metrics_path.read_text(encoding="utf-8")) if standard_metrics_path.is_file() else {}
+    incumbent_test_metrics = (
+        standard_metrics.get("delay_days", {}).get("project_level_metrics", {}).get("test")
+    )
+    comparison_to_incumbent = None
+    if incumbent_test_metrics:
+        comparison_to_incumbent = {
+            "candidate_test_mae_minus_incumbent": selected_test_metrics["mae"] - incumbent_test_metrics["mae"],
+            "candidate_test_rmse_minus_incumbent": selected_test_metrics["rmse"] - incumbent_test_metrics["rmse"],
+            "candidate_test_r2_minus_incumbent": selected_test_metrics["r2"] - incumbent_test_metrics["r2"],
+            "decision_use": "descriptive only; TEST values were not used to select or promote a model",
+        }
     test_metrics = {
         "selected_candidate": selected,
         "test_project_count": int(test_projects["project_id"].nunique()),
         "metrics": selected_test_metrics,
+        "incumbent_test_metrics_already_reported": incumbent_test_metrics,
+        "candidate_vs_incumbent_test": comparison_to_incumbent,
         "evaluation_note": test_source,
     }
     result = {

@@ -193,6 +193,7 @@ def _experiment_markdown(metrics: dict, feature_manifest: dict, readiness: dict,
             f"- Selection: {decision.get('selection_status')}",
             f"- Selected candidate: {decision.get('selected_candidate')}",
             f"- TEST after freeze: MAE {selected_metrics.get('mae')}, RMSE {selected_metrics.get('rmse')}, R² {selected_metrics.get('r2')}.",
+            f"- Candidate vs incumbent TEST (descriptive only): {test_eval.get('candidate_vs_incumbent_test')}.",
             f"- Promoted automatically: {delay_experiment.get('promoted_to_delay_days_joblib', False)}",
         ])
     else:
