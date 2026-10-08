@@ -18,4 +18,4 @@ jobs:
       - name: Run tests
         env:
           PYTHONPATH: src
-        run: pytest -q
+        run: python -m pytest -q
