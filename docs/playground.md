@@ -16,28 +16,17 @@ Esto permite ensayar la aplicación antes de finalizar el reentrenamiento sin pr
 
 `/api/schema` clasifica cada campo desde `feature_manifest.json` y la configuración Team Health. La superficie principal muestra solo `ml_feature` y separa `team_health`; `not_used` queda en una sección futura deshabilitada. React no mantiene una lista académica fija.
 
-En el artifact académico actual las features ML son:
+En el artifact académico `0.9.0-academic` actualmente versionado en los reportes, las features ML son:
 
 - `planned_duration_weeks`
 - `planned_budget`
-- `baseline_scope_units`
-- `sector`
-- `project_type`
-- `methodology`
-- `complexity`
-- `criticality`
 - `true_progress`
 - `spi`
 - `cpi`
-- `team_utilization`
-- `team_capacity_ratio`
-- `average_productivity`
-- `defect_rate`
-- `rework_ratio`
-- `scope_growth_ratio`
-- `dependency_delay_days`
-- `normalized_risk_exposure`
-- `governance_health_score`
+- `project_type`
+- `methodology`
+
+La lista no se fija en React: `/api/schema` la obtiene de `feature_manifest.json`. Si un artifact futuro cambia de features, la interfaz se adapta dinámicamente.
 
 Las señales Team Health se derivan dinámicamente de los pesos configurados. Actualmente incluyen utilización, capacidad, productividad, retrabajo, defectos, estabilidad y colaboración; se muestran como heurística y no como inputs aprendidos por el clasificador académico.
 

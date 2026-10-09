@@ -120,6 +120,21 @@ def test_csv_template_and_csv_prediction():
     assert future_template.status_code == 200
     assert len(pd.read_csv(io.BytesIO(future_template.content)).columns) == len(schema['fields'])
 
+def test_health_readiness_and_monitoring_endpoints():
+    ready = client.get('/api/ready')
+    assert ready.status_code == 200
+    assert ready.json()['status'] == 'ready'
+
+    monitoring = client.get('/api/monitoring')
+    assert monitoring.status_code == 200
+    assert 'total_predictions' in monitoring.json()
+
+    metrics = client.get('/metrics')
+    assert metrics.status_code == 200
+    assert 'prunin_predictions_total' in metrics.text
+    assert 'prunin_inference_latency_p95_ms' in metrics.text
+
+
 def test_static_frontend_and_qr():
     home = client.get('/')
     assert home.status_code == 200

@@ -42,6 +42,34 @@ class MonitoringRegistry:
         index = min(len(ordered) - 1, max(0, round((len(ordered) - 1) * q)))
         return round(float(ordered[index]), 2)
 
+    def prometheus_text(self, *, model_version: str, model_mode: str) -> str:
+        snapshot = self.snapshot(model_version=model_version, model_mode=model_mode)
+        latency = snapshot["inference_latency_ms"]
+        lines = [
+            "# HELP prunin_predictions_total Successful PRUNIN inference requests.",
+            "# TYPE prunin_predictions_total counter",
+            f"prunin_predictions_total {snapshot['total_predictions']}",
+            "# HELP prunin_prediction_failures_total Failed PRUNIN inference requests.",
+            "# TYPE prunin_prediction_failures_total counter",
+            f"prunin_prediction_failures_total {snapshot['prediction_failures']}",
+            "# HELP prunin_genai_attempts_total Generative AI attempts.",
+            "# TYPE prunin_genai_attempts_total counter",
+            f"prunin_genai_attempts_total {snapshot['genai_attempts']}",
+            "# HELP prunin_genai_successes_total Accepted grounded GenAI responses.",
+            "# TYPE prunin_genai_successes_total counter",
+            f"prunin_genai_successes_total {snapshot['genai_successes']}",
+            "# HELP prunin_genai_fallbacks_total GenAI attempts that fell back to deterministic recommendations.",
+            "# TYPE prunin_genai_fallbacks_total counter",
+            f"prunin_genai_fallbacks_total {snapshot['genai_fallbacks']}",
+            "# HELP prunin_inference_latency_p95_ms Rolling in-memory p95 inference latency.",
+            "# TYPE prunin_inference_latency_p95_ms gauge",
+            f"prunin_inference_latency_p95_ms {latency['p95'] if latency['p95'] is not None else 0}",
+            "# HELP prunin_process_uptime_seconds API process uptime.",
+            "# TYPE prunin_process_uptime_seconds gauge",
+            f"prunin_process_uptime_seconds {snapshot['uptime_seconds']}",
+        ]
+        return "\n".join(lines) + "\n"
+
     def snapshot(self, *, model_version: str, model_mode: str) -> dict[str, Any]:
         with self._lock:
             values = list(self._latencies)

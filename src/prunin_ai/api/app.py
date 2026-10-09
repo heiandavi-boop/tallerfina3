@@ -130,6 +130,15 @@ def monitoring_snapshot():
     return monitoring.snapshot(model_version=runtime.version, model_mode=runtime.mode)
 
 
+@app.get("/metrics", include_in_schema=False)
+def metrics():
+    return Response(
+        content=monitoring.prometheus_text(model_version=runtime.version, model_mode=runtime.mode),
+        media_type="text/plain; version=0.0.4",
+        headers={"Cache-Control": "no-store"},
+    )
+
+
 @app.get("/api/schema")
 def schema():
     fields = runtime.field_usage()
