@@ -35,6 +35,10 @@ check('Fusion operativa heurística', metadata.get('fusion', {}).get('type') == 
       and metadata.get('fusion', {}).get('calibrated') is False)
 
 client = TestClient(app)
+ready = client.get('/api/ready')
+check('GET /api/ready', ready.status_code == 200, str(ready.status_code))
+monitor = client.get('/api/monitoring')
+check('GET /api/monitoring', monitor.status_code == 200 and 'total_predictions' in monitor.json(), str(monitor.status_code))
 schema = client.get('/api/schema')
 check('GET /api/schema', schema.status_code == 200, str(schema.status_code))
 if schema.status_code == 200:
@@ -61,6 +65,8 @@ if schema.status_code == 200:
                result.get('final_status') == {'healthy': 'successful', 'at_risk': 'challenged', 'critical': 'critical'}.get(result.get('health'))))
         check('Driver source', response.get('driver_source') == 'local_model_sensitivity')
         check('Inference trace', bool(response.get('prediction_id')) and isinstance(response.get('inference_ms'), (int, float)))
+        recs = response.get('recommendations', {})
+        check('Recommendation trace', bool(recs.get('engine')) and 'genai_attempted' in recs and 'genai_used' in recs)
         check('What-if', client.post('/api/what-if', json={'baseline': sample, 'scenario': sample}).status_code == 200)
     template = client.get('/api/csv-template')
     if template.status_code == 200:

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import json
+import logging
 import os
 import time
 import uuid
@@ -20,6 +21,7 @@ from fastapi.staticfiles import StaticFiles
 from .catalog import PRESETS
 from .model_runtime import ModelRuntime, ROOT, unused_what_if_changes
 from .recommendations import build_recommendations
+from .monitoring import monitoring
 from .schema import ProjectInput, WhatIfRequest
 
 @asynccontextmanager
@@ -32,8 +34,10 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="PRUNIN AI Core Playground", version="1.0.0", lifespan=lifespan)
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=False, allow_methods=["*"], allow_headers=["*"])
+cors_origins = [item.strip() for item in os.getenv("PRUNIN_CORS_ORIGINS", "*").split(",") if item.strip()]
+app.add_middleware(CORSMiddleware, allow_origins=cors_origins or ["*"], allow_credentials=False, allow_methods=["*"], allow_headers=["*"])
 runtime = ModelRuntime()
+logger = logging.getLogger("prunin.inference")
 
 
 def serialize(value: Any):
@@ -50,37 +54,80 @@ def serialize(value: Any):
 
 def run_prediction(data: dict[str, Any]) -> dict[str, Any]:
     started = time.perf_counter()
-    pred = runtime.predict(data)
-    drivers = runtime.local_drivers(data, pred)
-    recommendations = build_recommendations(data, pred, drivers)
-    elapsed = (time.perf_counter() - started) * 1000
-    model_metadata = runtime.metadata()
-    return serialize({
-        "prediction_id": str(uuid.uuid4()),
-        "model": {
-            "version": runtime.version,
-            "mode": runtime.mode,
-            "execution": "LIVE",
-            "dataset_source": model_metadata["dataset_source"],
-            "dataset_type": model_metadata["dataset_type"],
-            "model_type": model_metadata["model_type"],
-            "final_status_mode": model_metadata["final_status_mode"],
-            "fusion": model_metadata["fusion"],
-            "trained_features": model_metadata["trained_features"],
-        },
-        "prediction": pred,
-        "drivers": drivers,
-        "driver_source": "local_model_sensitivity",
-        "drivers_disclaimer": "La importancia o el impacto local muestra sensibilidad del modelo; no demuestra causalidad.",
-        "recommendations": recommendations,
-        "inference_ms": round(elapsed, 2),
-        "input": data,
-    })
+    prediction_id = str(uuid.uuid4())
+    try:
+        pred = runtime.predict(data)
+        drivers = runtime.local_drivers(data, pred)
+        recommendations = build_recommendations(data, pred, drivers)
+        elapsed = (time.perf_counter() - started) * 1000
+        model_metadata = runtime.metadata()
+        monitoring.record_prediction(elapsed, recommendations)
+        logger.info(json.dumps({
+            "event": "prediction",
+            "prediction_id": prediction_id,
+            "model_version": runtime.version,
+            "model_mode": runtime.mode,
+            "inference_ms": round(elapsed, 2),
+            "recommendation_engine": recommendations.get("engine"),
+            "genai_attempted": recommendations.get("genai_attempted", False),
+            "genai_used": recommendations.get("genai_used", False),
+        }, ensure_ascii=False))
+        return serialize({
+            "prediction_id": prediction_id,
+            "model": {
+                "version": runtime.version,
+                "mode": runtime.mode,
+                "execution": "LIVE",
+                "dataset_source": model_metadata["dataset_source"],
+                "dataset_type": model_metadata["dataset_type"],
+                "model_type": model_metadata["model_type"],
+                "final_status_mode": model_metadata["final_status_mode"],
+                "fusion": model_metadata["fusion"],
+                "trained_features": model_metadata["trained_features"],
+            },
+            "prediction": pred,
+            "drivers": drivers,
+            "driver_source": "local_model_sensitivity",
+            "drivers_disclaimer": "La importancia o el impacto local muestra sensibilidad del modelo; no demuestra causalidad.",
+            "recommendations": recommendations,
+            "inference_ms": round(elapsed, 2),
+            "input": data,
+        })
+    except Exception as exc:
+        elapsed = (time.perf_counter() - started) * 1000
+        monitoring.record_failure(elapsed)
+        logger.exception(json.dumps({
+            "event": "prediction_error",
+            "prediction_id": prediction_id,
+            "model_version": runtime.version,
+            "inference_ms": round(elapsed, 2),
+            "error_type": type(exc).__name__,
+        }, ensure_ascii=False))
+        raise
 
 
 @app.get("/api/health")
 def health():
     return {"status": "ok", **runtime.metadata()}
+
+
+@app.get("/api/ready")
+def ready():
+    models = set(runtime.brain.models)
+    required = {"health", "delay_days", "cost_overrun_ratio"}
+    if not required <= models:
+        raise HTTPException(503, f"Modelos requeridos no disponibles: {sorted(required - models)}")
+    return {
+        "status": "ready",
+        "model_version": runtime.version,
+        "model_mode": runtime.mode,
+        "models_loaded": sorted(models),
+    }
+
+
+@app.get("/api/monitoring")
+def monitoring_snapshot():
+    return monitoring.snapshot(model_version=runtime.version, model_mode=runtime.mode)
 
 
 @app.get("/api/schema")

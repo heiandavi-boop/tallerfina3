@@ -184,6 +184,13 @@ echo "Tests ...................... PASS"
 echo "Playground ................."
 PRUNIN_ARTIFACT_DIR="$ARTIFACT" ./scripts/preflight_demo.sh
 echo "Playground ................. READY"
+if [[ "${PRUNIN_RUN_GENAI_BENCHMARK:-0}" == "1" ]]; then
+  echo "GenAI benchmark ............"
+  "$PY" scripts/evaluate_genai.py --artifact "$ARTIFACT" --input "$INPUT" --cases "${PRUNIN_GENAI_CASES:-30}"
+  echo "GenAI benchmark ............ COMPLETE"
+else
+  echo "GenAI benchmark ............ optional; set PRUNIN_RUN_GENAI_BENCHMARK=1 with Ollama available"
+fi
 echo "PRUNIN AI CORE ACADEMIC READY"
 echo "Model: $VERSION"
 echo "Reports: reports/$VERSION/"
