@@ -20,7 +20,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .catalog import PRESETS
 from .model_runtime import ModelRuntime, ROOT, unused_what_if_changes
-from .recommendations import build_recommendations
+from .recommendations import build_recommendations, check_ollama_status, recommendations_not_requested, warmup_ollama
 from .monitoring import monitoring
 from .schema import ProjectInput, WhatIfRequest
 
@@ -30,6 +30,9 @@ async def lifespan(app: FastAPI):
         runtime.brain.predict(PRESETS["at_risk"])
     except Exception:
         pass
+    if os.getenv("PRUNIN_OLLAMA_WARMUP", "0") == "1":
+        warmup_result = warmup_ollama()
+        logger.info(json.dumps({"event": "ollama_warmup", "ok": warmup_result.get("ok"), "failure_code": warmup_result.get("failure_code")}))
     yield
 
 
@@ -52,25 +55,30 @@ def serialize(value: Any):
     return value
 
 
-def run_prediction(data: dict[str, Any]) -> dict[str, Any]:
+def run_prediction(data: dict[str, Any], *, include_recommendations: bool = True) -> dict[str, Any]:
     started = time.perf_counter()
     prediction_id = str(uuid.uuid4())
     try:
         pred = runtime.predict(data)
         drivers = runtime.local_drivers(data, pred)
-        recommendations = build_recommendations(data, pred, drivers)
-        elapsed = (time.perf_counter() - started) * 1000
+        ml_and_drivers_ms = round((time.perf_counter() - started) * 1000, 2)
+        recommendations = build_recommendations(data, pred, drivers) if include_recommendations else recommendations_not_requested()
+        elapsed = round((time.perf_counter() - started) * 1000, 2)
+        genai_ms = recommendations.get("genai_latency_ms") if recommendations and recommendations.get("genai_attempted") else None
         model_metadata = runtime.metadata()
-        monitoring.record_prediction(elapsed, recommendations)
+        monitoring.record_prediction(elapsed, recommendations or {})
         logger.info(json.dumps({
             "event": "prediction",
             "prediction_id": prediction_id,
             "model_version": runtime.version,
             "model_mode": runtime.mode,
-            "inference_ms": round(elapsed, 2),
-            "recommendation_engine": recommendations.get("engine"),
-            "genai_attempted": recommendations.get("genai_attempted", False),
-            "genai_used": recommendations.get("genai_used", False),
+            "inference_ms": elapsed,
+            "ml_and_drivers_ms": ml_and_drivers_ms,
+            "genai_ms": genai_ms,
+            "recommendation_engine": recommendations.get("engine") if recommendations else None,
+            "genai_attempted": recommendations.get("genai_attempted", False) if recommendations else False,
+            "genai_used": recommendations.get("genai_used", False) if recommendations else False,
+            "genai_failure_code": recommendations.get("failure_code") if recommendations else None,
         }, ensure_ascii=False))
         return serialize({
             "prediction_id": prediction_id,
@@ -90,7 +98,14 @@ def run_prediction(data: dict[str, Any]) -> dict[str, Any]:
             "driver_source": "local_model_sensitivity",
             "drivers_disclaimer": "La importancia o el impacto local muestra sensibilidad del modelo; no demuestra causalidad.",
             "recommendations": recommendations,
-            "inference_ms": round(elapsed, 2),
+            "inference_ms": elapsed,
+            "ml_inference_ms": ml_and_drivers_ms,
+            "genai_latency_ms": genai_ms,
+            "timing": {
+                "ml_and_drivers_ms": ml_and_drivers_ms,
+                "genai_ms": genai_ms,
+                "total_ms": elapsed,
+            },
             "input": data,
         })
     except Exception as exc:
@@ -123,6 +138,11 @@ def ready():
         "model_mode": runtime.mode,
         "models_loaded": sorted(models),
     }
+
+
+@app.get("/api/genai-status")
+def genai_status():
+    return check_ollama_status()
 
 
 @app.get("/api/monitoring")
@@ -179,8 +199,8 @@ def what_if(payload: WhatIfRequest):
     if invalid_changes:
         raise HTTPException(422, f"What-if no puede modificar variables no utilizadas por este modelo: {invalid_changes}")
     try:
-        baseline = run_prediction(baseline_input)
-        scenario = run_prediction(scenario_input)
+        baseline = run_prediction(baseline_input, include_recommendations=False)
+        scenario = run_prediction(scenario_input, include_recommendations=False)
     except ValueError as exc:
         raise HTTPException(422, str(exc))
     bp, sp = baseline["prediction"], scenario["prediction"]
@@ -211,7 +231,7 @@ async def predict_csv(file: UploadFile = File(...)):
         clean = {k: (None if pd.isna(v) else v) for k, v in record.items()}
         try:
             validated = ProjectInput.model_validate(clean)
-            result = run_prediction(validated.model_dump())
+            result = run_prediction(validated.model_dump(), include_recommendations=False)
             rows.append({"row_number": i, "prediction": result, "error": None})
         except Exception as exc:
             rows.append({"row_number": i, "prediction": None, "error": str(exc)})

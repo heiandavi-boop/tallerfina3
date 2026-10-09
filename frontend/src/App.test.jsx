@@ -29,10 +29,11 @@ csvPrediction.prediction.final_status = 'challenged';
 const csvResult = { count: 1, rows: [{ row_number: 1, error: null, prediction: csvPrediction }] };
 const jsonResponse = (body, ok = true) => Promise.resolve({ ok, json: () => Promise.resolve(body) });
 
-function installFetch({ recommendation = fallback, complete = true, csv = csvResult } = {}) {
+function installFetch({ recommendation = fallback, complete = true, csv = csvResult, genaiStatus = { enabled: false, provider: 'ollama', model: 'qwen3:8b', available: false, last_error: null } } = {}) {
   global.fetch = vi.fn((url) => {
     if (url.endsWith('/api/schema')) return jsonResponse(schema);
     if (url.endsWith('/api/ready')) return Promise.resolve({ ok: true });
+    if (url.endsWith('/api/genai-status')) return jsonResponse(genaiStatus);
     if (url.endsWith('/api/predict')) return jsonResponse(prediction(recommendation, complete));
     if (url.endsWith('/api/what-if')) return jsonResponse(whatIfResult);
     if (url.endsWith('/api/predict-csv')) return jsonResponse(csv);
@@ -59,6 +60,7 @@ describe('Playground ejecutivo', () => {
     expect(document.querySelector('.tagline').textContent.replace(/\s+/g, ' ')).toContain('Predice · Explica · Recomienda · Simula');
     expect(screen.getByRole('tab', { name: 'Analizar proyecto' }).getAttribute('aria-selected')).toBe('true');
     expect(screen.getByRole('tab', { name: 'Analizar CSV' })).toBeTruthy();
+    expect(screen.getByText('IA generativa desactivada')).toBeTruthy();
     expect(screen.getByLabelText(/SPI/)).toBeTruthy();
     expect(screen.queryByText('Variable futura')).toBeNull();
     expect(screen.getByText(/Datos completos/)).toBeTruthy();
@@ -107,8 +109,14 @@ describe('Playground ejecutivo', () => {
     expect(await screen.findByText('Qwen3 8B · IA generativa activa')).toBeTruthy();
   });
 
+  it('muestra Qwen3 conectado antes de analizar según el endpoint de estado', async () => {
+    installFetch({ genaiStatus: { enabled: true, provider: 'ollama', model: 'qwen3:8b', available: true, last_error: null } });
+    await openProject();
+    expect(screen.getByText('Qwen3 conectado · qwen3:8b')).toBeTruthy();
+  });
+
   it('explica de forma moderada el timeout de Qwen y confirma el uso de respaldo', async () => {
-    installFetch({ recommendation: { ...fallback, genai_attempted: true, genai_failure_reason: 'ReadTimeout: Ollama did not respond', genai_used: false } });
+    installFetch({ recommendation: { ...fallback, genai_attempted: true, failure_code: 'ollama_timeout', failure_detail: 'ReadTimeout: Ollama did not respond', genai_failure_reason: 'ReadTimeout: Ollama did not respond', genai_used: false } });
     const user = userEvent.setup();
     await openProject();
     await user.click(screen.getByRole('button', { name: 'Analizar proyecto' }));
@@ -117,8 +125,28 @@ describe('Playground ejecutivo', () => {
     expect(screen.queryByText(/ReadTimeout/)).toBeNull();
     await user.click(screen.getAllByRole('button', { name: /Ver evidencia técnica/ })[0]);
     const drawer = await screen.findByRole('dialog', { name: 'Trazabilidad de inferencia' });
+    expect(within(drawer).getByText('ollama_timeout')).toBeTruthy();
+    expect(within(drawer).getAllByText(/ReadTimeout/).length).toBeGreaterThan(0);
     await user.click(within(drawer).getByText('Detalle técnico de GenAI'));
-    expect(within(drawer).getByText('ReadTimeout: Ollama did not respond')).toBeTruthy();
+    expect(within(drawer).getAllByText('ReadTimeout: Ollama did not respond').length).toBeGreaterThan(0);
+  });
+
+  it('explica rechazo de grounding sin exponer el código interno', async () => {
+    installFetch({ recommendation: { ...fallback, genai_attempted: true, genai_used: false, failure_code: 'unsupported_numeric_claim', failure_detail: 'Invented 99 days.' } });
+    const user = userEvent.setup();
+    await openProject();
+    await user.click(screen.getByRole('button', { name: 'Analizar proyecto' }));
+    expect(await screen.findByText(/La respuesta de Qwen3 no cumplió las reglas de evidencia/)).toBeTruthy();
+    expect(screen.queryByText('unsupported_numeric_claim')).toBeNull();
+  });
+
+  it('distingue JSON inválido de timeout y grounding', async () => {
+    installFetch({ recommendation: { ...fallback, genai_attempted: true, genai_used: false, failure_code: 'invalid_json', failure_detail: 'Expecting value' } });
+    const user = userEvent.setup();
+    await openProject();
+    await user.click(screen.getByRole('button', { name: 'Analizar proyecto' }));
+    expect(await screen.findByText(/Qwen3 no devolvió una respuesta válida/)).toBeTruthy();
+    expect(screen.queryByText('invalid_json')).toBeNull();
   });
 
   it('envía baseline y escenario completos y muestra la comparación del endpoint what-if', async () => {

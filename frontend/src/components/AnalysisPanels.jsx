@@ -46,12 +46,19 @@ export function RecommendationCard({ data, fields = [] }) {
     if (!data) return null;
     const genaiUsed = data.genai_used === true;
     const genaiFailed = data.genai_attempted === true && !genaiUsed;
-    const timeout = /timeout|timed out/i.test(data.genai_failure_reason || '');
-    const title = genaiUsed ? 'Qwen3 8B · IA generativa activa' : genaiFailed ? `${timeout ? 'Qwen3 no respondió dentro del tiempo esperado' : 'Qwen3 no pudo generar una recomendación válida'}; se utilizó recomendación de respaldo` : 'IA generativa desactivada · Recomendación de respaldo';
+    const groundingFailures = new Set(['unknown_evidence_feature', 'unsupported_numeric_claim', 'empty_recommendations_with_risk_drivers', 'grounding_validation_failed']);
+    const formatFailures = new Set(['invalid_json', 'invalid_schema']);
+    const legacyTimeout = /timeout|timed out/i.test(data.genai_failure_reason || '');
+    const title = genaiUsed ? 'Qwen3 8B · IA generativa activa' : genaiFailed
+        ? data.failure_code === 'ollama_timeout' || (!data.failure_code && legacyTimeout) ? 'Qwen3 no respondió dentro del tiempo esperado; se utilizó recomendación de respaldo'
+            : groundingFailures.has(data.failure_code) ? 'La respuesta de Qwen3 no cumplió las reglas de evidencia; se utilizó recomendación de respaldo'
+                : formatFailures.has(data.failure_code) ? 'Qwen3 no devolvió una respuesta válida; se utilizó recomendación de respaldo'
+                    : 'Qwen3 no está disponible; se utilizó recomendación de respaldo'
+        : 'IA generativa desactivada · Recomendación de respaldo';
     const fieldMap = new Map(fields.map(field => [field.name, field.label]));
     return <section className="surface content-section recommendations" id="recommendations" aria-labelledby="recommendations-title"><div className="section-heading"><div><span className="step-number">4</span><div><p className="eyebrow">ACCIONES</p><h2 id="recommendations-title">¿Qué recomienda PRUNIN?</h2></div></div></div>
         <div className={`recommendation-status ${genaiUsed ? 'genai-active' : 'fallback'}`}><span aria-hidden="true">{genaiUsed ? '✦' : '↻'}</span><div><strong>{title}</strong>{genaiFailed && <small>La predicción se completó correctamente.</small>}</div></div>
-        {data.actions?.length ? <ol className="action-list">{data.actions.slice(0, 5).map((action, index) => <li key={`${index}-${action}`}>{action}</li>)}</ol> : <p className="empty-inline">No hay acciones sugeridas para esta inferencia.</p>}
+        {data.actions?.length ? <ol className="action-list">{data.actions.slice(0, 5).map((action, index) => <li key={`${index}-${action}`}>{action}</li>)}</ol> : data.summary ? <p className="recommendation-summary">{data.summary}</p> : <p className="empty-inline">No hay acciones sugeridas para esta inferencia.</p>}
         {data.evidence_features?.length > 0 && <p className="evidence-line"><span>Evidencia utilizada:</span> {data.evidence_features.map(key => fieldMap.get(key) || key).join(' · ')}</p>}
         <details className="disclosure recommendation-evidence"><summary>Ver evidencia y razones</summary>{data.reasons?.length > 0 && <ul>{data.reasons.map((reason, index) => <li key={`${index}-${reason}`}>{reason}</li>)}</ul>}{data.summary && <p>{data.summary}</p>}{data.disclaimer && <p className="science-note">{data.disclaimer}</p>}</details></section>;
 }

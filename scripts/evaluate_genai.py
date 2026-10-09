@@ -16,7 +16,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from prunin_ai.api.catalog import FIELD_MAP
 from prunin_ai.api.model_runtime import ModelRuntime
-from prunin_ai.api.recommendations import generate_ollama_grounded
+from prunin_ai.api.recommendations import generate_ollama_grounded, ollama_timeout_seconds
 
 
 def _latest_per_project(frame: pd.DataFrame) -> pd.DataFrame:
@@ -38,7 +38,7 @@ def _ollama_available(url: str) -> tuple[bool, str | None]:
         return False, f"{type(exc).__name__}: {exc}"
 
 
-def evaluate(artifact: Path, input_path: Path, model: str, cases: int, output: Path) -> dict:
+def evaluate(artifact: Path, input_path: Path, model: str, cases: int, output: Path, timeout: float | None = None) -> dict:
     os.environ["PRUNIN_ARTIFACT_DIR"] = str(artifact)
     runtime = ModelRuntime()
     split = json.loads((artifact / "split_manifest.json").read_text(encoding="utf-8"))
@@ -48,6 +48,7 @@ def evaluate(artifact: Path, input_path: Path, model: str, cases: int, output: P
     latest = _latest_per_project(test).sample(frac=1.0, random_state=42)
 
     url = os.getenv("PRUNIN_OLLAMA_URL", "http://localhost:11434/api/chat")
+    effective_timeout = ollama_timeout_seconds(timeout)
     available, error = _ollama_available(url)
     output.parent.mkdir(parents=True, exist_ok=True)
     if not available:
@@ -78,7 +79,7 @@ def evaluate(artifact: Path, input_path: Path, model: str, cases: int, output: P
         risk_drivers = [item for item in drivers if item.get("direction") == "increases_risk"]
         if not risk_drivers:
             continue
-        result = generate_ollama_grounded(prediction, risk_drivers, model=model, url=url, timeout=30)
+        result = generate_ollama_grounded(prediction, risk_drivers, model=model, url=url, timeout=effective_timeout)
         validation = result["validation"]
         rows.append({
             "project_id": str(source["project_id"]),
@@ -91,7 +92,8 @@ def evaluate(artifact: Path, input_path: Path, model: str, cases: int, output: P
             "actionability": bool(validation["actionability"]),
             "unsupported_numeric_claim": bool(validation["unsupported_numeric_claim"]),
             "latency_ms": float(result["latency_ms"]),
-            "error": result.get("error"),
+            "failure_code": result.get("failure_code"),
+            "failure_detail": result.get("failure_detail"),
             "referenced_evidence_features": validation.get("referenced_evidence_features", []),
             "allowed_evidence_features": validation.get("allowed_evidence_features", []),
             "payload": result.get("payload"),
@@ -112,6 +114,7 @@ def evaluate(artifact: Path, input_path: Path, model: str, cases: int, output: P
         "evaluation_unit": "latest TEST project snapshot with at least one increasing-risk local driver",
         "cases_requested": cases,
         "cases_evaluated": len(rows),
+        "timeout_seconds": effective_timeout,
         "metrics": {
             "generation_success_rate": rate("generation_ok"),
             "schema_valid_rate": rate("schema_valid"),
@@ -119,6 +122,8 @@ def evaluate(artifact: Path, input_path: Path, model: str, cases: int, output: P
             "grounded_response_rate": rate("grounded"),
             "actionability_rate": rate("actionability"),
             "unsupported_numeric_claim_rate": rate("unsupported_numeric_claim"),
+            "timeout_rate": sum(row["failure_code"] == "ollama_timeout" for row in rows) / len(rows),
+            "invalid_json_rate": sum(row["failure_code"] == "invalid_json" for row in rows) / len(rows),
             "latency_ms_median": float(statistics.median(latencies)),
             "latency_ms_p95": float(sorted(latencies)[min(len(latencies) - 1, round((len(latencies) - 1) * 0.95))]),
         },
@@ -137,9 +142,10 @@ if __name__ == "__main__":
     parser.add_argument("--input", default="data/processed/mendeley_core.csv")
     parser.add_argument("--model", default=os.getenv("PRUNIN_OLLAMA_MODEL", "qwen3:8b"))
     parser.add_argument("--cases", type=int, default=30)
+    parser.add_argument("--timeout", type=float, default=None, help="Override PRUNIN_OLLAMA_TIMEOUT_SECONDS for this run")
     parser.add_argument("--output", default="reports/genai/qwen3-8b-evaluation.json")
     args = parser.parse_args()
-    report = evaluate(ROOT / args.artifact, ROOT / args.input, args.model, args.cases, ROOT / args.output)
+    report = evaluate(ROOT / args.artifact, ROOT / args.input, args.model, args.cases, ROOT / args.output, args.timeout)
     print(json.dumps({k: v for k, v in report.items() if k != "cases"}, indent=2, ensure_ascii=False))
     if report.get("status") != "complete":
         raise SystemExit(2)

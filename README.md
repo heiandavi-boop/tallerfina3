@@ -145,17 +145,30 @@ export PRUNIN_PUBLIC_URL=https://tu-dominio.com
 
 ## IA generativa sin romper la demo
 
-La demo funciona aunque no haya LLM disponible. Por defecto usa un motor de recomendaciones fundamentado en drivers del modelo.
+LightGBM genera las predicciones; Qwen3 explica y recomienda; Ollama es el runtime local; `grounded_fallback` es el respaldo determinístico. La demo funciona aunque Ollama esté apagado. What-if y CSV ejecutan ML/drivers sin llamadas LLM.
 
 Si quieres activar Ollama local:
 
 ```bash
 export PRUNIN_ENABLE_OLLAMA=1
 export PRUNIN_OLLAMA_MODEL=qwen3:8b
+export PRUNIN_OLLAMA_TIMEOUT_SECONDS=30
 ./scripts/run_playground.sh
 ```
 
-Si Ollama falla o excede el timeout, se utiliza automáticamente el fallback fundamentado.
+`GET /api/genai-status` informa si la generación está habilitada y si el modelo aparece instalado. El timeout se comparte con `scripts/evaluate_genai.py`; override puntual con `--timeout`. El warm-up es opcional y no se ejecuta en CI:
+
+```bash
+export PRUNIN_OLLAMA_WARMUP=1
+```
+
+Para inspeccionar raw response y JSON parseado únicamente en el drawer técnico:
+
+```bash
+export PRUNIN_GENAI_DEBUG=1
+```
+
+Las respuestas se validan contra features permitidas y cifras de la evidencia. Un timeout, JSON inválido o fallo de grounding conserva la predicción ML y activa fallback; el fallback nunca se presenta como generación. Ejecuta `./scripts/preflight_genai.sh` para comprobar Ollama, `qwen3:8b`, el status API y una generación grounded.
 
 ## Entrenamiento académico
 

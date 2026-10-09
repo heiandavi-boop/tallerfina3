@@ -1,0 +1,995 @@
+{
+  "status": "complete",
+  "model": "qwen3:8b",
+  "artifact_version": "0.9.0-academic",
+  "dataset_source": "Mendeley Data 2p5sz57wh2 version 2",
+  "evaluation_unit": "latest TEST project snapshot with at least one increasing-risk local driver",
+  "cases_requested": 30,
+  "cases_evaluated": 30,
+  "timeout_seconds": 30.0,
+  "metrics": {
+    "generation_success_rate": 0.9666666666666667,
+    "schema_valid_rate": 1.0,
+    "evidence_feature_valid_rate": 1.0,
+    "grounded_response_rate": 0.9666666666666667,
+    "actionability_rate": 1.0,
+    "unsupported_numeric_claim_rate": 0.03333333333333333,
+    "timeout_rate": 0.0,
+    "invalid_json_rate": 0.0,
+    "latency_ms_median": 3092.645,
+    "latency_ms_p95": 6634.72
+  },
+  "metric_definition_note": "Groundedness is a deterministic proxy: valid JSON schema, all cited evidence features are allow-listed drivers, and no new numeric claims appear. It does not prove semantic causality.",
+  "cases": [
+    {
+      "project_id": "mendeley::PROJ_0760",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 3008.39,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "cpi",
+            "reason": "El índice de rendimiento del proyecto (CPI) es menor a 1, lo que indica que el proyecto está consumiendo más recursos de los previstos.",
+            "action": "Revisar el presupuesto y el cronograma para identificar áreas de ineficiencia y ajustar las asignaciones de recursos."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos significativos debido a un CPI bajo, lo que sugiere un posible desbordamiento de costos."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_2717",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 3014.09,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "cpi",
+            "reason": "El índice de rendimiento del proyecto (CPI) es menor a 1, lo que indica que el proyecto está consumiendo más recursos de los previstos.",
+            "action": "Revisar el presupuesto y el cronograma para identificar áreas de ineficiencia y ajustar las asignaciones de recursos."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos significativos debido a un CPI inferior a 1, lo que sugiere un desempeño inadecuado en el uso de recursos."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_0062",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 3072.06,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "cpi",
+            "reason": "El índice de rendimiento del proyecto (CPI) es menor a 1, lo que indica que el proyecto está consumiendo más recursos de los previstos.",
+            "action": "Revisar el presupuesto y el cronograma para identificar áreas de ineficiencia y ajustar las asignaciones de recursos."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos significativos debido a un CPI por debajo de 1, lo que sugiere un desempeño inadecuado en el uso de recursos."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_0539",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 3056.4,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "cpi",
+            "reason": "El índice de rendimiento del proyecto (CPI) es menor a 1, lo que indica que el proyecto está consumiendo más recursos de los previstos.",
+            "action": "Revisar el presupuesto y el cronograma para identificar áreas de ineficiencia y ajustar las asignaciones de recursos."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos significativos debido a un CPI por debajo de 1, lo que sugiere un desempeño inadecuado en el uso de recursos."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_2331",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 3013.63,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "cpi",
+            "reason": "El Índice de Rendimiento del Proyecto (CPI) es menor a 1, lo que indica que el proyecto está consumiendo más recursos de los previstos.",
+            "action": "Revisar el presupuesto y el cronograma para identificar causas de desviación y ajustar las estimaciones."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos significativos debido a un CPI por debajo de 1, lo que sugiere un posible desbordamiento de costos."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_0840",
+      "health": "critical",
+      "driver_count": 3,
+      "generation_ok": false,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "actionability": true,
+      "unsupported_numeric_claim": true,
+      "latency_ms": 7620.82,
+      "failure_code": "unsupported_numeric_claim",
+      "failure_detail": "La respuesta incluyó cifras que no aparecen en la evidencia estructurada.",
+      "referenced_evidence_features": [
+        "cpi",
+        "planned_budget",
+        "planned_duration_weeks"
+      ],
+      "allowed_evidence_features": [
+        "cpi",
+        "planned_budget",
+        "planned_duration_weeks"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "cpi",
+            "reason": "El índice de rendimiento del proyecto (CPI) es 0.927, por debajo del umbral de referencia de 1.0, lo que indica que el proyecto está consumiendo más recursos de los previstos.",
+            "action": "Revisar el presupuesto y el cronograma para identificar actividades con desviaciones significativas y ajustar las estimaciones."
+          },
+          {
+            "evidence_feature": "planned_duration_weeks",
+            "reason": "La duración planificada del proyecto es de 21.7 semanas, lo que representa un riesgo significativo al compararse con el tiempo total esperado.",
+            "action": "Evaluar la viabilidad del cronograma y considerar la posibilidad de extender el plazo o aumentar los recursos para cumplir con los hitos."
+          },
+          {
+            "evidence_feature": "planned_budget",
+            "reason": "El presupuesto planificado es de 182,753.93, lo cual es significativamente menor al presupuesto total esperado, lo que indica un riesgo de desviación.",
+            "action": "Revisar la estimación del presupuesto y asegurar que se incluyan todos los costos necesarios para el desarrollo del proyecto."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos significativos en términos de CPI, duración planificada y presupuesto, lo que requiere una revisión de las estimaciones y ajustes en el cronograma y recursos."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_0757",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 2921.69,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "cpi",
+            "reason": "El índice de rendimiento del proyecto (CPI) es menor a 1, lo que indica que el proyecto está consumiendo más recursos de los previstos.",
+            "action": "Revisar el presupuesto y el cronograma para identificar causas de desviación y ajustar las estimaciones."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos significativos debido a un CPI por debajo de 1, lo que sugiere un posible desbordamiento de costos."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_3943",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 2997.17,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "cpi",
+            "reason": "El Índice de Rendimiento del Proyecto (CPI) es menor a 1, lo que indica que el proyecto está consumiendo más recursos de los previstos.",
+            "action": "Revisar el presupuesto y el cronograma para identificar causas de desviación y ajustar las estimaciones."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos significativos debido a un CPI por debajo de 1, lo que sugiere un posible desbordamiento de costos."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_0223",
+      "health": "critical",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 2409.65,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "planned_duration_weeks"
+      ],
+      "allowed_evidence_features": [
+        "planned_duration_weeks"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "planned_duration_weeks",
+            "reason": "La duración planificada es significativamente más larga que la referencia, lo que incrementa el riesgo.",
+            "action": "Revisar y ajustar la duración planificada para reducir el riesgo."
+          }
+        ],
+        "summary": "El proyecto presenta un riesgo crítico debido a una duración planificada excesiva."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_1423",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 3061.01,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "cpi",
+            "reason": "El Índice de Rendimiento del Proyecto (CPI) es menor a 1, lo que indica que el proyecto está consumiendo más recursos de los previstos.",
+            "action": "Revisar el presupuesto y el cronograma para identificar causas de desviación y ajustar las estimaciones."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos significativos debido a un CPI por debajo de 1, lo que sugiere un posible desbordamiento de costos."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_1238",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 3108.53,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "cpi",
+            "reason": "El índice de rendimiento del proyecto (CPI) es menor a 1, lo que indica que el proyecto está consumiendo más recursos de los previstos.",
+            "action": "Revisar el presupuesto y el cronograma para identificar áreas de ineficiencia y ajustar las asignaciones de recursos."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos significativos debido a un CPI por debajo de 1, lo que sugiere un desempeño inadecuado en el uso de recursos."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_3932",
+      "health": "at_risk",
+      "driver_count": 2,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 3976.46,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi",
+        "true_progress"
+      ],
+      "allowed_evidence_features": [
+        "cpi",
+        "true_progress"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "cpi",
+            "reason": "El CPI está por debajo de la referencia, lo que indica que el costo está por encima del presupuesto.",
+            "action": "Revisar los gastos y ajustar el presupuesto si es necesario."
+          },
+          {
+            "evidence_feature": "true_progress",
+            "reason": "El avance real es superior al valor de referencia, lo que sugiere que el proyecto está avanzando más rápido de lo esperado.",
+            "action": "Verificar si el avance real se mantiene y si hay riesgos asociados con la aceleración."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos de costo y avance real, requiriendo ajustes en el presupuesto y supervisión del avance."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_3573",
+      "health": "at_risk",
+      "driver_count": 2,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 4784.71,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi",
+        "true_progress"
+      ],
+      "allowed_evidence_features": [
+        "cpi",
+        "true_progress"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "cpi",
+            "reason": "El CPI está por debajo de 1, lo que indica que el costo real supera al presupuestado, aumentando el riesgo de desviación presupuestaria.",
+            "action": "Revisar los gastos y ajustar el presupuesto si es necesario para evitar un desbordamiento de costos."
+          },
+          {
+            "evidence_feature": "true_progress",
+            "reason": "El avance real es significativamente superior al valor de referencia, lo que sugiere que el proyecto podría estar avanzando más rápido de lo esperado.",
+            "action": "Verificar la precisión de los registros de avance y asegurar que los hitos se estén cumpliendo correctamente."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos de desviación presupuestaria y de avance real inusualmente alto, requiriendo revisiones de costos y validación de los hitos."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_3973",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 3093.05,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "cpi",
+            "reason": "El índice de rendimiento del proyecto (CPI) es menor a 1, lo que indica que el proyecto está consumiendo más recursos de los previstos.",
+            "action": "Revisar el presupuesto y el cronograma para identificar áreas de ineficiencia y ajustar las asignaciones de recursos."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos significativos debido a un CPI por debajo de 1, lo que sugiere un desempeño inadecuado en el uso de recursos."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_2414",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 2983.41,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "planned_duration_weeks"
+      ],
+      "allowed_evidence_features": [
+        "planned_duration_weeks"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "planned_duration_weeks",
+            "reason": "La duración planificada es significativamente más larga que la referencia, lo que incrementa el riesgo de retrasos.",
+            "action": "Revisar y ajustar el cronograma para reducir la duración planificada y mitigar el riesgo de retrasos."
+          }
+        ],
+        "summary": "El proyecto presenta un riesgo elevado debido a una duración planificada excesiva, lo que incrementa la probabilidad de retrasos."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_3604",
+      "health": "critical",
+      "driver_count": 2,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 3990.78,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "planned_budget",
+        "planned_duration_weeks"
+      ],
+      "allowed_evidence_features": [
+        "planned_budget",
+        "planned_duration_weeks"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "planned_duration_weeks",
+            "reason": "La duración planificada es significativamente mayor que la referencia, lo que aumenta el riesgo de retrasos.",
+            "action": "Revisar y ajustar el cronograma para reducir la duración planificada."
+          },
+          {
+            "evidence_feature": "planned_budget",
+            "reason": "El presupuesto planificado es mucho menor que la referencia, lo que incrementa el riesgo de desviaciones.",
+            "action": "Evaluar y actualizar el presupuesto para asegurar suficiente financiación."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos significativos debido a una duración planificada excesiva y un presupuesto insuficiente."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_0953",
+      "health": "critical",
+      "driver_count": 3,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 6634.72,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi",
+        "planned_duration_weeks",
+        "true_progress"
+      ],
+      "allowed_evidence_features": [
+        "cpi",
+        "planned_duration_weeks",
+        "true_progress"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "cpi",
+            "reason": "El índice de rendimiento (CPI) es menor a 1, lo que indica que el proyecto está consumiendo más recursos de los previstos.",
+            "action": "Revisar la gestión de recursos y ajustar el presupuesto para evitar un desbordamiento de costos."
+          },
+          {
+            "evidence_feature": "planned_duration_weeks",
+            "reason": "La duración planificada es significativamente mayor a la esperada, lo que incrementa el riesgo de retrasos.",
+            "action": "Reevaluar el cronograma y ajustar las fechas de entrega para alinear con la realidad del proyecto."
+          },
+          {
+            "evidence_feature": "true_progress",
+            "reason": "El avance real es muy superior al esperado, lo que podría indicar una sobreestimación de las tareas o un avance acelerado.",
+            "action": "Verificar la calidad del avance y asegurar que se cumplan los requisitos de entrega."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos significativos en términos de costos, duración y avance real. Se requiere una revisión de la gestión de recursos, el cronograma y la calidad del avance para mitigar estos riesgos."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_3737",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 3092.24,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "cpi",
+            "reason": "El Índice de Rendimiento del Proyecto (CPI) es menor a 1, lo que indica que el proyecto está consumiendo más recursos de los previstos.",
+            "action": "Revisar el presupuesto y el cronograma para identificar causas de desviación y ajustar las estimaciones."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos significativos debido a un CPI por debajo de 1, lo que sugiere un posible desbordamiento de costos."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_2856",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 2458.69,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "planned_budget"
+      ],
+      "allowed_evidence_features": [
+        "planned_budget"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "planned_budget",
+            "reason": "El presupuesto planificado es significativamente menor que la referencia, lo que incrementa el riesgo",
+            "action": "Revisar y ajustar el presupuesto planificado para asegurar que cubra los costos esperados"
+          }
+        ],
+        "summary": "El proyecto presenta riesgos debido a un presupuesto planificado insuficiente en comparación con la referencia."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_3967",
+      "health": "at_risk",
+      "driver_count": 2,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 4372.74,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi",
+        "true_progress"
+      ],
+      "allowed_evidence_features": [
+        "cpi",
+        "true_progress"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "cpi",
+            "reason": "El CPI está por debajo de la referencia, lo que indica que el proyecto está consumiendo más recursos de los previstos.",
+            "action": "Revisar la gestión de costos y ajustar el presupuesto si es necesario."
+          },
+          {
+            "evidence_feature": "true_progress",
+            "reason": "El avance real es superior al valor de referencia, lo que sugiere que el proyecto podría estar avanzando más de lo esperado.",
+            "action": "Verificar la precisión de los avances reportados y asegurar que se reflejen correctamente en el cronograma."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos en términos de costo y avance real, requiriendo ajustes en la gestión de recursos y verificación de los avances reportados."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_0556",
+      "health": "critical",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 2936.31,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "planned_budget"
+      ],
+      "allowed_evidence_features": [
+        "planned_budget"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "planned_budget",
+            "reason": "El presupuesto planificado representa un riesgo significativo al compararse con la referencia establecida, lo que podría afectar la viabilidad del proyecto.",
+            "action": "Revisar y ajustar el presupuesto planificado para alinearlo con la referencia establecida y mitigar el riesgo."
+          }
+        ],
+        "summary": "El proyecto enfrenta un riesgo crítico debido al presupuesto planificado, que no se alinea con la referencia establecida."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_1660",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 3055.67,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "planned_duration_weeks"
+      ],
+      "allowed_evidence_features": [
+        "planned_duration_weeks"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "planned_duration_weeks",
+            "reason": "La duración planificada es significativamente más larga que la referencia, lo que incrementa el riesgo de retrasos.",
+            "action": "Revisar y ajustar la duración planificada para acercarla a la referencia y reducir el riesgo."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos elevados debido a una duración planificada excesiva. Se recomienda revisar y ajustar la duración para mitigar el riesgo."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_1293",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 2476.05,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "planned_budget"
+      ],
+      "allowed_evidence_features": [
+        "planned_budget"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "planned_budget",
+            "reason": "El presupuesto planificado es significativamente más alto que la referencia, lo que incrementa el riesgo.",
+            "action": "Revisar y ajustar el presupuesto planificado para alinear con la referencia establecida."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos elevados debido al presupuesto planificado excesivo en comparación con la referencia."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_0927",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 3213.96,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "cpi",
+            "reason": "El índice de rendimiento del proyecto (CPI) es menor a 1, lo que indica que el proyecto está consumiendo más recursos de los previstos.",
+            "action": "Revisar el presupuesto y el cronograma para identificar áreas de ineficiencia y ajustar las asignaciones de recursos."
+          }
+        ],
+        "summary": "El proyecto tiene un riesgo significativo debido a un CPI por debajo de 1, lo que sugiere un desempeño inadecuado en el uso de recursos."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_2892",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 3260.55,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "cpi",
+            "reason": "El Índice de Rendimiento del Proyecto (CPI) es menor a 1, lo que indica que el proyecto está consumiendo más recursos de los previstos.",
+            "action": "Revisar el presupuesto y el cronograma para identificar áreas de ineficiencia y ajustar las asignaciones de recursos."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos significativos debido a un CPI por debajo de 1, lo que sugiere un desempeño inadecuado en el uso de recursos."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_1789",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 3093.79,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "cpi",
+            "reason": "El índice de rendimiento del proyecto (CPI) es menor a 1, lo que indica que el proyecto está consumiendo más recursos de los previstos.",
+            "action": "Revisar el presupuesto y el cronograma para identificar las causas del desempeño inferior y ajustar las asignaciones de recursos."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos significativos debido a un CPI por debajo de 1, lo que sugiere un posible desbordamiento de costos."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_2399",
+      "health": "critical",
+      "driver_count": 2,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 5153.34,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "planned_budget",
+        "planned_duration_weeks"
+      ],
+      "allowed_evidence_features": [
+        "planned_budget",
+        "planned_duration_weeks"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "planned_duration_weeks",
+            "reason": "La duración planificada es significativamente mayor que la referencia, lo que incrementa el riesgo de retrasos.",
+            "action": "Revisar y ajustar el cronograma para reducir la duración planificada y mitigar el riesgo de retrasos."
+          },
+          {
+            "evidence_feature": "planned_budget",
+            "reason": "El presupuesto planificado es mucho menor que la referencia, lo que incrementa el riesgo de desviaciones presupuestarias.",
+            "action": "Revisar y ajustar el presupuesto para asegurar que se cubran los costos necesarios y reducir el riesgo de desviaciones."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos significativos debido a una duración planificada elevada y un presupuesto insuficiente. Se recomienda revisar y ajustar el cronograma y el presupuesto para mitigar estos riesgos."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_0211",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 3230.73,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "cpi",
+            "reason": "El índice de rendimiento del proyecto (CPI) es menor a 1, lo que indica que el proyecto está consumiendo más recursos de los previstos.",
+            "action": "Revisar el presupuesto y el cronograma para identificar áreas de ineficiencia y ajustar las asignaciones de recursos."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos significativos debido a un CPI por debajo de 1, lo que sugiere un desempeño inadecuado en el uso de recursos."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_3837",
+      "health": "critical",
+      "driver_count": 2,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 5049.12,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "planned_budget",
+        "planned_duration_weeks"
+      ],
+      "allowed_evidence_features": [
+        "planned_budget",
+        "planned_duration_weeks"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "planned_duration_weeks",
+            "reason": "La duración planificada es significativamente mayor que la referencia, lo que incrementa el riesgo de retrasos.",
+            "action": "Revisar y ajustar el cronograma para reducir la duración planificada y mitigar el riesgo de retrasos."
+          },
+          {
+            "evidence_feature": "planned_budget",
+            "reason": "El presupuesto planificado es mucho menor que la referencia, lo que incrementa el riesgo de desviaciones presupuestarias.",
+            "action": "Evaluar y ajustar el presupuesto para asegurar suficiente financiación y reducir el riesgo de desviaciones."
+          }
+        ],
+        "summary": "El proyecto presenta riesgos significativos debido a una duración planificada excesiva y un presupuesto insuficiente. Se recomienda revisar el cronograma y ajustar el presupuesto para mitigar estos riesgos."
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_3183",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 3118.69,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "planned_duration_weeks"
+      ],
+      "allowed_evidence_features": [
+        "planned_duration_weeks"
+      ],
+      "payload": {
+        "recommendations": [
+          {
+            "evidence_feature": "planned_duration_weeks",
+            "reason": "La duración planificada es significativamente más larga que la referencia, lo que incrementa el riesgo de retrasos.",
+            "action": "Revisar y ajustar el cronograma para reducir la duración planificada y mitigar el riesgo de retrasos."
+          }
+        ],
+        "summary": "El proyecto presenta un riesgo elevado debido a una duración planificada excesiva, lo que incrementa la probabilidad de retrasos."
+      }
+    }
+  ]
+}

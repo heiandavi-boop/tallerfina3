@@ -52,15 +52,22 @@ Se excluyen deliberadamente las variables de V8.6.3 sin soporte suficiente para 
 
 ## IA generativa
 
-La demo nunca depende de un LLM para funcionar. Por defecto usa recomendaciones determinísticas fundamentadas en drivers observados. Si se desea habilitar generación local con Ollama:
+LightGBM se encarga de la predicción, Qwen3 de la explicación/recomendación, Ollama del runtime local y `grounded_fallback` del respaldo determinístico. La demo nunca depende de un LLM para ejecutar ML.
+
+Si se desea habilitar generación local con Ollama:
 
 ```bash
 export PRUNIN_ENABLE_OLLAMA=1
 export PRUNIN_OLLAMA_MODEL=qwen3:8b
+export PRUNIN_OLLAMA_TIMEOUT_SECONDS=30
 ./scripts/run_playground.sh
 ```
 
-Si Ollama no responde, se usa automáticamente el fallback fundamentado.
+`GET /api/genai-status` consulta `/api/tags` con timeout corto y confirma que el modelo esté instalado. El timeout es configurable y compartido por API y benchmark mediante `PRUNIN_OLLAMA_TIMEOUT_SECONDS` (default 30 s). `PRUNIN_OLLAMA_WARMUP=1` habilita warm-up acotado al iniciar; está apagado por defecto y no se activa en CI. `PRUNIN_GENAI_DEBUG=1` agrega raw response, JSON parseado y validación al campo técnico; no se devuelve por defecto.
+
+Las recomendaciones aceptadas citan solo features allow-listed de drivers que aumentan riesgo. Las cifras se cotejan con evidencia estructurada, admitiendo equivalencia decimal/porcentual. Sin drivers de riesgo, lista vacía y resumen prudente son válidos; con drivers, debe existir al menos una recomendación. JSON inválido, timeout, HTTP error, feature desconocida o cifra no soportada activan `grounded_fallback` con código y detalle trazables. El fallback nunca se presenta como GenAI.
+
+`POST /api/what-if` omite recomendaciones para ambas inferencias y `/api/predict-csv` las omite por fila; las predicciones y drivers siguen ejecutándose. Usa `/api/predict` para recomendación individual. Para integración local: `./scripts/preflight_genai.sh`; para benchmark TEST: `python scripts/evaluate_genai.py --cases 30`.
 
 ## Arranque
 

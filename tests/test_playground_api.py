@@ -1,10 +1,13 @@
 import io
+import importlib
 
 import pandas as pd
+import pytest
 from fastapi.testclient import TestClient
 from prunin_ai.api.app import app, runtime
 
 client = TestClient(app)
+app_module = importlib.import_module('prunin_ai.api.app')
 
 
 def test_schema_has_all_demo_features():
@@ -59,6 +62,9 @@ def test_predict_live():
     assert body['model']['fusion']['core_weight'] == 0.85
     assert body['model']['fusion']['team_health_weight'] == 0.15
     assert isinstance(body['inference_ms'], (int,float))
+    assert body['timing']['total_ms'] == body['inference_ms']
+    assert isinstance(body['timing']['ml_and_drivers_ms'], (int,float))
+    assert body['timing']['genai_ms'] is None or isinstance(body['timing']['genai_ms'], (int,float))
     assert body['prediction']['final_status_source'] in {'derived_from_health','independent_model'}
     expected_status_source = (
         'derived_from_health'
@@ -81,6 +87,41 @@ def test_what_if():
     assert r.status_code == 200
     body = r.json()
     assert 'baseline' in body and 'scenario' in body and 'delta' in body
+
+
+def test_what_if_and_ten_row_csv_never_call_recommendation_engine(monkeypatch):
+    monkeypatch.setenv('PRUNIN_ENABLE_OLLAMA', '1')
+    monkeypatch.setattr(app_module, 'build_recommendations', lambda *args: pytest.fail('LLM must not run for what-if or CSV'))
+    schema = client.get('/api/schema').json()
+    baseline = dict(schema['presets']['at_risk'])
+    scenario = dict(baseline)
+    scenario['spi'] = schema['presets']['healthy']['spi']
+
+    what_if_response = client.post('/api/what-if', json={'baseline': baseline, 'scenario': scenario})
+    assert what_if_response.status_code == 200
+    what_if_body = what_if_response.json()
+    assert what_if_body['baseline']['recommendations']['engine'] == 'not_requested'
+    assert what_if_body['scenario']['recommendations']['engine'] == 'not_requested'
+    assert what_if_body['baseline']['timing']['genai_ms'] is None
+
+    template = client.get('/api/csv-template')
+    one_row = pd.read_csv(io.BytesIO(template.content))
+    ten_rows = pd.concat([one_row] * 10, ignore_index=True).to_csv(index=False).encode()
+    csv_response = client.post('/api/predict-csv', files={'file': ('input.csv', ten_rows, 'text/csv')})
+    assert csv_response.status_code == 200
+    assert csv_response.json()['count'] == 10
+    assert all(row['prediction']['recommendations']['engine'] == 'not_requested' for row in csv_response.json()['rows'])
+
+
+@pytest.mark.parametrize('status', [
+    {'enabled': True, 'provider': 'ollama', 'model': 'qwen3:8b', 'available': True, 'last_error': None},
+    {'enabled': False, 'provider': 'ollama', 'model': 'qwen3:8b', 'available': False, 'last_error': None},
+])
+def test_genai_status_endpoint(monkeypatch, status):
+    monkeypatch.setattr(app_module, 'check_ollama_status', lambda: status)
+    response = client.get('/api/genai-status')
+    assert response.status_code == 200
+    assert response.json() == status
 
 
 def test_team_health_what_if_does_not_change_health_ml_output():
