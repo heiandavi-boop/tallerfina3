@@ -191,6 +191,10 @@ pytest -q
 
 Los resultados de evaluación de cada ejecución se exportan a `reports/0.9.0-academic/`; no se fija aquí un número de tests.
 
+## Continuous Integration
+
+GitHub Actions usa Python 3.12, genera artifacts demo pequeños y ejecuta `compileall`/`pytest`; no descarga Mendeley ni ejecuta el entrenamiento académico completo en cada push.
+
 ## Docker
 
 ```bash

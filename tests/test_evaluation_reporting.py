@@ -150,12 +150,21 @@ def test_export_report_creates_lightweight_versionable_evidence(tmp_path):
     assert expected <= {path.name for path in files}
     assert not any(path.suffix in {".joblib", ".parquet", ".zip"} for path in files)
     assert not (reports / "final_status_confusion_matrix.csv").exists()
+    reproduced = json.loads((reports / "reproducibility.json").read_text(encoding="utf-8"))
+    assert reproduced["experiment_source_commit"] == "abc"
+    assert reproduced["report_generation_commit"] == reproduced["repository_head_at_export"]
     project_matrix = pd.read_csv(reports / "health_confusion_matrix.csv", index_col=0)
     snapshot_matrix = pd.read_csv(reports / "health_snapshot_confusion_matrix.csv", index_col=0)
     assert project_matrix.to_numpy().tolist() == [[0, 1, 0], [0, 1, 0], [0, 0, 0]]
     assert snapshot_matrix.to_numpy().tolist() == [[1, 0, 0], [1, 0, 0], [0, 0, 0]]
     dataset_summary = json.loads((reports / "dataset_summary.json").read_text(encoding="utf-8"))
     assert dataset_summary["features_used"] == ["spi", "methodology"]
+    baseline_summary = json.loads((reports / "baselines.json").read_text(encoding="utf-8"))
+    cost_improvement = baseline_summary["cost_overrun_ratio"]["project_level_test_improvement"]
+    assert cost_improvement["unit"] == "percentage points"
+    assert cost_improvement["baseline_value"] == 5.0
+    assert cost_improvement["model_value"] == 4.0
+    assert cost_improvement["model_minus_baseline"] == 1.0
     summary_text = (reports / "experiment_summary.md").read_text(encoding="utf-8")
     assert "Project-level evaluation" in summary_text
     assert "Snapshot-level evaluation" in summary_text
@@ -176,6 +185,9 @@ def test_reproducibility_records_versions_hash_seed_and_split_counts(tmp_path):
     assert result["dataset_sha256"]["raw_mendeley_files"]["data/raw/mendeley/a.csv"] == "abc"
     assert result["split_project_counts"] == {"train": 2, "validation": 1, "test": 1}
     assert set(result["packages"]) == {"pandas", "numpy", "sklearn", "lightgbm"}
+    assert result["experiment_source_commit"] is None
+    assert result["report_generation_commit"] is None
+    assert result["repository_head_at_export"] is None
 
 
 def test_plot_generation_creates_diagnostic_images(tmp_path):

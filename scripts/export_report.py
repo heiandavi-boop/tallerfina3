@@ -5,6 +5,7 @@ import argparse
 import json
 import shutil
 import sys
+import subprocess
 from pathlib import Path
 
 import pandas as pd
@@ -25,6 +26,35 @@ def _copy_json(artifact_dir: Path, report_dir: Path, name: str) -> dict:
     value = _read_json(artifact_dir / name)
     _write_json(value, report_dir / name)
     return value
+
+
+def _git_head(repository_root: Path) -> str | None:
+    try:
+        return subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=repository_root,
+            check=True, capture_output=True, text=True,
+        ).stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        return None
+
+
+def _normalize_cost_baseline_units(baselines: dict) -> dict:
+    cost = baselines.get("cost_overrun_ratio", {})
+    baseline_metrics = cost.get("test", {}).get("project_level_metrics", {})
+    model_metrics = cost.get("project_level_test_model", {})
+    baseline_pp = baseline_metrics.get("mae_percentage_points")
+    model_pp = model_metrics.get("mae_percentage_points")
+    if baseline_pp is not None and model_pp is not None:
+        cost["project_level_test_improvement"] = {
+            "metric": "mae_percentage_points",
+            "unit": "percentage points",
+            "positive_is_better": True,
+            "baseline_value": baseline_pp,
+            "model_value": model_pp,
+            "model_minus_baseline": baseline_pp - model_pp,
+            "decision_source": "descriptive TEST comparison; baseline statistic was fitted using TRAIN projects",
+        }
+    return baselines
 
 
 def _write_classification_tables(metrics: dict, report_dir: Path, target: str) -> None:
@@ -164,10 +194,14 @@ def _experiment_markdown(metrics: dict, feature_manifest: dict, readiness: dict,
             summary["critical_support"] = per_class.get("critical", {}).get("support")
         lines.append(f"| {target} | `{json.dumps(summary, ensure_ascii=False)}` |")
     lines.extend(["", "## Baselines", "Train-only majority-class/median baselines; TEST is descriptive and not used for model selection.",
-                  "", "| Target | Baseline | Project-level TEST comparison |", "|---|---|---|"])
+                  "", "| Target | Train statistic | Baseline TEST metric | Model TEST metric | Improvement |", "|---|---:|---:|---:|---:|"])
     for target, baseline in baselines.items():
         comparison = baseline.get("project_level_test_improvement", {})
-        lines.append(f"| {target} | {baseline.get('method')}: {baseline.get('train_statistic')} | {comparison.get('metric')} improvement={comparison.get('model_minus_baseline')} |")
+        metric = comparison.get("metric")
+        baseline_test = baseline.get("test", {}).get("project_level_metrics", {}).get(metric)
+        model_test = baseline.get("project_level_test_model", {}).get(metric)
+        unit = "percentage points" if target == "cost_overrun_ratio" else "original target unit" if target == "delay_days" else "macro F1"
+        lines.append(f"| {target} ({unit}) | {baseline.get('train_statistic')} | {baseline_test} | {model_test} | {comparison.get('model_minus_baseline')} |")
     lines.extend(["", "## Evaluación temporal", "TEST only; one snapshot per project with maximum true_progress <= cutoff.",
                   "", "| Cutoff | Available / TEST projects | Coverage | Max selected progress | Health Macro-F1 | Critical recall | Delay MAE | Delay RMSE | Delay R² | Cost MAE ratio | Cost MAE pp | Cost R² |",
                   "|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|"])
@@ -206,7 +240,11 @@ def _experiment_markdown(metrics: dict, feature_manifest: dict, readiness: dict,
         "", "## Limitaciones", "No real PRUNIN validation exists. External projects are not joined to Mendeley. Team Health remains an observable operational heuristic; fusion weights are not empirically calibrated.",
         "", "## Reproducibilidad", f"Python: {reproducibility.get('python_version')}",
         f"Random seed: {reproducibility.get('random_seed')}", f"Dataset SHA256: {reproducibility.get('dataset_sha256', {}).get('processed')}",
-        f"Timestamp UTC: {reproducibility.get('timestamp_utc')}", f"Commit: {reproducibility.get('git_commit_sha')}",
+        f"Timestamp UTC: {reproducibility.get('timestamp_utc')}",
+        f"Experiment source commit: {reproducibility.get('experiment_source_commit') or reproducibility.get('git_commit_sha')}",
+        f"Report generation commit: {reproducibility.get('report_generation_commit')}",
+        f"Repository HEAD at export: {reproducibility.get('repository_head_at_export')}",
+        "Training and report-export commits can differ when reports are regenerated without retraining. Unknown SHAs remain null.",
         "", "## Qué no se puede concluir", "These synthetic results do not establish causal effects, operational validity, or expected performance on live PRUNIN projects.",
         "", "## Qué falta para producción", "Prospective evaluation and calibration on real PRUNIN projects, plus external validation of temporal cutoffs and operational fusion.", "",
     ])
@@ -220,8 +258,17 @@ def export_report(artifact_dir: Path, report_dir: Path) -> list[Path]:
     feature_manifest = _copy_json(artifact_dir, report_dir, "feature_manifest.json")
     split_manifest = _read_json(artifact_dir / "split_manifest.json")
     reproducibility = _copy_json(artifact_dir, report_dir, "reproducibility.json")
+    report_commit = _git_head(ROOT)
+    experiment_commit = reproducibility.get("experiment_source_commit") or reproducibility.get("git_commit_sha")
+    reproducibility["experiment_source_commit"] = experiment_commit
+    reproducibility["report_generation_commit"] = report_commit
+    reproducibility["repository_head_at_export"] = report_commit
+    _write_json(reproducibility, artifact_dir / "reproducibility.json")
+    _write_json(reproducibility, report_dir / "reproducibility.json")
     temporal = _copy_json(artifact_dir, report_dir, "temporal_evaluation.json")
-    baselines = _copy_json(artifact_dir, report_dir, "baselines.json")
+    baselines = _normalize_cost_baseline_units(_copy_json(artifact_dir, report_dir, "baselines.json"))
+    _write_json(baselines, artifact_dir / "baselines.json")
+    _write_json(baselines, report_dir / "baselines.json")
     shutil.copy2(artifact_dir / "temporal_evaluation.csv", report_dir / "temporal_evaluation.csv")
     shutil.copy2(artifact_dir / "baseline_comparison.csv", report_dir / "baseline_comparison.csv")
     _write_json(metrics, report_dir / "metrics.json")

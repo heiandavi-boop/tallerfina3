@@ -44,6 +44,9 @@ def build_reproducibility(
         "python_version": platform.python_version(),
         "packages": packages,
         "git_commit_sha": commit,
+        "experiment_source_commit": commit,
+        "report_generation_commit": None,
+        "repository_head_at_export": None,
         "random_seed": int(config.get("random_seed", 42)),
         "dataset_sha256": {
             "processed": readiness.get("processed_sha256"),

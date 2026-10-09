@@ -255,7 +255,11 @@ def _build_baseline_reports(splits: dict[str, pd.DataFrame], model_metrics: dict
             }
         model_project_test = model_metrics.get(target, {}).get("project_level_metrics", {}).get("test") or {}
         baseline_project_test = target_result.get("test", {}).get("project_level_metrics", {})
-        compare_metric = "macro_f1" if target == "health" else "mae"
+        compare_metric = (
+            "macro_f1" if target == "health"
+            else "mae_percentage_points" if target == "cost_overrun_ratio"
+            else "mae"
+        )
         model_value = model_project_test.get(compare_metric)
         baseline_value_metric = baseline_project_test.get(compare_metric)
         improvement = (
