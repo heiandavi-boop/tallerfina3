@@ -84,3 +84,90 @@ Abrir JSON o descargar resultado. Explicar:
 - Si no existe el modelo académico: se usa el demo sintético y queda rotulado como tal.
 - Si un CSV tiene pocas variables: la fila se bloquea si no alcanza 60 % de cobertura.
 - Si Node no está instalado: no importa; `frontend/dist` ya viene listo.
+
+
+## Secuencia de sustentación alineada a la rúbrica
+
+### 0. Abrir con el problema, no con la tecnología
+
+Explicar en menos de un minuto:
+
+- el problema es detectar señales de riesgo antes del cierre del proyecto;
+- PRUNIN combina modelos predictivos y una capa generativa de explicación;
+- la versión académica se valida sobre Mendeley v2, que es sintético externo;
+- por tanto, los resultados no equivalen a desempeño productivo.
+
+### 1. Evidencia predictiva
+
+Mostrar únicamente métricas versionadas en `reports/0.9.0-academic/`.
+
+Priorizar:
+
+- Health project-level Macro F1 y balanced accuracy;
+- Delay MAE y su debilidad frente al baseline;
+- Cost MAE/R² con advertencia sobre la relación estructural EVM;
+- evaluación 20/40/60/80 % y cobertura de proyectos.
+
+### 2. IA generativa
+
+Explicar:
+
+- Qwen3 8B fue elegido por ejecución local, español, tamaño y compatibilidad con Ollama;
+- recibe solo evidencia estructurada;
+- una respuesta que no pasa grounding se descarta;
+- el fallback no es IA generativa y se etiqueta como tal;
+- las métricas GenAI solo se presentan si `reports/genai/qwen3-8b-evaluation.json` tiene `status=complete`.
+
+### 3. Eficiencia
+
+No decir que la automatización ahorra X % de tiempo salvo que exista un baseline humano medido.
+
+Sí se puede demostrar:
+
+- tiempo de inferencia;
+- procesamiento CSV;
+- automatización end-to-end;
+- capacidad de generar explicación sin intervención manual cuando el LLM está disponible.
+
+### 4. Ética
+
+Mencionar explícitamente:
+
+- dataset sintético;
+- humano en el circuito;
+- grounding;
+- privacidad local;
+- no causalidad;
+- Team Health no psicológico;
+- drift y necesidad de validación real.
+
+### 5. MLOps
+
+Mostrar:
+
+- GitHub Actions verde;
+- SHA/manifests;
+- `/api/ready`;
+- `/api/monitoring`;
+- `/metrics`;
+- Docker;
+- manifiesto Kubernetes con réplicas/HPA.
+
+Aclarar que Kubernetes es diseño desplegable y no un clúster productivo ya operando.
+
+## Preguntas difíciles y respuesta base
+
+**¿Por qué Cost tiene R² tan alto?**  
+Porque CPI y el outcome de costo tienen relación estructural dentro del generador EVM sintético. Por eso no lo presentamos como evidencia productiva y damos más peso a la evaluación temporal.
+
+**¿Por qué Delay es débil?**  
+El modelo apenas supera el baseline de mediana en TEST. Se probó tuning y otros candidatos usando VALIDATION; ninguno justificó reemplazar de forma segura el incumbent.
+
+**¿Por qué usar un LLM si hay fallback?**  
+El fallback garantiza disponibilidad; el LLM agrega capacidad de redacción y contextualización. Se mantienen separados para no confundir determinismo con generación.
+
+**¿Por qué Qwen3 8B?**  
+Por privacidad local, soporte de español/multilingüe, tamaño y compatibilidad con Ollama. La selección de calidad se valida con un benchmark específico y no solo con reputación del modelo.
+
+**¿Esto está listo para producción?**  
+No. Está listo como prototipo académico reproducible. Falta validación prospectiva con proyectos reales, monitoreo central y calibración/retraining con outcomes PRUNIN.

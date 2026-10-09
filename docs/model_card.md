@@ -71,6 +71,3 @@ La inspección de Mendeley v2 encontró `Schedule_Delay` y `Cost_Overrun`, entre
 5. Itemlet, SQuaD y Collaboration/Delivery son fuentes de proyectos distintos y no se mezclan con Mendeley.
 6. Team Health continúa como señal operativa heurística, no como outcome clínico ni feature supervisada.
 7. La activación productiva exige validación temporal y externa con proyectos reales de PRUNIN.
-4. Itemlet, SQuaD y Collaboration/Delivery son fuentes de proyectos distintos y no se mezclan con Mendeley.
-5. Team Health continúa como señal operativa heurística, no como outcome clínico ni feature supervisada.
-6. La activación productiva exige validación temporal/externa con proyectos reales de PRUNIN.
