@@ -79,5 +79,8 @@
     "train": 2800,
     "validation": 600,
     "test": 600
-  }
+  },
+  "experiment_source_commit": "6aa6c2039d3808f7edb8641050c7e1f6028206b7",
+  "report_generation_commit": "93df2fd7184d6dcfd10b1fc4b591921d8b48eaab",
+  "repository_head_at_export": "93df2fd7184d6dcfd10b1fc4b591921d8b48eaab"
 }

@@ -53,11 +53,11 @@ Each available snapshot is one row; projects with more snapshots can carry more 
 ## Baselines
 Train-only majority-class/median baselines; TEST is descriptive and not used for model selection.
 
-| Target | Baseline | Project-level TEST comparison |
-|---|---|---|
-| health | majority_class_from_train_projects: at_risk | macro_f1 improvement=0.3496360861045091 |
-| delay_days | median_from_train_projects: 30.4375 | mae improvement=0.139844157409712 |
-| cost_overrun_ratio | median_from_train_projects: 0.05623971460336885 | mae improvement=0.04950285882252536 |
+| Target | Train statistic | Baseline TEST metric | Model TEST metric | Improvement |
+|---|---:|---:|---:|---:|
+| health (macro F1) | at_risk | 0.27793974732750243 | 0.6275758334320115 | 0.3496360861045091 |
+| delay_days (original target unit) | 30.4375 | 27.8503125 | 27.71046834259029 | 0.139844157409712 |
+| cost_overrun_ratio (percentage points) | 0.05623971460336885 | 5.097443732797098 | 0.14715785054456154 | 4.950285882252536 |
 
 ## Evaluación temporal
 TEST only; one snapshot per project with maximum true_progress <= cutoff.
@@ -96,7 +96,10 @@ Python: 3.12.15
 Random seed: 42
 Dataset SHA256: 32b7586db9dda0b3994573a3985c114dafe65dee93c948254b69f00d194c0ac3
 Timestamp UTC: 2026-10-08T23:51:00.372949+00:00
-Commit: 6aa6c2039d3808f7edb8641050c7e1f6028206b7
+Experiment source commit: 6aa6c2039d3808f7edb8641050c7e1f6028206b7
+Report generation commit: 93df2fd7184d6dcfd10b1fc4b591921d8b48eaab
+Repository HEAD at export: 93df2fd7184d6dcfd10b1fc4b591921d8b48eaab
+Training and report-export commits can differ when reports are regenerated without retraining. Unknown SHAs remain null.
 
 ## Qué no se puede concluir
 These synthetic results do not establish causal effects, operational validity, or expected performance on live PRUNIN projects.

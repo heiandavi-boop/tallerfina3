@@ -1365,10 +1365,13 @@
         "mae_percentage_points": 0.14715785054456154
       },
       "project_level_test_improvement": {
-        "metric": "mae",
+        "metric": "mae_percentage_points",
+        "unit": "percentage points",
         "positive_is_better": true,
-        "model_minus_baseline": 0.04950285882252536,
-        "decision_source": "test is descriptive only; baseline statistic was fitted using TRAIN projects"
+        "baseline_value": 5.097443732797098,
+        "model_value": 0.14715785054456154,
+        "model_minus_baseline": 4.950285882252536,
+        "decision_source": "descriptive TEST comparison; baseline statistic was fitted using TRAIN projects"
       }
     }
   }
