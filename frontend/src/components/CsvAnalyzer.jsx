@@ -33,10 +33,16 @@ export function CsvAnalyzer({ onAnalyze, loading, results, error }) {
 
 function CsvResults({ data }) {
     const successCount = data.rows.filter(row => row.prediction && !row.error).length;
+    const showTeamHealth = data.rows.some(row => {
+        if (row.error || !row.prediction) return false;
+        const score = row.prediction.prediction?.team_health?.score;
+        return typeof score === 'number' && Number.isFinite(score);
+    });
+    const errorColumnSpan = showTeamHealth ? 5 : 4;
     return <section className="surface csv-results" aria-labelledby="csv-results-title"><div className="section-heading"><div><p className="eyebrow">RESULTADOS CSV</p><h2 id="csv-results-title">{successCount} de {data.count} proyectos analizados</h2></div></div>
-        <div className="table-scroll"><table><thead><tr><th>Fila</th><th>Health ML</th><th>Retraso</th><th>Sobrecosto</th><th>Team Health</th><th>Estado</th></tr></thead><tbody>{data.rows.map(row => {
+        <div className="table-scroll"><table><thead><tr><th>Fila</th><th>Health ML</th><th>Retraso</th><th>Sobrecosto</th>{showTeamHealth && <th>Team Health</th>}<th>Estado</th></tr></thead><tbody>{data.rows.map(row => {
             const prediction = row.prediction?.prediction;
-            return <tr key={row.row_number}><th scope="row">{row.row_number}</th>{row.error || !prediction ? <td colSpan="5" className="table-error">{friendlyRowError(row.error)}</td> : <><td><span className={`table-health ${prediction.health}`}>{healthLabels[prediction.health] || prediction.health}</span></td><td>{fmtNumber(prediction.delay_days)} días</td><td>{fmtPct(prediction.cost_overrun_ratio)}</td><td>{fmtPct(prediction.team_health?.score)}</td><td>{statusLabels[prediction.final_status] || prediction.final_status}</td></>}</tr>;
+            return <tr key={row.row_number}><th scope="row">{row.row_number}</th>{row.error || !prediction ? <td colSpan={errorColumnSpan} className="table-error">{friendlyRowError(row.error)}</td> : <><td><span className={`table-health ${prediction.health}`}>{healthLabels[prediction.health] || prediction.health}</span></td><td>{fmtNumber(prediction.delay_days)} días</td><td>{fmtPct(prediction.cost_overrun_ratio)}</td>{showTeamHealth && <td>{fmtPct(prediction.team_health?.score)}</td>}<td>{statusLabels[prediction.final_status] || prediction.final_status}</td></>}</tr>;
         })}</tbody></table></div></section>;
 }
 

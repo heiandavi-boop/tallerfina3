@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Experience from './Experience.jsx';
+import { CsvAnalyzer } from './components/CsvAnalyzer.jsx';
 
 const fields = [
   { name: 'planned_duration_weeks', label: 'Duración planificada', group: 'Proyecto', type: 'number', usage: 'ml_feature', min: 1, max: 520, step: 1, reference: 52, description: 'Duración base.' },
@@ -54,6 +55,35 @@ async function openProject() {
 }
 
 describe('Playground ejecutivo', () => {
+  it('oculta la columna Team Health cuando el batch no contiene ningún score calculable', () => {
+    const withoutTeamHealth = prediction();
+    withoutTeamHealth.prediction.team_health = null;
+    const unavailableTeamHealth = prediction();
+    unavailableTeamHealth.prediction.team_health = { score: null, level: 'unavailable' };
+    render(<CsvAnalyzer onAnalyze={vi.fn()} loading={false} error="" results={{
+      count: 2, rows: [
+        { row_number: 1, prediction: withoutTeamHealth, error: null },
+        { row_number: 2, prediction: unavailableTeamHealth, error: null },
+      ]
+    }} />);
+    expect(screen.queryByRole('columnheader', { name: 'Team Health' })).toBeNull();
+    expect(screen.getByRole('columnheader', { name: 'Health ML' })).toBeTruthy();
+  });
+
+  it('muestra la columna Team Health cuando al menos una fila tiene un score calculable', () => {
+    const withTeamHealth = prediction();
+    const withoutTeamHealth = prediction();
+    withoutTeamHealth.prediction.team_health = null;
+    render(<CsvAnalyzer onAnalyze={vi.fn()} loading={false} error="" results={{
+      count: 2, rows: [
+        { row_number: 1, prediction: withoutTeamHealth, error: null },
+        { row_number: 2, prediction: withTeamHealth, error: null },
+      ]
+    }} />);
+    expect(screen.getByRole('columnheader', { name: 'Team Health' })).toBeTruthy();
+    expect(screen.getByText('66,7 %')).toBeTruthy();
+  });
+
   it('presenta la marca, modos principales y solo variables ML en el formulario inicial', async () => {
     await openProject();
     expect(within(screen.getByRole('banner')).getByText('PRUNIN AI Core')).toBeTruthy();
@@ -100,6 +130,7 @@ describe('Playground ejecutivo', () => {
     const drawer = await screen.findByRole('dialog', { name: 'Trazabilidad de inferencia' });
     expect(within(drawer).getByText('Mendeley Data 2p5sz57wh2 v2')).toBeTruthy();
     expect(within(drawer).getByText('Ejecución')).toBeTruthy();
+    expect(within(drawer).getByText(/Team Health solo se calcula cuando hay suficientes señales operativas válidas/)).toBeTruthy();
     expect(within(drawer).queryByText(/"prediction_id"/)).toBeNull();
     await user.click(within(drawer).getByRole('button', { name: 'Ver JSON completo' }));
     expect(within(drawer).getByText(/"prediction_id": "test-prediction"/)).toBeTruthy();
