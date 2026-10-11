@@ -89,3 +89,9 @@ La aplicación se empaqueta en `Dockerfile.playground`. El contenedor construye 
 El panel técnico genera un QR con la URL actual mediante `/api/qr`. Cuando la aplicación esté desplegada en una URL pública, el mismo QR permitirá a los asistentes abrirla desde su celular. El resultado individual también se puede descargar como JSON con `prediction_id`, versión, modo, inputs, predicciones, drivers y recomendaciones.
 
 La vista de resultados distingue `Health ML` de `Riesgo combinado`. Team Health y la fusión 0.85/0.15 son heurísticas operativas no calibradas con outcomes reales. Los drivers muestran sensibilidad local, no causalidad. Para Mendeley v2, Final Status se devuelve como estado de negocio derivado, sin probabilidades propias.
+
+## Cierre: presentación operacional
+
+La predicción de regresión cruda puede ser ligeramente negativa. La interfaz aplica una restricción operacional de cero días para presentación, conservando el valor crudo en la trazabilidad técnica.
+
+`delay_days_raw` conserva la regresión; `delay_days` aplica max(0, raw) en API/CSV/What-if. Cost negativo no se trunca. La columna Team Health del batch se oculta si ninguna fila tiene score calculable; aparece si al menos una lo tiene.

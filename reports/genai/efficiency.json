@@ -1,0 +1,9 @@
+{
+  "automated_median_seconds_per_case": 3.092645,
+  "automated_cases_per_hour": 1164.0521301345611,
+  "manual_baseline_seconds_per_case": null,
+  "manual_baseline_status": "not_measured",
+  "time_saved_percent": null,
+  "throughput_gain_x": null,
+  "note": "A manual baseline is never invented. Provide an observed manual time with --manual-seconds-per-case to quantify efficiency."
+}

@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-11",
+  "timezone": "America/Bogota",
+  "initial_main_head": "b2d0ca32f0599fc6c2227f2a5eb3e6dea6ff812a",
+  "initial_remote_head_confirmed": true,
+  "artifact": "0.9.0-academic",
+  "backend": {
+    "command": "PYTHONPATH=src .venv/bin/python -m pytest -q",
+    "passed": 104,
+    "failed": 0
+  },
+  "frontend": {
+    "command": "npm test -- --run",
+    "passed": 14,
+    "failed": 0
+  },
+  "frontend_build": {
+    "command": "npm run build",
+    "status": "success"
+  },
+  "pip_check": {
+    "command": ".venv/bin/python -m pip check",
+    "status": "success",
+    "result": "No broken requirements found."
+  },
+  "compileall": {
+    "command": ".venv/bin/python -m compileall -q src scripts tests",
+    "status": "success"
+  },
+  "preflight_demo": {
+    "command": "./scripts/preflight_demo.sh",
+    "result": "RESULTADO: LISTO PARA DEMO",
+    "transport": "local TestClient"
+  },
+  "preflight_genai": {
+    "command": "./scripts/preflight_genai.sh",
+    "result": "RESULTADO: OLLAMA READY",
+    "note": "Temporary API started with PRUNIN_ENABLE_OLLAMA=1; separate live smoke test, not rerun of official benchmark."
+  },
+  "preservation": {
+    "protected_existing_files_checked": 4482,
+    "changed": [],
+    "existing_joblib_sha256": {
+      "artifacts/demo-0.1.0/delay_days.joblib": "407d937c4e7cf55594ca61424dfbeec7aeec45c5a9a6e82c6b8112e49e9b4d2e",
+      "artifacts/demo-0.1.0/final_status.joblib": "5eaa68373264cd26e9a0db87e8ea8b1475424d2635f19f6c66c16f5b35164e78",
+      "artifacts/demo-0.1.0/cost_overrun_ratio.joblib": "681d3d66156524a39d62fb462e671d2b5ee6b961980c12a475920755486d0c4b",
+      "artifacts/demo-0.1.0/health.joblib": "40d1f9ed2310ed10c4d7af9ba07559f62399bb231dd08129c68fc841ae3cb980",
+      "artifacts/0.9.0-academic/delay_days.joblib": "84924fc4ddfbcd3842dfc24686286bc9affc23a7f4024698607b678af78916b3",
+      "artifacts/0.9.0-academic/cost_overrun_ratio.joblib": "0881ac24d6780378fce8ca9fcfd0f03d5f89c7ef475a33c882ec01efff9c7ba6",
+      "artifacts/0.9.0-academic/health.joblib": "81dba769ecbcec2f64a312432ab5eb9720af3d37e5018f15249e821e1ca52c18"
+    },
+    "academic_reports_unchanged": true,
+    "academic_retraining_executed": false,
+    "split_changed": false,
+    "config_changed": false,
+    "metrics_invented": false
+  },
+  "split_verification": {
+    "train_projects": 2800,
+    "validation_projects": 600,
+    "test_projects": 600,
+    "pairwise_overlap": [
+      0,
+      0,
+      0
+    ]
+  },
+  "kubernetes": {
+    "yaml_parsed": true,
+    "conceptual_checks": "pass",
+    "replicas": 3,
+    "hpa_min": 3,
+    "hpa_max": 10,
+    "cluster_validation": false
+  },
+  "docker": {
+    "dockerfile_reviewed": true,
+    "image_built": false
+  },
+  "ci": {
+    "initial_head_status": "success",
+    "initial_run_url": "https://github.com/heiandavi-boop/tallerfina3/actions/runs/38170532271",
+    "closure_status": "pending_publication"
+  },
+  "human_efficiency_baseline": "not_measured",
+  "manual_balanced_99_test": "author_reported; no structured versioned result identified; not an official metric"
+}

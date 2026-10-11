@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, screen, within } from '@testing-library/rea
 import userEvent from '@testing-library/user-event';
 import Experience from './Experience.jsx';
 import { CsvAnalyzer } from './components/CsvAnalyzer.jsx';
+import { TechnicalDrawer } from './components/TechnicalDrawer.jsx';
 
 const fields = [
   { name: 'planned_duration_weeks', label: 'Duración planificada', group: 'Proyecto', type: 'number', usage: 'ml_feature', min: 1, max: 520, step: 1, reference: 52, description: 'Duración base.' },
@@ -55,6 +56,14 @@ async function openProject() {
 }
 
 describe('Playground ejecutivo', () => {
+  it('conserva Delay negativo en evidencia técnica y muestra cero operacional', () => {
+    const result = prediction();
+    result.prediction.delay_days = 0;
+    result.prediction.delay_days_raw = -0.3;
+    render(<TechnicalDrawer open onClose={vi.fn()} result={result} model={model} schema={schema} />);
+    expect(screen.getByText('Delay ML crudo (días)').nextElementSibling.textContent).toBe('-0.3');
+    expect(screen.getByText('Delay operacional (días)').nextElementSibling.textContent).toBe('0');
+  });
   it('oculta la columna Team Health cuando el batch no contiene ningún score calculable', () => {
     const withoutTeamHealth = prediction();
     withoutTeamHealth.prediction.team_health = null;

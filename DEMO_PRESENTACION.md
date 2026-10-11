@@ -1,173 +1,112 @@
 # Guion técnico para la demo de PRUNIN AI Core
 
-## Antes de entrar al salón
+Base main revisada y confirmada remotamente: `b2d0ca32f0599fc6c2227f2a5eb3e6dea6ff812a` (11 de octubre de 2026). Para estado final de cambios/CI consultar `docs/FINAL_READINESS.md`; no presentar un HEAD anterior como validación de cambios nuevos.
 
-Ejecutar:
+## Preparación
 
 ```bash
 ./scripts/preflight_demo.sh
-```
-
-No presentar hasta obtener `RESULTADO: LISTO PARA DEMO`.
-
-Luego:
-
-```bash
 ./scripts/run_playground.sh
 ```
 
-Si el público usará celulares, abrir la URL LAN que muestra la terminal o la URL pública desplegada.
+Exigir `RESULTADO: LISTO PARA DEMO` y comprobar que el artefacto sea `0.9.0-academic`. El fallback demo está rotulado y no acredita métricas académicas. El preflight usa TestClient local; la apertura del servidor en navegador es comprobación adicional del expositor. No reentrenar durante la preparación final.
 
-## Secuencia recomendada
+GenAI tiene preflight separado: `./scripts/preflight_genai.sh`. Ollama ausente no invalida ML ni el benchmark Qwen versionado completo. Si se usa LAN/QR comprobar red del salón. El frontend debe estar construido; no asumir que el clon incluye dist o modelos pesados.
 
-### 1. Mostrar que la ejecución es real
+## Secuencia de demo
 
-Abrir **Detalles de inferencia** y señalar:
+1. Presentar problema y dataset sintético externo, sin afirmar producción.
+2. Abrir detalles técnicos: versión, dataset, features, LIVE, prediction_id, probabilidades y tiempos.
+3. Analizar el preset En riesgo. El nombre del preset es un escenario de entrada, no garantía de la clase predicha. Mostrar Health ML, Final Status derivado, Delay operacional y raw, Cost, Team Health si calculable y sensibilidad local.
+4. What-if: modificar SPI/CPI (ML) y señales de equipo (heurística). No modificar variables not_used para prometer efectos ML. Mostrar diferencias, no causalidad.
+5. Descargar plantilla y subir CSV hasta 100 filas. Categorías: construction, healthcare, it, manufacturing, marketing, r&d; metodología agile, hybrid, kanban, scrum, waterfall. Siete features completas evitan imputación ML. Sin señales suficientes de equipo no se inventa score; la columna se oculta si ninguna fila tiene valor válido.
+6. Mostrar recomendaciones individuales: distinguir ollama:qwen3:8b de grounded_fallback. CSV/What-if no llaman Qwen. JSON descargable conserva delay_days_raw; delay_days=max(0, raw). Cost negativo puede indicar ahorro y no se trunca.
+7. Mostrar reportes oficiales: Health Macro F1 0.627576 / baseline 0.277940; Delay MAE 27.710468 / 27.850313 días; Cost MAE 0.147158 pp y R² 0.991816 con caveat EVM. Después evaluación temporal con cobertura.
+8. Mostrar JSON GenAI `complete`: 30 casos, 29/30 aceptados/grounded, schema/features 1.0, actionability 1.0 (proxy), una cifra no soportada, mediana 3092.645 ms y p95 6634.72 ms. No son métricas de eficacia empresarial.
+9. Cerrar con ética, manifests/hashes, readiness/metrics y diseño Docker/Kubernetes. Solo mostrar CI verde correspondiente al commit comprobado.
 
-- versión del modelo;
-- modo (`academic` o `synthetic_demo`);
-- `LIVE`;
-- tiempo de inferencia;
-- `prediction_id`;
-- source/type del dataset y lista dinámica de trained features;
-- fusion type `operational_heuristic`, `calibrated=false`.
+## Contingencias y límites
 
-### 2. Ejecutar “En riesgo”
+Sin Internet la inferencia local puede funcionar si frontend y artefactos están presentes. Sin Ollama funciona el fallback determinístico. Cobertura ML menor al 60 % bloquea inferencia; mostrar error por fila. Team Health exige señales observadas sin imputación. Drivers no son causales, fusión 0.85/0.15 no calibrada. No afirmar mejora humana hasta medirla. La demo no prueba validación empresarial ni escalabilidad productiva.
 
-Seleccionar el preset **En riesgo** → **Analizar proyecto**.
+La prueba manual adicional de 99 proyectos balanceados comunicada por el autor no tiene un resultado estructurado versionado identificado; no se convierte en métrica oficial. El test reproducible local de 99 filas es una verificación distinta de contrato/cobertura. TEST oficial sigue siendo 600 proyectos.
 
-Mostrar:
+## Preguntas difíciles
 
-- Health ML (predicción supervisada);
-- Riesgo combinado (ML + Team Health heurístico), separado de Health ML;
-- probabilidades;
-- Delay;
-- Cost;
-- estado de negocio derivado (Mendeley v2 no tiene target Final Status independiente);
-- Team Health con score, level, coverage y components;
-- drivers.
+**¿Por qué el dataset es sintético?**
 
-### 3. What-if
+La fuente declara trayectorias y outcomes simulados. Su procedencia externa y publicación no lo convierten en proyectos empresariales reales.
 
-En el mismo proyecto mejorar gradualmente:
+**¿Por qué usar datos sintéticos?**
 
-- SPI;
-- CPI;
-- capacidad del equipo;
-- retrabajo;
-- defectos;
-- exposición al riesgo.
+Permiten desarrollar y reproducir el pipeline con snapshots/outcomes disponibles sin exponer datos empresariales. No reemplazan representatividad ni validación externa.
 
-Ejecutar **Simular escenario** y mostrar la comparación.
+**¿Qué falta para producción?**
 
-No prometer que un cambio aislado “causará” el resultado: la demo muestra sensibilidad/predicción del modelo, no causalidad.
+Proyectos reales con outcomes, validación externa/prospectiva, controles de acceso y datos, observabilidad central, alertas/drift, calibración y pruebas operacionales/carga.
 
-### 4. Prueba del público
+**¿Por qué Delay es débil?**
 
-Mostrar el QR. Un asistente cambia variables o sube un CSV y obtiene un `prediction_id` distinto.
+Su MAE TEST 27.710468 apenas mejora 27.850313 del baseline. Las siete features y el benchmark sintético ofrecen señal limitada; no atribuimos una causa empírica no estudiada.
 
-### 5. Trazabilidad
+**¿Por qué no reemplazaron Delay?**
 
-Abrir JSON o descargar resultado. Explicar:
+El experimento seleccionó la mediana TRAIN según MAE VALIDATION (27.901042 vs 28.881476 del LightGBM), con promoción automática deshabilitada. El artefacto académico permaneció congelado; este cierre no cambia modelos ni utiliza TEST para seleccionarlos.
 
-- Inputs = datos observados;
-- features ML = campos del manifest del artifact cargado;
-- Team Health = señal operativa heurística; no es psicológica ni fue entrenada por LightGBM;
-- Health/Delay/Cost = predicciones ML; Final Status = transformación derivada de Health;
-- Drivers = sensibilidad local, no causalidad;
-- Recomendaciones = capa explicativa fundamentada / IA generativa opcional.
+**¿Por qué Cost tiene R² tan alto?**
 
-## Si algo falla
+Existe una relación estructural CPI/EVM–outcome en el generador sintético. R² 0.991816 es desempeño interno tardío, no precisión productiva; la evaluación temporal es menos favorable.
 
-- Si Internet falla: la demo local sigue funcionando.
-- Si Ollama falla: se activa el fallback fundamentado.
-- Si no existe el modelo académico: se usa el demo sintético y queda rotulado como tal.
-- Si un CSV tiene pocas variables: la fila se bloquea si no alcanza 60 % de cobertura.
-- Si Node no está instalado: no importa; `frontend/dist` ya viene listo.
+**¿Por qué Qwen?**
 
+Ejecución local, español, tamaño e integración Ollama. Selección técnico-documental frente a Gemma/Ministral; se evaluó Qwen, sin comparar empíricamente los tres.
 
-## Secuencia de sustentación alineada a la rúbrica
+**¿Qwen predice los resultados?**
 
-### 0. Abrir con el problema, no con la tecnología
+No. LightGBM predice Health, Delay y Cost. Qwen explica evidencia y genera recomendaciones; Final Status deriva de Health.
 
-Explicar en menos de un minuto:
+**¿Qué pasa si Ollama falla?**
 
-- el problema es detectar señales de riesgo antes del cierre del proyecto;
-- PRUNIN combina modelos predictivos y una capa generativa de explicación;
-- la versión académica se valida sobre Mendeley v2, que es sintético externo;
-- por tanto, los resultados no equivalen a desempeño productivo.
+ML permanece disponible y se activa grounded_fallback determinístico. El resultado indica motor, intento, uso y error; no se presenta fallback como GenAI.
 
-### 1. Evidencia predictiva
+**¿Team Health es IA?**
 
-Mostrar únicamente métricas versionadas en `reports/0.9.0-academic/`.
+En este proyecto es una heurística operacional determinística, no ML supervisado ni evaluación psicológica.
 
-Priorizar:
+**¿Por qué Team Health no aparece siempre?**
 
-- Health project-level Macro F1 y balanced accuracy;
-- Delay MAE y su debilidad frente al baseline;
-- Cost MAE/R² con advertencia sobre la relación estructural EVM;
-- evaluación 20/40/60/80 % y cobertura de proyectos.
+Necesita al menos tres señales válidas y cobertura de peso 0.5. No imputamos señales ausentes; si ninguna fila CSV tiene score, la columna se oculta por completo.
 
-### 2. IA generativa
+**¿Los drivers son causales?**
 
-Explicar:
+No. Son sensibilidad local al sustituir una feature por su referencia manteniendo las demás; no representan intervenciones causales.
 
-- Qwen3 8B fue elegido por ejecución local, español, tamaño y compatibilidad con Ollama;
-- recibe solo evidencia estructurada;
-- una respuesta que no pasa grounding se descarta;
-- el fallback no es IA generativa y se etiqueta como tal;
-- las métricas GenAI solo se presentan si `reports/genai/qwen3-8b-evaluation.json` tiene `status=complete`.
+**¿Cómo evitaron leakage?**
 
-### 3. Eficiencia
+Split por project_id, conjuntos disjuntos, whitelist sin outcomes, preprocesamiento TRAIN y selección VALIDATION. Persiste riesgo de proximidad temporal con CPI/EVM tardío en simulación.
 
-No decir que la automatización ahorra X % de tiempo salvo que exista un baseline humano medido.
+**¿Por qué el baseline Health puede tener accuracy alta?**
 
-Sí se puede demostrar:
+La clase mayoritaria at_risk representa 429/600 TEST. Predecir siempre esa clase da accuracy 0.715 pero Macro F1 0.277940 y recall critical cero.
 
-- tiempo de inferencia;
-- procesamiento CSV;
-- automatización end-to-end;
-- capacidad de generar explicación sin intervención manual cuando el LLM está disponible.
+**¿Qué significa Macro F1?**
 
-### 4. Ética
+F1 combina precisión y recall; Macro F1 promedia por igual el F1 de las clases, sin ponderar por su frecuencia. Hace visibles fallas en clases minoritarias.
 
-Mencionar explícitamente:
+**¿El modelo funciona temprano?**
 
-- dataset sintético;
-- humano en el circuito;
-- grounding;
-- privacidad local;
-- no causalidad;
-- Team Health no psicológico;
-- drift y necesidad de validación real.
+Hay evaluación por avance: Macro F1 0.397938 al 20 % y 0.570588 al 80 %. La cobertura al 20 % es 236/600 (39.333 %); anticipación limitada, sin garantía empresarial.
 
-### 5. MLOps
+**¿Está desplegado en Kubernetes?**
 
-Mostrar:
+No hay evidencia de clúster activo. El YAML diseña tres réplicas, probes, Service, RollingUpdate y HPA 3–10. No se desplegó ni probó en producción.
 
-- GitHub Actions verde;
-- SHA/manifests;
-- `/api/ready`;
-- `/api/monitoring`;
-- `/metrics`;
-- Docker;
-- manifiesto Kubernetes con réplicas/HPA.
+**¿Qué demuestra la prueba de 99 filas?**
 
-Aclarar que Kubernetes es diseño desplegable y no un clúster productivo ya operando.
+El autor comunicó una prueba manual balanceada que produjo las tres clases. No identificamos resultados estructurados versionados de esa corrida, por lo que no calculamos métricas recordadas. El test local existente valida contrato/cobertura de 99 filas, sin asegurar balance; lo oficial sigue siendo TEST de 600 proyectos.
 
-## Preguntas difíciles y respuesta base
+**¿Demostraron ahorro humano?**
 
-**¿Por qué Cost tiene R² tan alto?**  
-Porque CPI y el outcome de costo tienen relación estructural dentro del generador EVM sintético. Por eso no lo presentamos como evidencia productiva y damos más peso a la evaluación temporal.
+No todavía: mediana GenAI 3.092645 s no es baseline humano ni tiempo end-to-end. El protocolo de cinco casos está pendiente en docs/efficiency_evaluation.md.
 
-**¿Por qué Delay es débil?**  
-El modelo apenas supera el baseline de mediana en TEST. Se probó tuning y otros candidatos usando VALIDATION; ninguno justificó reemplazar de forma segura el incumbent.
-
-**¿Por qué usar un LLM si hay fallback?**  
-El fallback garantiza disponibilidad; el LLM agrega capacidad de redacción y contextualización. Se mantienen separados para no confundir determinismo con generación.
-
-**¿Por qué Qwen3 8B?**  
-Por privacidad local, soporte de español/multilingüe, tamaño y compatibilidad con Ollama. La selección de calidad se valida con un benchmark específico y no solo con reputación del modelo.
-
-**¿Esto está listo para producción?**  
-No. Está listo como prototipo académico reproducible. Falta validación prospectiva con proyectos reales, monitoreo central y calibración/retraining con outcomes PRUNIN.
+Guion de diapositivas: `docs/PRESENTACION_FINAL.md`. Informe: `docs/INFORME_FINAL.md`. Referencias: `docs/references.md`.

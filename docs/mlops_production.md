@@ -7,8 +7,8 @@ La versión académica incluye:
 - artefactos versionados por directorio;
 - SHA256 de datos;
 - split manifest;
-- configuración de entrenamiento resuelta;
-- CI en GitHub Actions;
+- configuración de entrenamiento resuelta y model card;
+- workflow CI en GitHub Actions (resultado por commit en FINAL_READINESS.md);
 - `/api/health` y `/api/ready`;
 - `/api/monitoring`;
 - `/metrics` scrapeable en formato Prometheus;
@@ -59,3 +59,9 @@ TEST permanece reservado para evaluación final después de congelar la selecci�
 ## Limitación actual
 
 No existe todavía validación productiva, almacenamiento central de métricas, alertas reales ni retraining continuo con datos PRUNIN. Por integridad académica, esas capacidades se presentan como siguiente paso y no como operación ya desplegada.
+
+## Separación entre implementación y operación pendiente
+
+Implementado: hashes/manifests, logging con prediction_id, endpoints y métricas locales, política documentada de retraining, empaquetado Docker y CI. No significa que exista retraining continuo en producción.
+
+Diseñado/pendiente: Prometheus centralizado, alertas reales, drift automático productivo, retraining continuo, infraestructura cloud y Kubernetes real. El HPA 3–10 requiere metrics-server; debe probarse carga y capacidad antes de operar. El Dockerfile requiere artefactos locales dentro del contexto; un clon solo con reportes no incluye los modelos pesados. No se construyó la imagen ni se desplegó un clúster durante este cierre.

@@ -104,6 +104,11 @@ class ModelRuntime:
         if coverage < minimum_coverage:
             raise ValueError(f"Cobertura insuficiente de features: {coverage:.0%}. Se requiere al menos {minimum_coverage:.0%}.")
         result = self.brain.predict(aligned)
+        # Presentation policy only: academic evaluation uses the unchanged brain
+        # or model pipelines and retains raw regression predictions.
+        if "delay_days" in result:
+            result["delay_days_raw"] = float(result["delay_days"])
+            result["delay_days"] = max(0.0, result["delay_days_raw"])
         result["input_quality"] = {
             "trained_feature_count": trained_count,
             "coverage": round(coverage, 4),

@@ -18,7 +18,7 @@ Los requisitos del caso son:
 
 | Alternativa | Evidencia técnica | Ventajas para PRUNIN | Trade-off |
 |---|---|---|---|
-| Qwen3 8B | 8B, contexto de 128K, 119 idiomas/dialectos, Apache 2.0 y soporte recomendado para Ollama/LM Studio/llama.cpp | Español, ejecución local, tamaño compatible con laptop, modo no-thinking para respuestas cortas, buen encaje con JSON/instrucciones | Requiere benchmark específico del caso antes de declarar calidad |
+| Qwen3 8B | 8B, contexto de 128K, 119 idiomas/dialectos, Apache 2.0 y soporte recomendado para Ollama/LM Studio/llama.cpp | Español, ejecución local, tamaño compatible con laptop, modo no-thinking para respuestas cortas, buen encaje con JSON/instrucciones | Benchmark Qwen específico completado; validación semántica humana pendiente |
 | Gemma 3 4B | modelo abierto ligero, 128K, más de 140 idiomas y diseñado también para laptops/desktop | Menor tamaño y buena portabilidad local | La comparación de calidad para este caso debe medirse; no se asume superioridad |
 | Ministral 3 8B | modelo open-weight orientado a edge/local, contexto de 256K y structured outputs | Muy buen candidato para despliegue local y salida estructurada | Integración del proyecto actual está implementada sobre Ollama/Qwen; cambiar exige benchmark y compatibilidad operativa |
 
@@ -33,7 +33,7 @@ Fuentes oficiales consultadas:
 
 Qwen3 8B se mantiene como modelo generativo principal de la versión académica porque satisface los requisitos operativos de privacidad local, español, tamaño y ejecución vía Ollama. Esta decisión es **técnica y operativa**, no una afirmación de que Qwen3 sea universalmente mejor.
 
-La selección final de calidad debe validarse con el benchmark de PRUNIN:
+La evaluación específica de Qwen ya está completada en `reports/genai/qwen3-8b-evaluation.json` (`complete`, 30 casos). Esto no es un benchmark comparativo contra Gemma y Ministral. El comando siguiente permite repetirla en un entorno separado sin sobrescribir la evidencia oficial:
 
 ```bash
 PRUNIN_ENABLE_OLLAMA=1 \
@@ -41,7 +41,7 @@ PRUNIN_OLLAMA_MODEL=qwen3:8b \
 python scripts/evaluate_genai.py --cases 30
 ```
 
-Los resultados se guardan en `reports/genai/`. Si el benchmark no ha sido ejecutado, la documentación no debe presentar porcentajes de calidad, grounding o latencia como hechos.
+Los resultados se guardan en `reports/genai/`. Ver métricas y límites en `genai_evaluation.md`. La comparación entre alternativas permanece técnico-documental.
 
 ## Criterio estratégico
 

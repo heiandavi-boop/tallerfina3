@@ -33,3 +33,7 @@ Antes de usar proyectos reales deben definirse:
 - registro de acceso;
 - anonimización o pseudonimización cuando aplique;
 - proceso de revisión humana para recomendaciones de alto impacto.
+
+## Límites de validación
+
+Mendeley v2 es un dataset sintético externo publicado en Mendeley Data; la representatividad empresarial no está establecida. Se requiere validación temporal/externa con proyectos reales antes del uso productivo. La fusión 0.85/0.15 no está calibrada con outcomes reales. El fallback es determinístico y no GenAI; la interfaz conserva esa distinción. Grounding y actionability son proxies: la revisión humana debe evaluar significado, pertinencia y utilidad. Team Health usa señales observables sin imputación y no debe interpretarse psicológicamente. La política operacional Delay ≥ 0 conserva el valor crudo; no altera evidencia académica ni elimina la debilidad del modelo.

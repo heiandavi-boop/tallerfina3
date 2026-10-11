@@ -1,73 +1,58 @@
-# Model Card — PRUNIN AI Core V9 académico
+# Model Card — 0.9.0-academic
 
-## Propósito
+## Propósito y uso recomendado
 
-Estimar Health, retraso final en días y sobrecosto relativo a partir de snapshots. Final Status se conserva como estado de negocio derivado de Health, no como un clasificador independiente.
+Prototipo académico de apoyo a decisiones de gestión de proyectos. Uso: demostración reproducible, evaluación interna sobre el benchmark sintético y exploración supervisada de escenarios. No usar autónomamente para compromisos de costo/plazo, evaluación de personas ni decisiones empresariales de alto impacto. Requiere human oversight y validación externa antes de uso empresarial.
 
-## Entradas estáticas candidatas
+## Dataset y procedencia
 
-- `planned_duration_weeks`
-- `planned_budget`
-- `baseline_scope_units`
-- `sector`
-- `project_type`
-- `methodology`
-- `complexity`
-- `criticality`
+Mendeley Data v2, DOI `10.17632/2p5sz57wh2.2`: dataset sintético externo publicado en Mendeley Data. 4000 proyectos, 72549 snapshots; no existe validación con proyectos empresariales reales. Itemlet/Collaboration/SQuaD no se mezclan con esta población.
 
-## Entradas temporales del core V9
+## Features y targets
 
-- `true_progress`
-- `spi`
-- `cpi`
-- `team_utilization`
-- `team_capacity_ratio`
-- `average_productivity`
-- `defect_rate`
-- `rework_ratio`
-- `scope_growth_ratio`
-- `dependency_delay_days`
-- `normalized_risk_exposure`
-- `governance_health_score`
+Numéricas: planned_duration_weeks, planned_budget, true_progress, spi, cpi. Categóricas: project_type (construction, healthcare, it, manufacturing, marketing, r&d), methodology (agile, hybrid, kanban, scrum, waterfall). El resto del catálogo no es feature académica supervisada. Mediana/moda TRAIN y OneHotEncoder forman el pipeline.
 
-El entrenador utiliza únicamente columnas con cobertura real en el dataset recibido y registra esa selección en `feature_manifest.json`.
+Health: clasificación supervisada LightGBM con etiquetas derivadas según reglas congeladas. Delay: regresión en días. Cost: regresión de ratio, donde un resultado negativo puede representar ahorro. Final Status: healthy → successful, at_risk → challenged, critical → critical; derivado de Health, sin modelo independiente.
 
-## Variables retiradas del contrato V8.6.3
+## Split, baselines y resultados
 
-- `reported_progress`: no existe de forma consistente en las fuentes externas.
-- `critical_path_delay_days`: no se imputa; se recuperará cuando PRUNIN disponga de CPM auditable con baseline y actuals.
-- `team_morale`: se reemplaza conceptualmente por `team_health_index`, que mide señales operativas, no estados psicológicos.
+Split por project_id: 2800 TRAIN / 600 VALIDATION / 600 TEST, sin overlap; whitelist excluye outcomes. Baselines ajustados solo en TRAIN. TEST no selecciona candidatos. Evaluación project-level usa snapshot más reciente; snapshot-level se informa aparte en los JSON.
 
-## Team Health Index
+| Evaluación TEST project-level (600 proyectos) | Modelo | Baseline TRAIN |
+|---|---:|---:|
+| Health accuracy | 0.7266666667 | 0.7150000000 |
+| Health balanced accuracy | 0.6824223458 | 0.3333333333 |
+| Health Macro F1 | 0.6275758334 | 0.2779397473 |
+| Health critical recall | 0.5681818182 | 0 |
+| Delay MAE (días) | 27.7104683426 | 27.8503125000 |
+| Cost MAE (puntos porcentuales) | 0.1471578505 | 5.0974437328 |
+| Cost R² | 0.9918156959 | -0.0080230304 |
 
-Es un indicador determinístico, trazable y con cobertura explícita. Usa, cuando están disponibles:
+TEST Health: 429 at_risk / 44 critical / 127 healthy. Accuracy alta del baseline no significa utilidad multiclase: Macro F1 refleja el desbalance. Critical recall es limitado.
 
-- utilización;
-- capacidad;
-- productividad;
-- retrabajo;
-- defectos;
-- estabilidad del equipo;
-- colaboración.
+## Evaluación temporal
 
-No se usa como feature supervisada del core hasta disponer de proyectos reales donde esas señales estén emparejadas con outcomes finales. Sí puede usarse como señal operativa de fusión, marcada como heurística hasta calibración.
+| Avance máximo | Proyectos TEST | Cobertura | Health Macro F1 | Delay MAE días | Cost MAE pp |
+|---|---:|---:|---:|---:|---:|
+| 20 % | 236/600 | 39.333 % | 0.397938 | 33.146183 | 3.136943 |
+| 40 % | 463/600 | 77.167 % | 0.509355 | 30.406823 | 2.789373 |
+| 60 % | 576/600 | 96.000 % | 0.522959 | 28.305607 | 2.143231 |
+| 80 % | 599/600 | 99.833 % | 0.570588 | 27.522773 | 1.406718 |
 
-## Split y leakage
+Una observación elegible por proyecto y cutoff. Al 20 % no se evaluaron todos los 600; las poblaciones de cobertura varían.
 
-El split 70/15/15 es por `project_id`; todos los snapshots de cada proyecto quedan en un solo conjunto y se verifican los tres pares con `isdisjoint`. Las features proceden de una whitelist y excluyen directamente targets, duración real, costo real y outcomes finales.
+## Heurísticas operacionales y explicación
 
-Se informan por separado métricas row-level y project-level. La evaluación temprana usa exclusivamente proyectos TEST, una observación no posterior por proyecto para cada cutoff de `true_progress` (20/40/60/80 %), y no reentrena con test.
+Team Health es heurística operacional determinística no psicológica, sin imputación, con mínimo tres componentes y cobertura ponderada 0.5. Fusión 0.85/0.15 no calibrada con outcomes reales. Drivers son sensibilidad local, no causalidad. Qwen explica/recomienda; no genera predicciones ML. Fallback determinístico no es GenAI.
 
-## Final Status
+## Política de presentación de Delay
 
-La inspección de Mendeley v2 encontró `Schedule_Delay` y `Cost_Overrun`, entre otros outcomes de duración/costo, pero no una etiqueta independiente `Final_Status`. Health se genera con reglas sobre delay/cost ratios y Final Status se transforma determinísticamente: `healthy → successful`, `at_risk → challenged`, `critical → critical`. No se entrena un segundo clasificador redundante. FastAPI mantiene `final_status` y añade `final_status_source=derived_from_health`.
+La predicción de regresión cruda puede ser ligeramente negativa. La interfaz aplica una restricción operacional de cero días para presentación, conservando el valor crudo en la trazabilidad técnica.
 
-## Limitaciones
+API: delay_days=max(0, delay_days_raw). Reportes académicos: predicciones crudas intactas. Cost negativo no se trunca.
 
-1. El dataset Mendeley usado para el core es sintético externo; no existe validación productiva con datos PRUNIN.
-2. Progreso, SPI y CPI de snapshots tardíos pueden estar temporalmente cerca del outcome; la evaluación por cutoff no elimina ese riesgo en datos sintéticos.
-3. High late-stage cost performance may partly reflect the structural relationship between CPI, progress, and final cost outcomes in the synthetic EVM generator; high R² is internal synthetic performance, not production evidence.
-4. Proyectos con más snapshots pueden pesar más en métricas row-level; project-level se informa aparte.
-5. Itemlet, SQuaD y Collaboration/Delivery son fuentes de proyectos distintos y no se mezclan con Mendeley.
-6. Team Health continúa como señal operativa heurística, no como outcome clínico ni feature supervisada.
-7. La activación productiva exige validación temporal y externa con proyectos reales de PRUNIN.
+## Limitaciones y usos no recomendados
+
+Delay es el modelo predictivo más débil y su mejora es marginal. Cost tiene rendimiento muy alto relacionado en parte con la relación estructural CPI/EVM–outcome del generador sintético; su R² no prueba rendimiento empresarial. La separación por proyecto no elimina proximidad temporal de variables tardías. No hay calibración con outcomes PRUNIN ni validación productiva. No interpretar fusión como probabilidad calibrada, drivers como causas o Team Health como modelo supervisado. No automatizar decisiones sin revisión humana.
+
+Fuentes: reports/0.9.0-academic/; docs/references.md; docs/INFORME_FINAL.md. Artefactos, configuración y reglas permanecen congelados durante el cierre.

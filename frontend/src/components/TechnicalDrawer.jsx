@@ -19,6 +19,8 @@ export function TechnicalDrawer({ open, onClose, result, model, schema, technica
         ['Versión del modelo', metadata?.version], ['Modo', metadata?.mode === 'configured' ? 'Configurado' : metadata?.mode], ['Ejecución', result?.model?.execution || (model?.mode ? 'Backend conectado' : '—')],
         ['Dataset', metadata?.dataset_source], ['Tipo de datos', /synthetic[_ ]external/i.test(metadata?.dataset_type || '') ? 'Datos sintéticos externos' : metadata?.dataset_type], ['Algoritmo', metadata?.model_type],
         ['Estado de negocio', finalStatusLabels[metadata?.final_status_mode] || metadata?.final_status_mode],
+        ['Delay ML crudo (días)', result?.prediction?.delay_days_raw],
+        ['Delay operacional (días)', result?.prediction?.delay_days],
         ['Fusión', metadata?.fusion ? `${Math.round(metadata.fusion.core_weight * 100)} % ML / ${Math.round(metadata.fusion.team_health_weight * 100)} % Team Health · ${metadata.fusion.calibrated ? 'calibrada' : 'no calibrada'}` : '—'],
         ['Features entrenadas', metadata?.trained_features?.length ?? schema?.ml_features?.length ?? '—'],
         ['Cobertura de entrada', result?.prediction?.input_quality ? `${Math.round(result.prediction.input_quality.coverage * 100)} %` : '—'],

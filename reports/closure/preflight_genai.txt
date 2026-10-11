@@ -1,0 +1,8 @@
+Ollama available........... PASS
+Model qwen3:8b............. PASS
+GenAI API status........... PASS
+Generation................. PASS
+JSON schema................ PASS
+Evidence grounding......... PASS
+Latency ................. 3.72 s
+RESULTADO: OLLAMA READY

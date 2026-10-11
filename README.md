@@ -78,7 +78,7 @@ En `0.9.0-academic`, el manifest actual contiene estas features supervisadas:
 - `project_type`
 - `methodology`
 
-Las categorías de `project_type` y `methodology` expuestas por el API corresponden al dominio categórico presente en el dataset Mendeley v2 utilizado para entrenar el modelo académico. `true_progress` normaliza únicamente ruido flotante de hasta `1e-9` en los límites 0 y 1; valores fuera de esa tolerancia siguen siendo rechazados.
+Mendeley v2 es un **dataset sintético externo publicado en Mendeley Data**, no validación empresarial real. Categorías académicas: `project_type` = construction, healthcare, it, manufacturing, marketing, r&d; `methodology` = agile, hybrid, kanban, scrum, waterfall. `true_progress` normaliza únicamente ruido flotante de hasta `1e-9` en los límites 0 y 1; valores fuera de esa tolerancia siguen siendo rechazados.
 
 Las señales incluidas en pesos Team Health se muestran aparte con insignia `HEURÍSTICA`. Los demás campos quedan en “Variables disponibles para futura integración PRUNIN”, deshabilitados y fuera de What-if. El template CSV académico contiene ML obligatorias y Team Health opcional, sin `not_used`; la plantilla full-future se solicita con `profile=full_future`.
 
@@ -208,7 +208,7 @@ Los resultados de evaluación de cada ejecución se exportan a `reports/0.9.0-ac
 
 ## Continuous Integration
 
-GitHub Actions usa Python 3.12, genera artifacts demo pequeños y ejecuta `compileall`/`pytest`; no descarga Mendeley ni ejecuta el entrenamiento académico completo en cada push.
+GitHub Actions usa Python 3.12 y Node 22: ejecuta `npm ci`, build, tests frontend, generación de artefactos demo pequeños, `compileall` y `pytest`. No descarga Mendeley, no corre Ollama ni el benchmark GenAI en CI estándar.
 
 ## Docker
 
@@ -224,3 +224,17 @@ docker run --rm -p 8000:8000 prunin-ai-playground
 - `data/processed/playground_examples.csv`: tres escenarios listos para probar.
 - `artifacts/playground_input_template.csv`: plantilla CSV de una fila.
 - `.env.playground.example`: configuración opcional.
+
+## Estado de evaluación
+
+Modelo académico congelado: `0.9.0-academic`. Evidencias: [evaluación predictiva](reports/0.9.0-academic/), [evaluación GenAI](reports/genai/), [informe final](docs/INFORME_FINAL.md) y [matriz de rúbrica](docs/rubric_matrix.md). El reporte Qwen3 8B está `complete`: 30 casos, éxito/grounding 29/30, schema y features válidas 30/30, mediana 3092.645 ms y p95 6634.72 ms. Son proxies locales, no validación semántica completa.
+
+Health TEST project-level Macro F1 0.627576 frente a baseline 0.277940. Delay MAE 27.710468 días frente a 27.850313: mejora marginal; es el modelo más débil. Cost MAE 0.147158 puntos porcentuales y R² 0.991816: rendimiento interno alto relacionado en parte con la estructura CPI/EVM del generador sintético.
+
+La predicción de regresión cruda puede ser ligeramente negativa. La interfaz aplica una restricción operacional de cero días para presentación, conservando el valor crudo en la trazabilidad técnica.
+
+El API añade `delay_days_raw`; `delay_days` es el valor operacional ≥ 0, también en CSV/What-if. Cost negativo conserva su interpretación de ahorro. En CSV se oculta Team Health cuando ninguna fila tiene score calculable; aparece si alguna fila lo tiene. Es una heurística operacional determinística, sin imputación.
+
+Docker proporciona empaquetado reproducible; [Kubernetes](deploy/k8s/prunin-ai-core.yaml) es diseño con 3 réplicas/HPA, sin clúster activo demostrado. [MLOps](docs/mlops_production.md) es infraestructura académica, con capacidades productivas pendientes. No hay validación empresarial ni baseline humano de eficiencia. Consultar [cierre y checks](docs/FINAL_READINESS.md). PRUNIN AI Core se entrega como prototipo académico reproducible; no como sistema validado en producción.
+
+Para entregar la versión congelada, ejecutar tests y preflight; no ejecutar `train_all.sh` sobre los artefactos oficiales durante el cierre. Los comandos de entrenamiento anteriores documentan reproducción del experimento en un entorno separado.

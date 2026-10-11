@@ -26,15 +26,19 @@ expected_usage = {
 
 check('Frontend precompilado', (ROOT/'frontend/dist/index.html').exists())
 check('Artefactos seleccionados', runtime.artifact_dir.exists(), str(runtime.artifact_dir))
+check('Feature manifest', (runtime.artifact_dir / 'feature_manifest.json').is_file() and bool(runtime.manifest))
 for model in ['health', 'final_status', 'delay_days', 'cost_overrun_ratio']:
     derived = model == 'final_status' and runtime.manifest.get('final_status_mode') == 'derived_from_health'
     present = (runtime.artifact_dir / f'{model}.joblib').exists()
     check(f'Modelo {model}', present or derived, 'derivado de Health' if derived else '')
+    check(f'Cargado {model}', model in runtime.brain.models or derived)
 check('Metadata del modelo', all(metadata.get(key) for key in ['dataset_source', 'dataset_type', 'model_type']))
 check('Fusion operativa heurística', metadata.get('fusion', {}).get('type') == 'operational_heuristic'
       and metadata.get('fusion', {}).get('calibrated') is False)
 
 client = TestClient(app)
+health = client.get('/api/health')
+check('GET /api/health', health.status_code == 200, str(health.status_code))
 ready = client.get('/api/ready')
 check('GET /api/ready', ready.status_code == 200, str(ready.status_code))
 monitor = client.get('/api/monitoring')
@@ -57,8 +61,11 @@ if schema.status_code == 200:
         result = response['prediction']
         check('Health ML output', result.get('health') in {'healthy', 'at_risk', 'critical'}, str(result.get('health')))
         check('Delay output', isinstance(result.get('delay_days'), (int, float)), str(result.get('delay_days')))
+        check('Delay crudo / operacional', isinstance(result.get('delay_days_raw'), (int, float)) and
+              result.get('delay_days') == max(0.0, result['delay_days_raw']))
         check('Cost output', isinstance(result.get('cost_overrun_ratio'), (int, float)), str(result.get('cost_overrun_ratio')))
         check('Team Health auditable', isinstance(result.get('team_health'), dict) and
+              isinstance(result['team_health'].get('score'), (int, float)) and
               all(key in result['team_health'] for key in ['score', 'level', 'weight_coverage', 'component_count', 'components']))
         check('Final Status derivation', result.get('final_status_source') == metadata.get('final_status_mode') and
               (metadata.get('final_status_mode') != 'derived_from_health' or
@@ -69,6 +76,7 @@ if schema.status_code == 200:
         check('Recommendation trace', bool(recs.get('engine')) and 'genai_attempted' in recs and 'genai_used' in recs)
         check('What-if', client.post('/api/what-if', json={'baseline': sample, 'scenario': sample}).status_code == 200)
     template = client.get('/api/csv-template')
+    check('GET /api/csv-template', template.status_code == 200, str(template.status_code))
     if template.status_code == 200:
         import csv
         import io

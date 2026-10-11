@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 
 SECTORS = ["banking", "healthcare", "manufacturing", "research", "technology", "telecom"]
-PROJECT_TYPES = ["data_ai", "infrastructure", "process", "research", "software", "transformation"]
-METHODOLOGIES = ["hybrid", "kanban", "scrum", "stage_gate", "waterfall"]
+PROJECT_TYPES = ["construction", "healthcare", "it", "manufacturing", "marketing", "r&d"]
+METHODOLOGIES = ["agile", "hybrid", "kanban", "scrum", "waterfall"]
 COMPLEXITIES = ["low", "medium", "high", "very_high"]
 CRITICALITIES = ["low", "medium", "high", "mission_critical"]
 

@@ -49,17 +49,32 @@ Si la salida generativa no cumple el contrato, PRUNIN la descarta y activa `grou
 
 What-if y CSV no llaman al LLM. `inference_ms` se conserva como total y `timing.ml_and_drivers_ms`, `timing.genai_ms`, `timing.total_ms` separan sus componentes en `/api/predict`.
 
+## Resultados versionados
+
+Reporte: `reports/genai/qwen3-8b-evaluation.json`, status=complete, 30 casos con snapshot TEST más reciente y al menos un driver de incremento de riesgo.
+
+| Indicador | Valor observado |
+|---|---:|
+| generation_success_rate | 0.9666666667 |
+| schema_valid_rate | 1.0000000000 |
+| evidence_feature_valid_rate | 1.0000000000 |
+| grounded_response_rate | 0.9666666667 |
+| actionability_rate | 1.0000000000 |
+| unsupported_numeric_claim_rate | 0.0333333333 |
+| timeout_rate | 0.0000000000 |
+| invalid_json_rate | 0.0000000000 |
+| latency_ms_median | 3092.6450000000 |
+| latency_ms_p95 | 6634.7200000000 |
+
+Son 29 respuestas aceptadas y una rechazada por cifra no soportada. Schema/features válidas y acción no vacía no prueban calidad semántica ni utilidad real. Muestra condicionada y equipo local; no benchmark comparativo de tres modelos. No se reejecutó el benchmark en este cierre.
+
 ## Eficiencia
 
-La latencia de automatización se mide automáticamente. El ahorro de tiempo frente a un proceso humano **no se inventa**. Para cuantificarlo:
-
-1. medir el tiempo manual de interpretar un caso y redactar una recomendación;
-2. registrar la mediana observada;
-3. ejecutar:
+Ver `efficiency_evaluation.md`: baseline humano pendiente. Medir cinco casos, conservar tiempos y respuestas, calcular mediana real y solo entonces ejecutar:
 
 ```bash
 python scripts/benchmark_efficiency.py \
-  --manual-seconds-per-case 120
+  --manual-seconds-per-case <MEDIANA_REAL>
 ```
 
-El valor `120` es solo un ejemplo de uso del comando; no debe convertirse en resultado académico si no fue medido.
+La latencia GenAI no es tiempo completo de la tarea ni evidencia de ahorro humano. Sin medición, Cr6 permanece pendiente.
