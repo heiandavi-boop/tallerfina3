@@ -78,6 +78,8 @@ En `0.9.0-academic`, el manifest actual contiene estas features supervisadas:
 - `project_type`
 - `methodology`
 
+Las categorías de `project_type` y `methodology` expuestas por el API corresponden al dominio categórico presente en el dataset Mendeley v2 utilizado para entrenar el modelo académico. `true_progress` normaliza únicamente ruido flotante de hasta `1e-9` en los límites 0 y 1; valores fuera de esa tolerancia siguen siendo rechazados.
+
 Las señales incluidas en pesos Team Health se muestran aparte con insignia `HEURÍSTICA`. Los demás campos quedan en “Variables disponibles para futura integración PRUNIN”, deshabilitados y fuera de What-if. El template CSV académico contiene ML obligatorias y Team Health opcional, sin `not_used`; la plantilla full-future se solicita con `profile=full_future`.
 
 ### Variables eliminadas de V8.6.3

@@ -28,6 +28,8 @@ En el artifact académico `0.9.0-academic` actualmente versionado en los reporte
 
 La lista no se fija en React: `/api/schema` la obtiene de `feature_manifest.json`. Si un artifact futuro cambia de features, la interfaz se adapta dinámicamente.
 
+Las categorías de `project_type` y `methodology` expuestas por el API corresponden al dominio categórico presente en el dataset Mendeley v2 utilizado para entrenar el modelo académico. React consume las opciones de `/api/schema`, que es la fuente para los selects. `true_progress` normaliza solo ruido de punto flotante de hasta `1e-9` en los límites 0 y 1; valores realmente fuera de rango se rechazan.
+
 Las señales Team Health se derivan dinámicamente de los pesos configurados. Actualmente incluyen utilización, capacidad, productividad, retrabajo, defectos, estabilidad y colaboración; se muestran como heurística y no como inputs aprendidos por el clasificador académico.
 
 What-if solo permite cambiar features ML y señales Team Health; las agrupa por efecto. La plantilla CSV académica incluye features ML obligatorias y Team Health opcional, nunca `not_used`. `?profile=full_future` ofrece un esquema completo para integraciones futuras.

@@ -7,15 +7,15 @@ import Experience from './Experience.jsx';
 const fields = [
   { name: 'planned_duration_weeks', label: 'Duración planificada', group: 'Proyecto', type: 'number', usage: 'ml_feature', min: 1, max: 520, step: 1, reference: 52, description: 'Duración base.' },
   { name: 'planned_budget', label: 'Presupuesto planificado', group: 'Proyecto', type: 'number', usage: 'ml_feature', min: 1, max: 200000000000, step: 1000000, reference: 1000000000, description: 'Presupuesto.' },
-  { name: 'project_type', label: 'Tipo de proyecto', group: 'Proyecto', type: 'select', usage: 'ml_feature', options: ['software', 'transformation'], description: 'Tipo.' },
-  { name: 'methodology', label: 'Metodología', group: 'Proyecto', type: 'select', usage: 'ml_feature', options: ['hybrid', 'scrum'], description: 'Método.' },
+  { name: 'project_type', label: 'Tipo de proyecto', group: 'Proyecto', type: 'select', usage: 'ml_feature', options: ['construction', 'healthcare', 'it', 'manufacturing', 'marketing', 'r&d'], description: 'Tipo.' },
+  { name: 'methodology', label: 'Metodología', group: 'Proyecto', type: 'select', usage: 'ml_feature', options: ['agile', 'hybrid', 'kanban', 'scrum', 'waterfall'], description: 'Método.' },
   { name: 'true_progress', label: 'Avance real', group: 'Ejecución', type: 'range', usage: 'ml_feature', min: 0, max: 1, step: .01, format: 'percent', reference: .5, description: 'Avance.' },
   { name: 'spi', label: 'SPI', group: 'Ejecución', type: 'range', usage: 'ml_feature', min: .1, max: 1.5, step: .01, reference: 1, description: 'Índice de cronograma.' },
   { name: 'cpi', label: 'CPI', group: 'Ejecución', type: 'range', usage: 'ml_feature', min: .1, max: 1.5, step: .01, reference: 1, description: 'Índice de costo.' },
   { name: 'team_utilization', label: 'Utilización', group: 'Equipo', type: 'range', usage: 'team_health', min: 0, max: 1.5, step: .01, reference: .85, format: 'percent', description: 'Utilización.' },
   { name: 'future_feature', label: 'Variable futura', group: 'Futuro', type: 'number', usage: 'not_used', description: 'No se usa.' },
 ];
-const preset = { planned_duration_weeks: 52, planned_budget: 2500000000, project_type: 'transformation', methodology: 'hybrid', true_progress: .47, spi: .82, cpi: .91, team_utilization: .96, future_feature: 5 };
+const preset = { planned_duration_weeks: 52, planned_budget: 2500000000, project_type: 'healthcare', methodology: 'hybrid', true_progress: .47, spi: .82, cpi: .91, team_utilization: .96, future_feature: 5 };
 const model = { version: '0.9.0-academic', mode: 'academic', dataset_source: 'Mendeley Data 2p5sz57wh2 v2', dataset_type: 'synthetic_external', model_type: 'LightGBM', final_status_mode: 'derived_from_health', minimum_feature_coverage: .6, trained_features: fields.filter(field => field.usage === 'ml_feature').map(field => field.name), fusion: { core_weight: .85, team_health_weight: .15, calibrated: false } };
 const schema = { fields, ml_features: model.trained_features, team_health_features: ['team_utilization'], not_used_features: ['future_feature'], what_if_fields: [...model.trained_features, 'team_utilization'], model, presets: { healthy: { ...preset, spi: 1.04, cpi: 1.02 }, at_risk: preset, critical: { ...preset, spi: .61, cpi: .72 } } };
 const fallback = { engine: 'grounded_fallback', genai_attempted: false, genai_used: false, evidence_features: ['cpi', 'true_progress'], reasons: ['CPI muestra una señal de mayor riesgo.'], actions: ['Revisar la proyección de costos y la estimación a la conclusión.'], disclaimer: 'Validar con criterio profesional.' };
@@ -62,6 +62,10 @@ describe('Playground ejecutivo', () => {
     expect(screen.getByRole('tab', { name: 'Analizar CSV' })).toBeTruthy();
     expect(screen.getByText('IA generativa desactivada')).toBeTruthy();
     expect(screen.getByLabelText(/SPI/)).toBeTruthy();
+    expect(Array.from(document.querySelector('#field-project_type').options).map(option => option.value)).toEqual(['construction', 'healthcare', 'it', 'manufacturing', 'marketing', 'r&d']);
+    expect(Array.from(document.querySelector('#field-methodology').options).map(option => option.value)).toEqual(['agile', 'hybrid', 'kanban', 'scrum', 'waterfall']);
+    expect(document.querySelector('#field-project_type').value).toBe('healthcare');
+    expect(document.querySelector('#field-methodology').value).toBe('hybrid');
     expect(screen.queryByText('Variable futura')).toBeNull();
     expect(screen.getByText(/Datos completos/)).toBeTruthy();
   });

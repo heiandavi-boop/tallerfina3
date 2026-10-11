@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 from typing import Any, Literal
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
+
+
+TRUE_PROGRESS_BOUNDARY_EPSILON = 1e-9
 
 
 class ProjectInput(BaseModel):
@@ -12,8 +15,8 @@ class ProjectInput(BaseModel):
     baseline_scope_units: float | None = Field(None, ge=1)
 
     sector: Literal["banking", "healthcare", "manufacturing", "research", "technology", "telecom"] | None = None
-    project_type: Literal["data_ai", "infrastructure", "process", "research", "software", "transformation"] | None = None
-    methodology: Literal["hybrid", "kanban", "scrum", "stage_gate", "waterfall"] | None = None
+    project_type: Literal["construction", "healthcare", "it", "manufacturing", "marketing", "r&d"] | None = None
+    methodology: Literal["agile", "hybrid", "kanban", "scrum", "waterfall"] | None = None
     complexity: Literal["low", "medium", "high", "very_high"] | None = None
     criticality: Literal["low", "medium", "high", "mission_critical"] | None = None
 
@@ -34,6 +37,18 @@ class ProjectInput(BaseModel):
     # forced into the predictive model until paired historical outcomes exist.
     team_stability: float | None = Field(None, ge=0, le=1)
     collaboration_level: float | None = Field(None, ge=0, le=1)
+
+    @field_validator("true_progress", mode="before")
+    @classmethod
+    def normalize_true_progress_float_noise(cls, value: Any) -> Any:
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            return value
+        numeric = float(value)
+        if -TRUE_PROGRESS_BOUNDARY_EPSILON <= numeric < 0:
+            return 0.0
+        if 1 < numeric <= 1 + TRUE_PROGRESS_BOUNDARY_EPSILON:
+            return 1.0
+        return value
 
 
 class WhatIfRequest(BaseModel):

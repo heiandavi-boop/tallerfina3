@@ -5,8 +5,8 @@ FIELD_CATALOG = [
     {"name":"planned_budget","label":"Presupuesto planificado","group":"Proyecto","type":"number","unit":"COP","min":1,"max":200000000000,"step":1000000,"reference":1000000000,"description":"Presupuesto de línea base. La moneda es contextual; el modelo usa magnitud y relaciones aprendidas."},
     {"name":"baseline_scope_units","label":"Alcance base","group":"Proyecto","type":"number","unit":"unidades","min":1,"max":100000,"step":1,"reference":1000,"description":"Unidades de alcance definidas en la línea base."},
     {"name":"sector","label":"Sector","group":"Proyecto","type":"select","options":["banking","healthcare","manufacturing","research","technology","telecom"],"reference":"technology","description":"Sector del proyecto."},
-    {"name":"project_type","label":"Tipo de proyecto","group":"Proyecto","type":"select","options":["data_ai","infrastructure","process","research","software","transformation"],"reference":"software","description":"Naturaleza principal del proyecto."},
-    {"name":"methodology","label":"Metodología","group":"Proyecto","type":"select","options":["hybrid","kanban","scrum","stage_gate","waterfall"],"reference":"hybrid","description":"Método de ejecución."},
+    {"name":"project_type","label":"Tipo de proyecto","group":"Proyecto","type":"select","options":["construction","healthcare","it","manufacturing","marketing","r&d"],"reference":"it","description":"Categoría del proyecto presente en el dataset académico Mendeley v2."},
+    {"name":"methodology","label":"Metodología","group":"Proyecto","type":"select","options":["agile","hybrid","kanban","scrum","waterfall"],"reference":"agile","description":"Metodología presente en el dataset académico Mendeley v2."},
     {"name":"complexity","label":"Complejidad","group":"Proyecto","type":"select","options":["low","medium","high","very_high"],"reference":"medium","description":"Nivel de complejidad estructurado."},
     {"name":"criticality","label":"Criticidad","group":"Proyecto","type":"select","options":["low","medium","high","mission_critical"],"reference":"medium","description":"Impacto de negocio si el proyecto falla."},
 
@@ -33,7 +33,7 @@ FIELD_MAP = {item["name"]: item for item in FIELD_CATALOG}
 PRESETS = {
     "healthy": {
         "planned_duration_weeks": 40, "planned_budget": 1200000000, "baseline_scope_units": 900,
-        "sector": "technology", "project_type": "software", "methodology": "scrum", "complexity": "medium", "criticality": "medium",
+        "sector": "technology", "project_type": "it", "methodology": "agile", "complexity": "medium", "criticality": "medium",
         "true_progress": 0.58, "spi": 1.04, "cpi": 1.02, "team_utilization": 0.80, "team_capacity_ratio": 1.08,
         "average_productivity": 1.02, "defect_rate": 0.025, "rework_ratio": 0.035, "scope_growth_ratio": 0.015,
         "dependency_delay_days": 0.5, "normalized_risk_exposure": 0.07, "governance_health_score": 0.88,
@@ -41,7 +41,7 @@ PRESETS = {
     },
     "at_risk": {
         "planned_duration_weeks": 52, "planned_budget": 2500000000, "baseline_scope_units": 1500,
-        "sector": "banking", "project_type": "transformation", "methodology": "hybrid", "complexity": "high", "criticality": "high",
+        "sector": "banking", "project_type": "healthcare", "methodology": "hybrid", "complexity": "high", "criticality": "high",
         "true_progress": 0.47, "spi": 0.82, "cpi": 0.91, "team_utilization": 0.96, "team_capacity_ratio": 0.82,
         "average_productivity": 0.74, "defect_rate": 0.08, "rework_ratio": 0.13, "scope_growth_ratio": 0.09,
         "dependency_delay_days": 8, "normalized_risk_exposure": 0.31, "governance_health_score": 0.56,
@@ -49,7 +49,7 @@ PRESETS = {
     },
     "critical": {
         "planned_duration_weeks": 78, "planned_budget": 7000000000, "baseline_scope_units": 3200,
-        "sector": "telecom", "project_type": "infrastructure", "methodology": "waterfall", "complexity": "very_high", "criticality": "mission_critical",
+        "sector": "telecom", "project_type": "construction", "methodology": "waterfall", "complexity": "very_high", "criticality": "mission_critical",
         "true_progress": 0.39, "spi": 0.61, "cpi": 0.72, "team_utilization": 1.18, "team_capacity_ratio": 0.58,
         "average_productivity": 0.52, "defect_rate": 0.16, "rework_ratio": 0.25, "scope_growth_ratio": 0.18,
         "dependency_delay_days": 24, "normalized_risk_exposure": 0.62, "governance_health_score": 0.31,
