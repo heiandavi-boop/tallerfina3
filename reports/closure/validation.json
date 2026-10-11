@@ -80,7 +80,10 @@
   "ci": {
     "initial_head_status": "success",
     "initial_run_url": "https://github.com/heiandavi-boop/tallerfina3/actions/runs/38170532271",
-    "closure_status": "pending_publication"
+    "closure_status": "success",
+    "closure_commit": "2675b88399f7df29a0472f563ba35a21cadfa087",
+    "closure_run_url": "https://github.com/heiandavi-boop/tallerfina3/actions/runs/38173611246",
+    "scope_note": "Observed completed success for implementation commit; subsequent documentation records this result. Verify final HEAD run separately."
   },
   "human_efficiency_baseline": "not_measured",
   "manual_balanced_99_test": "author_reported; no structured versioned result identified; not an official metric"

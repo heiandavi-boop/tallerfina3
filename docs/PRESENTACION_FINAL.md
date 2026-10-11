@@ -179,4 +179,3 @@ Proyecto Aplicado III · 0.9.0-academic. Speech sugerido de aproximadamente 30�
 **Speech:** Concluimos que PRUNIN integra predicción y explicación en un prototipo verificable. Health mejora la evaluación multiclase frente al baseline y la generación local fue medida con controles explícitos. También quedan limitaciones importantes: Delay, dependencia sintética del costo y ausencia de medición humana. El aporte es una base académica reproducible y una defensa honesta de su alcance. La etapa siguiente requiere proyectos reales y evidencia de utilidad, antes de considerar operación empresarial.
 
 **Error que NO cometer:** Cerrar diciendo listo para producción o cumplimiento total automático de la rúbrica.
-
