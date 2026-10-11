@@ -184,9 +184,11 @@ GenAI redacta/organiza evidencia; fallback mantiene una respuesta determinístic
 
 ## 31. ¿Qué evidencia de eficiencia tienen?
 
-Latencia Qwen versionada, tiempos del API y capacidad de lote configurada hasta 100 filas. No existe tiempo humano medido, por lo que no hay ahorro porcentual ni productividad empresarial acreditada.
+Medimos eficiencia operacional de manera reproducible mediante latencia, throughput y comparación entre inferencias individuales y el endpoint batch sobre los mismos proyectos TEST. En esta máquina, para N=100, batch tuvo mediana de 4.22 s frente a 4.44 s secuencial y throughput mediano de 23.721 proyectos/s; el éxito fue 100 % en ambos modos. El batch actual sigue procesando filas secuencialmente, por lo que la diferencia observada es overhead de endpoint/serialización, no paralelismo ni producción.
 
-**Evidencia:** `docs/efficiency_evaluation.md; reports/genai/efficiency.json`.
+**¿Esto demuestra productividad humana?** No. Demuestra capacidad y eficiencia del proceso automatizado. La productividad humana requiere un estudio controlado con usuarios, que no realizamos; tampoco inferimos ahorro de tiempo laboral.
+
+**Evidencia:** `reports/efficiency/operational_benchmark.md`, `operational_benchmark_summary.json` y `operational_benchmark_raw.csv`.
 
 ## 32. ¿Cómo se usaría con datos empresariales reales?
 

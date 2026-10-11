@@ -4,7 +4,7 @@
 
 ## 2. Resumen ejecutivo
 
-PRUNIN AI Core integra clasificación y regresión supervisadas con explicación generativa local para apoyar la gestión de riesgos de proyectos. La versión congelada `0.9.0-academic` se evalúa sobre un dataset sintético externo publicado en Mendeley Data. Health supera el baseline en Macro F1, Delay aporta una mejora marginal y Cost presenta desempeño interno alto condicionado por el generador EVM. Qwen3 8B fue evaluado en 30 casos con 29 respuestas aceptadas. El sistema dispone de API, interfaz, CSV, What-if y trazabilidad. No está validado con proyectos empresariales reales; el baseline humano de eficiencia permanece pendiente. El alcance defendible es un prototipo académico reproducible para entrega y sustentación.
+PRUNIN AI Core integra clasificación y regresión supervisadas con explicación generativa local para apoyar la gestión de riesgos de proyectos. La versión congelada `0.9.0-academic` se evalúa sobre un dataset sintético externo publicado en Mendeley Data. Health supera el baseline en Macro F1, Delay aporta una mejora marginal y Cost presenta desempeño interno alto condicionado por el generador EVM. Qwen3 8B fue evaluado en 30 casos con 29 respuestas aceptadas. Además, un benchmark operacional reproducible midió latencia, throughput y procesamiento individual/batch sobre 100 proyectos TEST. No está validado con proyectos empresariales reales; no se midió productividad humana ni carga productiva. El alcance defendible es un prototipo académico reproducible para entrega y sustentación.
 
 ## 3. Introducción
 
@@ -37,7 +37,7 @@ Construir y evaluar un prototipo reproducible de apoyo a la gestión que estime 
 3. Caracterizar anticipación junto con cobertura temporal.
 4. Integrar y evaluar generación local fundamentada, separada del predictor.
 5. Documentar automatización, riesgos y trazabilidad reproducible.
-6. Definir y completar una medición humana de eficiencia: protocolo listo, medición pendiente.
+6. Evaluar eficiencia operacional automatizada con latencia, throughput, escala local, éxito y robustez; dejar cualquier medición de usuarios como estudio futuro opcional.
 
 ## 9. Alcance
 
@@ -199,9 +199,21 @@ Fuente: `reports/0.9.0-academic/temporal_evaluation.json`, cortes 0.2/0.4/0.6/0.
 
 ## 19. Eficiencia
 
-Existe latencia automática medida, pero no baseline humano real versionado. `docs/efficiency_evaluation.md` define cinco casos, cronometraje, tabla pendiente y cálculo de mediana. `scripts/benchmark_efficiency.py` acepta una mediana observada; sin ella ahorro y throughput gain quedan null. La mediana GenAI no incluye toda la tarea humana ni todo el API. Cr6 sigue pendiente de evidencia humana y no se declara mejora porcentual de productividad.
+Se ejecutó `scripts/benchmark_operational_efficiency.py` contra el API local que sirve `0.9.0-academic`, con GenAI apagada en ambos modos. El muestreo usa seed 42, el snapshot más reciente de 100 `project_id` del split TEST y solo las siete features; las mismas listas prefijo se comparan como N=1/10/25/50/100. Hubo tres warm-ups excluidos, 10 repeticiones para N=1/10/25 y cinco para N=50/100. Individual son N requests secuenciales a `/api/predict?include_recommendations=false`; batch es una llamada `/api/predict-csv`, también secuencial internamente. No se atribuye paralelización.
 
-La capa automática expone tiempos ML+drivers y total de API; Qwen tiene latencia versionada. La capacidad configurada es 100 filas por lote, sin benchmark de throughput bajo concurrencia. El protocolo exige al menos cinco casos reales cronometrados y registra calidad y condiciones. Ver [protocolo completo](efficiency_evaluation.md).
+| N | Individual mediana | Batch mediana | Speedup batch/secuencial | Reducción temporal | Throughput batch |
+|---:|---:|---:|---:|---:|---:|
+| 1 | 45.84 ms | 46.61 ms | 0.983× | -1.68 % (batch más lento) | 21.454 proyectos/s |
+| 10 | 454.24 ms | 426.40 ms | 1.065× | 6.13 % | 23.452 proyectos/s |
+| 25 | 1138.24 ms | 1065.97 ms | 1.068× | 6.35 % | 23.453 proyectos/s |
+| 50 | 2265.70 ms | 2116.37 ms | 1.071× | 6.59 % | 23.625 proyectos/s |
+| 100 | 4440.90 ms | 4215.74 ms | 1.053× | 5.07 % | 23.721 proyectos/s |
+
+Todas las ejecuciones normales tuvieron 100 % de éxito (80 runs raw: 40 por modo) y los mismos casos por N. Para N=100, el throughput batch derivado de la mediana es 1423.24 proyectos/min y el costo temporal mediano 42.16 ms/proyecto. La mediana individual secuencial fue 4440.90 ms frente a 4215.74 ms batch. La mejora medida es modesta y N=1 fue 1.68 % más lento en batch; se interpreta como reducción de overhead de endpoint/serialización para lotes N≥10, no como escalado paralelo. El aumento de N se comportó aproximadamente lineal respecto a la referencia local N=1.
+
+La robustez se verificó fuera del throughput: fila con una feature faltante aceptada al 85.71 % y reportada como imputada por la política ML; cobertura inferior al 60 %, categoría inválida y `true_progress=1.2` rechazados; CSV inválido devuelto como error controlado por fila. Resultado 5/5 checks; cero timeouts/HTTP failures en la prueba normal. Una muestra GenAI separada de cinco casos tuvo 5/5 Qwen aceptados, mediana 1136.04 ms y p95 7314.038 ms; no se mezcló con la comparación ML/batch ni sustituyó el benchmark oficial de 30 casos.
+
+El entorno fue macOS arm64, Python 3.12.15, API local, artifact 0.9.0-academic; el SHA de ejecución fue `e0beff14db7eab98f19c20ea90a3b3f7e4deea6b`. El API no expone workers, por lo que ese dato queda sin determinar. Estos resultados describen eficiencia operacional/capacidad del proceso automatizado en esta laptop. No demuestran productividad humana, ahorro laboral, producción, concurrencia ni rendimiento universal. Evidencia reproducible, datos crudos, casos, robustez, GenAI separada y gráficos: `reports/efficiency/`; método y comando: [protocolo](efficiency_evaluation.md).
 
 ## 20. Riesgos éticos
 
@@ -219,7 +231,7 @@ The Kubernetes Authors (s. f.) documentan los mecanismos de despliegue utilizado
 
 ## 22. Limitaciones
 
-Los datos son sintéticos, el desbalance afecta Health, la detección crítica es incompleta, Delay apenas mejora la mediana y Cost depende del generador EVM. La evaluación temprana tiene cobertura desigual. La fusión no está calibrada; drivers no son causales. El benchmark GenAI es pequeño y condicionado; sus validadores son proxies. No hay baseline humano, validación empresarial ni clúster productivo. La prueba manual balanceada de 99 filas comunicada por el autor no tiene resultados estructurados versionados identificados: no se incorpora como métrica oficial. Existe un test local de 99 filas que verifica contrato y cobertura, sin balance 33/33/33 garantizado.
+Los datos son sintéticos, el desbalance afecta Health, la detección crítica es incompleta, Delay apenas mejora la mediana y Cost depende del generador EVM. La evaluación temprana tiene cobertura desigual. La fusión no está calibrada; drivers no son causales. El benchmark GenAI es pequeño y condicionado; sus validadores son proxies. La eficiencia operacional se midió localmente, pero no hay baseline humano, validación empresarial ni clúster productivo. La prueba manual balanceada de 99 filas comunicada por el autor no tiene resultados estructurados versionados identificados: no se incorpora como métrica oficial. Existe un test local de 99 filas que verifica contrato y cobertura, sin balance 33/33/33 garantizado.
 
 ## 23. Conclusiones
 
@@ -227,11 +239,11 @@ Health ofrece señal multiclase útil en este benchmark: Macro F1 0.627576 frent
 
 El desempeño Health temprano mejora entre 20 y 80 % de avance, con cobertura de 236 a 599 proyectos; no demuestra anticipación universal. Qwen produjo explicaciones y recomendaciones estructuradas con 29 de 30 respuestas aceptadas, pero su utilidad profesional no está establecida. El rechazo de una cifra no soportada muestra por qué los guardrails son necesarios; grounding sigue siendo un proxy.
 
-El aporte es una arquitectura que separa predicción, heurísticas y explicación con trazabilidad. La naturaleza sintética limita generalización; faltan medición de eficiencia humana y validación prospectiva con proyectos reales. Se sostiene un prototipo académico reproducible para entrega y sustentación, no una solución productiva validada.
+El aporte es una arquitectura que separa predicción, heurísticas y explicación con trazabilidad. La naturaleza sintética limita generalización; la eficiencia operacional local está cuantificada, pero no hay estudio controlado de usuarios ni validación prospectiva con proyectos reales. Se sostiene un prototipo académico reproducible para entrega y sustentación, no una solución productiva validada.
 
 ## 24. Trabajo futuro
 
-Medir los cinco casos humanos y revisar recomendaciones; obtener proyectos reales con outcomes bajo acuerdos de datos; validar temporalmente y externamente; calibrar fusión; estudiar Delay usando TRAIN/VALIDATION sin escoger por TEST; desplegar observabilidad central y probar carga antes de escalar. Son tareas futuras, sin experimentos ni funcionalidades nuevas durante este cierre.
+Opcionalmente estudiar tiempos/calidad con usuarios bajo protocolo controlado; obtener proyectos reales con outcomes bajo acuerdos de datos; validar temporalmente y externamente; calibrar fusión; estudiar Delay usando TRAIN/VALIDATION sin escoger por TEST; desplegar observabilidad central y probar carga antes de escalar. Son tareas futuras, sin convertir métricas operacionales en productividad humana.
 
 ## 25. Referencias
 

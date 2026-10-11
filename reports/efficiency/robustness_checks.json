@@ -1,0 +1,87 @@
+{
+  "status": "complete",
+  "checks": [
+    {
+      "case": "one_missing_feature_imputed_by_training_policy",
+      "transport": "POST /api/predict",
+      "expected_status": 200,
+      "observed_status": 200,
+      "passed": true,
+      "detail": {
+        "trained_feature_count": 7,
+        "coverage": 0.8571,
+        "minimum_coverage": 0.6,
+        "imputation_policy": "numeric=training_median; categorical=training_mode",
+        "missing_trained_features": [
+          "methodology"
+        ],
+        "missing_count": 1,
+        "complete": false
+      }
+    },
+    {
+      "case": "coverage_below_minimum",
+      "transport": "POST /api/predict",
+      "expected_status": 422,
+      "observed_status": 422,
+      "passed": true,
+      "detail": "Cobertura insuficiente de features: 14%. Se requiere al menos 60%."
+    },
+    {
+      "case": "invalid_category",
+      "transport": "POST /api/predict",
+      "expected_status": 422,
+      "observed_status": 422,
+      "passed": true,
+      "detail": [
+        {
+          "type": "literal_error",
+          "loc": [
+            "body",
+            "project_type"
+          ],
+          "msg": "Input should be 'construction', 'healthcare', 'it', 'manufacturing', 'marketing' or 'r&d'",
+          "input": "invalid_project_type",
+          "ctx": {
+            "expected": "'construction', 'healthcare', 'it', 'manufacturing', 'marketing' or 'r&d'"
+          }
+        }
+      ]
+    },
+    {
+      "case": "true_progress_out_of_range",
+      "transport": "POST /api/predict",
+      "expected_status": 422,
+      "observed_status": 422,
+      "passed": true,
+      "detail": [
+        {
+          "type": "less_than_equal",
+          "loc": [
+            "body",
+            "true_progress"
+          ],
+          "msg": "Input should be less than or equal to 1",
+          "input": 1.2,
+          "ctx": {
+            "le": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "case": "csv_invalid_category_controlled_row_error",
+      "transport": "POST /api/predict-csv",
+      "expected_status": 200,
+      "observed_status": 200,
+      "passed": true,
+      "detail": "1 validation error for ProjectInput\nproject_type\n  Input should be 'construction', 'healthcare', 'it', 'manufacturing', 'marketing' or 'r&d' [type=literal_error, input_value='invalid_project_type', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.14/v/literal_error"
+    }
+  ],
+  "successful_checks": 5,
+  "failed_checks": 0,
+  "timeout_failures_observed": 0,
+  "http_failures_observed": 0,
+  "coverage_blocks_observed": 1,
+  "normal_throughput_cases_included": false
+}

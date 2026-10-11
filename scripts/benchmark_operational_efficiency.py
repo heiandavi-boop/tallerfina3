@@ -539,6 +539,7 @@ def render_markdown(summary: dict[str, Any], robustness: dict[str, Any], genai_s
         "# Benchmark de eficiencia operacional",
         "",
         f"Estado: **{summary['status']}**. Artifact: `{summary['environment']['artifact_version']}`. Dataset: {summary['environment']['dataset_source']}.",
+        f"HEAD medido: `{summary['environment']['git_sha']}`. Fecha UTC: {summary['environment']['date_utc']}.",
         f"Entorno observado: {summary['environment']['os']}, Python {summary['environment']['python_version']}, arquitectura {summary['environment']['cpu_architecture']}; API mode `{summary['environment']['api_mode']}`, workers {summary['environment']['workers'] or 'no determinados por API'}.",
         "",
         "Medición local end-to-end sobre TEST académico. `individual` son llamadas secuenciales sin recomendaciones; `batch` es una llamada CSV secuencial. No es prueba productiva ni productividad humana.",

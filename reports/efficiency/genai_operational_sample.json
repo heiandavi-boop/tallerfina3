@@ -1,0 +1,78 @@
+{
+  "status": "complete",
+  "source": "additional local API sample; separate from primary operational benchmark",
+  "model": "qwen3:8b",
+  "artifact_version": "0.9.0-academic",
+  "cases_requested": 5,
+  "cases_completed": 5,
+  "genai_successes": 5,
+  "genai_fallbacks": 0,
+  "genai_success_rate": 1.0,
+  "genai_latency_ms_median": 1136.04,
+  "genai_latency_ms_p95": 7314.038,
+  "official_benchmark_reference": {
+    "generation_success_rate": 0.9666666666666667,
+    "schema_valid_rate": 1.0,
+    "evidence_feature_valid_rate": 1.0,
+    "grounded_response_rate": 0.9666666666666667,
+    "actionability_rate": 1.0,
+    "unsupported_numeric_claim_rate": 0.03333333333333333,
+    "timeout_rate": 0.0,
+    "invalid_json_rate": 0.0,
+    "latency_ms_median": 3092.645,
+    "latency_ms_p95": 6634.72
+  },
+  "cases": [
+    {
+      "project_id": "mendeley::PROJ_0760",
+      "http_status": 200,
+      "total_ms": 7772.71,
+      "genai_ms": 7721.3,
+      "genai_attempted": true,
+      "genai_used": true,
+      "engine": "ollama:qwen3:8b",
+      "failure_code": null
+    },
+    {
+      "project_id": "mendeley::PROJ_2717",
+      "http_status": 200,
+      "total_ms": 5740.47,
+      "genai_ms": 5684.99,
+      "genai_attempted": true,
+      "genai_used": true,
+      "engine": "ollama:qwen3:8b",
+      "failure_code": null
+    },
+    {
+      "project_id": "mendeley::PROJ_3787",
+      "http_status": 200,
+      "total_ms": 1190.54,
+      "genai_ms": 1136.04,
+      "genai_attempted": true,
+      "genai_used": true,
+      "engine": "ollama:qwen3:8b",
+      "failure_code": null
+    },
+    {
+      "project_id": "mendeley::PROJ_0535",
+      "http_status": 200,
+      "total_ms": 1164.4,
+      "genai_ms": 1110.02,
+      "genai_attempted": true,
+      "genai_used": true,
+      "engine": "ollama:qwen3:8b",
+      "failure_code": null
+    },
+    {
+      "project_id": "mendeley::PROJ_1229",
+      "http_status": 200,
+      "total_ms": 1178.3,
+      "genai_ms": 1121.39,
+      "genai_attempted": true,
+      "genai_used": true,
+      "engine": "ollama:qwen3:8b",
+      "failure_code": null
+    }
+  ],
+  "note": "Muestra complementaria de cinco casos; no sobrescribe el benchmark GenAI oficial ni participa en las métricas de throughput ML/batch."
+}

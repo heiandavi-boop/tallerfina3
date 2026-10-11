@@ -197,13 +197,14 @@ El problema, método y resultados ocupan el centro; infraestructura es secundari
 - Analizar preset: prediction_id y artefacto real
 - What-if modifica variables usadas
 - CSV: hasta 100 filas; Team Health según cobertura
+- 100 proyectos TEST: batch mediana 4.22 s vs 4.44 s individual secuencial
 - Delay operacional ≥ 0; valor crudo en detalle técnico
 
 **Visual/gráfico:** Demostración en vivo con drawer y CSV..
 
 **Evidencia:** scripts/preflight_demo.sh; frontend; /api/schema y /api/predict`.
 
-**Speech:** La demo ejecuta el artefacto cargado y registra una identificación de predicción. Mostraremos un análisis, un cambio de SPI o CPI y el procesamiento de un CSV. Si no hay señales de equipo suficientes, se oculta la columna Team Health del batch. Delay se presenta con mínimo cero y su valor crudo permanece en el detalle técnico; Cost negativo conserva ahorro. CSV y What-if no llaman al LLM. La automatización existe, pero el ahorro humano aún necesita cronometraje real.
+**Speech:** La demo ejecuta el artefacto cargado y registra una identificación de predicción. Mostraremos un análisis, un cambio de SPI o CPI y el procesamiento de un CSV. Si no hay señales de equipo suficientes, se oculta la columna Team Health del batch. Delay se presenta con mínimo cero y su valor crudo permanece en el detalle técnico; Cost negativo conserva ahorro. CSV y What-if no llaman al LLM. En una prueba local reproducible de cien proyectos TEST, la mediana batch fue 4.22 segundos frente a 4.44 segundos con requests individuales secuenciales. Esto mide eficiencia operacional de esta configuración, no ahorro ni productividad humana ni rendimiento productivo.
 
 **Detalle secundario:** rutas de código, parámetros y JSON solo si el jurado los pide.
 
@@ -239,7 +240,7 @@ El problema, método y resultados ocupan el centro; infraestructura es secundari
 - Datos sintéticos y cobertura temporal desigual
 - Delay débil; Cost condicionado por estructura EVM
 - Fusión no calibrada; drivers no causales
-- Baseline humano y validación empresarial pendientes
+- Throughput local medido; sin carga productiva ni baseline humano
 
 **Visual/gráfico:** Tabla límite → evidencia → próximo paso..
 
@@ -266,7 +267,7 @@ El problema, método y resultados ocupan el centro; infraestructura es secundari
 
 **Evidencia:** docs/FINAL_READINESS.md; rubric_matrix.md; INFORME_FINAL.md`.
 
-**Speech:** Concluimos que PRUNIN integra predicción y explicación en un prototipo verificable. Health mejora la evaluación multiclase frente al baseline y la generación local fue medida con controles explícitos. También quedan limitaciones importantes: Delay, dependencia sintética del costo y ausencia de medición humana. El aporte es una base académica reproducible y una defensa honesta de su alcance. La etapa siguiente requiere proyectos reales y evidencia de utilidad, antes de considerar operación empresarial.
+**Speech:** Concluimos que PRUNIN integra predicción y explicación en un prototipo verificable. Health mejora la evaluación multiclase frente al baseline y la generación local fue medida con controles explícitos. La eficiencia operacional local también se midió con requests individuales y batch; no hicimos un estudio controlado de productividad humana ni una prueba productiva. Persisten limitaciones en Delay y en la dependencia sintética del costo. El aporte es una base académica reproducible y una defensa honesta de su alcance. La etapa siguiente requiere proyectos reales y evidencia de utilidad, antes de considerar operación empresarial.
 
 **Detalle secundario:** rutas de código, parámetros y JSON solo si el jurado los pide.
 

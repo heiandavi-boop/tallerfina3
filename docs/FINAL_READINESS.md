@@ -2,7 +2,7 @@
 
 **Veredicto: LISTO PARA ENTREGA ACADÉMICA** como prototipo reproducible para entrega y sustentación. No implica producción ni Nivel 4 en toda la rúbrica. Fecha: 11 de octubre de 2026 (America/Bogota). Base main inicial auditada y confirmada contra remoto: `b2d0ca32f0599fc6c2227f2a5eb3e6dea6ff812a`.
 
-El cierre previo (HEAD 781d3f8) se integró por fast-forward local a main; esta fase amplía auditoría RA1/RA2 y comunicación sin duplicar lógica. La integración definitiva se publica sobre main según la solicitud. El workflow quality de main commit `d3b0a9fdc5023841d7411102998c03bf1211b6ba` se comprobó completed/success: [run 38177951135](https://github.com/heiandavi-boop/tallerfina3/actions/runs/38177951135). Los runs de rama anteriores son evidencia histórica. El commit posterior registra esta evidencia documental; el HEAD final también debe comprobarse por su ejecución propia antes de cerrar la entrega.
+Esta versión incorpora un benchmark operacional medido sobre el artifact académico `0.9.0-academic`; sus datos registran la revisión de código usada para medir. GitHub Actions se ejecuta en cada push/PR, pero un resultado histórico no certifica un HEAD posterior: consultar únicamente el run `quality` asociado al commit final de esta entrega.
 
 ## Tabla 1. Preparación por área
 
@@ -24,13 +24,13 @@ Estados utilizados: LISTO, LISTO CON LIMITACIÓN, DISEÑO, PENDIENTE HUMANO y PE
 | What-if | LISTO | Tests API y smoke de raw negativo | Sensibilidad operacional; no intervención causal |
 | API | LISTO | /api/health, /api/ready, schema y preflight | Uso local; controles productivos pendientes |
 | Frontend | LISTO | 14 tests passing; build success; dist | Probar navegador/proyección/red en salón |
-| Tests | LISTO | 104 backend passing; npm ci, 14 frontend; compileall/pip check | CI demo puede omitir pruebas académicas con datos locales |
-| CI | LISTO | main d3b0a9f; quality completed/success, run 38177951135 | Evidencia del commit auditado; verificar también ejecución del HEAD documental final |
+| Tests | LISTO | 116 backend passing; npm ci, 14 frontend; compileall/pip check; tests puros del benchmark | CI demo omite los dos tests que requieren artifact/dataset académico local |
+| CI | CONFIGURADO | quality ejecuta npm ci/build/tests, artifacts demo, compileall y pytest en push/PR | Asociar resultado al HEAD exacto publicado |
 | Docker | LISTO CON LIMITACIÓN | Dockerfile.playground: Node22, npm ci, API Python | Imagen no construida en cierre; requiere artefactos locales |
 | Kubernetes | DISEÑO | Deployment3/Service/probes/RollingUpdate/HPA3–10 | Sin clúster; metrics-server/imagen y pruebas pendientes |
 | Monitoring | LISTO CON LIMITACIÓN | monitoring.py, /api/monitoring y /metrics | Contadores en memoria por proceso; no centralización |
 | MLOps | LISTO CON LIMITACIÓN | Versiones, SHA256, manifests, prediction_id, CI y política | Sin alertas/drift/retraining continuo productivo |
-| Efficiency | PENDIENTE HUMANO | efficiency_evaluation.md; script; eficiencia not_measured | Cronometrar al menos cinco casos y conservar respuestas |
+| Efficiency | LISTO CON LIMITACIÓN | reports/efficiency/operational_benchmark_summary.json; benchmark reproducible individual/batch, N=1–100 | Medición local secuencial; sin baseline de usuarios, carga productiva ni concurrencia |
 | Ethics | LISTO CON LIMITACIÓN | Matriz de 15 riesgos, impactos y controles | Representatividad, OOD, seguridad y semántica residuales |
 | Written communication | LISTO CON LIMITACIÓN | INFORME_FINAL 25 secciones, APA, tablas/figuras | Completar identidad/datos institucionales y revisión final |
 | Oral communication | PENDIENTE HUMANO | 12 slides; 7/10/12 min; 23 términos; 32 respuestas | Ensayo, voz, postura y defensa no acreditados por GitHub |
@@ -38,7 +38,9 @@ Estados utilizados: LISTO, LISTO CON LIMITACIÓN, DISEÑO, PENDIENTE HUMANO y PE
 
 ## Verificaciones ejecutadas
 
-pip check: sin dependencias rotas. compileall: success. Backend académico: 104 passed. npm ci: success desde lockfile. Frontend: 14 passed. Build: success. Preflight con 0.9.0-academic: RESULTADO: LISTO PARA DEMO. Preflight GenAI separado, con API temporal habilitado/Ollama: RESULTADO: OLLAMA READY. El API temporal se detiene tras comprobarlo.
+pip check: sin dependencias rotas. compileall: success. Backend académico: 116 passed. npm ci: success desde lockfile. Frontend: 14 passed. Build: success. Preflight con 0.9.0-academic: RESULTADO: LISTO PARA DEMO. Preflight GenAI separado: RESULTADO: OLLAMA READY. El benchmark operacional está `complete`, con 100 casos únicos TEST, 80 runs individuales/batch, GenAI apagada y 100 % de éxito normal. Sus reports/figures están en `reports/efficiency/`; el reporte identifica HEAD medido `e0beff1`. El throughput y speedup son locales, no productivos ni humanos.
+
+Benchmark operacional local: `reports/efficiency/operational_benchmark_summary.json`, `operational_benchmark_raw.csv`, casos TEST, robustness y cuatro figuras. 100 proyectos únicos, N=1/10/25/50/100, 10/10/10/5/5 repeticiones por modo, tres warm-ups; GenAI apagada. N=100: batch 4215.74 ms vs individual secuencial 4440.90 ms, throughput mediano 23.721 proy/s, ambos con 100 % de éxito. No equivale a productividad humana ni a carga productiva. Muestra Qwen separada: `reports/efficiency/genai_operational_sample.json`.
 
 Se ejecutó un smoke funcional sobre cinco casos cuyos IDs provienen del benchmark Qwen: API/CSV sin LLM, cobertura ML completa y ausencia de Team Health inventado; What-if conserva raw=-0.3 usando un stub temporal en memoria. Ese stub es una prueba de política, no una predicción académica ni un cambio de modelo. Tiempos observados se guardan con alcance local, sin llamarlos ahorro humano/throughput productivo. No se reejecutó el benchmark oficial ni entrenamiento.
 
@@ -48,15 +50,15 @@ Logs, comandos y hashes: reports/closure/definitive/. Los logs pueden normalizar
 
 Los .joblib existentes, artefactos, configuración, pesos, thresholds, definición de targets, seed, dataset académico, split, mapping Final Status, fusión 0.85/0.15 y arquitectura LightGBM/Qwen permanecen intactos. Los reportes académicos y benchmark Qwen históricos no se reescribieron. Hashes inicial/final se comprueban en validation.json. No se entrenó el modelo académico; los tests pueden ajustar fixtures temporales y CI genera únicamente artefactos demo de prueba.
 
-Delay operacional=max(0, raw) aplica en API/UI/CSV/What-if; raw queda en detalle técnico y métricas crudas históricas permanecen. Cost negativo conserva ahorro. Team Health del batch se oculta si ningún score es calculable y aparece si alguno lo es; no se imputa. No se añadió funcionalidad, dependencia, modelo, RAG, cloud, base de datos ni infraestructura real.
+Delay operacional=max(0, raw) aplica en API/UI/CSV/What-if; raw queda en detalle técnico y métricas crudas históricas permanecen. Cost negativo conserva ahorro. Team Health del batch se oculta si ningún score es calculable y aparece si alguno lo es; no se imputa. Se añadieron scripts/reportes de benchmark operacional, sin dependencia nueva, RAG, cloud, base de datos ni infraestructura real. No se modificaron modelos ni artefactos.
 
 ## Auditoría Nivel 4 y acciones humanas
 
 La matriz rubric_matrix.md cubre 27 ítems con exigencia, Nivel 4, evidencia/ruta, estado, gap, corrección y demostración; incluye auditoría final con banderas repo/acción humana. Evidencias compatibles documentales/técnicas no son calificación oficial.
 
-No se acredita Nivel 4 de eficiencia sin medición humana, elección exhaustiva de tres LLM sin comparabilidad empírica completa, mitigación ética total con riesgos residuales, escalabilidad/orquestación operada sin pruebas ni MLOps con retraining continuo ausente. RA2 está preparado, no se observó actuación: F4 voz y F6 lenguaje no verbal requieren ensayo humano explícito.
+R6.2 Cr6 tiene evidencia cuantitativa de eficiencia operacional local y comparación individual/batch; no demuestra productividad humana ni rendimiento productivo, por lo que la valoración final del nivel corresponde al evaluador. Siguen sin acreditarse una comparación empírica completa de tres LLM, mitigación ética total, escalabilidad/orquestación operada ni MLOps con retraining continuo. RA2 está preparado, no se observó actuación: F4 voz y F6 lenguaje no verbal requieren ensayo humano explícito.
 
-Pendientes: completar autor/institución de portada; revisar/ensayar guion de 7/10/12 min; practicar voz/postura y respuestas; medir cinco casos humanos con calidad y condiciones; comprobar legibilidad/proyección y LAN; antes de uso real obtener datos/outcomes aprobados, validación externa y controles operacionales. Son pendientes visibles, no pruebas fabricadas.
+Pendientes: completar autor/institución de portada; revisar/ensayar guion de 7/10/12 min; practicar voz/postura y respuestas; comprobar legibilidad/proyección y LAN; antes de uso real obtener datos/outcomes aprobados, validación externa y controles operacionales. Un estudio humano controlado de tiempos/calidad queda como trabajo futuro opcional; no es necesario para afirmar la eficiencia operacional automatizada medida. Son pendientes visibles, no pruebas fabricadas.
 
 La prueba manual adicional de 99 proyectos balanceados comunicada por el autor no tiene resultado estructurado versionado identificado. Se mantiene como validación funcional manual, sin metricar números recordados; el test de 99 filas del repo verifica contrato/cobertura y no garantiza balance. Lo oficial continúa en TEST de 600 proyectos.
 

@@ -11,6 +11,7 @@ from scripts.operational_efficiency import (
 )
 from scripts.benchmark_operational_efficiency import environment_metadata
 from scripts.benchmark_operational_efficiency import api_preflight
+from scripts.benchmark_operational_efficiency import render_markdown
 
 
 def _case_frame(project_count=120):
@@ -87,6 +88,7 @@ def test_mode_statistics_calculate_throughput_and_cost_per_project():
     assert summary["ms_per_project"] == 250
     assert summary["success_rate"] == 1
     assert summary["error_rate"] == 0
+    assert summary["timeout_count"] == 0
 
 
 def test_comparison_computes_speedup_only_for_matched_successful_genai_off_runs():
@@ -107,6 +109,8 @@ def test_comparison_computes_speedup_only_for_matched_successful_genai_off_runs(
     assert result["comparison"]["1"]["time_reduction_percent"] == 50
     assert result["comparison"]["2"]["speedup_batch_vs_sequential"] == 2.5
     assert result["comparison"]["2"]["time_reduction_percent"] == 60
+    assert result["comparison"]["2"]["sequential_median_total_ms"] == 2000
+    assert result["comparison"]["2"]["batch_median_total_ms"] == 800
 
 
 def test_no_division_by_zero_and_missing_runs_never_mark_complete():
@@ -203,3 +207,28 @@ def test_api_preflight_rejects_demo_artifact_for_academic_measurement():
     _, metadata, error = api_preflight(Session(), "http://api.test", "0.9.0-academic", 1)
     assert metadata["artifact_version"] == "demo-0.1.0"
     assert "se requiere '0.9.0-academic'" in error
+
+
+def test_markdown_summary_identifies_measured_head_and_local_limitations():
+    case_ids = ["p1"]
+    records = [_run(mode, 1, 1, duration, case_ids) for mode, duration in (("individual", 100), ("batch", 90))]
+    summary = build_summary(
+        records,
+        case_ids_by_size={1: case_ids},
+        repetitions_by_size={1: 1},
+        environment={
+            "genai_enabled": False,
+            "git_sha": "abc123",
+            "date_utc": "2026-10-11T00:00:00+00:00",
+            "artifact_version": "0.9.0-academic",
+            "dataset_source": "Mendeley Data v2",
+            "os": "test-os",
+            "python_version": "3.12",
+            "cpu_architecture": "arm64",
+            "api_mode": "academic",
+            "workers": None,
+        },
+    )
+    md = render_markdown(summary, {"successful_checks": 0, "checks": []}, {"status": "unavailable"}, [])
+    assert "HEAD medido: `abc123`" in md
+    assert "No demuestra productividad humana" in md

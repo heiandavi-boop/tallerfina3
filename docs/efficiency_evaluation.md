@@ -1,51 +1,77 @@
-# Protocolo de evaluación de eficiencia
+# Eficiencia operacional del sistema
 
-## Estado actual
+**Alcance de la afirmación:** PRUNIN evalúa eficiencia operacional mediante benchmarks reproducibles de latencia, throughput y procesamiento batch. No se estima ahorro de tiempo humano porque no existe un estudio controlado de usuarios.
 
-**Pendiente de evidencia humana.** No existe un baseline humano medido versionado. La evaluación Qwen completa registra mediana de generación de 3.092645 s y p95 de 6.63472 s. Son tiempos del benchmark GenAI, no tiempo total de análisis ni ahorro de trabajo humano. CSV y What-if automatizan ML sin LLM.
+Estas mediciones describen el comportamiento automatizado en un equipo local; no representan productividad laboral, carga productiva ni un benchmark universal.
 
-## A. Evidencia automática disponible
+## Método reproducible
 
-| Elemento | Evidencia actual | Alcance de la afirmación |
-|---|---|---|
-| Inferencia ML y drivers | API timing.ml_and_drivers_ms y ml_inference_ms | Incluye drivers; no es duración del predictor puro ni promedio poblacional |
-| Tiempo total del análisis | API timing.total_ms e inference_ms | Puede incluir GenAI según flags; una observación no es benchmark bajo carga |
-| Latencia Qwen | Benchmark versionado: mediana 3.092645 s, p95 6.63472 s | Solo esta corrida local y muestra condicionada |
-| Capacidad batch | /api/predict-csv admite máximo 100 filas | Límite configurado, no throughput medido |
-| Cantidad por lote | count y filas/errores del resultado CSV | Conservar lote, errores y duración si se mide |
-| Recomendación automática | generation_success_rate=29/30; schema/features válidas 30/30 | Generación aceptada, no eficacia profesional |
+El runner `scripts/benchmark_operational_efficiency.py` mide el API real con `artifacts/0.9.0-academic`. Lee `artifacts/0.9.0-academic/split_manifest.json`, selecciona únicamente proyectos TEST y toma el snapshot más reciente por `project_id`. Ordena los IDs, aplica seed 42 una sola vez a 100 proyectos y usa prefijos de esa misma muestra para N=1, 10, 25, 50 y 100. `reports/efficiency/benchmark_cases.csv` registra `case_order`, `project_id` y las siete features predictivas; no incluye labels, targets ni outcomes.
 
-Fuente: `src/prunin_ai/api/app.py`, tests y `reports/genai/qwen3-8b-evaluation.json`. CSV y What-if no usan Qwen. El preflight acredita ejecución, sin inventar latencia ML promedio ni escalabilidad. El cálculo automated_cases_per_hour del script es teórico a partir de la mediana Qwen, sin concurrencia, carga ni revisión humana.
+Antes de medir se comprueban `/api/ready`, `/api/health`, versión, dataset, las siete features y `/api/genai-status.enabled=false`. Si el artifact servido no es `0.9.0-academic`, el script termina con `unavailable_academic_artifact`; si GenAI sigue activa, no comienza la comparación. Ejecuta tres warm-ups individuales, que se excluyen de estadísticas.
 
-## B. Medición humana mínima reproducible
+Para cada N se miden 10 repeticiones en 1/10/25 y 5 en 50/100:
 
-Seleccionar y congelar cinco casos del benchmark `reports/genai/qwen3-8b-evaluation.json`, registrando sus `project_id`, siete features y evidencia disponible. Usar los mismos casos y tarea para la comparación automática. Anotar fecha, perfil del participante, equipo, instrucciones y si hay entrenamiento previo; evitar mostrarle la recomendación generada antes de cronometrar.
+- **Individual:** N requests secuenciales a `POST /api/predict?include_recommendations=false`.
+- **Batch:** un request `POST /api/predict-csv` con exactamente esos mismos N proyectos.
 
-Para cada caso presentar los datos, iniciar el cronómetro y pedir: interpretar señales, identificar el riesgo y redactar una recomendación con evidencia. Detenerlo al entregar el texto. Registrar segundos reales y conservar la respuesta para revisar utilidad con los mismos criterios. Una tabla vacía no es resultado.
+Ambos recorren la misma predicción ML y los drivers locales, sin recomendaciones, fallback ni Qwen. No hay concurrencia: el loop del CSV también procesa filas secuencialmente. La duración cliente mide HTTP, transferencia, serialización y respuesta; `server_total_ms` suma `timing.total_ms` por inferencia. La diferencia se conserva como overhead cliente aproximado, no como una medición aislada de red.
 
-| Caso (registrar project_id) | Tiempo humano (segundos) | Observaciones |
-|---|---|---|
-| mendeley::PROJ_0760 | PENDIENTE DE MEDICIÓN | Registrar perfil, contexto y respuesta |
-| mendeley::PROJ_2717 | PENDIENTE DE MEDICIÓN | Registrar perfil, contexto y respuesta |
-| mendeley::PROJ_0062 | PENDIENTE DE MEDICIÓN | Registrar perfil, contexto y respuesta |
-| mendeley::PROJ_0539 | PENDIENTE DE MEDICIÓN | Registrar perfil, contexto y respuesta |
-| mendeley::PROJ_2331 | PENDIENTE DE MEDICIÓN | Registrar perfil, contexto y respuesta |
+La mediana por repetición determina throughput (`N / median_ms`) y `ms_per_project`. Speedup y reducción temporal solo se reportan si coinciden hash de casos, tarea, GenAI apagada y éxito de ambas modalidades al 100 %. El término speedup compara endpoint batch con requests individuales secuenciales; no significa paralelización.
 
-Calcular `mediana_humana = median(tiempos_reales)` y ejecutar solamente después de obtenerla:
+## Ejecución
+
+Terminal 1, servicio local aislado para benchmark:
 
 ```bash
-python scripts/benchmark_efficiency.py \
-  --manual-seconds-per-case <MEDIANA_REAL>
+PRUNIN_ARTIFACT_DIR=artifacts/0.9.0-academic \
+PRUNIN_ENABLE_OLLAMA=0 PYTHONPATH=src \
+./.venv/bin/python -m uvicorn prunin_ai.api.app:app --host 127.0.0.1 --port 8002
 ```
 
-El script calcula `(1 - mediana_automática / mediana_humana) * 100` y `mediana_humana / mediana_automática`. Su latencia automática procede del benchmark Qwen de 30 casos: compararla con cinco casos manuales es exploratorio, con tamaños y condiciones diferentes. Para una afirmación end-to-end sólida, medir también ML, drivers, generación y revisión humana sobre los mismos cinco casos (`timing.total_ms` del API), reportando fallbacks y calidad. No confundir capacidad teórica por hora con throughput observado bajo carga.
+Terminal 2:
 
-Se puede ejecutar sin baseline para registrar únicamente la evidencia automática; `manual_baseline_status=not_measured`, ahorro y ganancia quedan null. No introducir valores de ejemplo en la tabla ni invocar el script con segundos ficticios. Cr6 permanece pendiente hasta adjuntar mediciones, respuestas y condiciones experimentales. Cinco casos constituyen evidencia exploratoria, no una generalización de eficiencia empresarial.
+```bash
+PRUNIN_ENABLE_OLLAMA=0 PYTHONPATH=src \
+./.venv/bin/python scripts/benchmark_operational_efficiency.py \
+  --api-url http://127.0.0.1:8002
+```
 
-## Datos y comparabilidad de los cinco casos
+El benchmark pesado no forma parte de CI. La suite de tests solo verifica sus funciones puras con fixtures. El runner no entrena modelos ni modifica artifacts.
 
-Los identificadores de la tabla proceden del JSON real, no son cinco observaciones humanas ya medidas. Recuperar sus siete entradas desde `data/processed/mendeley_core.csv`, filtrando por esos project_id y eligiendo el snapshot más reciente (snapshot_index). Registrar cuáles se usaron, verificar pertenencia a TEST y conservar las entradas presentadas sin cambiarlas. El benchmark histórico no permite inferir tiempo de lectura humana.
+## Resultado observado
 
-Cronometrar explícitamente revisión de inputs → interpretación del riesgo → identificación de señales principales → redacción de recomendación accionable. No revelar la respuesta Qwen antes de medir. Guardar texto manual, cronómetro, fecha y condiciones. Si se comparan latencias por caso del benchmark, indicar que son históricos/locales; para una comparación end-to-end pareada nueva medir ambos procesos bajo las mismas condiciones, sin sobrescribir el reporte oficial. El marcador `<MEDIANA_REAL>` no es un argumento ejecutable hasta reemplazarlo con la medición.
+Ejecución local del 11 de octubre de 2026, API `0.9.0-academic`, Mendeley Data v2 sintético externo, macOS arm64, Python 3.12.15. Se procesaron los mismos 100 proyectos únicos TEST; 100/100 respuestas fueron válidas en individual y batch para los cinco tamaños.
 
-Estado rúbrica: **Pendiente de evidencia humana cuantitativa.** No se acredita Nivel 4 de eficiencia/escalabilidad/productividad con latencia y límite de lote por sí solos.
+| N | Repeticiones por modo | Individual mediana (ms) | Batch mediana (ms) | Batch vs. secuencial | Throughput batch (proy/s) | Batch ms/proyecto | Éxito individual/batch |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 10 | 45.84 | 46.61 | 0.983×; batch 1.68 % más lento | 21.454 | 46.61 | 100 % / 100 % |
+| 10 | 10 | 454.24 | 426.40 | 1.065×; reducción 6.13 % | 23.452 | 42.64 | 100 % / 100 % |
+| 25 | 10 | 1138.24 | 1065.97 | 1.068×; reducción 6.35 % | 23.453 | 42.64 | 100 % / 100 % |
+| 50 | 5 | 2265.70 | 2116.37 | 1.071×; reducción 6.59 % | 23.625 | 42.33 | 100 % / 100 % |
+| 100 | 5 | 4440.90 | 4215.74 | 1.053×; reducción 5.07 % | 23.721 | 42.16 | 100 % / 100 % |
+
+En N=100, throughput batch fue 23.721 proyectos/s (1423.24 proyectos/min), calculado sobre la mediana medida de 4215.74 ms. El batch fue 1.68 % más lento para N=1; para N=10–100 la reducción observada fue 5.07–6.59 %. Los datos son compatibles con crecimiento aproximadamente lineal respecto a la referencia local N=1, con menor costo por proyecto al agrupar. No es evidencia de escalabilidad productiva ni de paralelismo.
+
+El JSON contiene para cada N/modo media, mediana, p50, p90, p95, mínimo, máximo, desviación estándar, éxito/error, throughput, ms/proyecto y overhead cliente-servidor. Las ejecuciones crudas están en `reports/efficiency/operational_benchmark_raw.csv`.
+
+## Robustez y GenAI
+
+Los controles se ejecutaron fuera de las repeticiones normales: una fila con metodología faltante fue aceptada con coverage 85.71 % y esa feature registrada para imputación según training policy; una entrada con coverage 14.29 % fue bloqueada con HTTP 422; categoría inválida y `true_progress=1.2` también fueron rechazados; CSV respondió HTTP 200 con error controlado por fila para la categoría inválida. Resultado: 5/5 checks correctos, cero timeouts/HTTP failures observados; el coverage block esperado no se contó como error del benchmark normal. Detalle: `reports/efficiency/robustness_checks.json`.
+
+Qwen se mantuvo fuera del benchmark principal. La muestra complementaria de cinco casos TEST devolvió 5/5 recomendaciones Qwen, mediana GenAI 1136.04 ms y p95 7314.038 ms. Está separada en `reports/efficiency/genai_operational_sample.json`. Como referencia independiente, el benchmark oficial versionado de 30 casos está en `reports/genai/qwen3-8b-evaluation.json`; no se sobrescribió.
+
+Gráficos generados con los datos medidos:
+
+- `reports/efficiency/figures/latency_vs_batch_size.png`
+- `reports/efficiency/figures/throughput_vs_batch_size.png`
+- `reports/efficiency/figures/ms_per_project_vs_batch_size.png`
+- `reports/efficiency/figures/sequential_vs_batch.png`
+
+## Interpretación y límites
+
+El resultado cuantifica capacidad operacional del proceso automatizado en un equipo local y dentro del límite de lote configurado (100). Batch reduce moderadamente el tiempo total frente a N requests secuenciales para N≥10; el tamaño del efecto se limita a esta API, artifact, máquina y ejecución. No se probó concurrencia, escalado horizontal, carga sostenida ni producción. El throughput teórico derivado de la mediana no equivale a una carga sostenida medida.
+
+No se cronometra a personas, no hay baseline humano ni estudio controlado de usuarios; por tanto, no se afirma ahorro de tiempo, productividad humana o retorno de inversión. Una medición humana futura es opcional y necesitaría protocolo pareado, varios usuarios/casos, calidad de respuesta y condiciones registradas.
+
+**Conclusión defendible:** PRUNIN demuestra eficiencia operacional reproducible mediante latencia, throughput y procesamiento batch sobre proyectos del TEST académico. Estas mediciones caracterizan el proceso automatizado en un entorno local; no representan productividad humana ni rendimiento productivo.
