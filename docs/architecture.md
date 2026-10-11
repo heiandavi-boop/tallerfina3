@@ -1,48 +1,73 @@
-# Arquitectura del cerebro V9 académico
+# Arquitectura académica implementada
 
-## Principio
+El modelo congelado `0.9.0-academic` usa exclusivamente Mendeley v2, un dataset sintético externo publicado en Mendeley Data. Itemlet, Collaboration y SQuaD son fuentes independientes para trabajo futuro; no alimentan ni se unen al predictor académico actual.
 
-No se fuerza un único dataset universal. Las fuentes públicas no describen los mismos proyectos y por ello no deben unirse por columnas como si fueran observaciones equivalentes.
+## Figura A1. Flujo del Playground
 
-```text
-Mendeley Risk + EVM ──> Core Predictor ──> Health ML / Delay / Cost
-                                      └─> Final Status derivado de Health
-                                   │
-PRUNIN operacional ──> Team Health Index ─┤
-                                   │       ├─> Fusion / explicación
-Itemlet ──────────────> Effort signals ────┤
-GitHub Collaboration ─> Team signals ──────┤
-SQuaD ────────────────> Quality signals ───┘
+```mermaid
+flowchart LR
+  U[Director de proyecto] --> R[React / Vite]
+  R --> A[FastAPI: esquema y cobertura]
+  A --> L[LightGBM: Health, Delay, Cost]
+  L --> O[Final Status derivado y Delay operacional]
+  A --> T[Team Health observado: heurística]
+  L --> D[Sensibilidad local: drivers]
+  T --> F[Fusión 0.85 / 0.15 no calibrada]
+  L --> F
+  O --> E[Evidencia estructurada]
+  D --> E
+  E --> Q[Qwen3 8B / Ollama opcional]
+  Q --> V[Validación de esquema y grounding]
+  V --> X[Explicación y recomendación revisables]
+  V --> B[Fallback determinístico ante rechazo o fallo]
+  B --> X
+  O --> R
+  F --> R
+  X --> R
 ```
 
-## Diferencias frente a V8.6.3
+Fuente: `src/prunin_ai/api/app.py`, `model_runtime.py`, `recommendations.py`, `inference/brain.py`, `features/team_health.py` y `frontend/src/`. Las flechas describen componentes implementados, no infraestructura empresarial activa. Health, Delay y Cost son ML; Final Status es derivado; Team Health y fusión son heurísticos. CSV y What-if no pasan por Qwen.
 
-V8.6.3 tiene 15 features temporales. V9 académico elimina del core obligatorio `reported_progress`, `critical_path_delay_days` y `team_morale`.
+## Figura A2. Generación y guardrails
 
-- `reported_progress`: puede seguir mostrándose como comparación administrativa si el usuario lo captura, pero no condiciona el modelo.
-- `critical_path_delay_days`: queda reservado para una futura feature calculada por CPM real, no simulada.
-- `team_morale`: se sustituye por `team_health_index` operativo.
+```mermaid
+flowchart TD
+  M[Predicciones LightGBM] --> D[Drivers de sensibilidad local]
+  D --> E[Evidencia permitida estructurada]
+  E --> Q[Prompt grounded: Qwen3 / Ollama]
+  Q --> V{JSON, evidence_feature y cifras válidas}
+  V -->|Sí| R[Recomendación generativa]
+  V -->|No / timeout| F[Fallback determinístico]
+  R --> H[Revisión humana]
+  F --> H
+  M --> P[Predicción ML siempre conservada]
+```
 
-## Team Health Index
+Fuente: `recommendations.py`, `tests/test_genai_grounding.py`. El prompt solicita JSON y limita evidence_feature a drivers permitidos; se validan cifras. Timeout configurable (30 s por defecto), códigos de error, `/api/genai-status` y flags genai_attempted/genai_used preservan trazabilidad. Un rechazo activa respaldo; no elimina la predicción ML. El grounding es proxy de ingeniería, no demostración de verdad semántica ni causalidad. La llamada local síncrona añade latencia al análisis individual; no se probó escalamiento de Qwen bajo concurrencia.
 
-No es una etiqueta psicológica. La fórmula usa señales observables y renormaliza pesos cuando faltan componentes. Cada cálculo devuelve `score`, `level`, `weight_coverage` y `component_count`.
+## Figura A3. Pipeline académico reproducible
 
-## Prevención de leakage
+```mermaid
+flowchart LR
+  D[Descarga] --> V[Validación raw]
+  V --> P[Preparación]
+  P --> A[Auditoría IQR y cobertura]
+  A --> R[Readiness y hashes]
+  R --> S[Split por proyecto y leakage]
+  S --> T[Entrenamiento TRAIN]
+  T --> E[Evaluación congelada y temporal]
+  E --> B[Baselines TRAIN e informes]
+  B --> F[Figuras]
+  F --> C[Tests]
+  C --> X[Preflight]
+```
 
-Los snapshots se dividen por `project_id`, no por fila. Un proyecto completo pertenece a train, validation o test.
+Fuente: `scripts/train_all.sh`, con `set -euo pipefail`, bloqueos explícitos ante fallo de datos y checks de artefactos. El baseline se ajusta con TRAIN; VALIDATION compara candidatos y TEST permanece evaluación final congelada. El script incluye además un experimento Delay sin promoción automática. El dibujo resume la secuencia; no implica que se reentrenara durante el cierre. Para reproducir, usar un checkout/entorno separado y conservar resultados oficiales.
 
-## Artefactos
+## Entradas, artefactos y trazabilidad
 
-Para Mendeley v2 cada entrenamiento guarda:
+Las siete features académicas se registran en `reports/0.9.0-academic/feature_manifest.json`. No se imputan señales Team Health. Delay raw permanece en `delay_days_raw`; API/CSV/What-if presentan `delay_days=max(0, raw)`. Cost negativo conserva ahorro. Final Status mapea healthy→successful, at_risk→challenged, critical→critical.
 
-- `health.joblib`
-- `delay_days.joblib`
-- `cost_overrun_ratio.joblib`
-- `metrics.json`
-- `feature_manifest.json`
-- `split_manifest.json`
-- `training_config_resolved.yaml`
-- `baselines.json`
-- `baseline_comparison.csv`
+El artefacto local incluye tres .joblib, feature_manifest, split_manifest, configuración resuelta, métricas, baselines y hashes. Los modelos pesados y datasets no están versionados en Git; los reportes ligeros sí. Un clon puede ejecutar CI con fixtures demo, pero la sustentación académica exige los artefactos oficiales locales.
 
-`final_status` se devuelve como estado de negocio derivado, no como segundo modelo. El fallback demo puede conservar un clasificador independiente porque su fixture es distinta; el runtime elige según `feature_manifest.json`.
+Versiones antiguas retiraron reported_progress, critical_path_delay_days y team_morale. No se reintroducen como features actuales. El modo demo puede conservar Final Status independiente por su fixture; no debe confundirse con el contrato académico derivado.

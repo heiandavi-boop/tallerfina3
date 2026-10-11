@@ -1,0 +1,92 @@
+{
+  "purpose": "Functional closure smoke test; not new academic predictive metrics or human baseline",
+  "artifact": "0.9.0-academic",
+  "observations": [
+    {
+      "project_id": "mendeley::PROJ_0062",
+      "prediction_id": "1d52db2b-0c8d-4867-8c14-3d40c9d5a423",
+      "health": "at_risk",
+      "delay_days": 30.35662167049242,
+      "delay_days_raw": 30.35662167049242,
+      "cost_overrun_ratio": 0.11604646359298693,
+      "timing": {
+        "ml_and_drivers_ms": 59.68,
+        "genai_ms": null,
+        "total_ms": 59.7
+      },
+      "genai_attempted": false
+    },
+    {
+      "project_id": "mendeley::PROJ_0539",
+      "prediction_id": "935ffe74-0293-4921-aeec-f41b62504802",
+      "health": "at_risk",
+      "delay_days": 38.75482813961704,
+      "delay_days_raw": 38.75482813961704,
+      "cost_overrun_ratio": 0.10437547340803112,
+      "timing": {
+        "ml_and_drivers_ms": 64.59,
+        "genai_ms": null,
+        "total_ms": 64.61
+      },
+      "genai_attempted": false
+    },
+    {
+      "project_id": "mendeley::PROJ_0760",
+      "prediction_id": "fb57f9d7-1289-49e1-9680-6064cd6fad42",
+      "health": "at_risk",
+      "delay_days": 33.15288638050986,
+      "delay_days_raw": 33.15288638050986,
+      "cost_overrun_ratio": 0.13200851353647622,
+      "timing": {
+        "ml_and_drivers_ms": 74.36,
+        "genai_ms": null,
+        "total_ms": 74.39
+      },
+      "genai_attempted": false
+    },
+    {
+      "project_id": "mendeley::PROJ_2331",
+      "prediction_id": "af76c19f-bb4c-4259-b125-930dbbe3406d",
+      "health": "at_risk",
+      "delay_days": 21.01555907087513,
+      "delay_days_raw": 21.01555907087513,
+      "cost_overrun_ratio": 0.06339833209898192,
+      "timing": {
+        "ml_and_drivers_ms": 145.52,
+        "genai_ms": null,
+        "total_ms": 145.55
+      },
+      "genai_attempted": false
+    },
+    {
+      "project_id": "mendeley::PROJ_2717",
+      "prediction_id": "04f643d6-64a3-4574-9b22-8b741332ceee",
+      "health": "at_risk",
+      "delay_days": 30.042452180508338,
+      "delay_days_raw": 30.042452180508338,
+      "cost_overrun_ratio": 0.186516756859138,
+      "timing": {
+        "ml_and_drivers_ms": 93.84,
+        "genai_ms": null,
+        "total_ms": 93.87
+      },
+      "genai_attempted": false
+    }
+  ],
+  "batch": {
+    "count": 5,
+    "errors": 0,
+    "duration_ms_observed": 241.21,
+    "llm_attempted": false,
+    "team_health_calculable_rows": 0,
+    "scope": "5-row local TestClient observation, not throughput under load"
+  },
+  "what_if_negative_delay_policy": {
+    "input_model_stub_raw": -0.3,
+    "display": 0,
+    "raw_preserved": true,
+    "negative_cost_preserved": true,
+    "artifact_modified": false,
+    "note": "Temporary in-memory stub in this process only; not an academic prediction/result"
+  }
+}

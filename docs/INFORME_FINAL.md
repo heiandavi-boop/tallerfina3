@@ -1,6 +1,6 @@
-# 1. PRUNIN AI Core: prototipo híbrido reproducible para apoyo a la gestión de proyectos
+# 1. PRUNIN AI Core: informe final del Proyecto Aplicado III
 
-Proyecto Aplicado III · versión académica 0.9.0-academic · cierre del 11 de octubre de 2026. Base revisada: main `b2d0ca32f0599fc6c2227f2a5eb3e6dea6ff812a`. Las rutas de código y reportes son relativas a raíz. Este informe usa evidencia existente; las verificaciones de cierre se distinguen del experimento original.
+**Portada textual.** Versión académica: 0.9.0-academic. Fecha de cierre: 11 de octubre de 2026. Repositorio: heiandavi-boop/tallerfina3. Audiencia: profesor/mentor, evaluador técnico y responsables de gestión de proyectos. Autor: completar con el nombre y datos institucionales antes de entregar; no se inventan identidades. HEAD main inicial auditado: b2d0ca32f0599fc6c2227f2a5eb3e6dea6ff812a. Métricas tomadas de reportes versionados; estado de checks en FINAL_READINESS.md.
 
 ## 2. Resumen ejecutivo
 
@@ -10,47 +10,124 @@ PRUNIN AI Core integra clasificación y regresión supervisadas con explicación
 
 La gestión de proyectos requiere interpretar simultáneamente avance, cronograma y costos. PRUNIN propone convertir esas señales en estimaciones y recomendaciones revisables. Esta investigación aplicada separa la evaluación predictiva del apoyo textual y de las reglas operacionales, evitando atribuir a una capa resultados de otra.
 
-## 4. Problema
+El recorrido parte del contexto y la pregunta, delimita el alcance, describe método y presenta resultados antes de discutir eficiencia, riesgos y conclusiones.
+
+## 4. Contexto empresarial
+
+El usuario previsto es un director de proyecto o analista de una oficina de proyectos (PMO) que revisa snapshots de una cartera y decide dónde investigar desviaciones. PRUNIN propone apoyar esa revisión con señales de cronograma, costo y avance; detectar riesgo temprano permitiría preparar preguntas y acciones antes del cierre. No existe un piloto empresarial ni medición del retorno económico. Una predicción estima un outcome; una decisión combina evidencia del sistema, contexto contractual y criterio del responsable.
+
+## 5. Problema
 
 La interpretación manual de indicadores puede dificultar la priorización de proyectos y la comunicación del riesgo. Se aborda la necesidad de una herramienta trazable que produzca estimaciones consistentes y explicaciones fundamentadas. No se dispone de un estudio empresarial que cuantifique la frecuencia del problema ni su costo: se plantea como problema de diseño académico, sin inventar observaciones de producción.
 
-## 5. Pregunta de investigación
+## 6. Pregunta de investigación
 
-¿En qué medida una arquitectura híbrida de LightGBM y generación local fundamentada permite estimar y comunicar riesgo de proyectos de forma reproducible sobre un benchmark sintético externo, y cuáles son sus límites para anticipación y uso empresarial?
+¿En qué medida una arquitectura híbrida de inteligencia artificial, que combine modelos predictivos e IA generativa, permite detectar tempranamente riesgos de retraso y sobrecosto en proyectos y generar recomendaciones útiles para apoyar la toma de decisiones?
 
-## 6. Objetivo general
+Se evalúa su componente predictivo y la generación estructurada sobre datos sintéticos; «recomendaciones útiles» es una finalidad cuya eficacia profesional requiere evaluación humana, no un resultado ya demostrado.
+
+## 7. Objetivo general
 
 Construir y evaluar un prototipo reproducible de apoyo a la gestión que estime Health, Delay y Cost a partir de snapshots y traduzca evidencia estructurada en recomendaciones trazables bajo supervisión humana.
 
-## 7. Objetivos específicos
+## 8. Objetivos específicos
 
-Preparar una fuente con procedencia verificable y separación por proyecto; evaluar modelos frente a baselines TRAIN; caracterizar predicción temporal y cobertura; integrar y evaluar generación local con validación; documentar automatización, riesgos y operación reproducible. Medir ahorro humano es un objetivo pendiente, no un resultado logrado.
+1. Preparar y verificar una fuente con procedencia y calidad explícitas.
+2. Mantener partición disjunta por proyecto y evaluar modelos congelados frente a baselines TRAIN.
+3. Caracterizar anticipación junto con cobertura temporal.
+4. Integrar y evaluar generación local fundamentada, separada del predictor.
+5. Documentar automatización, riesgos y trazabilidad reproducible.
+6. Definir y completar una medición humana de eficiencia: protocolo listo, medición pendiente.
 
-## 8. Arquitectura propuesta
+## 9. Alcance
+
+La entrega comprende un prototipo local: Health/Delay/Cost, Final Status derivado, Team Health heurístico, CSV, What-if y explicación Qwen opcional. Se conservan arquitectura, modelos, pesos, reglas y resultados del experimento 0.9.0-academic. No incluye nuevos modelos, infraestructura cloud, clúster activo ni validación empresarial. La documentación no equipara completitud del repositorio con acreditación automática de Nivel 4.
+
+### Canales y medios para la audiencia
+
+El informe se dirige al profesor/mentor y evaluador técnico, con una lectura empresarial centrada en decisiones de gestión. GitHub permite revisar código, versiones y CI; el informe desarrolla problema, metodología e interpretación; la presentación resume mensajes centrales; el Playground muestra comportamiento observable; JSON/CSV conservan evidencia exacta; figuras facilitan comparar resultados. La combinación sirve a reproducibilidad, profundidad académica y síntesis ejecutiva. No se sustituye el argumento por terminales ni JSON completo. La defensa usa glosario y preguntas documentadas, mientras voz y lenguaje no verbal requieren ensayo humano.
+
+## 10. Arquitectura
 
 React/Vite envía entradas validadas a FastAPI. `ModelRuntime` carga manifest, configuración y pipelines LightGBM. `PruninAcademicBrain` devuelve predicciones crudas y calcula reglas operativas independientes. El runtime añade la política de presentación de Delay. Los drivers se calculan mediante perturbaciones hacia referencias. Qwen3 8B, vía Ollama, recibe evidencia estructurada y explica; un validador acepta o rechaza su salida. El fallback determinístico conserva disponibilidad. `/api/ready`, `/api/monitoring` y `/metrics` aportan observabilidad local. Evidencia: `src/prunin_ai/api/`, `inference/brain.py` y `frontend/src/`.
 
-## 9. Dataset
+**Figura 1. Arquitectura híbrida implementada.**
+
+```mermaid
+flowchart LR
+  U[Director de proyecto] --> R[React / Vite]
+  R --> A[FastAPI: esquema y cobertura]
+  A --> L[LightGBM: Health, Delay, Cost]
+  L --> O[Final Status derivado y Delay operacional]
+  A --> T[Team Health observado: heurística]
+  L --> D[Sensibilidad local: drivers]
+  T --> F[Fusión 0.85 / 0.15 no calibrada]
+  L --> F
+  O --> E[Evidencia estructurada]
+  D --> E
+  E --> Q[Qwen3 8B / Ollama opcional]
+  Q --> V[Validación de esquema y grounding]
+  V --> X[Explicación y recomendación revisables]
+  V --> B[Fallback determinístico ante rechazo o fallo]
+  B --> X
+  O --> R
+  F --> R
+  X --> R
+```
+
+Fuente: implementación API/ML/GenAI actual. Los flujos de batch y What-if omiten Qwen. Ver diagramas de generación y pipeline en [arquitectura](architecture.md).
+
+## 11. Datos
 
 Mendeley v2 (DOI `10.17632/2p5sz57wh2.2`) es un dataset sintético externo publicado en Mendeley Data. El resumen preparado versionado contiene 4000 proyectos y 72549 snapshots. No son proyectos empresariales reales de PRUNIN. La referencia de Hajihoseyni (2026) documenta la simulación. Itemlet, Collaboration y SQuaD son fuentes independientes y no se unieron al entrenamiento académico. Evidencia: `dataset_summary.json` y `docs/datasets.md`.
 
-## 10. Preparación y calidad de datos
+## 12. Preparación de datos
 
 El adaptador `data/adapters/mendeley_evm.py` estandariza columnas, unidades e identificadores. La auditoría revisa cobertura, duplicados, calidad y outliers IQR; el pipeline imputa numéricas por mediana y categóricas por moda aprendidas en TRAIN, y codifica categorías con OneHotEncoder. No se inventan variables ausentes. La normalización no es necesaria para particiones de árboles. Las siete features académicas tienen cobertura completa en el resumen versionado; el contrato API bloquea entradas con cobertura inferior a 60 %. Team Health no recibe imputación.
 
-## 11. Prevención de leakage
-
 El split por `project_id` mantiene 2800 proyectos TRAIN, 600 VALIDATION y 600 TEST. Los snapshots de un proyecto permanecen juntos; `scripts/verify_split.py` comprueba conjuntos disjuntos. La whitelist excluye targets, costo y duración reales y outcomes finales. El ajuste del preprocesador usa TRAIN; la comparación de candidatos usa VALIDATION. TEST es evaluación descriptiva del candidato congelado. Esta separación evita leakage directo, pero no elimina la proximidad entre CPI/EVM tardío y outcome sintético. Evidencia: `split_summary.json`, manifest y reproducibility.
 
-## 12. Ingeniería de características
-
-Las numéricas son `planned_duration_weeks`, `planned_budget`, `true_progress`, `spi`, `cpi`; las categóricas, `project_type` y `methodology`. Tipos: construction, healthcare, it, manufacturing, marketing, r&d. Metodologías: agile, hybrid, kanban, scrum, waterfall. Las variables futuras del catálogo no se presentan como features entrenadas. Los drivers son sensibilidad local ante sustitución por una referencia, no efectos causales.
+El preprocesamiento usa herramientas de scikit-learn (Scikit-learn developers, s. f.). El esquema Pydantic valida tipos, categorías y rangos; `true_progress` tolera únicamente ruido flotante ≤ 1e-9 en límites 0/1 y rechaza desviaciones reales. No se aplicó StandardScaler para cumplir una casilla: los árboles separan por umbrales y no requieren estandarización numérica. Sí existe estandarización semántica de nombres/unidades y normalización de progreso a su dominio. La detección IQR señala observaciones atípicas, sin eliminar automáticamente valores válidos ni cambiar el dataset. Hashes SHA256 y readiness permiten verificar procedencia e integridad. Inputs dentro de rango todavía pueden estar fuera de distribución: no existe un detector OOD productivo.
 
 ## 13. Modelos predictivos
 
 Health es clasificación supervisada LightGBM; Delay y Cost son regresiones LightGBM. Se mantienen los artefactos y reglas de generación de etiquetas del experimento. Final Status deriva de Health: healthy → successful, at_risk → challenged, critical → critical; no es un cuarto modelo académico. Los baselines se ajustan sobre TRAIN: clase mayoritaria para Health y mediana por proyecto para regresión. Evidencia: `training/core.py`, `targets.py`, `baselines.json` y `feature_manifest.json`.
 
-## 14. Evaluación de Health
+Las numéricas son `planned_duration_weeks`, `planned_budget`, `true_progress`, `spi`, `cpi`; las categóricas, `project_type` y `methodology`. Tipos: construction, healthcare, it, manufacturing, marketing, r&d. Metodologías: agile, hybrid, kanban, scrum, waterfall. Las variables futuras del catálogo no se presentan como features entrenadas. Los drivers son sensibilidad local ante sustitución por una referencia, no efectos causales.
+
+Es una heurística operacional determinística, no un modelo supervisado ni indicador psicológico. Usa utilización, capacidad, productividad, retrabajo, defectos, estabilidad y colaboración disponibles. Requiere al menos tres componentes válidos y cobertura ponderada ≥ 0.5 según configuración existente. No imputa faltantes. En batch se oculta toda la columna si ninguna fila tiene score calculable; si alguna lo tiene, la columna aparece y las filas sin score siguen sin valor. La fusión 0.85 ML / 0.15 Team Health es heurística no calibrada con outcomes reales y se distingue del Health supervisado.
+
+La elección de LightGBM responde al problema tabular y a la integración con pipelines reproducibles (Ke et al., 2017). Esta referencia describe el algoritmo, no prueba superioridad de PRUNIN frente a todos los modelos.
+
+## 14. IA generativa
+
+Qwen3 8B corre localmente mediante Ollama y convierte predicciones y drivers en explicación y recomendaciones. No predice Health, Delay ni Cost. CSV y What-if ejecutan ML sin generación; la generación opcional pertenece al análisis individual. El fallback `grounded_fallback` es determinístico y no se etiqueta como IA generativa.
+
+Se conservó Qwen por ejecución local, soporte de español, tamaño y compatibilidad operativa con Ollama (Qwen Team, 2025). Gemma 3 4B y Ministral 3 8B se consideraron mediante documentación técnica oficial. No se ejecutó un benchmark comparativo PRUNIN entre los tres ni se afirma superioridad empírica de Qwen. El benchmark existente verifica únicamente Qwen en la configuración local usada.
+
+El prompt restringe la respuesta a evidencia estructurada; el validador exige esquema JSON, features permitidas y ausencia de cifras nuevas no soportadas. Timeout, JSON inválido o evidencia no admitida activan fallback sin retirar la predicción ML. La trazabilidad distingue intento y uso GenAI, motor, error y tiempos. Groundedness es un proxy determinístico de ingeniería, no prueba de verdad semántica; una frase aceptada todavía puede ser incorrecta o poco útil. Se requiere revisión humana.
+
+Comparación ampliada de idioma, licencia, hardware, contexto y compatibilidad: `docs/genai_model_selection.md`. Las fichas de Google DeepMind (s. f.-a, s. f.-b) y Mistral AI (s. f.-a, s. f.-b) permiten comparar alternativas documentalmente; no se instalaron ni evaluaron otros modelos en este cierre.
+
+## 15. Automatización
+
+Las tareas escogidas son interpretación de resultados, síntesis ejecutiva y redacción de recomendaciones: repetirlas sobre numerosos proyectos requiere leer señales y comunicarlas de manera consistente. La priorización combina drivers determinísticos y explicación; su utilidad profesional aún necesita revisión humana. El valor estratégico propuesto es apoyar al director y a la oficina de proyectos (PMO) al revisar y priorizar atención, sin delegar decisiones de presupuesto, cronograma o personas al sistema.
+
+La generación beneficia especialmente la síntesis y la redacción. El procesamiento batch y las predicciones son automatización del API/ML, no automatización por Qwen. CSV admite hasta 100 filas; What-if compara escenarios sin LLM. El sistema produce recomendaciones y evidencia revisables; no demuestra reducción del tiempo humano hasta completar el protocolo de eficiencia.
+
+## 16. Evaluación
+
+La evaluación distingue tres niveles. Primero, los modelos congelados se comparan en TEST con baselines ajustados únicamente en TRAIN, separando métricas por snapshot y por proyecto. Segundo, los cortes de progreso estiman anticipación con una observación elegible por proyecto. Tercero, el benchmark generativo evalúa esquema, evidencia permitida, cifras no soportadas, acciones no vacías y latencia. No se usa TEST para escoger modelos ni se modifica la evidencia histórica.
+
+La prueba manual adicional balanceada de 99 proyectos comunicada por el autor no tiene resultados estructurados versionados identificados. Se menciona como validación funcional manual, sin convertirla en métrica oficial. El test reproducible local de 99 filas valida cobertura y contrato, no el balance 33/33/33 ni exactitud predictiva. La métrica oficial usa 600 proyectos TEST.
+
+Estos procedimientos responden a la pregunta de investigación dentro de un benchmark sintético. Las métricas generativas no demuestran recomendaciones útiles en empresas ni efectos causales; esa parte de la pregunta exige validación humana/prospectiva.
+
+## 17. Resultados
+
+### 17.1 Resultados predictivos
+
+**Tabla 1. TEST por proyecto: modelo congelado frente a baseline aprendido en TRAIN.**
 
 | Evaluación TEST project-level (600 proyectos) | Modelo | Baseline TRAIN |
 |---|---:|---:|
@@ -64,48 +141,25 @@ Health es clasificación supervisada LightGBM; Delay y Cost son regresiones Ligh
 
 Fuente: `reports/0.9.0-academic/baselines.json`, coherente con `metrics.json`. Health TEST tiene 429 at_risk, 44 critical y 127 healthy. La accuracy del baseline 0.715 resulta del desbalance: siempre predice at_risk. Macro F1 promedia F1 de las tres clases con igual peso y permite ver esa limitación. Critical recall 0.568182 implica errores relevantes de detección; el prototipo requiere criterio humano. Las métricas project-level usan el snapshot más reciente de cada proyecto, no demuestran por sí solas predicción temprana.
 
-## 15. Evaluación de Delay
-
 Delay es el modelo predictivo más débil: MAE TEST 27.710468 días frente a 27.850313 del baseline, mejora marginal de 0.139844 días. Su R² es 0.075305. El experimento versionado eligió la mediana según VALIDATION y deshabilitó promoción automática; no sustituyó el artefacto LightGBM. No se usó TEST para elegir ni se reentrenó durante el cierre.
 
 La predicción de regresión cruda puede ser ligeramente negativa. La interfaz aplica una restricción operacional de cero días para presentación, conservando el valor crudo en la trazabilidad técnica.
 
 El API conserva `delay_days` numérico como `max(0, delay_days_raw)` y añade `delay_days_raw`. CSV y What-if comparten el runtime; sus diferencias operacionales usan el campo mostrado. Los reportes académicos conservan regresión cruda y no fueron reescritos. No se trunca Cost negativo, que puede representar ahorro.
 
-## 16. Evaluación de Cost
-
 Cost alcanza MAE project-level TEST 0.147158 puntos porcentuales (ratio 0.001471579) y R² 0.991816. El desempeño muy alto está relacionado en parte con la relación estructural entre CPI/EVM y el outcome de costo en el generador sintético. No demuestra precisión empresarial ni ausencia de errores fuera de esa distribución. El desempeño temprano es menor; deben leerse ambos resultados conjuntamente.
 
-## 17. Evaluación temporal
+**Figura 2. Matriz de confusión Health, TEST por proyecto.**
 
-| Avance máximo | Proyectos TEST | Cobertura | Health Macro F1 | Delay MAE días | Cost MAE pp |
-|---|---:|---:|---:|---:|---:|
-| 20 % | 236/600 | 39.333 % | 0.397938 | 33.146183 | 3.136943 |
-| 40 % | 463/600 | 77.167 % | 0.509355 | 30.406823 | 2.789373 |
-| 60 % | 576/600 | 96.000 % | 0.522959 | 28.305607 | 2.143231 |
-| 80 % | 599/600 | 99.833 % | 0.570588 | 27.522773 | 1.406718 |
+![Matriz de confusión: clases reales en filas y predichas en columnas](../reports/0.9.0-academic/figures/health_confusion_matrix.png)
 
-Fuente: `temporal_evaluation.csv/json`. Para cada cutoff se toma como máximo una observación por proyecto TEST, no posterior al avance indicado. En 20 % solamente 236 proyectos tienen observación elegible; la cobertura 39.333 % impide afirmar evaluación de los 600 en ese corte. Health mejora conforme avanza el proyecto, pero sigue limitado en anticipación. Los grupos de cobertura cambian: no es una trayectoria pareada completa de los mismos 600.
+Fuente: `health_confusion_matrix.csv` y figura versionada. Interpretación: detecta 25 de 44 proyectos critical; 13 se asignan a at_risk y 6 a healthy. Esos errores justifican supervisión humana y evitan considerar Health una decisión automática. La figura fue inspeccionada y coincide con el CSV; no se regeneró.
 
-## 18. Team Health
-
-Es una heurística operacional determinística, no un modelo supervisado ni indicador psicológico. Usa utilización, capacidad, productividad, retrabajo, defectos, estabilidad y colaboración disponibles. Requiere al menos tres componentes válidos y cobertura ponderada ≥ 0.5 según configuración existente. No imputa faltantes. En batch se oculta toda la columna si ninguna fila tiene score calculable; si alguna lo tiene, la columna aparece y las filas sin score siguen sin valor. La fusión 0.85 ML / 0.15 Team Health es heurística no calibrada con outcomes reales y se distingue del Health supervisado.
-
-## 19. IA generativa
-
-Qwen3 8B corre localmente mediante Ollama y convierte predicciones y drivers en explicación y recomendaciones. No predice Health, Delay ni Cost. CSV y What-if ejecutan ML sin generación; la generación opcional pertenece al análisis individual. El fallback `grounded_fallback` es determinístico y no se etiqueta como IA generativa.
-
-## 20. Selección de Qwen3 8B
-
-Se conservó Qwen por ejecución local, soporte de español, tamaño y compatibilidad operativa con Ollama (Qwen Team, 2025). Gemma 3 4B y Ministral 3 8B se consideraron mediante documentación técnica oficial. No se ejecutó un benchmark comparativo PRUNIN entre los tres ni se afirma superioridad empírica de Qwen. El benchmark existente verifica únicamente Qwen en la configuración local usada.
-
-## 21. Grounding y seguridad
-
-El prompt restringe la respuesta a evidencia estructurada; el validador exige esquema JSON, features permitidas y ausencia de cifras nuevas no soportadas. Timeout, JSON inválido o evidencia no admitida activan fallback sin retirar la predicción ML. La trazabilidad distingue intento y uso GenAI, motor, error y tiempos. Groundedness es un proxy determinístico de ingeniería, no prueba de verdad semántica; una frase aceptada todavía puede ser incorrecta o poco útil. Se requiere revisión humana.
-
-## 22. Resultados de evaluación GenAI
+### 17.2 Resultados generativos
 
 El reporte `reports/genai/qwen3-8b-evaluation.json` está `complete`, modelo `qwen3:8b`, artefacto `0.9.0-academic`, 30 casos evaluados. La unidad es el snapshot TEST más reciente con al menos un driver local de incremento de riesgo: una muestra condicionada, no todos los proyectos ni entradas arbitrarias.
+
+**Tabla 2. Evaluación local de Qwen3 8B (30 casos).**
 
 | Indicador | Valor observado |
 |---|---:|
@@ -122,52 +176,83 @@ El reporte `reports/genai/qwen3-8b-evaluation.json` está `complete`, modelo `qw
 
 29 de 30 respuestas fueron aceptadas y una introdujo una afirmación numérica no soportada. Schema y features válidas no garantizan aceptación: grounding aplica restricciones adicionales. Actionability comprueba acciones no vacías, no eficacia profesional. Mediana y p95 corresponden a este equipo y corrida, sin extrapolación a producción. El benchmark no se repitió ni se alteró durante este cierre.
 
-## 23. Automatización
+El caso rechazado fue `mendeley::PROJ_0840`, clase critical, código `unsupported_numeric_claim`: el JSON y las features permitidas eran válidos, pero la respuesta incluyó cifras no admitidas por la evidencia. El guardrail detectó esa condición en lugar de aceptar texto convincente. Es una fortaleza de control, no prueba de que todas las alucinaciones semánticas sean detectadas; revisar lenguaje y pertinencia sigue siendo necesario.
 
-El API valida y analiza proyectos, devuelve prediction_id, probabilidades y evidencia. CSV procesa hasta 100 filas con errores por fila; What-if compara escenarios y señala variables sin efecto ML. La interfaz separa features entrenadas, señales heurísticas y variables futuras. La automatización está demostrada funcionalmente por tests y preflight; no sustituye decisiones del director del proyecto.
+## 18. Evaluación temporal
 
-## 24. Eficiencia
+**Tabla 3. Desempeño y cobertura por nivel de avance en TEST.**
+
+| Avance máximo | Proyectos TEST | Cobertura | Health Macro F1 | Delay MAE días | Cost MAE pp |
+|---|---:|---:|---:|---:|---:|
+| 20 % | 236/600 | 39.333 % | 0.397938 | 33.146183 | 3.136943 |
+| 40 % | 463/600 | 77.167 % | 0.509355 | 30.406823 | 2.789373 |
+| 60 % | 576/600 | 96.000 % | 0.522959 | 28.305607 | 2.143231 |
+| 80 % | 599/600 | 99.833 % | 0.570588 | 27.522773 | 1.406718 |
+
+Fuente: `temporal_evaluation.csv/json`. Para cada cutoff se toma como máximo una observación por proyecto TEST, no posterior al avance indicado. En 20 % solamente 236 proyectos tienen observación elegible; la cobertura 39.333 % impide afirmar evaluación de los 600 en ese corte. Health mejora conforme avanza el proyecto, pero sigue limitado en anticipación. Los grupos de cobertura cambian: no es una trayectoria pareada completa de los mismos 600.
+
+**Figura 3. Macro F1 Health por avance máximo elegible.**
+
+![Macro F1 de Health en cortes 20, 40, 60 y 80 por ciento](../reports/0.9.0-academic/figures/temporal_health_macro_f1.png)
+
+Fuente: `reports/0.9.0-academic/temporal_evaluation.json`, cortes 0.2/0.4/0.6/0.8, y figura versionada. La curva sube con la maduración; la Tabla 3 evita ocultar que las coberturas cambian. No representa un panel completo pareado de 600 proyectos.
+
+## 19. Eficiencia
 
 Existe latencia automática medida, pero no baseline humano real versionado. `docs/efficiency_evaluation.md` define cinco casos, cronometraje, tabla pendiente y cálculo de mediana. `scripts/benchmark_efficiency.py` acepta una mediana observada; sin ella ahorro y throughput gain quedan null. La mediana GenAI no incluye toda la tarea humana ni todo el API. Cr6 sigue pendiente de evidencia humana y no se declara mejora porcentual de productividad.
 
-## 25. Ética y riesgos
+La capa automática expone tiempos ML+drivers y total de API; Qwen tiene latencia versionada. La capacidad configurada es 100 filas por lote, sin benchmark de throughput bajo concurrencia. El protocolo exige al menos cinco casos reales cronometrados y registra calidad y condiciones. Ver [protocolo completo](efficiency_evaluation.md).
+
+## 20. Riesgos éticos
 
 Se documentan privacidad, alucinaciones, sesgo de automatización, representatividad sintética, leakage, drift y falsa causalidad. Ollama local reduce transferencia a terceros, pero no reemplaza controles de acceso y retención. La supervisión humana es obligatoria para decisiones de impacto. Team Health no debe usarse para evaluar salud mental ni individuos. La validación real es necesaria antes de recomendaciones empresariales de alto impacto. Evidencia: `docs/ethics_security.md`.
 
-## 26. MLOps
+La [matriz ética](ethics_security.md) distingue impactos, mitigaciones implementadas y límites: faltantes y OOD no equivalen, logging no reemplaza auditoría empresarial y local no equivale a control de acceso.
+
+## 21. MLOps
 
 La infraestructura académica incluye versionado, hashes SHA256, manifests, configuración resuelta, model card, CI, logs con prediction_id y endpoints de readiness/monitoring/métricas. Los contadores son en memoria por proceso. La política de actualización requiere datos aprobados, revisión de degradación y selección en VALIDATION. Prometheus centralizado, alertas reales, drift automático y retraining productivo continuo no están implementados como operación real.
 
-## 27. Despliegue y escalabilidad
-
 Dockerfile empaqueta frontend y API usando lockfile. El manifiesto Kubernetes define Deployment con tres réplicas, RollingUpdate, probes, requests/limits, Service y HPA mínimo 3/máximo 10. Es diseño desplegable; no un clúster activo ni una prueba de producción. Requiere imagen con artefactos, dominio y recursos adecuados, metrics-server para HPA y observabilidad central antes de operar. No se montó infraestructura ni se afirmó throughput bajo carga.
 
-## 28. Limitaciones
+The Kubernetes Authors (s. f.) documentan los mecanismos de despliegue utilizados conceptualmente; no es una evidencia de operación de PRUNIN. La política de retraining se activa con datos suficientes/aprobados y degradación o drift revisados; compara en VALIDATION y mantiene TEST congelado. El cierre no ejecutó retraining.
+
+## 22. Limitaciones
 
 Los datos son sintéticos, el desbalance afecta Health, la detección crítica es incompleta, Delay apenas mejora la mediana y Cost depende del generador EVM. La evaluación temprana tiene cobertura desigual. La fusión no está calibrada; drivers no son causales. El benchmark GenAI es pequeño y condicionado; sus validadores son proxies. No hay baseline humano, validación empresarial ni clúster productivo. La prueba manual balanceada de 99 filas comunicada por el autor no tiene resultados estructurados versionados identificados: no se incorpora como métrica oficial. Existe un test local de 99 filas que verifica contrato y cobertura, sin balance 33/33/33 garantizado.
 
-## 29. Trabajo futuro
+## 23. Conclusiones
+
+Health ofrece señal multiclase útil en este benchmark: Macro F1 0.627576 frente a 0.277940 del baseline, aunque solo recupera 25 de 44 critical. Delay es el componente predictivo más débil: mejorar MAE de 27.850313 a 27.710468 días no respalda una promesa de precisión alta. Cost funciona muy bien internamente (R² 0.991816), con dependencia estructural CPI/progreso–outcome que impide extrapolar el rendimiento empresarial.
+
+El desempeño Health temprano mejora entre 20 y 80 % de avance, con cobertura de 236 a 599 proyectos; no demuestra anticipación universal. Qwen produjo explicaciones y recomendaciones estructuradas con 29 de 30 respuestas aceptadas, pero su utilidad profesional no está establecida. El rechazo de una cifra no soportada muestra por qué los guardrails son necesarios; grounding sigue siendo un proxy.
+
+El aporte es una arquitectura que separa predicción, heurísticas y explicación con trazabilidad. La naturaleza sintética limita generalización; faltan medición de eficiencia humana y validación prospectiva con proyectos reales. Se sostiene un prototipo académico reproducible para entrega y sustentación, no una solución productiva validada.
+
+## 24. Trabajo futuro
 
 Medir los cinco casos humanos y revisar recomendaciones; obtener proyectos reales con outcomes bajo acuerdos de datos; validar temporalmente y externamente; calibrar fusión; estudiar Delay usando TRAIN/VALIDATION sin escoger por TEST; desplegar observabilidad central y probar carga antes de escalar. Son tareas futuras, sin experimentos ni funcionalidades nuevas durante este cierre.
 
-## 30. Conclusiones
+## 25. Referencias
 
-La evidencia respalda un prototipo académico reproducible de arquitectura híbrida, con Health superior al baseline en Macro F1 y explicación generativa local evaluada. No todas las salidas tienen igual solidez: Delay conserva una limitación explícita y Cost requiere la advertencia del generador sintético. La separación de ML, reglas operativas y GenAI permite una defensa trazable. El cierre conserva resultados, artefactos y split; el ahorro humano y la validez empresarial permanecen pendientes. El estado técnico de entrega y sus verificaciones se registra en `docs/FINAL_READINESS.md`.
+Google DeepMind. (s. f.-a). *Gemma 3 4B IT* [Ficha de modelo]. Hugging Face. Recuperado el 11 de octubre de 2026, de https://huggingface.co/google/gemma-3-4b-it
 
-## 31. Referencias
+Google DeepMind. (s. f.-b). *Gemma 3 model card*. Google AI for Developers. Recuperado el 11 de octubre de 2026, de https://ai.google.dev/gemma/docs/core/model_card_3
 
 Hajihoseyni, R. (2026). *Simulated project risk and earned-value dataset: Project features, monthly PV/EV/AC time series and delay/cost outcomes* (Versión 2) [Conjunto de datos]. Mendeley Data. https://doi.org/10.17632/2p5sz57wh2.2
 
 Ke, G., Meng, Q., Finley, T., Wang, T., Chen, W., Ma, W., Ye, Q., & Liu, T.-Y. (2017). LightGBM: A highly efficient gradient boosting decision tree. *Advances in Neural Information Processing Systems, 30*. https://papers.nips.cc/paper_files/paper/2017/hash/6449f44a102fde848669bdd9eb6b76fa-Abstract.html
 
+Mistral AI. (s. f.-a). *Ministral 3 8B Instruct 2512* [Ficha de modelo]. Hugging Face. Recuperado el 11 de octubre de 2026, de https://huggingface.co/mistralai/Ministral-3-8B-Instruct-2512
+
+Mistral AI. (s. f.-b). *Ministral 3 8B*. Mistral Docs. Recuperado el 11 de octubre de 2026, de https://docs.mistral.ai/models/ministral-3-8b-25-12
+
 Qwen Team. (2025, 29 de abril). *Qwen3: Think deeper, act faster*. https://qwenlm.github.io/blog/qwen3/
 
-Google DeepMind. (s. f.). *Gemma 3 model card*. Google AI for Developers. Recuperado el 11 de octubre de 2026, de https://ai.google.dev/gemma/docs/core/model_card_3
-
-Mistral AI. (s. f.). *Ministral 3 8B*. Mistral Docs. Recuperado el 11 de octubre de 2026, de https://docs.mistral.ai/models/ministral-3-8b-25-12
+Qwen. (s. f.). *Qwen3-8B* [Ficha de modelo]. Hugging Face. Recuperado el 11 de octubre de 2026, de https://huggingface.co/Qwen/Qwen3-8B
 
 Scikit-learn developers. (s. f.). *About us*. Recuperado el 11 de octubre de 2026, de https://scikit-learn.org/stable/about.html
 
 The Kubernetes Authors. (s. f.). *Deployments*. Recuperado el 11 de octubre de 2026, de https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 
-Verificación y alcance bibliográfico: `docs/references.md`. Evidencia experimental propia: `reports/0.9.0-academic/{dataset_summary,feature_manifest,metrics,baselines,temporal_evaluation,reproducibility}.json`, `reports/experiments/delay/comparison.json` y `reports/genai/qwen3-8b-evaluation.json`.
+Verificación bibliográfica y alcance: [referencias consolidadas](references.md). Evidencia propia: reports/0.9.0-academic/{dataset_summary,feature_manifest,metrics,baselines,temporal_evaluation,reproducibility}.json; reports/experiments/delay/comparison.json; reports/genai/qwen3-8b-evaluation.json. Citas homónimas de fichas/documentación viva se identifican también por título/enlace en la comparación GenAI; no se les inventa fecha editorial.

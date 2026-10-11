@@ -56,3 +56,9 @@ API: delay_days=max(0, delay_days_raw). Reportes académicos: predicciones cruda
 Delay es el modelo predictivo más débil y su mejora es marginal. Cost tiene rendimiento muy alto relacionado en parte con la relación estructural CPI/EVM–outcome del generador sintético; su R² no prueba rendimiento empresarial. La separación por proyecto no elimina proximidad temporal de variables tardías. No hay calibración con outcomes PRUNIN ni validación productiva. No interpretar fusión como probabilidad calibrada, drivers como causas o Team Health como modelo supervisado. No automatizar decisiones sin revisión humana.
 
 Fuentes: reports/0.9.0-academic/; docs/references.md; docs/INFORME_FINAL.md. Artefactos, configuración y reglas permanecen congelados durante el cierre.
+
+## Alcance de validación y comunicación de cierre
+
+La revisión final distingue métricas congeladas de smoke tests de API/GenAI. Datos faltantes reciben solo la imputación ML declarada; inputs de rangos válidos pueden seguir fuera de distribución. No hay detector OOD/drift automático productivo. La muestra Qwen está condicionada a drivers y no acredita utilidad profesional; no sustituye human oversight. No usar baseline accuracy ni R² como prueba de validez empresarial.
+
+La pregunta de investigación, medios de comunicación y conclusiones están en INFORME_FINAL.md; la matriz PAIII incluye RA1/RA2. Las técnicas vocales y lenguaje no verbal requieren ensayo, el ahorro humano sigue pendiente y MLOps no incluye retraining continuo real. Propósito y usos recomendados/no recomendados permanecen sin cambios de modelos ni targets.

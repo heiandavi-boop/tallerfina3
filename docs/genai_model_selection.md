@@ -1,48 +1,47 @@
-# Selección del modelo generativo
+# Selección multicriterio del modelo generativo
 
-## Objetivo empresarial
+## Requisitos y decisión
 
-La capa generativa de PRUNIN no reemplaza los modelos predictivos. Su función es convertir predicciones estructuradas y drivers locales en explicaciones y acciones breves para un director de proyecto, manteniendo trazabilidad y evitando afirmar causalidad.
+PRUNIN busca interpretación en español, ejecución local, exposición mínima de datos, integración mantenible y salida JSON verificable para apoyar al director de proyecto. Qwen3 8B se conserva por su encaje operativo y la integración existente. No predice Health, Delay ni Cost. La comparación es técnico-documental, no un benchmark empírico donde Qwen haya ganado a Gemma y Ministral.
 
-Los requisitos del caso son:
+## Tabla 1. Alternativas frente a los requisitos PRUNIN
 
-1. ejecución local para proteger información de proyectos;
-2. buen soporte de español;
-3. capacidad de seguir instrucciones y producir JSON estructurado;
-4. tamaño razonable para equipos de desarrollo locales;
-5. licencia abierta y despliegue sin dependencia obligatoria de un proveedor externo;
-6. integración sencilla con Ollama;
-7. fallback determinístico cuando la generación falle.
-
-## Alternativas consideradas
-
-| Alternativa | Evidencia técnica | Ventajas para PRUNIN | Trade-off |
+| Criterio | Qwen3 8B | Gemma 3 4B | Ministral 3 8B |
 |---|---|---|---|
-| Qwen3 8B | 8B, contexto de 128K, 119 idiomas/dialectos, Apache 2.0 y soporte recomendado para Ollama/LM Studio/llama.cpp | Español, ejecución local, tamaño compatible con laptop, modo no-thinking para respuestas cortas, buen encaje con JSON/instrucciones | Benchmark Qwen específico completado; validación semántica humana pendiente |
-| Gemma 3 4B | modelo abierto ligero, 128K, más de 140 idiomas y diseñado también para laptops/desktop | Menor tamaño y buena portabilidad local | La comparación de calidad para este caso debe medirse; no se asume superioridad |
-| Ministral 3 8B | modelo open-weight orientado a edge/local, contexto de 256K y structured outputs | Muy buen candidato para despliegue local y salida estructurada | Integración del proyecto actual está implementada sobre Ollama/Qwen; cambiar exige benchmark y compatibilidad operativa |
+| Español/multilingüe | Multilingüe; evaluado localmente en español | Multilingüe; español no evaluado por PRUNIN | Español incluido; no evaluado por PRUNIN |
+| Ejecución local | Soportada y usada con Ollama | Pesos disponibles para ejecución local | Orientado a ejecución local/edge |
+| Privacidad | Datos permanecen locales si runtime/configuración lo mantienen | Posible localmente, no probado aquí | Posible localmente, no probado aquí |
+| Tamaño publicado | 8.2B parámetros | Variante 4B | Nombre 8B; incluye componente visual |
+| Hardware | Depende de cuantización/contexto; sin mínimo universal certificado | Menor variante; consumo exacto no medido aquí | Ficha declara caber en 12 GB VRAM en FP8; no requisito universal |
+| Licencia | Apache 2.0 | Términos Gemma; no Apache 2.0 | Apache 2.0 |
+| JSON estructurado | format=json + validación implementada | Requiere integración/validador; no probado | JSON anunciado por fabricante; no probado aquí |
+| Compatibilidad operativa | recommendations.py y preflight reales | Adaptación y validación pendientes | Adaptación y validación pendientes |
+| Latencia | Mediana 3.092645 s; p95 6.63472 s en benchmark local | Desconocida para PRUNIN | Desconocida para PRUNIN |
+| Facilidad de integración | Implementada y con fallback | Coste de integración no medido | Coste de integración no medido |
+| Contexto publicado | 32768 nativo; 131072 con YaRN | 128K en variante considerada | 256K publicado |
+| Riesgos/trade-offs | Latencia individual, errores semánticos y dependencia del runtime | Condiciones de licencia y calidad local por verificar | Requisitos de runtime/cuantización y calidad local por verificar |
 
-Fuentes oficiales consultadas:
+Fuente: fichas oficiales enlazadas abajo; la latencia Qwen proviene exclusivamente de `reports/genai/qwen3-8b-evaluation.json`. Los tamaños y ventanas publicados no son mediciones PRUNIN ni equivalen al contexto de Ollama configurado. La tabla permite valorar alternativas sin inferir cuál es más rápido por tamaño.
 
-- Qwen Team. (2025). *Qwen3: Think Deeper, Act Faster*. https://qwenlm.github.io/blog/qwen3/
-- Qwen. *Qwen3-8B model card*. https://huggingface.co/Qwen/Qwen3-8B
-- Google DeepMind. *Gemma 3 model card*. https://ai.google.dev/gemma/docs/core/model_card_3
-- Mistral AI. *Ministral 3 8B*. https://docs.mistral.ai/models/ministral-3-8b-25-12
+## Hardware y latencia: lo que no se midió
 
-## Decisión
+La memoria incluye pesos, caché KV y runtime; depende de precisión, cuantización, longitud y concurrencia. No se certificó un mínimo RAM/VRAM para Qwen o Gemma. El despliegue local Qwen es evidencia funcional del equipo usado, no garantía para cualquier portátil. Para una migración futura se necesitaría registrar hardware, cuantización, contexto efectivo y latencia con las mismas entradas; no se instalaron alternativas en el cierre.
 
-Qwen3 8B se mantiene como modelo generativo principal de la versión académica porque satisface los requisitos operativos de privacidad local, español, tamaño y ejecución vía Ollama. Esta decisión es **técnica y operativa**, no una afirmación de que Qwen3 sea universalmente mejor.
+No se asignan puntuaciones, pesos ni ranking numérico inventados. Un contexto mayor no es ventaja demostrada en la tarea PRUNIN, cuyo prompt es evidencia estructurada breve. El coste temporal de Qwen puede afectar al análisis individual, pero batch y What-if omiten LLM; no se probó escalamiento bajo carga.
 
-La evaluación específica de Qwen ya está completada en `reports/genai/qwen3-8b-evaluation.json` (`complete`, 30 casos). Esto no es un benchmark comparativo contra Gemma y Ministral. El comando siguiente permite repetirla en un entorno separado sin sobrescribir la evidencia oficial:
+## Evidencia específica disponible
 
-```bash
-PRUNIN_ENABLE_OLLAMA=1 \
-PRUNIN_OLLAMA_MODEL=qwen3:8b \
-python scripts/evaluate_genai.py --cases 30
-```
+El benchmark Qwen está `complete`, 30 casos, éxito/grounding 29/30. Es evaluación del modelo elegido, no comparación de tres modelos ni prueba de utilidad humana. El groundedness es proxy; schema válido no basta. La elección satisface requisitos locales y reduce una dependencia obligatoria de API externa, sin afirmar que una API externa sea inferior.
 
-Los resultados se guardan en `reports/genai/`. Ver métricas y límites en `genai_evaluation.md`. La comparación entre alternativas permanece técnico-documental.
+Para Nivel 4 de elección, esta tabla mejora la cobertura documental, pero no acredita exhaustividad experimental ni hardware/latencia comparables. No se atribuye una victoria empírica a Qwen.
 
-## Criterio estratégico
+## Fuentes primarias
 
-El modelo generativo recibe únicamente evidencia estructurada: predicciones, Team Health resumido y drivers locales. No decide el Health ni crea probabilidades. Su valor es reducir la carga de interpretación y producir recomendaciones trazables sin exponer información a una API externa por defecto.
+- Qwen. (s. f.). [Qwen3-8B model card](https://huggingface.co/Qwen/Qwen3-8B).
+- Qwen Team. (2025). [Qwen3: Think deeper, act faster](https://qwenlm.github.io/blog/qwen3/).
+- Google DeepMind. (s. f.-a). [Gemma 3 4B IT model card](https://huggingface.co/google/gemma-3-4b-it).
+- Google DeepMind. (s. f.-b). [Gemma 3 model card](https://ai.google.dev/gemma/docs/core/model_card_3).
+- Mistral AI. (s. f.-b). [Ministral 3 8B Instruct 2512 model card](https://huggingface.co/mistralai/Ministral-3-8B-Instruct-2512).
+- Mistral AI. (s. f.-a). [Ministral 3 8B documentation](https://docs.mistral.ai/models/ministral-3-8b-25-12).
+
+Consulta/verificación: 11 de octubre de 2026. APA consolidada y citas del informe: `references.md`. No reejecutar ni sobrescribir la evaluación oficial al revisar la selección.

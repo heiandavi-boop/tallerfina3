@@ -1,0 +1,42 @@
+PRUNIN AI Core · Preflight
+======================================================
+OK   Frontend precompilado
+OK   Artefactos seleccionados     /Users/andersontrujillor/Documents/universidad /Proyecto 3/PRUNIN_AI_Core_Playground/artifacts/0.9.0-academic
+OK   Feature manifest
+OK   Modelo health
+OK   Cargado health
+OK   Modelo final_status          derivado de Health
+OK   Cargado final_status
+OK   Modelo delay_days
+OK   Cargado delay_days
+OK   Modelo cost_overrun_ratio
+OK   Cargado cost_overrun_ratio
+OK   Metadata del modelo
+OK   Fusion operativa heurística
+OK   GET /api/health              200
+OK   GET /api/ready               200
+OK   GET /api/monitoring          200
+OK   GET /api/schema              200
+OK   Usage fields dinámico
+OK   Features ML visibles
+OK   Team Health separado
+OK   Features ML sin clase not_used
+OK   POST /api/predict            200
+OK   Health ML output             at_risk
+OK   Delay output                 69.24181511956769
+OK   Delay crudo / operacional
+OK   Cost output                  0.07655789881236963
+OK   Team Health auditable
+OK   Final Status derivation
+OK   Driver source
+OK   Inference trace
+OK   Recommendation trace
+OK   What-if
+OK   GET /api/csv-template        200
+OK   Plantilla CSV ML + Team Health
+OK   ML features en plantilla
+OK   Team Health opcional en plantilla
+OK   Plantilla CSV sin not_used
+======================================================
+Modelo: 0.9.0-academic (academic)
+RESULTADO: LISTO PARA DEMO

@@ -50,3 +50,28 @@ Final Status no es independiente en Mendeley v2: el record no tiene target origi
 4. Se informa por separado si la fuente es sintética o real.
 5. No se presenta `team_health_index` como moral, satisfacción o salud mental.
 6. La fusión con Team Health se identifica como heurística hasta contar con calibración real.
+
+## Cierre: reproducir sin cambiar el experimento congelado
+
+Estos comandos describen reproducción, no instrucciones para reentrenar durante la entrega. Usar checkout/entorno separado para evitar sobrescribir artifacts/0.9.0-academic y reports históricos. El cierre conserva seed, split, configuración y modelos; CI solo entrena fixtures demo temporales.
+
+## Preprocesamiento adecuado al modelo
+
+Tipos/esquema y categorías correctas se validan; mediana numérica y moda categórica se aprenden en TRAIN; OneHotEncoder soporta desconocidos en el pipeline, mientras el API rechaza categorías fuera del contrato. IQR detecta outliers sin eliminar automáticamente datos válidos. Hashes y readiness preservan procedencia/cobertura. No se añade StandardScaler: LightGBM divide numéricas por umbrales y no necesita scaling estándar. Estandarizar nombres/unidades y progreso es diferente de escalar estadísticamente. true_progress tolera ruido ≤1e-9 en límites; no relaja rangos reales. Coverage gate ML no imputa Team Health ni detecta OOD completo.
+
+## Tabla 1. Rol de las herramientas
+
+| Herramienta | Rol concreto implementado o diseñado |
+|---|---|
+| pandas | Lectura, estandarización, auditoría y agrupación por proyecto/snapshot |
+| scikit-learn | Pipeline, imputación, encoding y métricas reproducibles |
+| LightGBM | Clasificador Health y regresores Delay/Cost |
+| FastAPI/Pydantic | Endpoints, validación de contrato/rangos, CSV, readiness y respuestas |
+| React/Vite | Interfaz interactiva, schema dinámico y bundle frontend |
+| Ollama | Runtime local para Qwen y endpoint de estado; opcional respecto a ML |
+| Docker | Empaquetado frontend/API definido en Dockerfile; imagen no probada en cierre |
+| GitHub Actions | npm ci/build/tests, fixtures demo, compileall y pytest por push/PR |
+| Kubernetes | Orquestación de despliegue diseñada: replicas/probes/Service/HPA, sin clúster activo |
+| pytest / Vitest | Verificación backend y frontend de contrato, reglas e interacción |
+
+Fuente: código, package.json, requirements.txt y quality.yml. Diagrama completo/fail-fast: architecture.md y scripts/train_all.sh. No hay Airflow/Kubeflow ni se añaden para marcar la rúbrica.

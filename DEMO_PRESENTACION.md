@@ -1,6 +1,8 @@
 # Guion técnico para la demo de PRUNIN AI Core
 
-Base main revisada y confirmada remotamente: `b2d0ca32f0599fc6c2227f2a5eb3e6dea6ff812a` (11 de octubre de 2026). Para estado final de cambios/CI consultar `docs/FINAL_READINESS.md`; no presentar un HEAD anterior como validación de cambios nuevos.
+Cierre definitivo aplicado sobre main inicial `b2d0ca32f0599fc6c2227f2a5eb3e6dea6ff812a`, actualizado desde remoto y con el cierre anterior integrado sin duplicaciones. El HEAD final y CI se verifican por commit, no por un workflow histórico; ver docs/FINAL_READINESS.md.
+
+Preparación oral: docs/PRESENTACION_FINAL.md (7/10/12 min, voz y postura pendientes), docs/GLOSARIO_DEFENSA.md y docs/PREGUNTAS_DEFENSA.md (32 respuestas con evidencia).
 
 ## Preparación
 
@@ -13,17 +15,23 @@ Exigir `RESULTADO: LISTO PARA DEMO` y comprobar que el artefacto sea `0.9.0-acad
 
 GenAI tiene preflight separado: `./scripts/preflight_genai.sh`. Ollama ausente no invalida ML ni el benchmark Qwen versionado completo. Si se usa LAN/QR comprobar red del salón. El frontend debe estar construido; no asumir que el clon incluye dist o modelos pesados.
 
-## Secuencia de demo
+## Secuencia de demo para sustentación
 
-1. Presentar problema y dataset sintético externo, sin afirmar producción.
-2. Abrir detalles técnicos: versión, dataset, features, LIVE, prediction_id, probabilidades y tiempos.
-3. Analizar el preset En riesgo. El nombre del preset es un escenario de entrada, no garantía de la clase predicha. Mostrar Health ML, Final Status derivado, Delay operacional y raw, Cost, Team Health si calculable y sensibilidad local.
-4. What-if: modificar SPI/CPI (ML) y señales de equipo (heurística). No modificar variables not_used para prometer efectos ML. Mostrar diferencias, no causalidad.
-5. Descargar plantilla y subir CSV hasta 100 filas. Categorías: construction, healthcare, it, manufacturing, marketing, r&d; metodología agile, hybrid, kanban, scrum, waterfall. Siete features completas evitan imputación ML. Sin señales suficientes de equipo no se inventa score; la columna se oculta si ninguna fila tiene valor válido.
-6. Mostrar recomendaciones individuales: distinguir ollama:qwen3:8b de grounded_fallback. CSV/What-if no llaman Qwen. JSON descargable conserva delay_days_raw; delay_days=max(0, raw). Cost negativo puede indicar ahorro y no se trunca.
-7. Mostrar reportes oficiales: Health Macro F1 0.627576 / baseline 0.277940; Delay MAE 27.710468 / 27.850313 días; Cost MAE 0.147158 pp y R² 0.991816 con caveat EVM. Después evaluación temporal con cobertura.
-8. Mostrar JSON GenAI `complete`: 30 casos, 29/30 aceptados/grounded, schema/features 1.0, actionability 1.0 (proxy), una cifra no soportada, mediana 3092.645 ms y p95 6634.72 ms. No son métricas de eficacia empresarial.
-9. Cerrar con ética, manifests/hashes, readiness/metrics y diseño Docker/Kubernetes. Solo mostrar CI verde correspondiente al commit comprobado.
+1. Problema: apoyar al director/PMO al interpretar riesgo, sin reemplazar su decisión.
+2. Arquitectura: separar LightGBM, heurísticas y explicación; usar diagrama, no código largo.
+3. Dataset: Mendeley v2, dataset sintético externo publicado en Mendeley Data; split por proyecto.
+4. Predicción individual: analizar preset y señalar versión/LIVE. El nombre del preset no garantiza su clase predicha.
+5. Health probabilities: leer probabilidades y clase; no confundir con fusión calibrada.
+6. Delay/Cost: Delay operacional ≥0 y raw técnico; Cost negativo válido; limitaciones oficiales explícitas.
+7. Drivers: sensibilidad local; no decir que son causas.
+8. Qwen: mostrar explicación individual y flags genai_used/engine. Si fallback, llamarlo determinístico. Benchmark oficial complete: 30 casos, 29/30 aceptados/grounded, mediana 3092.645 ms, p95 6634.72 ms; schema/features/acción no vacía 1.0 como proxies.
+9. What-if: modificar SPI/CPI y distinguir señales de equipo; no prometer intervenciones causales. No llama al LLM.
+10. CSV: plantilla hasta 100 filas; ML completa sin imputación, Team Health opcional sin inventar señales. Columna oculta si ningún score calculable; visible si alguno. No llama Qwen. Tipos: construction, healthcare, it, manufacturing, marketing, r&d; metodologías: agile, hybrid, kanban, scrum, waterfall.
+11. Trazabilidad: prediction_id, versión, timing y raw; mostrar solo el fragmento JSON necesario o descargar evidencia.
+12. CI/MLOps: run exacto del commit completed/success; manifests/hashes; readiness/monitoring brevemente. Kubernetes es diseño, sin clúster activo.
+13. Limitaciones: Health Macro F1 0.627576 frente a 0.277940; Delay MAE 27.710468 frente a 27.850313 días; Cost MAE 0.147158 pp y R² 0.991816 con caveat EVM. Al 20 % solo 236/600 (39.333 %). Medición humana y validación empresarial pendientes.
+
+La demo no es un benchmark de eficiencia humana. Priorizar problema y resultados sobre terminales/infraestructura. Para 7 min elegir una interacción; para 10/12 min ampliar según plan de diapositivas.
 
 ## Contingencias y límites
 

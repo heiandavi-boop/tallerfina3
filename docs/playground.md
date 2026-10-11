@@ -10,7 +10,7 @@ La demo ejecuta inferencia real contra los artefactos `.joblib`; no contiene res
 2. Si existe `artifacts/0.9.0-academic/health.joblib`, usa el modelo académico.
 3. En caso contrario usa `artifacts/demo-0.1.0` y lo muestra explícitamente como `synthetic_demo`.
 
-Esto permite ensayar la aplicación antes de finalizar el reentrenamiento sin presentar el modelo demo como resultado definitivo.
+El fallback permite smoke tests cuando faltan artefactos oficiales. En la entrega congelada no se reentrena y se exige 0.9.0-academic para mostrar sus métricas.
 
 ## Uso dinámico de variables
 
@@ -95,3 +95,11 @@ La vista de resultados distingue `Health ML` de `Riesgo combinado`. Team Health 
 La predicción de regresión cruda puede ser ligeramente negativa. La interfaz aplica una restricción operacional de cero días para presentación, conservando el valor crudo en la trazabilidad técnica.
 
 `delay_days_raw` conserva la regresión; `delay_days` aplica max(0, raw) en API/CSV/What-if. Cost negativo no se trunca. La columna Team Health del batch se oculta si ninguna fila tiene score calculable; aparece si al menos una lo tiene.
+
+## Preparación y medios de demostración
+
+Para instalar el entorno usar ./scripts/setup_playground.sh y verificar después preflight. No ejecutar entrenamientos sobre artefactos oficiales durante el cierre. Un clon no incluye modelos/datasets pesados; copiar los artefactos aprobados o reproducir en un entorno separado según training.md. La demo de fixtures no acredita resultados académicos.
+
+La URL local es http://localhost:8000; run_playground.sh muestra LAN cuando disponible. PRUNIN_PUBLIC_URL configura QR para URL publicada si existe, sin afirmar hosting real. Verificar red del salón. Guion ejecutivo: PRESENTACION_FINAL.md; secuencia en vivo: ../DEMO_PRESENTACION.md; preguntas y glosario en PREGUNTAS_DEFENSA.md y GLOSARIO_DEFENSA.md. Mostrar resultados/gráficos antes de código y no leer JSON completo sin propósito.
+
+El valor ml_inference_ms incluye ML y drivers, igual a timing.ml_and_drivers_ms; no etiquetarlo como tiempo puro del predictor. Timing.total_ms incluye la generación cuando se intenta. El límite CSV de 100 filas no es throughput bajo carga. La matriz completa distingue evidencia técnica, comunicación escrita y desempeño oral pendiente.

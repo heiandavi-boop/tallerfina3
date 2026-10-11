@@ -1,240 +1,85 @@
-# PRUNIN AI Core · Academic + Live Playground
+# PRUNIN AI Core
 
-Repositorio autocontenido para entrenar, validar y demostrar públicamente el AI Core de PRUNIN.
+Prototipo académico reproducible para apoyar a directores de proyecto y oficinas de proyectos (PMO) en la interpretación del riesgo de retraso y sobrecosto. Predicciones y recomendaciones apoyan una decisión humana; no acreditan validación empresarial.
 
-La demo **no contiene resultados hardcodeados**: cada análisis llama al backend FastAPI, ejecuta los artefactos `.joblib` cargados y devuelve un `prediction_id`, versión del modelo, tiempos, probabilidades, drivers y recomendaciones.
+**Pregunta de investigación:** ¿En qué medida una arquitectura híbrida de inteligencia artificial, que combine modelos predictivos e IA generativa, permite detectar tempranamente riesgos de retraso y sobrecosto en proyectos y generar recomendaciones útiles para apoyar la toma de decisiones?
 
-## Entrenamiento académico reproducible
+## Arquitectura
+
+React/Vite → FastAPI → LightGBM (Health, Delay y Cost) → drivers de sensibilidad local → evidencia estructurada → Qwen3 8B/Ollama opcional → validación de grounding → explicación/recomendación o fallback determinístico. [Diagramas y pipeline](docs/architecture.md).
+
+Final Status deriva de Health. Team Health es una **heurística operacional determinística**, no psicológica; la fusión 0.85/0.15 no está calibrada con outcomes reales. Qwen no predice Health/Delay/Cost; grounded_fallback no es GenAI. CSV y What-if no llaman al LLM.
+
+## Datos y features
+
+Modelo: **0.9.0-academic**. Mendeley v2, DOI [10.17632/2p5sz57wh2.2](https://doi.org/10.17632/2p5sz57wh2.2): **dataset sintético externo publicado en Mendeley Data**. Resumen procesado: 4000 proyectos, 72549 snapshots. Split por project_id: 2800 TRAIN / 600 VALIDATION / 600 TEST, disjuntos.
+
+Numéricas: planned_duration_weeks, planned_budget, true_progress, spi, cpi. Categóricas: project_type y methodology.
+
+- project_type: construction, healthcare, it, manufacturing, marketing, r&d.
+- methodology: agile, hybrid, kanban, scrum, waterfall.
+
+No se mezclan fuentes independientes. Imputación ML por mediana/moda TRAIN; cobertura mínima API 60 %. true_progress solo tolera ruido flotante de 1e-9 en límites. Team Health no se imputa y necesita señales suficientes. [Model card](docs/model_card.md) y [preparación](docs/training.md).
+
+## Resultados clave
+
+TEST por proyecto, 600 proyectos usando el snapshot más reciente: Health accuracy 0.726667, balanced accuracy 0.682422, Macro F1 0.627576 y critical recall 0.568182; baseline Macro F1 0.277940. Accuracy sola oculta desbalance.
+
+Delay MAE 27.710468 frente a 27.850313 días: mejora marginal y componente predictivo más débil. Cost MAE 0.147158 puntos porcentuales y R² 0.991816, relacionado en parte con la estructura CPI/progreso–outcome del generador EVM sintético. Al 20 % de avance la cobertura TEST es solo 236/600 (39.333 %). [Resultados e interpretación](docs/INFORME_FINAL.md).
+
+## GenAI
+
+Benchmark Qwen3 8B versionado: complete, 30 casos, éxito/grounding 29/30, esquema/features válidas 30/30, acciones no vacías 30/30, una cifra no soportada; timeout/JSON inválido cero. Mediana 3092.645 ms y p95 6634.72 ms. Son proxies locales y muestra condicionada a drivers, no utilidad empresarial demostrada. Selección de Qwen frente a Gemma/Ministral técnico-operativa; sin benchmark empírico comparativo. [Selección](docs/genai_model_selection.md), [evaluación](docs/genai_evaluation.md) y [eficiencia pendiente](docs/efficiency_evaluation.md).
+
+## Ejecutar y demostrar
+
+Con entorno, frontend y artefactos preparados:
 
 ```bash
-source .venv/bin/activate
-./scripts/train_all.sh
-```
-
-El pipeline ejecuta DOWNLOAD → VALIDATION → PREPARATION → AUDIT → READINESS → SPLIT/LEAKAGE → TRAINING → STANDARD EVALUATION → DELAY EXPERIMENT → TEMPORAL EVALUATION → BASELINES/REPORTS/FIGURES → TESTS → PLAYGROUND PREFLIGHT. Mendeley v2 es la única fuente de `0.9.0-academic`; las demás fuentes son opcionales y no se mezclan. Los informes ligeros se exportan a `reports/0.9.0-academic/`; datasets y modelos pesados permanecen locales. `./scripts/train_all.sh --offline` usa raw local validado y no consulta metadata remota.
-
-## Inicio rápido en Mac / VS Code
-
-### Opción más simple
-
-1. Descomprime el ZIP.
-2. Abre la carpeta raíz en VS Code.
-3. Abre Terminal → New Terminal.
-4. Ejecuta:
-
-```bash
-chmod +x scripts/*.sh INICIAR_DEMO.command
-./scripts/setup_playground.sh
 ./scripts/preflight_demo.sh
 ./scripts/run_playground.sh
 ```
 
-5. Abre `http://localhost:8000`.
+Abrir http://localhost:8000. El preflight esperado es `RESULTADO: LISTO PARA DEMO`. [Instalación, LAN/QR y detalle de la demo](docs/playground.md); [guion](DEMO_PRESENTACION.md). Un clon no incluye modelos pesados ni datasets; verificar los artefactos oficiales locales para sustentar. La selección usa PRUNIN_ARTIFACT_DIR, luego artifacts/0.9.0-academic y después demo-0.1.0, rotulado como demo sintético.
 
-También puedes hacer doble clic en `INICIAR_DEMO.command` en macOS. Si el entorno `.venv` todavía no existe, lo prepara primero.
-
-## Qué valida el preflight
+Para activar GenAI local, con Ollama y qwen3:8b instalados:
 
 ```bash
+PRUNIN_ENABLE_OLLAMA=1 PRUNIN_OLLAMA_MODEL=qwen3:8b ./scripts/run_playground.sh
+```
+
+Ejecutar `./scripts/preflight_genai.sh` por separado con el API activo. Si Ollama falla, ML y fallback permanecen disponibles. `/api/genai-status` muestra estado; timeout por defecto 30 s configurable. No reejecutar el benchmark oficial durante el cierre.
+
+Demo: análisis individual, probabilidades, drivers, What-if, CSV hasta 100 filas, JSON descargable con prediction_id y versión. Delay presenta `max(0, delay_days_raw)` y conserva raw en detalle técnico; métricas históricas no cambian. Cost negativo puede representar ahorro. Team Health del CSV se oculta si ninguna fila tiene score, aparece si alguna lo tiene.
+
+## Validación y operación
+
+```bash
+source .venv/bin/activate
+python -m pip check
+python -m compileall -q src scripts tests
+PYTHONPATH=src python -m pytest -q
+npm ci --prefix frontend
+npm test --prefix frontend -- --run
+npm run build --prefix frontend
 ./scripts/preflight_demo.sh
 ```
 
-Comprueba:
+quality CI usa Python 3.12/Node 22, npm ci, frontend build/tests, artefactos demo efímeros, compileall y pytest; no descarga Mendeley ni ejecuta Ollama/benchmark pesado. CI verde se acredita por SHA y run completado. Docker empaqueta frontend/API; Kubernetes es [diseño](deploy/k8s/prunin-ai-core.yaml), tres réplicas y HPA 3–10, sin clúster productivo probado. [MLOps](docs/mlops_production.md) expone readiness, monitoring y /metrics; centralización, drift y retraining continuo siguen pendientes.
 
-- frontend precompilado;
-- directorio de artefactos;
-- modelos Health / Delay / Cost y Final Status independiente o derivado según manifest;
-- endpoint de esquema;
-- inferencia real;
-- salida de Health, Delay, Cost y Team Health.
+Reproducción del entrenamiento: [docs/training.md](docs/training.md) y scripts/train_all.sh (fail-fast). Ejecutarla en entorno separado; no sobrescribir modelos/resultados congelados para preparar la entrega.
 
-El resultado esperado es:
+## Limitaciones
 
-```text
-RESULTADO: LISTO PARA DEMO
-```
-
-## Selección automática del modelo
-
-La aplicación elige los artefactos en este orden:
-
-1. `PRUNIN_ARTIFACT_DIR`, si se configura explícitamente.
-2. `artifacts/0.9.0-academic`, si ya entrenaste la versión académica.
-3. `artifacts/demo-0.1.0`, como fallback funcional.
-
-El fallback está entrenado con datos sintéticos de smoke test y la interfaz lo marca de forma visible como **MODELO DEMO SINTÉTICO**. No se presenta como resultado académico definitivo.
-
-## Variables disponibles en la demo
-
-El Playground clasifica los campos en `/api/schema` dinámicamente desde el manifest/config del modelo cargado; no asume que todas las variables del catálogo afectan el modelo.
-
-En `0.9.0-academic`, el manifest actual contiene estas features supervisadas:
-
-- `planned_duration_weeks`
-- `planned_budget`
-- `true_progress`
-- `spi`
-- `cpi`
-- `project_type`
-- `methodology`
-
-Mendeley v2 es un **dataset sintético externo publicado en Mendeley Data**, no validación empresarial real. Categorías académicas: `project_type` = construction, healthcare, it, manufacturing, marketing, r&d; `methodology` = agile, hybrid, kanban, scrum, waterfall. `true_progress` normaliza únicamente ruido flotante de hasta `1e-9` en los límites 0 y 1; valores fuera de esa tolerancia siguen siendo rechazados.
-
-Las señales incluidas en pesos Team Health se muestran aparte con insignia `HEURÍSTICA`. Los demás campos quedan en “Variables disponibles para futura integración PRUNIN”, deshabilitados y fuera de What-if. El template CSV académico contiene ML obligatorias y Team Health opcional, sin `not_used`; la plantilla full-future se solicita con `profile=full_future`.
-
-### Variables eliminadas de V8.6.3
-
-No se muestran ni se inventan:
-
-- `reported_progress`
-- `critical_path_delay_days`
-- `team_morale`
-
-`team_morale` fue sustituida conceptualmente por `team_health_index`, calculado con señales observables. Team Health es determinístico/operativo, no psicológico. La fusión 0.85/0.15 es una heurística provisional no calibrada con outcomes reales. Final Status se muestra como estado de negocio derivado de Health, no como segunda predicción ML.
-
-## Funciones del Playground
-
-- tres escenarios precargados: saludable, en riesgo y crítico;
-- edición de ML features y señales Team Health; las variables no usadas quedan separadas/deshabilitadas;
-- validaciones de rango en frontend y backend;
-- Health ML con probabilidades;
-- Final Status como estado de negocio derivado en Mendeley v2;
-- retraso estimado;
-- sobrecosto estimado;
-- Team Health Index con score/level/coverage/components;
-- riesgo combinado, separado de Health ML;
-- sensibilidad local de variables;
-- recomendaciones fundamentadas;
-- modo `What-if`;
-- carga CSV de hasta 100 filas;
-- plantilla CSV descargable;
-- panel técnico con JSON completo;
-- descarga del resultado JSON;
-- QR generado con la URL actual o `PRUNIN_PUBLIC_URL`;
-- identificación visible de versión y tipo de modelo;
-- protección contra inferencias con menos del 60 % de cobertura de features entrenadas.
-
-## Valores faltantes
-
-La interfaz manual envía todas las variables del preset. Para CSV/API se permite información parcial, pero de forma explícita:
-
-- se muestra `missing_trained_features`;
-- se calcula `coverage`;
-- el pipeline usa la misma imputación de entrenamiento (`median` numérica / `mode` categórica);
-- si la cobertura baja del 60 %, la inferencia se bloquea en lugar de emitir una predicción débil.
-
-Puedes cambiar el umbral:
-
-```bash
-export PRUNIN_MIN_FEATURE_COVERAGE=0.70
-```
-
-## Probar desde celulares en la misma red
-
-`./scripts/run_playground.sh` escucha en `0.0.0.0` e intenta mostrar una URL LAN, por ejemplo:
-
-```text
-Red LAN: http://192.168.1.25:8000
-```
-
-Abre esa URL en el computador que proyectará la demo. El QR del panel técnico usará la URL actual y los asistentes conectados a la misma red podrán escanearla.
-
-Para una URL pública de Internet, despliega `Dockerfile.playground` y define:
-
-```bash
-export PRUNIN_PUBLIC_URL=https://tu-dominio.com
-```
-
-## IA generativa sin romper la demo
-
-LightGBM genera las predicciones; Qwen3 explica y recomienda; Ollama es el runtime local; `grounded_fallback` es el respaldo determinístico. La demo funciona aunque Ollama esté apagado. What-if y CSV ejecutan ML/drivers sin llamadas LLM.
-
-Si quieres activar Ollama local:
-
-```bash
-export PRUNIN_ENABLE_OLLAMA=1
-export PRUNIN_OLLAMA_MODEL=qwen3:8b
-export PRUNIN_OLLAMA_TIMEOUT_SECONDS=30
-./scripts/run_playground.sh
-```
-
-`GET /api/genai-status` informa si la generación está habilitada y si el modelo aparece instalado. El timeout se comparte con `scripts/evaluate_genai.py`; override puntual con `--timeout`. El warm-up es opcional y no se ejecuta en CI:
-
-```bash
-export PRUNIN_OLLAMA_WARMUP=1
-```
-
-Para inspeccionar raw response y JSON parseado únicamente en el drawer técnico:
-
-```bash
-export PRUNIN_GENAI_DEBUG=1
-```
-
-Las respuestas se validan contra features permitidas y cifras de la evidencia. Un timeout, JSON inválido o fallo de grounding conserva la predicción ML y activa fallback; el fallback nunca se presenta como generación. Ejecuta `./scripts/preflight_genai.sh` para comprobar Ollama, `qwen3:8b`, el status API y una generación grounded.
-
-## Entrenamiento académico
-
-El uso manual queda como flujo avanzado; para un entrenamiento reproducible usa `./scripts/train_all.sh`.
-
-```bash
-source .venv/bin/activate
-python scripts/download_datasets.py
-python scripts/prepare_datasets.py
-python scripts/audit_dataset.py --input data/processed/mendeley_core.csv
-python scripts/data_readiness.py
-python scripts/verify_split.py
-python scripts/train_core.py --input data/processed/mendeley_core.csv --version 0.9.0-academic
-python scripts/evaluate_temporal.py
-python scripts/export_report.py
-python scripts/generate_evaluation_plots.py
-```
-
-Mendeley v2 no contiene una etiqueta independiente de Final Status. El API conserva el campo como estado de negocio derivado de Health, y el Playground lo identifica como `Derived business status`.
-
-Para abrir el Playground tras el entrenamiento:
-
-```bash
-./scripts/run_playground.sh
-```
-
-## Pruebas
-
-```bash
-source .venv/bin/activate
-pytest -q
-```
-
-Los resultados de evaluación de cada ejecución se exportan a `reports/0.9.0-academic/`; no se fija aquí un número de tests.
-
-## Continuous Integration
-
-GitHub Actions usa Python 3.12 y Node 22: ejecuta `npm ci`, build, tests frontend, generación de artefactos demo pequeños, `compileall` y `pytest`. No descarga Mendeley, no corre Ollama ni el benchmark GenAI en CI estándar.
-
-## Docker
-
-```bash
-docker build -f Dockerfile.playground -t prunin-ai-playground .
-docker run --rm -p 8000:8000 prunin-ai-playground
-```
-
-## Archivos útiles
-
-- `docs/playground.md`: arquitectura y comportamiento de la demo.
-- `DEMO_PRESENTACION.md`: secuencia recomendada para la sustentación.
-- `data/processed/playground_examples.csv`: tres escenarios listos para probar.
-- `artifacts/playground_input_template.csv`: plantilla CSV de una fila.
-- `.env.playground.example`: configuración opcional.
+Dataset sintético, Delay débil, caveat EVM de Cost, cobertura temprana desigual, fusión no calibrada y drivers no causales. No hay baseline humano medido ni validación prospectiva empresarial. Grounding es proxy y requiere revisión humana. [Ética](docs/ethics_security.md). No está listo para producción.
 
 ## Estado de evaluación
 
-Modelo académico congelado: `0.9.0-academic`. Evidencias: [evaluación predictiva](reports/0.9.0-academic/), [evaluación GenAI](reports/genai/), [informe final](docs/INFORME_FINAL.md) y [matriz de rúbrica](docs/rubric_matrix.md). El reporte Qwen3 8B está `complete`: 30 casos, éxito/grounding 29/30, schema y features válidas 30/30, mediana 3092.645 ms y p95 6634.72 ms. Son proxies locales, no validación semántica completa.
-
-Health TEST project-level Macro F1 0.627576 frente a baseline 0.277940. Delay MAE 27.710468 días frente a 27.850313: mejora marginal; es el modelo más débil. Cost MAE 0.147158 puntos porcentuales y R² 0.991816: rendimiento interno alto relacionado en parte con la estructura CPI/EVM del generador sintético.
-
-La predicción de regresión cruda puede ser ligeramente negativa. La interfaz aplica una restricción operacional de cero días para presentación, conservando el valor crudo en la trazabilidad técnica.
-
-El API añade `delay_days_raw`; `delay_days` es el valor operacional ≥ 0, también en CSV/What-if. Cost negativo conserva su interpretación de ahorro. En CSV se oculta Team Health cuando ninguna fila tiene score calculable; aparece si alguna fila lo tiene. Es una heurística operacional determinística, sin imputación.
-
-Docker proporciona empaquetado reproducible; [Kubernetes](deploy/k8s/prunin-ai-core.yaml) es diseño con 3 réplicas/HPA, sin clúster activo demostrado. [MLOps](docs/mlops_production.md) es infraestructura académica, con capacidades productivas pendientes. No hay validación empresarial ni baseline humano de eficiencia. Consultar [cierre y checks](docs/FINAL_READINESS.md). PRUNIN AI Core se entrega como prototipo académico reproducible; no como sistema validado en producción.
-
-Para entregar la versión congelada, ejecutar tests y preflight; no ejecutar `train_all.sh` sobre los artefactos oficiales durante el cierre. Los comandos de entrenamiento anteriores documentan reproducción del experimento en un entorno separado.
+- [Informe final](docs/INFORME_FINAL.md)
+- [Matriz completa PAIII: técnica, RA1 y RA2](docs/rubric_matrix.md)
+- [Cierre, evidencias y pendientes](docs/FINAL_READINESS.md)
+- [Resultados predictivos congelados](reports/0.9.0-academic/)
+- [Resultados GenAI](reports/genai/)
+- [Presentación de 7/10/12 minutos](docs/PRESENTACION_FINAL.md)
+- [Preguntas de defensa](docs/PREGUNTAS_DEFENSA.md) y [glosario](docs/GLOSARIO_DEFENSA.md)
+- [Referencias APA 7](docs/references.md)

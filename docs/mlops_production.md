@@ -65,3 +65,9 @@ No existe todavía validación productiva, almacenamiento central de métricas, 
 Implementado: hashes/manifests, logging con prediction_id, endpoints y métricas locales, política documentada de retraining, empaquetado Docker y CI. No significa que exista retraining continuo en producción.
 
 Diseñado/pendiente: Prometheus centralizado, alertas reales, drift automático productivo, retraining continuo, infraestructura cloud y Kubernetes real. El HPA 3–10 requiere metrics-server; debe probarse carga y capacidad antes de operar. El Dockerfile requiere artefactos locales dentro del contexto; un clon solo con reportes no incluye los modelos pesados. No se construyó la imagen ni se desplegó un clúster durante este cierre.
+
+## Interpretación frente a Nivel 4
+
+La integración de scripts, CI, logging y métricas locales es evidencia académica. Kubernetes cubre orquestación de despliegue a nivel de diseño, no ejecución probada; no existe Airflow/Kubeflow. Escalado, balanceo y recuperación automática solo están especificados en YAML, sin prueba de fallos/carga. El fallback GenAI y timeout sí están implementados localmente.
+
+R7.2 Cr6 no alcanza retraining continuo real: la política documentada no equivale a un servicio de reentrenamiento. Requiere outcomes suficientes/aprobados y drift/degradación o cambio de dataset revisado; comparar el candidato en VALIDATION y preservar TEST congelado. No se reentrena por mejorar una cifra ni por calendario sin causa. Ver rubric_matrix.md para gaps de cada criterio.

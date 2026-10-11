@@ -1,0 +1,271 @@
+{
+  "comparison_base": "b2d0ca32f0599fc6c2227f2a5eb3e6dea6ff812a",
+  "scope": "Entire definitive delivery on main, including prior validated closure integrated by fast-forward",
+  "files": [
+    {
+      "status": "M",
+      "paths": [
+        "DEMO_PRESENTACION.md"
+      ]
+    },
+    {
+      "status": "M",
+      "paths": [
+        "Dockerfile.playground"
+      ]
+    },
+    {
+      "status": "M",
+      "paths": [
+        "README.md"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "docs/FINAL_READINESS.md"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "docs/GLOSARIO_DEFENSA.md"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "docs/INFORME_FINAL.md"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "docs/PREGUNTAS_DEFENSA.md"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "docs/PRESENTACION_FINAL.md"
+      ]
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/architecture.md"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "docs/efficiency_evaluation.md"
+      ]
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/ethics_security.md"
+      ]
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/genai_evaluation.md"
+      ]
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/genai_model_selection.md"
+      ]
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/mlops_production.md"
+      ]
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/model_card.md"
+      ]
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/playground.md"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "docs/references.md"
+      ]
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/rubric_matrix.md"
+      ]
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/training.md"
+      ]
+    },
+    {
+      "status": "R087",
+      "paths": [
+        "frontend/dist/assets/index-CeTPLuFN.js",
+        "frontend/dist/assets/index-B6GKq6_o.js"
+      ]
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/dist/index.html"
+      ]
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/App.test.jsx"
+      ]
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/components/AnalysisPanels.jsx"
+      ]
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/components/TechnicalDrawer.jsx"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "reports/closure/backend_tests.txt"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "reports/closure/definitive/api_smoke.json"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "reports/closure/definitive/backend_tests.txt"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "reports/closure/definitive/changed_files.json"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "reports/closure/definitive/frontend_build.txt"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "reports/closure/definitive/frontend_tests.txt"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "reports/closure/definitive/npm_ci.txt"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "reports/closure/definitive/preflight_demo.txt"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "reports/closure/definitive/preflight_genai.txt"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "reports/closure/definitive/validation.json"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "reports/closure/frontend_build.txt"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "reports/closure/frontend_tests.txt"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "reports/closure/preflight_demo.txt"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "reports/closure/preflight_genai.txt"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "reports/closure/validation.json"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "reports/genai/efficiency.json"
+      ]
+    },
+    {
+      "status": "M",
+      "paths": [
+        "scripts/preflight_demo.py"
+      ]
+    },
+    {
+      "status": "M",
+      "paths": [
+        "src/prunin_ai/api/model_runtime.py"
+      ]
+    },
+    {
+      "status": "M",
+      "paths": [
+        "src/prunin_ai/data/demo.py"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "tests/test_delay_presentation.py"
+      ]
+    }
+  ]
+}

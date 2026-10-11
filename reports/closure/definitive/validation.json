@@ -1,0 +1,123 @@
+{
+  "date": "2026-10-11",
+  "timezone": "America/Bogota",
+  "initial_main_head": "b2d0ca32f0599fc6c2227f2a5eb3e6dea6ff812a",
+  "previous_closure_integrated_head": "781d3f8fc2344c51d8825cfa6cc7853a5ad37d42",
+  "artifact": "0.9.0-academic",
+  "backend": {
+    "passed": 104,
+    "failed": 0,
+    "command": "PYTHONPATH=src .venv/bin/python -m pytest -q"
+  },
+  "frontend": {
+    "passed": 14,
+    "failed": 0,
+    "command": "npm test --prefix frontend -- --run"
+  },
+  "npm_ci": {
+    "status": "success",
+    "command": "npm ci --prefix frontend"
+  },
+  "frontend_build": {
+    "status": "success",
+    "command": "npm run build --prefix frontend"
+  },
+  "pip_check": "success; No broken requirements found.",
+  "compileall": "success",
+  "preflight_demo": "RESULTADO: LISTO PARA DEMO",
+  "preflight_genai": "RESULTADO: OLLAMA READY",
+  "genai_scope": "Separate live smoke test; original 30-case report was not rerun or overwritten.",
+  "preservation": {
+    "protected_files_checked": 4520,
+    "changed": [],
+    "joblib_hashes": {
+      "artifacts/demo-0.1.0/delay_days.joblib": {
+        "before": "407d937c4e7cf55594ca61424dfbeec7aeec45c5a9a6e82c6b8112e49e9b4d2e",
+        "after": "407d937c4e7cf55594ca61424dfbeec7aeec45c5a9a6e82c6b8112e49e9b4d2e"
+      },
+      "artifacts/demo-0.1.0/final_status.joblib": {
+        "before": "5eaa68373264cd26e9a0db87e8ea8b1475424d2635f19f6c66c16f5b35164e78",
+        "after": "5eaa68373264cd26e9a0db87e8ea8b1475424d2635f19f6c66c16f5b35164e78"
+      },
+      "artifacts/demo-0.1.0/cost_overrun_ratio.joblib": {
+        "before": "681d3d66156524a39d62fb462e671d2b5ee6b961980c12a475920755486d0c4b",
+        "after": "681d3d66156524a39d62fb462e671d2b5ee6b961980c12a475920755486d0c4b"
+      },
+      "artifacts/demo-0.1.0/health.joblib": {
+        "before": "40d1f9ed2310ed10c4d7af9ba07559f62399bb231dd08129c68fc841ae3cb980",
+        "after": "40d1f9ed2310ed10c4d7af9ba07559f62399bb231dd08129c68fc841ae3cb980"
+      },
+      "artifacts/0.9.0-academic/delay_days.joblib": {
+        "before": "84924fc4ddfbcd3842dfc24686286bc9affc23a7f4024698607b678af78916b3",
+        "after": "84924fc4ddfbcd3842dfc24686286bc9affc23a7f4024698607b678af78916b3"
+      },
+      "artifacts/0.9.0-academic/cost_overrun_ratio.joblib": {
+        "before": "0881ac24d6780378fce8ca9fcfd0f03d5f89c7ef475a33c882ec01efff9c7ba6",
+        "after": "0881ac24d6780378fce8ca9fcfd0f03d5f89c7ef475a33c882ec01efff9c7ba6"
+      },
+      "artifacts/0.9.0-academic/health.joblib": {
+        "before": "81dba769ecbcec2f64a312432ab5eb9720af3d37e5018f15249e821e1ca52c18",
+        "after": "81dba769ecbcec2f64a312432ab5eb9720af3d37e5018f15249e821e1ca52c18"
+      }
+    },
+    "academic_and_contract_sha256_unchanged": {
+      "artifacts/0.9.0-academic/split_manifest.json": "ed8f9db66e254123e411e7d016e91c01563a58c11e3a7f337bd9592ab92db26c",
+      "reports/0.9.0-academic/metrics.json": "5464f55fe9e8f507259c71141681bd5a3aad6d3764a79744a57a42f0f984f89a",
+      "reports/0.9.0-academic/baselines.json": "63d634a2ccfd2613f88cb06fbb02f2b4e7e082f44ce70ea08f8fedfd7daa8147",
+      "reports/0.9.0-academic/temporal_evaluation.json": "552f7858236a62d2e8de7379074495c03542f527dfe0aa0ba23bc15aa28af97a",
+      "reports/genai/qwen3-8b-evaluation.json": "361b2b5c6f7795a594f25469d736a21ce92daae75626f5a0eb46fe4d9322dd7f",
+      "configs/training.yaml": "6539d5b5986556a8202678881274460c8d12e140a2539ca53d4ca5cad27d383c",
+      "data/processed/mendeley_core.csv": "32b7586db9dda0b3994573a3985c114dafe65dee93c948254b69f00d194c0ac3"
+    },
+    "academic_retraining_executed": false,
+    "split_changed": false,
+    "models_changed": false,
+    "historical_reports_changed": false,
+    "metrics_invented": false
+  },
+  "split": {
+    "train": 2800,
+    "validation": 600,
+    "test": 600,
+    "pairwise_overlap": [
+      0,
+      0,
+      0
+    ]
+  },
+  "rubric": {
+    "items": 27,
+    "objective_level": 4,
+    "human_efficiency": "not_measured",
+    "oral_performance": "not_observed",
+    "automatic_level4_for_all": false
+  },
+  "deployment": {
+    "dockerfile_reviewed": true,
+    "docker_image_built": false,
+    "kubernetes_conceptual_design_reviewed": true,
+    "cluster_deployed": false
+  },
+  "ci": {
+    "definitive_main_status": "pending_push_and_completed_run",
+    "previous_branch_head_run": "https://github.com/heiandavi-boop/tallerfina3/actions/runs/38173762880",
+    "previous_branch_conclusion": "success",
+    "note": "Previous branch success is not asserted as new main verification."
+  },
+  "documentation_validation": {
+    "local_markdown_links": "pass, no broken links",
+    "report_numbered_sections": 25,
+    "presentation_slides": 12,
+    "slide_bullets": "3-5 each",
+    "defense_questions": 32,
+    "rubric_items": 27,
+    "readiness_areas": 25,
+    "readiness_allowed_states_only": true,
+    "figures_inspected": [
+      "health_confusion_matrix.png",
+      "temporal_health_macro_f1.png"
+    ],
+    "historical_figures_changed": false,
+    "kubernetes_yaml": "parsed; conceptual required fields verified; no cluster test"
+  }
+}

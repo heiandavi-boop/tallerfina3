@@ -78,3 +78,9 @@ python scripts/benchmark_efficiency.py \
 ```
 
 La latencia GenAI no es tiempo completo de la tarea ni evidencia de ahorro humano. Sin medición, Cr6 permanece pendiente.
+
+## Interpretación del rechazo y valor estratégico
+
+El caso `mendeley::PROJ_0840` (critical) conservó esquema y evidence_features válidos pero falló por `unsupported_numeric_claim`. El validador impidió aceptar una respuesta con cifras no soportadas. Ese rechazo es evidencia útil del guardrail, no prueba de ausencia de otros errores semánticos. Medir actionability como acción no vacía no demuestra que la acción sea pertinente, viable o efectiva. El apoyo a síntesis/interpretación está implementado; su valor profesional y productividad requieren revisión humana y el protocolo de eficiencia.
+
+No se selecciona un modelo predictivo ni se modifica TEST utilizando este benchmark de explicaciones. No se reejecutó ni sobrescribió el reporte en el cierre.
