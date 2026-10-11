@@ -77,6 +77,32 @@ def test_predict_live():
     assert 'no demuestra causalidad' in body['drivers_disclaimer']
 
 
+def test_predict_can_omit_recommendations_for_efficiency_benchmark(monkeypatch):
+    monkeypatch.setenv('PRUNIN_ENABLE_OLLAMA', '1')
+    monkeypatch.setattr(app_module, 'build_recommendations', lambda *args: pytest.fail('recommendations must be omitted'))
+    schema = client.get('/api/schema').json()
+
+    response = client.post('/api/predict?include_recommendations=false', json=schema['presets']['at_risk'])
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body['recommendations']['engine'] == 'not_requested'
+    assert body['recommendations']['genai_attempted'] is False
+    assert body['timing']['genai_ms'] is None
+
+
+def test_predict_can_omit_recommendations_for_matched_operational_benchmark(monkeypatch):
+    monkeypatch.setenv('PRUNIN_ENABLE_OLLAMA', '1')
+    monkeypatch.setattr(app_module, 'build_recommendations', lambda *args: pytest.fail('recommendations must be omitted'))
+    schema = client.get('/api/schema').json()
+    response = client.post('/api/predict?include_recommendations=false', json=schema['presets']['at_risk'])
+    assert response.status_code == 200
+    body = response.json()
+    assert body['recommendations']['engine'] == 'not_requested'
+    assert body['recommendations']['genai_attempted'] is False
+    assert body['timing']['genai_ms'] is None
+
+
 def test_what_if():
     schema = client.get('/api/schema').json()
     baseline = dict(schema['presets']['critical'])

@@ -183,9 +183,9 @@ def schema():
 
 
 @app.post("/api/predict")
-def predict(payload: ProjectInput):
+def predict(payload: ProjectInput, include_recommendations: bool = True):
     try:
-        return run_prediction(payload.model_dump())
+        return run_prediction(payload.model_dump(), include_recommendations=include_recommendations)
     except ValueError as exc:
         raise HTTPException(422, str(exc))
 
