@@ -2,11 +2,11 @@
 
 **Veredicto: LISTO PARA ENTREGA ACADÉMICA** como prototipo reproducible para entrega y sustentación. No implica producción ni Nivel 4 en toda la rúbrica. Fecha: 11 de octubre de 2026 (America/Bogota). Base main inicial auditada y confirmada contra remoto: `b2d0ca32f0599fc6c2227f2a5eb3e6dea6ff812a`.
 
-El cierre previo (HEAD 781d3f8) se integró por fast-forward local a main; esta fase amplía auditoría RA1/RA2 y comunicación sin duplicar lógica. La integración definitiva se publica sobre main según la solicitud. El workflow del nuevo main debe comprobarse por SHA/run antes de afirmar success. Los runs de rama anteriores son evidencia histórica, no validación del HEAD nuevo.
+El cierre previo (HEAD 781d3f8) se integró por fast-forward local a main; esta fase amplía auditoría RA1/RA2 y comunicación sin duplicar lógica. La integración definitiva se publica sobre main según la solicitud. El workflow quality de main commit `d3b0a9fdc5023841d7411102998c03bf1211b6ba` se comprobó completed/success: [run 38177951135](https://github.com/heiandavi-boop/tallerfina3/actions/runs/38177951135). Los runs de rama anteriores son evidencia histórica. El commit posterior registra esta evidencia documental; el HEAD final también debe comprobarse por su ejecución propia antes de cerrar la entrega.
 
 ## Tabla 1. Preparación por área
 
-Estados utilizados: LISTO, LISTO CON LIMITACIÓN, DISEÑO, PENDIENTE HUMANO y PENDIENTE PRODUCTIVO. PENDIENTE PRODUCTIVO en CI durante preparación señala verificación remota faltante, no fallo local. Rutas de reportes académicos son relativas a reports/0.9.0-academic; las de cierre a reports/closure/definitive; código relativo a raíz.
+Estados utilizados: LISTO, LISTO CON LIMITACIÓN, DISEÑO, PENDIENTE HUMANO y PENDIENTE PRODUCTIVO. Rutas de reportes académicos son relativas a reports/0.9.0-academic; las de cierre a reports/closure/definitive; código relativo a raíz.
 
 | Área | Estado | Evidencia | Limitación |
 |---|---|---|---|
@@ -25,7 +25,7 @@ Estados utilizados: LISTO, LISTO CON LIMITACIÓN, DISEÑO, PENDIENTE HUMANO y PE
 | API | LISTO | /api/health, /api/ready, schema y preflight | Uso local; controles productivos pendientes |
 | Frontend | LISTO | 14 tests passing; build success; dist | Probar navegador/proyección/red en salón |
 | Tests | LISTO | 104 backend passing; npm ci, 14 frontend; compileall/pip check | CI demo puede omitir pruebas académicas con datos locales |
-| CI | PENDIENTE PRODUCTIVO | quality.yml; histórico de rama validado; nuevo main por verificar | No declarar verde de main nuevo antes de completar run |
+| CI | LISTO | main d3b0a9f; quality completed/success, run 38177951135 | Evidencia del commit auditado; verificar también ejecución del HEAD documental final |
 | Docker | LISTO CON LIMITACIÓN | Dockerfile.playground: Node22, npm ci, API Python | Imagen no construida en cierre; requiere artefactos locales |
 | Kubernetes | DISEÑO | Deployment3/Service/probes/RollingUpdate/HPA3–10 | Sin clúster; metrics-server/imagen y pruebas pendientes |
 | Monitoring | LISTO CON LIMITACIÓN | monitoring.py, /api/monitoring y /metrics | Contadores en memoria por proceso; no centralización |
@@ -114,3 +114,7 @@ La entrega incluye la integración del cierre anterior y la ampliación actual. 
 - M: `src/prunin_ai/api/model_runtime.py`
 - M: `src/prunin_ai/data/demo.py`
 - A: `tests/test_delay_presentation.py`
+
+## Evidencia GitHub Actions de main
+
+El run 38177951135 terminó completed/success sobre d3b0a9fdc5023841d7411102998c03bf1211b6ba: npm ci, build/tests frontend, fixtures demo, compileall y pytest. Sin descarga Mendeley ni ejecución Ollama/benchmark pesado. Este documento registra el resultado ya observado y no lo atribuye a otro SHA. La verificación del HEAD final se informa en el reporte de entrega después de verlo completado; no se requiere reentrenar ni repetir benchmarks.

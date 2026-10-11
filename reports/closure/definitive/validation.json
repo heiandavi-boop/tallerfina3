@@ -99,10 +99,14 @@
     "cluster_deployed": false
   },
   "ci": {
-    "definitive_main_status": "pending_push_and_completed_run",
+    "definitive_main_status": "completed",
     "previous_branch_head_run": "https://github.com/heiandavi-boop/tallerfina3/actions/runs/38173762880",
     "previous_branch_conclusion": "success",
-    "note": "Previous branch success is not asserted as new main verification."
+    "note": "Observed completed/success for definitive implementation on main. This subsequent documentation commit records that observation; final HEAD is checked separately in the delivery report.",
+    "definitive_main_conclusion": "success",
+    "definitive_main_commit": "d3b0a9fdc5023841d7411102998c03bf1211b6ba",
+    "definitive_main_run_id": 38177951135,
+    "definitive_main_run_url": "https://github.com/heiandavi-boop/tallerfina3/actions/runs/38177951135"
   },
   "documentation_validation": {
     "local_markdown_links": "pass, no broken links",
