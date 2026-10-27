@@ -1,6 +1,6 @@
 import { Field } from './fields.jsx';
 
-export function ProjectForm({ schema, values, onChange, onAnalyze, loading, activePreset, onPreset, coverage }) {
+export function ProjectForm({ schema, values, onChange, onAnalyze, onCompare = () => { }, compareLoading = false, loading, activePreset, onPreset, coverage }) {
     const mlFields = schema.fields.filter(field => field.usage === 'ml_feature');
     const teamFields = schema.fields.filter(field => field.usage === 'team_health');
     const projectFields = mlFields.filter(field => field.group !== 'Ejecución');
@@ -18,6 +18,6 @@ export function ProjectForm({ schema, values, onChange, onAnalyze, loading, acti
         </div>
         {teamFields.length > 0 && <details className="disclosure team-inputs"><summary>Señales operativas opcionales <span>{teamFields.length} variables · Team Health</span></summary><p className="subtle-note">Alimentan un indicador operativo separado; no son variables del modelo supervisado.</p><div className="form-grid">{teamFields.map(spec => <Field key={spec.name} spec={spec} value={values[spec.name]} onChange={onChange} />)}</div></details>}
         <div className="form-footer"><div className="input-quality" aria-live="polite">{coverage.missing === 0 ? <span className="quality-complete">✓ Datos completos</span> : <span className={underMinimum ? 'quality-low' : 'quality-warning'}>⚠ {coverage.missing} variable(s) ML sin valor</span>}{underMinimum && <small>Completa variables para alcanzar la cobertura mínima de {Math.round(coverage.minimum * 100)} %.</small>}</div>
-            <button type="button" className="primary-button" onClick={onAnalyze} disabled={loading || underMinimum}>{loading ? <><span className="spinner" /> Analizando proyecto…</> : 'Analizar proyecto'}</button></div>
+            <div className="form-actions"><button type="button" className="secondary-button" onClick={onCompare} disabled={compareLoading}>{compareLoading ? 'Comparando…' : 'Comparar modelos'}</button><button type="button" className="primary-button" onClick={onAnalyze} disabled={loading || underMinimum}>{loading ? <><span className="spinner" /> Analizando proyecto…</> : 'Analizar proyecto'}</button></div></div>
     </section>;
 }

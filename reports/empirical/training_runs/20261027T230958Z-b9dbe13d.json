@@ -1,0 +1,121 @@
+{
+  "run_id": "20261027T230958Z-b9dbe13d",
+  "artifact_version": "1.0.0-empirical",
+  "trained_at": "2026-10-27T23:09:58.830636+00:00",
+  "git_sha": "d5dcde1019a7177552b8a59fba31a35deb9f96fd",
+  "dataset_hash": "19f87632c589f5d49f72b5f071992efc6379df2beb35f1efd3a60ac1381dc277",
+  "dataset_version": "DSLIB_v3.4",
+  "seed": 42,
+  "config": {
+    "features": [
+      "planned_duration_days",
+      "planned_budget_bac"
+    ],
+    "minimum_projects_per_target": 30
+  },
+  "status": "completed",
+  "health_training": "not_available_no_consistent_observed_label",
+  "prepared_project_count": 229,
+  "metrics": {
+    "delay": {
+      "target": "delay_days_raw",
+      "unit": "days",
+      "definition": "observed final actual duration - planned duration",
+      "projects": 151,
+      "snapshots": 0,
+      "selection_metric": "mae",
+      "validation_candidates": [
+        {
+          "model": "median_baseline",
+          "mae": 31.533333333333335,
+          "rmse": 69.66012728479136,
+          "r2": -0.113044648400346
+        },
+        {
+          "model": "ridge",
+          "mae": 32.774719069039996,
+          "rmse": 57.26134416724388,
+          "r2": 0.2479146386811104
+        },
+        {
+          "model": "random_forest",
+          "mae": 42.12469464285717,
+          "rmse": 69.70933225835026,
+          "r2": -0.1146176192603161
+        },
+        {
+          "model": "lightgbm",
+          "mae": 33.18518870611865,
+          "rmse": 57.85273611280886,
+          "r2": 0.232299425707703
+        }
+      ],
+      "selected_model": "median_baseline",
+      "test": {
+        "mae": 30.709677419355742,
+        "rmse": 45.94526898316682,
+        "r2": -0.033925291375060285,
+        "baseline": {
+          "mae": 30.709677419355742,
+          "rmse": 45.94526898316682,
+          "r2": -0.033925291375060285
+        },
+        "mae_bootstrap_95pct_interval": [
+          19.740322580646055,
+          43.24193548387164
+        ],
+        "test_projects": 31
+      }
+    },
+    "cost": {
+      "target": "cost_overrun_ratio",
+      "unit": "ratio of BAC",
+      "definition": "(observed final actual cost - BAC) / BAC",
+      "projects": 151,
+      "snapshots": 0,
+      "selection_metric": "mae",
+      "validation_candidates": [
+        {
+          "model": "median_baseline",
+          "mae": 0.09621241802973318,
+          "rmse": 0.1706200339989955,
+          "r2": -0.018491893743313836
+        },
+        {
+          "model": "ridge",
+          "mae": 0.14373627680533016,
+          "rmse": 0.20810235977465108,
+          "r2": -0.515135724459105
+        },
+        {
+          "model": "random_forest",
+          "mae": 0.16752643047555532,
+          "rmse": 0.2491413220757455,
+          "r2": -1.1716461276540469
+        },
+        {
+          "model": "lightgbm",
+          "mae": 0.17876845851043935,
+          "rmse": 0.25714239062998906,
+          "r2": -1.313368846772554
+        }
+      ],
+      "selected_model": "median_baseline",
+      "test": {
+        "mae": 0.11570294730360747,
+        "rmse": 0.27747112283443925,
+        "r2": -0.03174753148738052,
+        "baseline": {
+          "mae": 0.11570294730360747,
+          "rmse": 0.27747112283443925,
+          "r2": -0.03174753148738052
+        },
+        "mae_bootstrap_95pct_interval": [
+          0.05171297156013941,
+          0.2109822770337502
+        ],
+        "test_projects": 31
+      }
+    }
+  }
+}

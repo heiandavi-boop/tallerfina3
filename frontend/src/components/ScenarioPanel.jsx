@@ -9,6 +9,8 @@ const fmtNumber = value => value == null ? '—' : Number(value).toLocaleString(
 export function ScenarioPanel({ schema, values, onRun, loading, comparison }) {
     const allowed = useMemo(() => schema.fields.filter(field => schema.what_if_fields.includes(field.name) && field.usage !== 'not_used'), [schema]);
     const initial = ['spi', 'cpi'].filter(name => allowed.some(field => field.name === name));
+    if (initial.length === 0 && allowed.length > 0) initial.push(allowed[0].name);
+    if (initial.length === 0 && allowed.length > 0) initial.push(allowed[0].name);
     const [selected, setSelected] = useState(initial);
     const [scenario, setScenario] = useState({ ...values });
     const [candidate, setCandidate] = useState('');
@@ -43,7 +45,7 @@ function ScenarioComparison({ data }) {
     const delta = data.delta;
     return <div className="scenario-comparison" id="scenario-comparison" aria-live="polite"><h3>Antes <span aria-hidden="true">→</span> Escenario</h3>
         <div className="comparison-table"><div className="comparison-head"><span>Indicador</span><span>Antes</span><span>Escenario</span><span>Diferencia</span></div>
-            <ComparisonRow label="Health ML" before={healthLabels[baseline.health] || baseline.health} after={healthLabels[scenario.health] || scenario.health} />
+            <ComparisonRow label="Health ML" before={healthLabels[baseline.health] || baseline.health || 'No disponible'} after={healthLabels[scenario.health] || scenario.health || 'No disponible'} />
             <ComparisonRow label="Riesgo combinado" before={fmtPct(baseline.fused_risk_score)} after={fmtPct(scenario.fused_risk_score)} delta={fmtPp(delta.risk_score)} favorable={delta.risk_score <= 0} />
             <ComparisonRow label="Retraso estimado" before={`${fmtNumber(baseline.delay_days)} días`} after={`${fmtNumber(scenario.delay_days)} días`} delta={`${delta.delay_days > 0 ? '+' : ''}${fmtNumber(delta.delay_days)} ${Math.abs(delta.delay_days) === 1 ? 'día' : 'días'}`} favorable={delta.delay_days <= 0} />
             <ComparisonRow label="Sobrecosto estimado" before={fmtPct(baseline.cost_overrun_ratio)} after={fmtPct(scenario.cost_overrun_ratio)} delta={fmtPp(delta.cost_overrun_ratio)} favorable={delta.cost_overrun_ratio <= 0} />
@@ -53,5 +55,5 @@ function ScenarioComparison({ data }) {
 }
 
 function ComparisonRow({ label, before, after, delta, favorable }) {
-    return <div className="comparison-row"><strong>{label}</strong><span>{before}</span><span>{after}</span><span className={delta == null ? '' : favorable ? 'good-text' : 'warn-text'}>{delta ?? '—'}</span></div>;
+    return <div className="comparison-row"><strong>{label}</strong><span>{before}</span><span>{after}</span><span className={delta == null || delta === '—' ? '' : favorable ? 'good-text' : 'warn-text'}>{delta ?? '—'}</span></div>;
 }

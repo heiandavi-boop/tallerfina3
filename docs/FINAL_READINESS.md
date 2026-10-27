@@ -120,3 +120,13 @@ La entrega incluye la integración del cierre anterior y la ampliación actual. 
 ## Evidencia GitHub Actions de main
 
 El run 38177951135 terminó completed/success sobre d3b0a9fdc5023841d7411102998c03bf1211b6ba: npm ci, build/tests frontend, fixtures demo, compileall y pytest. Sin descarga Mendeley ni ejecución Ollama/benchmark pesado. Este documento registra el resultado ya observado y no lo atribuye a otro SHA. La verificación del HEAD final se informa en el reporte de entrega después de verlo completado; no se requiere reentrenar ni repetir benchmarks.
+
+## Addendum Empirical — 27 de octubre de 2026
+
+**Veredicto: EMPIRICAL MODEL READY WITH LIMITATIONS.** La línea académica `0.9.0-academic` conserva su runtime, artefactos, métricas y benchmark; Academic sigue como default. DSLIB v3.4 fue descargado localmente, auditado y procesado sin mezclar Mendeley ni modificar el ZIP bruto. El publicador no declara una licencia en el repositorio, por lo que el ZIP y los datos derivados permanecen fuera de Git.
+
+La cobertura real es 231 proyectos publicados, 229 con baseline y 151 proyectos completos por target tras exigir features y outcomes. El artifact `1.0.0-empirical` entrena Delay y Cost, no Health. GroupShuffleSplit usa seed 42 y separa por project_id; test contiene 31 proyectos por target. La mediana ganó validación; TEST Delay MAE 30.7097 días/R² -0.0339 y Cost MAE 0.115703/R² -0.0317, iguales en MAE al baseline mediano. Solo 13 snapshots temporales completos por target: evaluación 20/40/60/80 no disponible. El modelo no se activa automáticamente.
+
+La interfaz Models permite consultar ambos registros, métricas, comparar predicciones, seleccionar manualmente el modelo, descargar el reporte y solicitar entrenamiento asíncrono con `PRUNIN_ENABLE_TRAINING_UI=1`; por defecto la ruta de entrenamiento está deshabilitada. El job de entrenamiento crea una versión nueva y deja Academic activo. Evidencia: `docs/dataset_dslib.md`, `docs/model_card_empirical.md`, `docs/empirical_health_definition.md`, `reports/empirical/` y `reports/model_comparison.md`. La lectura de métricas entre datasets no es head-to-head y no acredita producción.
+
+Benchmark operacional Empirical local completado sobre 31 features TEST: individual 79.622 ms / 389.34 proy/s y CSV batch 50.148 ms / 618.17 proy/s, 3 repeticiones, 100 % éxito. No es carga/concurrencia productiva ni evaluación de exactitud. Reporte: `reports/efficiency/empirical_operational_benchmark.json`.

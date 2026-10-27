@@ -93,12 +93,13 @@ El problema, método y resultados ocupan el centro; infraestructura es secundari
 - 4000 proyectos; 72549 snapshots
 - Split por proyecto: 2800 / 600 / 600
 - Whitelist e imputación aprendida en TRAIN
+- DSLIB v3.4: 231 reales; 151 casos completos por target empírico
 
 **Visual/gráfico:** Tres bloques disjuntos de proyectos..
 
 **Evidencia:** reports/0.9.0-academic/dataset_summary.json; feature_manifest.json; split_summary.json`.
 
-**Speech:** Utilizamos un dataset sintético externo publicado en Mendeley Data. El resumen preparado registra cuatro mil proyectos y setenta y dos mil quinientos cuarenta y nueve snapshots. La división se hace por identificador de proyecto: todos sus snapshots quedan en un único conjunto. El preprocesamiento aprende en entrenamiento y excluye outcomes finales. Esto evita contaminación directa entre splits, aunque la naturaleza sintética y la proximidad temporal de EVM siguen siendo limitaciones.
+**Speech:** La línea académica usa un dataset sintético externo publicado en Mendeley Data: cuatro mil proyectos y setenta y dos mil quinientos cuarenta y nueve snapshots, con split por identificador de proyecto. La extensión empírica audita la colección real DSLIB v3.4: 231 proyectos publicados y 151 casos completos por target para el modelo baseline. Sus variables y splits permanecen separados; la licencia no está especificada por el publicador.
 
 **Detalle secundario:** rutas de código, parámetros y JSON solo si el jurado los pide.
 
@@ -108,18 +109,19 @@ El problema, método y resultados ocupan el centro; infraestructura es secundari
 
 ## Slide 5. Modelos y reglas operacionales
 
-**Mensaje central:** Tres modelos; Final Status y Team Health son reglas.
+**Mensaje central:** Academic conserva tres predictores; Empirical es una línea separada.
 
 - Health: clasificación supervisada LightGBM
 - Delay y Cost: regresiones LightGBM
 - 7 features; Final Status deriva de Health
 - Team Health: heurística operacional determinística
+- Empirical: solo Delay/Cost baseline; Health no entrenado
 
 **Visual/gráfico:** Tabla entradas → targets y reglas..
 
 **Evidencia:** reports/0.9.0-academic/feature_manifest.json; src/prunin_ai/inference/brain.py`.
 
-**Speech:** Health es clasificación supervisada. Delay estima días y Cost estima un ratio de sobrecosto, ambos por regresión. Usamos cinco variables numéricas y dos categóricas, registradas en el manifest. Final Status traduce Health a un estado de negocio; no entrenamos un clasificador redundante. Team Health necesita señales operacionales observadas y suficientes. El cierre conserva modelos, etiquetas y configuración del experimento, y diferencia el Delay crudo de su presentación operacional.
+**Speech:** Academic mantiene Health, Delay y Cost con sus siete features y Final Status derivado. DSLIB Empirical usa solo duración planificada y BAC; no inventamos categorías ni una etiqueta Health ausente. La evaluación empírica seleccionó la mediana en ambos targets porque los candidatos complejos no la superaron en VALIDATION. Team Health sigue siendo una heurística operacional separada.
 
 **Detalle secundario:** rutas de código, parámetros y JSON solo si el jurado los pide.
 
@@ -239,6 +241,8 @@ El problema, método y resultados ocupan el centro; infraestructura es secundari
 
 - Datos sintéticos y cobertura temporal desigual
 - Delay débil; Cost condicionado por estructura EVM
+- Empirical: 151 proyectos por target; R² TEST negativo; solo 13 snapshots temporales
+- Throughput Empirical local: 31 casos TEST; sin carga productiva
 - Fusión no calibrada; drivers no causales
 - Throughput local medido; sin carga productiva ni baseline humano
 
@@ -246,7 +250,7 @@ El problema, método y resultados ocupan el centro; infraestructura es secundari
 
 **Evidencia:** docs/model_card.md; efficiency_evaluation.md; reports/experiments/delay/`.
 
-**Speech:** Las limitaciones son parte del resultado. Delay apenas supera la mediana; el experimento seleccionó la mediana en VALIDATION sin promoción automática y conservamos el modelo congelado. Cost necesita validación externa. La fusión de equipo no está calibrada y los drivers no son causas. Tampoco hay evidencia de ahorro humano. Una prueba manual adicional de noventa y nueve filas no reemplaza métricas oficiales sin resultados estructurados versionados. Estas restricciones delimitan lo que podemos defender.
+**Speech:** Las limitaciones son parte del resultado. Academic conserva su evaluación congelada. En DSLIB hay 151 proyectos utilizables por target, pero la mediana sigue siendo el mejor candidato y R² TEST es negativo; solo 13 snapshots permiten evaluar datos temporales, insuficientes para cortes de avance. No hay etiqueta Health empírica ni comparación directa de dominios. Estas restricciones delimitan lo que podemos defender.
 
 **Detalle secundario:** rutas de código, parámetros y JSON solo si el jurado los pide.
 
@@ -256,18 +260,19 @@ El problema, método y resultados ocupan el centro; infraestructura es secundari
 
 ## Slide 12. Conclusión
 
-**Mensaje central:** Prototipo académico reproducible; validación real pendiente.
+**Mensaje central:** Dos líneas experimentales; selección contextual, sin ganador global.
 
 - Prototipo híbrido reproducible y trazable
+- Academic sintético y Empirical DSLIB coexisten sin sobrescribirse
 - Health supera baseline; GenAI local fue evaluado
-- Limitaciones y pendientes documentados
+- Empirical no supera su baseline; validación prospectiva pendiente
 - Cierre académico; validación real como siguiente etapa
 
 **Visual/gráfico:** Tres resultados y dos pendientes principales..
 
 **Evidencia:** docs/FINAL_READINESS.md; rubric_matrix.md; INFORME_FINAL.md`.
 
-**Speech:** Concluimos que PRUNIN integra predicción y explicación en un prototipo verificable. Health mejora la evaluación multiclase frente al baseline y la generación local fue medida con controles explícitos. La eficiencia operacional local también se midió con requests individuales y batch; no hicimos un estudio controlado de productividad humana ni una prueba productiva. Persisten limitaciones en Delay y en la dependencia sintética del costo. El aporte es una base académica reproducible y una defensa honesta de su alcance. La etapa siguiente requiere proyectos reales y evidencia de utilidad, antes de considerar operación empresarial.
+**Speech:** PRUNIN conserva su línea académica sintética y añade una línea empírica DSLIB separada, versionada y seleccionable. Los resultados empíricos no superan la baseline mediana y no se comparan directamente con Academic. Health sigue disponible solo en la línea académica; no existe evidencia prospectiva ni producción validada. La selección debe seguir el contexto y la evidencia, no una afirmación de superioridad global.
 
 **Detalle secundario:** rutas de código, parámetros y JSON solo si el jurado los pide.
 

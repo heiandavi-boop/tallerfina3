@@ -1,0 +1,78 @@
+{
+  "generated_at": "2026-10-27T23:36:51.799159+00:00",
+  "source": "DSLIB / PSLIB release v3.4",
+  "feature_names": [
+    "planned_duration_days",
+    "planned_budget_bac",
+    "elapsed_ratio",
+    "percent_complete",
+    "ev",
+    "pv",
+    "ac",
+    "spi",
+    "cpi",
+    "sv",
+    "cv"
+  ],
+  "target_names": [
+    "delay_days_raw",
+    "cost_overrun_ratio"
+  ],
+  "target_only_fields": [
+    "actual_duration",
+    "final_cost",
+    "delay_days_raw",
+    "cost_overrun_ratio"
+  ],
+  "leakage_findings": [
+    {
+      "field": "actual_duration",
+      "role": "target_only",
+      "used_as_feature": false,
+      "status": "clear"
+    },
+    {
+      "field": "final_cost",
+      "role": "target_only",
+      "used_as_feature": false,
+      "status": "clear"
+    },
+    {
+      "field": "delay_days_raw",
+      "role": "target_only",
+      "used_as_feature": false,
+      "status": "clear"
+    },
+    {
+      "field": "cost_overrun_ratio",
+      "role": "target_only",
+      "used_as_feature": false,
+      "status": "clear"
+    }
+  ],
+  "post_planned_finish_snapshots_excluded": 0,
+  "candidate_snapshots_checked": 14,
+  "snapshot_cutoff": "TP Status Date < baseline project finish; missing baseline dates are excluded.",
+  "sample_counts": {
+    "health": {
+      "projects": 0,
+      "snapshots": 0,
+      "status": "not_available",
+      "reason": "No consistent observed Health label; no threshold-derived label created."
+    },
+    "delay": {
+      "projects": 13,
+      "snapshots": 13
+    },
+    "cost": {
+      "projects": 13,
+      "snapshots": 13
+    }
+  },
+  "status": "clear_after_filter",
+  "limitations": [
+    "Only project-level TP summary rows with observed EV, PV, AC, and percent complete are eligible.",
+    "Final duration and cost are targets only; they are not included in the feature vector.",
+    "This audit does not establish that the remaining sample is sufficient for reliable generalization."
+  ]
+}
