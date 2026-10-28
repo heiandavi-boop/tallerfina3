@@ -4,6 +4,13 @@ const healthLabels = { healthy: 'Saludable', at_risk: 'En riesgo', critical: 'Cr
 const statusLabels = { successful: 'Exitoso', challenged: 'Con desviaciones', critical: 'Crítico', incomplete: 'Incompleto' };
 const fmtPct = value => value == null ? '—' : `${(Number(value) * 100).toLocaleString('es-CO', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`;
 const fmtNumber = value => value == null ? '—' : Number(value).toLocaleString('es-CO', { maximumFractionDigits: 1 });
+const fmtCost = value => {
+    if (value == null) return '—';
+    const numeric = Number(value);
+    if (numeric < 0) return `${fmtPct(Math.abs(numeric))} por debajo`;
+    if (numeric === 0) return 'Sin desviación';
+    return `${fmtPct(numeric)} sobrecosto`;
+};
 
 export function CsvAnalyzer({ onAnalyze, onOpenProject, loading, results, error }) {
     const [file, setFile] = useState(null);
@@ -41,9 +48,9 @@ function CsvResults({ data, onOpenProject }) {
     const errorColumnSpan = showTeamHealth ? 6 : 5;
     return <section className="surface csv-results" aria-labelledby="csv-results-title"><div className="section-heading"><div><p className="eyebrow">RESULTADOS DEL ARCHIVO</p><h2 id="csv-results-title">{successCount} de {data.count} proyectos analizados</h2></div></div>
         <p className="csv-results-help">La tabla resume el archivo. Usa <strong>Ver análisis completo</strong> para abrir cualquier fila con exactamente los mismos datos que fueron evaluados.</p>
-        <div className="table-scroll"><table><thead><tr><th>Fila</th><th>Nivel de riesgo</th><th>Retraso</th><th>Sobrecosto</th>{showTeamHealth && <th>Condición del equipo</th>}<th>Estado</th><th>Acción</th></tr></thead><tbody>{data.rows.map(row => {
+        <div className="table-scroll"><table><thead><tr><th>Fila</th><th>Nivel de riesgo</th><th>Retraso</th><th>Costo estimado</th>{showTeamHealth && <th>Condición del equipo</th>}<th>Estado</th><th>Acción</th></tr></thead><tbody>{data.rows.map(row => {
             const prediction = row.prediction?.prediction;
-            return <tr key={row.row_number}><th scope="row">{row.row_number}</th>{row.error || !prediction ? <td colSpan={errorColumnSpan} className="table-error">{friendlyRowError(row.error)}</td> : <><td><span className={`table-health ${prediction.health}`}>{healthLabels[prediction.health] || prediction.health}</span></td><td>{fmtNumber(prediction.delay_days)} días</td><td>{fmtPct(prediction.cost_overrun_ratio)}</td>{showTeamHealth && <td>{fmtPct(prediction.team_health?.score)}</td>}<td>{statusLabels[prediction.final_status] || prediction.final_status}</td><td><button type="button" className="table-action" aria-label={`Ver análisis completo de fila ${row.row_number}`} onClick={() => onOpenProject?.(row)}>Ver análisis completo</button></td></>}</tr>;
+            return <tr key={row.row_number}><th scope="row">{row.row_number}</th>{row.error || !prediction ? <td colSpan={errorColumnSpan} className="table-error">{friendlyRowError(row.error)}</td> : <><td><span className={`table-health ${prediction.health}`}>{healthLabels[prediction.health] || prediction.health}</span></td><td>{fmtNumber(prediction.delay_days)} días</td><td>{fmtCost(prediction.cost_overrun_ratio)}</td>{showTeamHealth && <td>{fmtPct(prediction.team_health?.score)}</td>}<td>{statusLabels[prediction.final_status] || prediction.final_status}</td><td><button type="button" className="table-action" aria-label={`Ver análisis completo de fila ${row.row_number}`} onClick={() => onOpenProject?.(row)}>Ver análisis completo</button></td></>}</tr>;
         })}</tbody></table></div></section>;
 }
 

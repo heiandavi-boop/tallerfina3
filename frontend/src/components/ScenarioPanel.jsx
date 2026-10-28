@@ -11,6 +11,13 @@ const audienceLabel = field => field.name === 'spi'
         : field.label;
 
 const fmtNumber = value => value == null ? '—' : Number(value).toLocaleString('es-CO', { maximumFractionDigits: 1 });
+const fmtCost = value => {
+    if (value == null) return '—';
+    const numeric = Number(value);
+    if (numeric < 0) return `${fmtPct(Math.abs(numeric))} por debajo`;
+    if (numeric === 0) return 'Sin desviación';
+    return `${fmtPct(numeric)} sobrecosto`;
+};
 
 export function ScenarioPanel({ schema, values, onRun, loading, comparison }) {
     const allowed = useMemo(() => schema.fields.filter(field => schema.what_if_fields.includes(field.name) && field.usage !== 'not_used'), [schema]);
@@ -52,7 +59,7 @@ function ScenarioComparison({ data }) {
             <ComparisonRow label="Nivel de riesgo" before={healthLabels[baseline.health] || baseline.health} after={healthLabels[scenario.health] || scenario.health} />
             <ComparisonRow label="Indicador combinado de riesgo" before={fmtPct(baseline.fused_risk_score)} after={fmtPct(scenario.fused_risk_score)} delta={fmtPp(delta.risk_score)} favorable={delta.risk_score <= 0} />
             <ComparisonRow label="Retraso estimado" before={`${fmtNumber(baseline.delay_days)} días`} after={`${fmtNumber(scenario.delay_days)} días`} delta={`${delta.delay_days > 0 ? '+' : ''}${fmtNumber(delta.delay_days)} ${Math.abs(delta.delay_days) === 1 ? 'día' : 'días'}`} favorable={delta.delay_days <= 0} />
-            <ComparisonRow label="Sobrecosto estimado" before={fmtPct(baseline.cost_overrun_ratio)} after={fmtPct(scenario.cost_overrun_ratio)} delta={fmtPp(delta.cost_overrun_ratio)} favorable={delta.cost_overrun_ratio <= 0} />
+            <ComparisonRow label="Costo estimado" before={fmtCost(baseline.cost_overrun_ratio)} after={fmtCost(scenario.cost_overrun_ratio)} delta={fmtPp(delta.cost_overrun_ratio)} favorable={delta.cost_overrun_ratio <= 0} />
             <ComparisonRow label="Condición operativa del equipo" before={fmtPct(baseline.team_health?.score)} after={fmtPct(scenario.team_health?.score)} />
         </div><p className="science-note">Los valores muestran cómo cambiaría la lectura del modelo bajo el escenario propuesto. No representan una relación causal demostrada.</p>
     </div>;

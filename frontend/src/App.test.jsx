@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import Experience from './Experience.jsx';
 import { CsvAnalyzer } from './components/CsvAnalyzer.jsx';
 import { TechnicalDrawer } from './components/TechnicalDrawer.jsx';
+import { ResultHero, DriversPanel } from './components/AnalysisPanels.jsx';
 
 const fields = [
   { name: 'planned_duration_weeks', label: 'Duración planificada', group: 'Proyecto', type: 'number', usage: 'ml_feature', min: 1, max: 520, step: 1, reference: 52, description: 'Duración base.' },
@@ -58,6 +59,29 @@ async function openProject() {
 }
 
 describe('Playground ejecutivo', () => {
+  it('presenta costos negativos como valor por debajo del presupuesto y aclara causalidad', () => {
+    const healthyResult = prediction();
+    healthyResult.prediction.health = 'healthy';
+    healthyResult.prediction.final_status = 'successful';
+    healthyResult.prediction.cost_overrun_ratio = -0.0573156709;
+    healthyResult.drivers = [{
+      feature: 'planned_budget',
+      label: 'Presupuesto planificado',
+      value: 700000,
+      reference: 1000000000,
+      risk_impact: -0.3018,
+      direction: 'reduces_risk',
+    }];
+
+    const { rerender } = render(<ResultHero result={healthyResult} schema={schema} />);
+    expect(screen.getByText('Costo estimado')).toBeTruthy();
+    expect(screen.getByText('5,7 %')).toBeTruthy();
+    expect(screen.getByText(/Por debajo del presupuesto planificado/)).toBeTruthy();
+
+    rerender(<DriversPanel drivers={healthyResult.drivers} fields={fields} />);
+    expect(screen.getByRole('heading', { name: '¿Qué señales influyeron en la lectura del modelo?' })).toBeTruthy();
+    expect(screen.getByText(/No significa que un presupuesto menor cause un proyecto más saludable/)).toBeTruthy();
+  });
   it('conserva Delay negativo en evidencia técnica y muestra cero operacional', () => {
     const result = prediction();
     result.prediction.delay_days = 0;
@@ -232,6 +256,7 @@ describe('Playground ejecutivo', () => {
     await user.click(screen.getByRole('button', { name: 'Analizar archivo' }));
     expect(await screen.findByRole('heading', { name: '1 de 1 proyectos analizados' })).toBeTruthy();
     expect(screen.getByText('68,3 días')).toBeTruthy();
+    expect(screen.getByText('23,4 % sobrecosto')).toBeTruthy();
     expect(screen.getByText('Con desviaciones')).toBeTruthy();
   });
 
