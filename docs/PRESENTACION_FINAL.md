@@ -44,26 +44,24 @@ El problema, método y resultados ocupan el centro; infraestructura es secundari
 
 **Error que evitar:** Inventar impacto empresarial medido.
 
-## Slide 2. Pregunta y objetivos
+## Slide 2. Pregunta, promesa y criterio de éxito
 
-**Mensaje central:** La pregunta se evalúa parcialmente; utilidad requiere personas.
+**Mensaje central:** La defensa se evalúa contra la promesa original.
 
-- Arquitectura híbrida para detectar retraso y sobrecosto
-- Generar recomendaciones útiles como finalidad a validar
-- Evaluar señal predictiva, anticipación y generación
-- Objetivo: prototipo reproducible y trazable
+- Anticipar riesgos de retraso y sobrecosto antes del cierre
+- Apoyar la toma de decisiones del director/PMO
+- Meta original: detectar ≥75 % de proyectos **Critical o At Risk**
+- Separar alerta de riesgo de clasificación exacta de severidad
 
-**Visual/gráfico:** Pregunta → objetivo → evaluación.
+**Visual/gráfico:** Promesa → KPI → evidencia temporal.
 
-**Evidencia:** docs/INFORME_FINAL.md §§6–9
+**Evidencia:** docs/INFORME_FINAL.md §§6–8 y reports/promise_validation/
 
-**Speech:** Nuestra pregunta de investigación es: ¿En qué medida una arquitectura híbrida de inteligencia artificial, que combine modelos predictivos e IA generativa, permite detectar tempranamente riesgos de retraso y sobrecosto en proyectos y generar recomendaciones útiles para apoyar la toma de decisiones? El objetivo es construir y evaluar un prototipo reproducible. Medimos predicción y generación estructurada; la utilidad profesional y el ahorro humano aún requieren evidencia. Esto distingue la intención del trabajo de sus resultados demostrados.
+**Speech:** La promesa original no era clasificar exactamente el 75 % de los Critical. Era detectar tempranamente al menos el 75 % de los proyectos críticos o en alto riesgo. Por eso formalizamos un KPI operacional sin cambiar el modelo: Healthy es No Alert y At Risk o Critical es Risk Alert. Conservamos las métricas multiclase, incluido el Critical Recall, como evidencia complementaria.
 
-**Detalle secundario:** rutas de código, parámetros y JSON solo si el jurado los pide.
+**Transición:** Ahora mostramos cómo la arquitectura produce esa alerta sin cambiar sus modelos.
 
-**Transición:** Para responderla, necesitamos separar predicción y explicación.
-
-**Error que evitar:** Dar por demostrada utilidad empresarial o eficiencia humana.
+**Error que evitar:** Presentar Risk Alert como un modelo nuevo o esconder Critical Recall.
 
 ## Slide 3. Arquitectura híbrida
 
@@ -127,47 +125,46 @@ El problema, método y resultados ocupan el centro; infraestructura es secundari
 
 **Error que evitar:** Presentar Final Status o Team Health como modelos supervisados independientes.
 
-## Slide 6. Resultados ML
+## Slide 6. Resultados ML y KPI de riesgo
 
-**Mensaje central:** Health aporta señal; Delay y Cost requieren interpretación crítica.
+**Mensaje central:** PRUNIN detecta proyectos que requieren atención, pero la severidad exacta sigue siendo más difícil.
 
+- TEST project-level: 600 proyectos
+- Risk Alert Recall final: **82.45 %**
+- Risk Alert Precision final: **92.20 %**
+- Risk Alert F1 final: **87.05 %**
+- Critical Recall exacto: **56.82 %**
 - Health Macro F1: 0.627576 vs baseline 0.277940
-- Health balanced accuracy: 0.682422; critical recall: 0.568182
-- Delay MAE: 27.710468 vs 27.850313 días
-- Cost MAE: 0.147158 pp; R²: 0.991816 (caveat EVM)
+- Delay MAE: 27.71 vs 27.85 días → mejora marginal
+- Cost MAE: 0.147 pp; R² 0.992 → interpretar con caveat EVM
 
-**Visual/gráfico:** Tabla project-level TEST con unidades explícitas..
+**Visual/gráfico:** Matriz binaria Risk Alert y una nota con Critical Recall.
 
-**Evidencia:** reports/0.9.0-academic/baselines.json; figures/baseline_comparison.png`.
+**Evidencia:** reports/promise_validation/; reports/0.9.0-academic/
 
-**Speech:** Estas son métricas oficiales de seiscientos proyectos TEST usando el snapshot más reciente. Health mejora sobre el baseline cuando se considera Macro F1; accuracy sola ocultaría el desbalance. La detección crítica sigue incompleta. Delay es el resultado más débil: su mejora en MAE es marginal. Cost tiene desempeño interno muy alto, pero está relacionado en parte con la estructura CPI/EVM del generador sintético. Ninguno de estos valores acredita resultados en empresas reales.
+**Speech:** La promesa de negocio se responde con Risk Alert: de 473 proyectos que realmente terminan At Risk o Critical, PRUNIN detecta 390, equivalente a 82.45 %. Cuando exigimos distinguir específicamente la severidad Critical, el recall baja a 56.82 %. Son preguntas diferentes y mostramos ambas. Delay es débil; Cost es fuerte internamente pero está condicionado por la estructura sintética.
 
-**Detalle secundario:** rutas de código, parámetros y JSON solo si el jurado los pide.
+**Error que evitar:** Decir que 82.45 % es recall de Critical.
 
-**Transición:** El resultado tardío no basta: ahora revisaremos anticipación.
+## Slide 7. ¿Cuándo alcanzamos la meta del 75 %?
 
-**Error que evitar:** Confundir ratio con puntos porcentuales o ocultar la debilidad de Delay.
+**Mensaje central:** La meta se supera al 60 % de avance bajo una métrica estricta de cohorte completa.
 
-## Slide 7. Evaluación temprana
+| Avance | Cobertura TEST | Riesgos finales ya detectados |
+|---:|---:|---:|
+| 20 % | 39.33 % | 28.54 % |
+| 40 % | 77.17 % | 64.06 % |
+| 60 % | **96.00 %** | **75.90 %** |
+| 80 % | 99.83 % | 79.92 % |
+| Final | 100 % | 82.45 % |
 
-**Mensaje central:** Mejora con avance, con cobertura desigual.
+**Visual/gráfico:** reports/promise_validation/figures/risk_alert_detection_vs_progress.svg con línea objetivo 75 %.
 
-- Macro F1: 0.397938 / 0.509355 / 0.522959 / 0.570588
-- Proyectos elegibles: 236 / 463 / 576 / 599
-- Cobertura al 20 %: 39.333 %
-- Una observación por proyecto no posterior a cada cutoff
+**Evidencia:** scripts/validate_original_promise.py; reports/promise_validation/
 
-**Visual/gráfico:** Curva F1 con cobertura visible debajo..
+**Speech:** Para no favorecer el resultado por cobertura, usamos como denominador fijo los 473 proyectos que finalmente son At Risk o Critical. Si un proyecto todavía no tiene snapshot elegible, cuenta como no detectado. Con esta regla PRUNIN cruza la meta en el 60 % de avance: 359 de 473 proyectos finales en riesgo ya están detectados, con 96 % de cobertura del TEST. Es una demostración experimental de anticipación antes del cierre, no una validación empresarial.
 
-**Evidencia:** reports/0.9.0-academic/temporal_evaluation.csv; figures/temporal_health_macro_f1.png`.
-
-**Speech:** Para examinar anticipación usamos observaciones que no superan cada nivel de avance. Health mejora al aumentar la información disponible. Sin embargo, al veinte por ciento solo doscientos treinta y seis proyectos tienen un snapshot elegible, aproximadamente treinta y nueve por ciento del TEST. La cobertura aumenta en los siguientes cortes. Por eso no presentamos la curva como evaluación de los mismos seiscientos proyectos completos ni como garantía de predicción temprana generalizable.
-
-**Detalle secundario:** rutas de código, parámetros y JSON solo si el jurado los pide.
-
-**Transición:** Además de predecir, necesitamos comunicar evidencia sin inventarla.
-
-**Error que evitar:** Decir que todos los 600 proyectos fueron evaluados al 20 %.
+**Error que evitar:** Decir que al 40 % ya cumplimos 75 % usando solo el recall del subconjunto elegible.
 
 ## Slide 8. Qwen3 y evaluación GenAI
 
@@ -190,27 +187,24 @@ El problema, método y resultados ocupan el centro; infraestructura es secundari
 
 **Error que evitar:** Confundir grounding con verdad total, o fallback con generación.
 
-## Slide 9. Demo y automatización
+## Slide 9. Demo: de la señal a la decisión
 
-**Mensaje central:** Mostrar comportamiento real sin inventar ahorro humano.
+**Mensaje central:** La demo muestra una alerta operacional y después explica la evidencia.
 
-- Analizar preset: prediction_id y artefacto real
-- What-if modifica variables usadas
-- CSV: hasta 100 filas; Team Health según cobertura
-- 100 proyectos TEST: batch mediana 4.22 s vs 4.44 s individual secuencial
-- Delay operacional ≥ 0; valor crudo en detalle técnico
+- Ingresar snapshot del proyecto
+- Mostrar **Risk Alert: requiere atención / sin alerta**
+- Mantener Health ML: Healthy / At Risk / Critical
+- Mostrar Delay y Cost como estimaciones complementarias
+- Explicar drivers y recomendación Qwen/fallback
+- Ejecutar What-if y CSV sin confundirlos con causalidad
 
-**Visual/gráfico:** Demostración en vivo con drawer y CSV..
+**Visual/gráfico:** Playground en vivo.
 
-**Evidencia:** scripts/preflight_demo.sh; frontend; /api/schema y /api/predict`.
+**Evidencia:** frontend/src/components/AnalysisPanels.jsx; DEMO_PRESENTACION.md
 
-**Speech:** La demo ejecuta el artefacto cargado y registra una identificación de predicción. Mostraremos un análisis, un cambio de SPI o CPI y el procesamiento de un CSV. Si no hay señales de equipo suficientes, se oculta la columna Team Health del batch. Delay se presenta con mínimo cero y su valor crudo permanece en el detalle técnico; Cost negativo conserva ahorro. CSV y What-if no llaman al LLM. En una prueba local reproducible de cien proyectos TEST, la mediana batch fue 4.22 segundos frente a 4.44 segundos con requests individuales secuenciales. Esto mide eficiencia operacional de esta configuración, no ahorro ni productividad humana ni rendimiento productivo.
+**Speech:** La alerta no sustituye Health ni añade un cuarto modelo. Es una traducción operacional de la predicción existente: At Risk o Critical requiere atención. Después mostramos la severidad, las estimaciones y la explicación. Esto conecta directamente el sistema con la promesa original sin alterar el modelo.
 
-**Detalle secundario:** rutas de código, parámetros y JSON solo si el jurado los pide.
-
-**Transición:** La demostración requiere trazabilidad y revisión responsable.
-
-**Error que evitar:** Cambiar una variable not_used y atribuirle efecto ML, o inventar ahorro de tiempo.
+**Error que evitar:** Presentar el banner de Risk Alert como probabilidad calibrada o modelo nuevo.
 
 ## Slide 10. Ética y MLOps
 
@@ -233,47 +227,43 @@ El problema, método y resultados ocupan el centro; infraestructura es secundari
 
 **Error que evitar:** Mostrar un workflow anterior como prueba del commit nuevo o afirmar Kubernetes desplegado.
 
-## Slide 11. Limitaciones
+## Slide 11. Qué demostramos y qué no
 
-**Mensaje central:** Reconocer límites es parte del rigor.
+**Mensaje central:** Cumplimiento experimental no equivale a validación empresarial.
 
-- Datos sintéticos y cobertura temporal desigual
-- Delay débil; Cost condicionado por estructura EVM
-- Fusión no calibrada; drivers no causales
-- Throughput local medido; sin carga productiva ni baseline humano
+- Meta ≥75 %: demostrada en benchmark sintético al 60 % de avance
+- Critical Recall exacto: 56.82 %
+- Delay: mejora marginal frente a baseline
+- Cost: caveat estructural CPI/EVM
+- Dataset sintético; sin validación prospectiva empresarial
+- Utilidad humana de recomendaciones aún no medida
 
-**Visual/gráfico:** Tabla límite → evidencia → próximo paso..
+**Visual/gráfico:** Dos columnas: demostrado / pendiente.
 
-**Evidencia:** docs/model_card.md; efficiency_evaluation.md; reports/experiments/delay/`.
+**Speech:** El resultado principal es defendible únicamente dentro del entorno experimental. No afirmamos producción, generalización empresarial ni que la clasificación exacta Critical tenga el mismo desempeño que Risk Alert. La principal etapa futura es validar la misma metodología con datos reales y outcomes observados.
 
-**Speech:** Las limitaciones son parte del resultado. Delay apenas supera la mediana; el experimento seleccionó la mediana en VALIDATION sin promoción automática y conservamos el modelo congelado. Cost necesita validación externa. La fusión de equipo no está calibrada y los drivers no son causas. Tampoco hay evidencia de ahorro humano. Una prueba manual adicional de noventa y nueve filas no reemplaza métricas oficiales sin resultados estructurados versionados. Estas restricciones delimitan lo que podemos defender.
-
-**Detalle secundario:** rutas de código, parámetros y JSON solo si el jurado los pide.
-
-**Transición:** Con esos límites, podemos formular la conclusión defendible.
-
-**Error que evitar:** Presentar la prueba manual 99 como benchmark oficial o disimular pendientes.
+**Error que evitar:** Convertir “cumple experimentalmente” en “funciona en cualquier empresa”.
 
 ## Slide 12. Conclusión
 
-**Mensaje central:** Prototipo académico reproducible; validación real pendiente.
+**Mensaje central:** PRUNIN cumple la promesa principal dentro del experimento y deja visibles sus límites.
 
-- Prototipo híbrido reproducible y trazable
-- Health supera baseline; GenAI local fue evaluado
-- Limitaciones y pendientes documentados
-- Cierre académico; validación real como siguiente etapa
+- 473 proyectos TEST terminan At Risk/Critical
+- 359 ya están detectados al 60 % → **75.90 %**
+- Cobertura TEST en ese punto → **96 %**
+- Detección final → **82.45 %**
+- Critical Recall exacto → **56.82 %**
+- Siguiente etapa: validación prospectiva con proyectos reales
 
-**Visual/gráfico:** Tres resultados y dos pendientes principales..
+**Visual/gráfico:** 75.90 % al 60 % + línea de meta.
 
-**Evidencia:** docs/FINAL_READINESS.md; rubric_matrix.md; INFORME_FINAL.md`.
+**Evidencia:** reports/promise_validation/; docs/INFORME_FINAL.md
 
-**Speech:** Concluimos que PRUNIN integra predicción y explicación en un prototipo verificable. Health mejora la evaluación multiclase frente al baseline y la generación local fue medida con controles explícitos. La eficiencia operacional local también se midió con requests individuales y batch; no hicimos un estudio controlado de productividad humana ni una prueba productiva. Persisten limitaciones en Delay y en la dependencia sintética del costo. El aporte es una base académica reproducible y una defensa honesta de su alcance. La etapa siguiente requiere proyectos reales y evidencia de utilidad, antes de considerar operación empresarial.
+**Speech:** Partimos con una meta concreta: detectar tempranamente al menos el 75 % de los proyectos críticos o en alto riesgo. En el entorno experimental, PRUNIN alcanza 75.90 % de detección de toda la cohorte final de riesgo al 60 % de avance, con 96 % de cobertura, y termina en 82.45 %. La severidad Critical exacta sigue siendo una limitación y Delay continúa débil. Por eso concluimos que la promesa principal está demostrada experimentalmente, mientras la generalización empresarial queda como siguiente etapa.
 
-**Detalle secundario:** rutas de código, parámetros y JSON solo si el jurado los pide.
+**Transición:** Abrimos preguntas y respondemos siempre distinguiendo KPI de alerta, severidad y alcance.
 
-**Transición:** Abrimos preguntas y respondemos con evidencia, sin improvisar métricas.
-
-**Error que evitar:** Cerrar diciendo listo para producción o cumplimiento total automático de la rúbrica.
+**Error que evitar:** Decir “75.90 % de Critical” o “validado en producción”.
 
 ## Recursos de apoyo y demostración
 
