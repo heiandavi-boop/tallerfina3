@@ -189,15 +189,17 @@ def test_csv_template_and_csv_prediction():
     assert len(pd.read_csv(io.BytesIO(future_template.content)).columns) == len(schema['fields'])
 
 def test_csv_returns_the_exact_validated_input_for_drilldown():
-    payload = pd.DataFrame([{
-        'planned_duration_weeks': 88,
-        'planned_budget': 750000,
-        'true_progress': 0.72,
-        'spi': 1.11,
-        'cpi': 1.06,
-        'project_type': 'it',
-        'methodology': 'agile',
-    }]).to_csv(index=False).encode()
+    template = client.get('/api/csv-template')
+    assert template.status_code == 200
+    frame = pd.read_csv(io.BytesIO(template.content))
+    frame.loc[0, 'planned_duration_weeks'] = 88
+    frame.loc[0, 'planned_budget'] = 750000
+    frame.loc[0, 'true_progress'] = 0.72
+    frame.loc[0, 'spi'] = 1.11
+    frame.loc[0, 'cpi'] = 1.06
+    frame.loc[0, 'project_type'] = 'it'
+    frame.loc[0, 'methodology'] = 'agile'
+    payload = frame.to_csv(index=False).encode()
 
     response = client.post('/api/predict-csv', files={'file': ('input.csv', payload, 'text/csv')})
 
