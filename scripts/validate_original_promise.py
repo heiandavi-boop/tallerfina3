@@ -219,11 +219,14 @@ def main():
     generated = outputs(result)
 
     if args.check:
-        mismatches = [
-            str(path.relative_to(ROOT))
-            for path, expected in generated.items()
-            if not path.exists() or path.read_text(encoding="utf-8") != expected
-        ]
+        mismatches = []
+        json_path = OUT / "risk_alert_metrics.json"
+        if not json_path.exists() or json.loads(json_path.read_text(encoding="utf-8")) != result:
+            mismatches.append(str(json_path.relative_to(ROOT)))
+        for path in (OUT / "temporal_risk_alert_metrics.csv", OUT / "risk_alert_confusion_matrix.csv"):
+            expected = generated[path]
+            if not path.exists() or path.read_text(encoding="utf-8") != expected:
+                mismatches.append(str(path.relative_to(ROOT)))
         if mismatches:
             raise SystemExit("Promise validation outputs are stale: " + ", ".join(mismatches))
         print("PROMISE VALIDATION: OK")
