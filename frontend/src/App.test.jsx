@@ -125,14 +125,14 @@ describe('Playground ejecutivo', () => {
     await user.click(screen.getByRole('button', { name: 'Evaluar riesgo del proyecto' }));
     const loadingButton = await screen.findByRole('button', { name: /Evaluando riesgo/ });
     expect(loadingButton.disabled).toBe(true);
-    expect(screen.getByText(/Calculando predicciones/)).toBeTruthy();
+    expect(screen.getByText(/Evaluando el nivel de riesgo/)).toBeTruthy();
     resolvePrediction(await jsonResponse(prediction(fallback, false)));
     expect(await screen.findByRole('heading', { name: '¿Este proyecto requiere atención?' })).toBeTruthy();
     expect(screen.getAllByText('Crítico').length).toBeGreaterThan(0);
     expect(screen.getByRole('status', { name: 'Alerta operacional de riesgo' })).toBeTruthy();
     expect(screen.getByText('Sí: requiere atención')).toBeTruthy();
     expect(screen.getByText(/El modelo detecta una condición Crítico/)).toBeTruthy();
-    expect(screen.getByText(/imputaron 1/)).toBeTruthy();
+    expect(screen.getByText(/completaron automáticamente 1/)).toBeTruthy();
   });
 
   it('distingue la recomendación de respaldo y revela trazabilidad sin JSON por defecto', async () => {
@@ -221,7 +221,7 @@ describe('Playground ejecutivo', () => {
   it('cambia al modo CSV, descarga plantilla y presenta resultados tabulares', async () => {
     const user = userEvent.setup();
     await openProject();
-    await user.click(screen.getByRole('tab', { name: 'Analizar CSV' }));
+    await user.click(screen.getByRole('tab', { name: 'Analizar varios proyectos' }));
     expect(await screen.findByRole('heading', { name: 'Analizar varios proyectos desde un archivo' })).toBeTruthy();
     expect(screen.queryByRole('heading', { name: 'Analizar proyecto' })).toBeNull();
     expect(screen.getByRole('link', { name: 'Descargar plantilla' }).getAttribute('href')).toContain('/api/csv-template');
@@ -237,10 +237,10 @@ describe('Playground ejecutivo', () => {
     installFetch({ csv: { count: 1, rows: [{ row_number: 1, prediction: null, error: 'Cobertura insuficiente de features: 28%. Se requiere al menos 60%.' }] } });
     const user = userEvent.setup();
     await openProject();
-    await user.click(screen.getByRole('tab', { name: 'Analizar CSV' }));
-    await screen.findByRole('heading', { name: 'Carga masiva de proyectos' });
+    await user.click(screen.getByRole('tab', { name: 'Analizar varios proyectos' }));
+    await screen.findByRole('heading', { name: 'Analizar varios proyectos desde un archivo' });
     const file = new File(['planned_duration_weeks\n52'], 'partial.csv', { type: 'text/csv' });
-    await user.upload(screen.getByLabelText('Seleccionar archivo CSV'), file);
+    await user.upload(screen.getByLabelText('Seleccionar archivo de proyectos'), file);
     await user.click(screen.getByRole('button', { name: 'Analizar archivo' }));
     expect(await screen.findByText(/Datos incompletos: no se alcanza la cobertura mínima/)).toBeTruthy();
   });
