@@ -2306,3 +2306,18 @@ tbody th {
     font-size: 23px;
   }
 }
+
+
+.indicator-cheat-sheet {
+  margin: -2px 0 13px;
+  padding: 9px 11px;
+  border-left: 3px solid #5c7f68;
+  color: #56655b;
+  background: #f5f8f5;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.indicator-cheat-sheet b {
+  color: #304a39;
+}

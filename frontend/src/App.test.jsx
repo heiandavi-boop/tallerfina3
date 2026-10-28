@@ -123,7 +123,7 @@ describe('Playground ejecutivo', () => {
     });
     await openProject();
     await user.click(screen.getByRole('button', { name: 'Evaluar riesgo del proyecto' }));
-    const loadingButton = await screen.findByRole('button', { name: /Analizando proyecto/ });
+    const loadingButton = await screen.findByRole('button', { name: /Evaluando riesgo/ });
     expect(loadingButton.disabled).toBe(true);
     expect(screen.getByText(/Calculando predicciones/)).toBeTruthy();
     resolvePrediction(await jsonResponse(prediction(fallback, false)));

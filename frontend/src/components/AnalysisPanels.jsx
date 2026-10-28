@@ -23,14 +23,14 @@ function RiskAlertBanner({ status }) {
 
 function TeamHealthCard({ teamHealth }) {
     const labels = { team_utilization: 'Utilización', team_capacity_ratio: 'Capacidad', average_productivity: 'Productividad', rework_ratio: 'Retrabajo', defect_rate: 'Defectos', team_stability: 'Estabilidad', collaboration_level: 'Colaboración' };
-    if (!teamHealth) return <article className="metric-card"><span>Team Health</span><strong>—</strong><small>No disponible</small></article>;
-    return <article className="metric-card team-metric"><span>Team Health</span><strong>{fmtPct(teamHealth.score)}</strong><small><Tone status={teamHealth.level}>{healthLabels[teamHealth.level] || 'Atención'}</Tone> · {teamHealth.component_count ?? Object.keys(teamHealth.components || {}).length} señales</small>
+    if (!teamHealth) return <article className="metric-card"><span>Señal operativa del equipo</span><strong>—</strong><small>Team Health no disponible</small></article>;
+    return <article className="metric-card team-metric"><span>Señal operativa del equipo</span><strong>{fmtPct(teamHealth.score)}</strong><small><Tone status={teamHealth.level}>{healthLabels[teamHealth.level] || 'Atención'}</Tone> · {teamHealth.component_count ?? Object.keys(teamHealth.components || {}).length} señales</small>
         {teamHealth.components && <details className="team-breakdown"><summary>Ver detalle</summary><dl>{Object.entries(teamHealth.components).map(([key, value]) => <div key={key}><dt>{labels[key] || key}</dt><dd>{fmtPct(value)}</dd></div>)}</dl></details>}
         <small className="team-disclaimer">Indicador operativo heurístico; no evalúa salud psicológica ni moral del equipo.</small></article>;
 }
 
 export function ResultHero({ result, schema }) {
-    if (!result) return <section className="surface waiting-card" aria-live="polite"><p className="eyebrow">RESULTADO</p><h2>El análisis aparecerá aquí</h2><p>Selecciona un escenario o ajusta los datos y pulsa <strong>Analizar proyecto</strong>. La predicción se ejecuta en el backend.</p></section>;
+    if (!result) return <section className="surface waiting-card" aria-live="polite"><p className="eyebrow">SIGUIENTE PASO</p><h2>Aquí aparecerá la alerta del proyecto</h2><p>Elige un ejemplo o ajusta las señales y pulsa <strong>Evaluar riesgo del proyecto</strong>. PRUNIN responderá primero si requiere atención y después mostrará la severidad y sus razones.</p></section>;
     const prediction = result.prediction;
     const status = prediction.health;
     return <section className="surface result-card" id="result" aria-labelledby="result-title"><div className="section-heading"><div><span className="step-number">2</span><div><p className="eyebrow">DECISIÓN</p><h2 id="result-title">¿Este proyecto requiere atención?</h2></div></div><span className="live-indicator"><i /> Inferencia ejecutada en vivo</span></div>
