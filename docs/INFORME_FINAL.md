@@ -41,7 +41,7 @@ Construir y evaluar un prototipo reproducible de apoyo a la gestión que estime 
 
 ## 9. Alcance
 
-El cierre académico comprende el prototipo local Health/Delay/Cost, Final Status derivado, Team Health heurístico, CSV, What-if y explicación Qwen opcional. El addendum de 27 de octubre de 2026 añade una línea empírica DSLIB sin reemplazar ni alterar arquitectura, modelos, pesos, reglas, API legacy, métricas o benchmark de `0.9.0-academic`. No incorpora infraestructura cloud, clúster activo ni validación prospectiva empresarial. La documentación no equipara completitud del repositorio con acreditación automática de Nivel 4.
+La entrega comprende un prototipo local: Health/Delay/Cost, Final Status derivado, Team Health heurístico, CSV, What-if y explicación Qwen opcional. Se conservan arquitectura, modelos, pesos, reglas y resultados del experimento 0.9.0-academic. No incluye nuevos modelos, infraestructura cloud, clúster activo ni validación empresarial. La documentación no equipara completitud del repositorio con acreditación automática de Nivel 4.
 
 ### Canales y medios para la audiencia
 
@@ -239,23 +239,11 @@ Health ofrece señal multiclase útil en este benchmark: Macro F1 0.627576 frent
 
 El desempeño Health temprano mejora entre 20 y 80 % de avance, con cobertura de 236 a 599 proyectos; no demuestra anticipación universal. Qwen produjo explicaciones y recomendaciones estructuradas con 29 de 30 respuestas aceptadas, pero su utilidad profesional no está establecida. El rechazo de una cifra no soportada muestra por qué los guardrails son necesarios; grounding sigue siendo un proxy.
 
-El aporte del cierre académico es una arquitectura que separa predicción, heurísticas y explicación con trazabilidad. El addendum agrega una línea empírica real DSLIB, pero su baseline mediano no supera a otros candidatos y no demuestra ventaja predictiva. Las métricas de los dos dominios no son head-to-head. Se sostiene un prototipo experimental reproducible, no una solución productiva validada.
+El aporte es una arquitectura que separa predicción, heurísticas y explicación con trazabilidad. La naturaleza sintética limita generalización; la eficiencia operacional local está cuantificada, pero no hay estudio controlado de usuarios ni validación prospectiva con proyectos reales. Se sostiene un prototipo académico reproducible para entrega y sustentación, no una solución productiva validada.
 
 ## 24. Trabajo futuro
 
-Ampliar DSLIB con permiso y más proyectos observados; definir Health solo con outcomes y umbrales pre-registrados; obtener un test externo común aprobado si se requiere comparación directa; estudiar tiempos/calidad con usuarios bajo protocolo controlado; calibrar fusión; desplegar observabilidad central y probar carga antes de escalar. Son tareas futuras, sin convertir métricas operacionales en productividad humana.
-
-## Addendum. Validación empírica con proyectos reales
-
-**Fecha:** 27 de octubre de 2026. **Estado:** EMPIRICAL MODEL READY WITH LIMITATIONS.
-
-La línea adicional usa DSLIB/PSLIB v3.4, publicación empírica de Ghent/OR&S. El archive contiene 231 proyectos y su licencia no está especificada por el publicador. La auditoría encontró baseline en 229, seguimiento real en 156, EV/PV/AC completos en 116, duración final en 155 y coste final en 153. No se fabricaron datos ni se mezcló Mendeley.
-
-El entrenamiento de proyecto baseline incluye 151 proyectos por target con `planned_duration_days` y `planned_budget_bac`. Delay es duración real final menos duración planificada, en días; Cost es `(actual_cost - BAC) / BAC`. Valores negativos se conservan. Se evaluaron median baseline, Ridge, Random Forest y LightGBM con `GroupShuffleSplit`, seed 42, agrupado por `project_id`; TEST se mantuvo aparte y se usó una sola vez. La mediana ganó VALIDATION para ambos targets y quedó seleccionada. TEST Delay MAE 30.7097 días (R² -0.0339); TEST Cost MAE 0.115703 (R² -0.0317). En ambos, MAE empata con la baseline mediana. No hay evidencia de mejora respecto a la baseline simple.
-
-Health no se entrenó porque DSLIB carece de una etiqueta consistente predefinida. El leakage audit mantiene Duration/Cost finales como targets, no features. Solo 13 proyectos aportan snapshots EVM completos anteriores al fin planificado; se declaran insuficientes para evaluación temporal por cutoff. No se inventan curvas 20/40/60/80. Empirical no genera Health, Final Status, fused risk ni recomendaciones grounded. Academic permanece activo por defecto y seleccionable manualmente.
-
-Evidencia local: `reports/empirical/dslib_audit.json`, `leakage_audit.json`, `model_sample_counts.json`, `training_report.md`, `reports/model_comparison.md`; artifacts versionados localmente en `artifacts/1.0.0-empirical/`. Consulte [dataset card](dataset_dslib.md), [model card](model_card_empirical.md) y [decisión Health](empirical_health_definition.md). Las métricas empíricas describen su propio dominio y no se comparan como un head-to-head con Academic.
+Opcionalmente estudiar tiempos/calidad con usuarios bajo protocolo controlado; obtener proyectos reales con outcomes bajo acuerdos de datos; validar temporalmente y externamente; calibrar fusión; estudiar Delay usando TRAIN/VALIDATION sin escoger por TEST; desplegar observabilidad central y probar carga antes de escalar. Son tareas futuras, sin convertir métricas operacionales en productividad humana.
 
 ## 25. Referencias
 

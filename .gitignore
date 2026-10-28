@@ -10,11 +10,5 @@ artifacts/*
 !artifacts/.gitkeep
 data/raw/**/*
 !data/raw/**/.gitkeep
-data/interim/*
-!data/interim/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
-!data/raw/
-!data/raw/dslib/
-!data/raw/dslib/dataset_manifest.json
-!artifacts/model_registry.json

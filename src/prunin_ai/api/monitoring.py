@@ -20,13 +20,10 @@ class MonitoringRegistry:
         self.genai_timeouts = 0
         self.genai_validation_failures = 0
         self.genai_invalid_json = 0
-        self.predictions_by_model = {"academic": 0, "empirical": 0}
-        self.failures_by_model = {"academic": 0, "empirical": 0}
 
-    def record_prediction(self, latency_ms: float, recommendations: dict[str, Any], model_id: str = "academic") -> None:
+    def record_prediction(self, latency_ms: float, recommendations: dict[str, Any]) -> None:
         with self._lock:
             self.total_predictions += 1
-            self.predictions_by_model[model_id] = self.predictions_by_model.get(model_id, 0) + 1
             self._latencies.append(float(latency_ms))
             if recommendations.get("genai_attempted"):
                 self.genai_attempts += 1
@@ -42,10 +39,9 @@ class MonitoringRegistry:
                     if code == "invalid_json":
                         self.genai_invalid_json += 1
 
-    def record_failure(self, latency_ms: float, model_id: str = "academic") -> None:
+    def record_failure(self, latency_ms: float) -> None:
         with self._lock:
             self.prediction_failures += 1
-            self.failures_by_model[model_id] = self.failures_by_model.get(model_id, 0) + 1
             self._latencies.append(float(latency_ms))
 
     @staticmethod
@@ -63,11 +59,9 @@ class MonitoringRegistry:
             "# HELP prunin_predictions_total Successful PRUNIN inference requests.",
             "# TYPE prunin_predictions_total counter",
             f"prunin_predictions_total {snapshot['total_predictions']}",
-            *[f'prunin_predictions_total{{model="{model}"}} {count}' for model, count in snapshot["predictions_by_model"].items()],
             "# HELP prunin_prediction_failures_total Failed PRUNIN inference requests.",
             "# TYPE prunin_prediction_failures_total counter",
             f"prunin_prediction_failures_total {snapshot['prediction_failures']}",
-            *[f'prunin_prediction_failures_total{{model="{model}"}} {count}' for model, count in snapshot["failures_by_model"].items()],
             "# HELP prunin_genai_attempts_total Generative AI attempts.",
             "# TYPE prunin_genai_attempts_total counter",
             f"prunin_genai_attempts_total {snapshot['genai_attempts']}",
@@ -104,8 +98,6 @@ class MonitoringRegistry:
                 "uptime_seconds": round(time.time() - self.started_at, 2),
                 "total_predictions": self.total_predictions,
                 "prediction_failures": self.prediction_failures,
-                "predictions_by_model": dict(self.predictions_by_model),
-                "failures_by_model": dict(self.failures_by_model),
                 "genai_attempts": self.genai_attempts,
                 "genai_successes": self.genai_successes,
                 "genai_fallbacks": self.genai_fallbacks,

@@ -73,15 +73,3 @@ Nivel objetivo: **4 para los 27 ítems**. No se declara logrado cuando falta med
 R6.2 Cr6 cuenta con benchmark automático reproducible de eficiencia operacional local: individual secuencial frente a batch, latencia, throughput, escala N=1–100 y éxito. Esto fortalece evidencia técnica y es parcialmente compatible con el descriptor de eficiencia; no demuestra productividad humana, ahorro laboral ni rendimiento productivo y no fija calificación oficial. R6.1 Cr2: comparación documental amplia, sin hardware/latencia empíricos comparables; no afirmar que Qwen ganó. R6.1 Cr3 y R7.2 Cr4/Cr5: integración local y diseño reproducible, sin operación escalable demostrada. R6.2 Cr7 conserva riesgos residuales; no se afirma mitigación total. R7.2 Cr6 no tiene retraining continuo real. RA2 entero tiene preparación, no calificación de ejecución oral; F4/F6 requieren práctica humana de forma explícita.
 
 La prueba manual de 99 proyectos comunicada por el autor no reemplaza TEST de 600 ni acredita una métrica sin resultado estructurado. Los JSON predictivos y Qwen congelados permanecen fuente de verdad. Un CI anterior no valida un HEAD nuevo; consultar la ejecución final exacta en el reporte de entrega.
-
-## Addendum Empirical — 27 de octubre de 2026
-
-| Área | Evidencia nueva | Estado real | Gap que permanece |
-|---|---|---|---|
-| Línea de modelos | DSLIB v3.4; `scripts/audit_dslib.py`; adapter, leakage audit, pipeline agrupado y artifact local `1.0.0-empirical` | IMPLEMENTADA CON LIMITACIONES; solo datos reales DSLIB | Dataset pequeño/incompleto, licencia no especificada, sin validación prospectiva |
-| Delay/Cost empíricos | 151 proyectos por target; `GroupShuffleSplit`, seed 42; test 31 por target; median baseline ganó validación y empató test MAE | EVALUACIÓN REPRODUCIBLE; sin mejora ante baseline | R² test negativo; no extrapolar ni comparar head-to-head con Academic |
-| Health empírico | Auditoría no encontró etiqueta observada consistente; decisión documentada en `docs/empirical_health_definition.md` | BLOQUEADO POR FALTA DE ETIQUETA; no se inventan umbrales | Outcomes y definición justificable pre-registrada |
-| Temporalidad | 13 snapshots completos por target antes de fin planificado | AUDITADA; tamaño insuficiente | Sin métricas/cortes 20/40/60/80 |
-| Registro e interfaz | `/api/models`, selección manual, comparación, job asíncrono opt-in, progreso y reporte | IMPLEMENTADOS; Academic permanece default | CI no ejecuta entrenamiento DSLIB completo; artifacts locales no incluidos |
-
-El addendum no aumenta niveles de rúbrica ni reemplaza la evidencia académica congelada.
