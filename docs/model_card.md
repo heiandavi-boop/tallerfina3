@@ -41,6 +41,14 @@ TEST Health: 429 at_risk / 44 critical / 127 healthy. Accuracy alta del baseline
 
 Una observación elegible por proyecto y cutoff. Al 20 % no se evaluaron todos los 600; las poblaciones de cobertura varían.
 
+### KPI operacional de la promesa original
+
+Además de la clasificación multiclase, se reporta una vista binaria de evaluación que no modifica el modelo: `At Risk OR Critical => Risk Alert`; `Healthy => No Alert`. Sobre TEST final, Risk Alert Recall es **82.45 %** (390/473), Precision **92.20 %** y F1 **87.05 %**. El recall exacto de Critical sigue siendo **56.82 %**.
+
+Para la promesa temporal se usa una medida estricta de **detección de cohorte completa**: TP dividido por los 473 proyectos TEST que finalmente son At Risk/Critical, contando como no detectados los que todavía no tienen snapshot elegible. El primer corte pre-cierre que supera 75 % es **60 % de avance**, con **75.90 %** (359/473) y **96.00 %** de cobertura TEST. Esta evidencia es interna al benchmark sintético y no acredita generalización empresarial.
+
+Fuente: `reports/promise_validation/`.
+
 ## Heurísticas operacionales y explicación
 
 Team Health es heurística operacional determinística no psicológica, sin imputación, con mínimo tres componentes y cobertura ponderada 0.5. Fusión 0.85/0.15 no calibrada con outcomes reales. Drivers son sensibilidad local, no causalidad. Qwen explica/recomienda; no genera predicciones ML. Fallback determinístico no es GenAI.
