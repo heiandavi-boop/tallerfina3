@@ -29,6 +29,44 @@ const baseProps = { activeModel: 'academic', onSelectModel: vi.fn(), values: {},
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 
 describe('Models workbench', () => {
+    it('shows persisted empirical training history with versions and target metrics', async () => {
+        vi.stubGlobal('fetch', vi.fn(url => {
+            if (url.endsWith('/api/models')) return jsonResponse({ models, active_model: 'academic', training_enabled: false });
+            if (url.endsWith('/api/training/history')) return jsonResponse({
+                runs: [{
+                    run_id: 'run-1', version: '1.0.1-empirical', status: 'completed', trained_at: '2026-10-27T23:36:52Z',
+                    metrics: { delay: { test: { mae: 30.7097 } }, cost: { test: { mae: .115703 } } },
+                }]
+            });
+            return jsonResponse({ recommended_model_id: 'academic', confidence: 'low', reason: 'Dominio no especificado.' });
+        }));
+        render(<ModelsWorkbench {...baseProps} />);
+
+        expect(await screen.findByText('Historial de entrenamientos')).toBeTruthy();
+        expect(screen.getAllByText('1.0.1-empirical').length).toBeGreaterThan(0);
+        expect(screen.getByText(/Delay MAE: 30,71 días/)).toBeTruthy();
+        expect(screen.getByText(/Cost MAE: 0,116 ratio BAC/)).toBeTruthy();
+    });
+
+    it('shows persisted empirical training history with versions and target metrics', async () => {
+        vi.stubGlobal('fetch', vi.fn(url => {
+            if (url.endsWith('/api/models')) return jsonResponse({ models, active_model: 'academic', training_enabled: false });
+            if (url.endsWith('/api/training/history')) return jsonResponse({
+                runs: [{
+                    run_id: 'run-1', version: '1.0.1-empirical', status: 'completed', trained_at: '2026-10-27T23:36:52Z',
+                    metrics: { delay: { test: { mae: 30.7097 } }, cost: { test: { mae: .115703 } } },
+                }]
+            });
+            return jsonResponse({ recommended_model_id: 'academic', confidence: 'low', reason: 'Academic por compatibilidad.' });
+        }));
+        render(<ModelsWorkbench {...baseProps} />);
+
+        expect(await screen.findByText('Historial de entrenamientos')).toBeTruthy();
+        expect(screen.getAllByText('1.0.1-empirical').length).toBeGreaterThan(0);
+        expect(screen.getByText(/Delay MAE: 30,71 días/)).toBeTruthy();
+        expect(screen.getByText(/Cost MAE: 0,116 ratio BAC/)).toBeTruthy();
+    });
+
     it('renders side-by-side prediction results without implying a winner', () => {
         render(<PredictionComparison data={{
             academic: { model: { version: '0.9.0-academic' }, prediction: { health: 'at_risk', delay_days_raw: 70, cost_overrun_ratio: .08 } },
@@ -61,6 +99,7 @@ describe('Models workbench', () => {
         let jobPolls = 0;
         const fetchMock = vi.fn((url, options = {}) => {
             if (url.endsWith('/api/models')) return jsonResponse({ models, active_model: 'academic', training_enabled: true });
+            if (url.includes('/api/model-recommendation')) return jsonResponse({ recommended_model_id: 'academic', confidence: 'low', reason: 'Academic por compatibilidad completa.' });
             if (url.endsWith('/api/training/empirical') && options.method === 'POST') return jsonResponse({ job_id: 'job-1', status: 'queued' });
             if (url.endsWith('/api/training/job-1/logs')) return jsonResponse({ events: [{ status: 'training_delay', message: 'Training Delay model' }] });
             if (url.endsWith('/api/training/job-1')) {
@@ -88,13 +127,20 @@ describe('Models workbench', () => {
 
     it('manual activation calls the parent selector and training cancel sends no request', async () => {
         const onSelectModel = vi.fn();
-        const fetchMock = vi.fn(() => jsonResponse({ models, active_model: 'academic', training_enabled: false }));
+        const fetchMock = vi.fn(url => url.endsWith('/api/models')
+            ? jsonResponse({ models, active_model: 'academic', training_enabled: false })
+            : url.endsWith('/api/training/history')
+                ? jsonResponse({ runs: [] })
+                : jsonResponse({ recommended_model_id: 'empirical', confidence: 'low', reason: 'Dominio real declarado.' }));
         vi.stubGlobal('fetch', fetchMock);
         render(<ModelsWorkbench {...baseProps} onSelectModel={onSelectModel} />);
 
         await screen.findByRole('heading', { name: 'PRUNIN Empirical' });
+        expect(await screen.findByText('Dominio real declarado.')).toBeTruthy();
+        fireEvent.change(screen.getByLabelText('Dominio declarado'), { target: { value: 'real_project' } });
+        fireEvent.click(screen.getByRole('button', { name: 'Usar recomendado' }));
         fireEvent.click(screen.getByRole('button', { name: 'Usar modelo' }));
         expect(onSelectModel).toHaveBeenCalledWith('empirical');
-        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(fetchMock).toHaveBeenCalledTimes(4);
     });
 });

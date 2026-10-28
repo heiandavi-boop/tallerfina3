@@ -46,7 +46,7 @@ Con entorno, frontend y artefactos preparados:
 ./scripts/run_playground.sh
 ```
 
-Abrir http://localhost:8000. El preflight esperado es `RESULTADO: LISTO PARA DEMO`. [Instalación, LAN/QR y detalle de la demo](docs/playground.md); [guion](DEMO_PRESENTACION.md). Un clon no incluye modelos pesados ni datasets; verificar los artefactos oficiales locales para sustentar. La selección usa PRUNIN_ARTIFACT_DIR, luego artifacts/0.9.0-academic y después demo-0.1.0, rotulado como demo sintético. La UI Models conserva Academic como default y permite activar Empirical solo de forma manual.
+Abrir http://localhost:8000. El preflight esperado es `RESULTADO: LISTO PARA DEMO`. [Instalación, LAN/QR y detalle de la demo](docs/playground.md); [guion](DEMO_PRESENTACION.md). Un clon no incluye modelos pesados ni datasets; verificar los artefactos oficiales locales para sustentar. La selección usa PRUNIN_ARTIFACT_DIR, luego artifacts/0.9.0-academic y después demo-0.1.0, rotulado como demo sintético. La UI Models conserva Academic como default y permite activar Empirical solo de forma manual. `/api/model-recommendation` usa el dominio que declare el usuario y la compatibilidad de features; `/api/training/history` lista runs persistidos.
 
 Para descargar y auditar DSLIB en un entorno autorizado:
 

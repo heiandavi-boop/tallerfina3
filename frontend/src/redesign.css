@@ -1957,6 +1957,54 @@ tbody th {
   min-width: 0;
 }
 
+.model-recommendation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(165px, .34fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 0;
+  border-top: 1px solid #dfe7e1;
+  border-bottom: 1px solid #dfe7e1;
+}
+
+.recommendation-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.recommendation-copy small {
+  color: #34704e;
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.recommendation-copy strong {
+  color: #263b2d;
+  font-size: 14px;
+}
+
+.recommendation-copy p,
+.recommendation-copy span {
+  margin: 0;
+  color: #657369;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.domain-selector {
+  display: grid;
+  gap: 5px;
+  color: #617067;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.domain-selector select {
+  width: 100%;
+  min-height: 38px;
+}
+
 .models-intro p:last-child,
 .prediction-compare-controls p:last-child {
   margin: 7px 0 0;
@@ -2230,6 +2278,51 @@ tbody th {
   font-weight: 700;
 }
 
+.training-history {
+  margin-top: 16px;
+  padding-top: 13px;
+  border-top: 1px solid #e4eae5;
+}
+
+.training-history h3 {
+  margin: 0 0 9px;
+  color: #263b2d;
+  font-size: 15px;
+}
+
+.training-history ol {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.training-history li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, .8fr);
+  gap: 12px;
+  padding: 9px 0;
+  border-top: 1px solid #edf0ed;
+  font-size: 12px;
+}
+
+.training-history li>div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 10px;
+  align-items: baseline;
+}
+
+.training-history strong {
+  color: #263b2d;
+}
+
+.training-history span,
+.training-history small {
+  color: #657369;
+}
+
 .model-error {
   padding: 10px 12px;
   border: 1px solid #ebc9c6;
@@ -2338,6 +2431,7 @@ tbody th {
 @media (max-width: 760px) {
 
   .models-intro,
+  .model-recommendation,
   .training-controls,
   .prediction-compare-controls {
     align-items: stretch;
@@ -2362,6 +2456,14 @@ tbody th {
   }
 
   .form-actions>* {
+    width: 100%;
+  }
+
+  .training-history li {
+    grid-template-columns: 1fr;
+  }
+
+  .model-recommendation .secondary-button {
     width: 100%;
   }
 

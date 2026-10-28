@@ -67,7 +67,10 @@ function ModelCard({ model, activeModel, onSelect }) {
 
 export function ModelsWorkbench({ activeModel, onSelectModel, values, onCompare, comparison, compareLoading }) {
     const [models, setModels] = useState([]);
+    const [history, setHistory] = useState([]);
     const [trainingEnabled, setTrainingEnabled] = useState(false);
+    const [dataDomain, setDataDomain] = useState('unknown');
+    const [recommendation, setRecommendation] = useState(null);
     const [job, setJob] = useState(null);
     const [events, setEvents] = useState([]);
     const [confirmOpen, setConfirmOpen] = useState(false);
@@ -75,14 +78,31 @@ export function ModelsWorkbench({ activeModel, onSelectModel, values, onCompare,
     const [error, setError] = useState('');
 
     const refreshModels = async () => {
-        const response = await fetch(`${API}/api/models`);
+        const [response, historyResponse] = await Promise.all([
+            fetch(`${API}/api/models`),
+            fetch(`${API}/api/training/history`).catch(() => null),
+        ]);
         if (!response.ok) throw new Error('No fue posible consultar el registry de modelos.');
         const payload = await response.json();
         setModels(payload.models || []);
         setTrainingEnabled(payload.training_enabled === true);
+        if (historyResponse?.ok) setHistory((await historyResponse.json()).runs || []);
     };
 
     useEffect(() => { refreshModels().catch(() => setError('No fue posible cargar el Model Registry.')); }, []);
+
+    useEffect(() => {
+        let cancelled = false;
+        fetch(`${API}/api/model-recommendation?data_domain=${dataDomain}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(values),
+        }).then(async response => {
+            if (!response.ok) return null;
+            return response.json();
+        }).then(payload => { if (!cancelled && payload) setRecommendation(payload); }).catch(() => { });
+        return () => { cancelled = true; };
+    }, [dataDomain, values]);
 
     useEffect(() => {
         if (!job?.job_id || ['completed', 'failed'].includes(job.status)) return undefined;
@@ -136,6 +156,11 @@ export function ModelsWorkbench({ activeModel, onSelectModel, values, onCompare,
     return <div className="models-workbench">
         <section className="models-intro"><div><p className="eyebrow">MODEL REGISTRY</p><h2>Dos líneas, evidencia separada</h2><p>Academic conserva su pipeline original. Empirical usa únicamente proyectos DSLIB y se activa solo por selección manual.</p></div><span className="active-model-banner"><small>MODELO ACTIVO</small><strong>{activeModel === 'empirical' ? `PRUNIN Empirical · ${empirical?.version || ''}` : `PRUNIN Academic · ${academic?.version || ''}`}</strong></span></section>
         {error && <div className="model-error" role="alert">{error}</div>}
+        <section className="model-recommendation" aria-label="Recomendación de modelo">
+            <div className="recommendation-copy"><small>MODELO RECOMENDADO · CONFIANZA {recommendation?.confidence?.toUpperCase() || '—'}</small><strong>{recommendation?.recommended_model_id === 'empirical' ? `PRUNIN Empirical · ${empirical?.version || ''}` : recommendation?.recommended_model_id === 'academic' ? `PRUNIN Academic · ${academic?.version || ''}` : 'Sin recomendación disponible'}</strong><p>{recommendation?.reason || 'Calculando compatibilidad del input actual…'}</p><span>La recomendación no activa un modelo automáticamente.</span></div>
+            <label className="domain-selector"><span>Dominio declarado</span><select value={dataDomain} onChange={event => setDataDomain(event.target.value)}><option value="unknown">No especificado</option><option value="real_project">Proyecto real</option><option value="academic_synthetic">Demo/dataset sintético</option></select></label>
+            <button type="button" className="secondary-button" onClick={() => recommendation?.recommended_model_id && onSelectModel(recommendation.recommended_model_id)} disabled={!recommendation?.recommended_model_id || recommendation.recommended_model_id === activeModel}>{recommendation?.recommended_model_id === activeModel ? 'Recomendado · En uso' : 'Usar recomendado'}</button>
+        </section>
         <div className="model-card-grid">{models.map(model => <ModelCard key={model.id} model={model} activeModel={activeModel} onSelect={onSelectModel} />)}</div>
         <section className="model-comparison-table surface" aria-labelledby="model-comparison-title">
             <div className="section-heading"><div><p className="eyebrow">COMPARACIÓN</p><h2 id="model-comparison-title">Alcance y métricas por dominio</h2></div></div>
@@ -157,6 +182,13 @@ export function ModelsWorkbench({ activeModel, onSelectModel, values, onCompare,
                 {job.error && <p className="model-error" role="alert">{job.error}</p>}
                 <details className="training-events"><summary>Eventos y detalle técnico</summary><ol>{events.map((event, index) => <li key={`${event.timestamp || ''}-${index}`}><span>{event.status}</span>{event.message}</li>)}</ol></details>
             </div>}
+            <section className="training-history" aria-labelledby="training-history-title">
+                <h3 id="training-history-title">Historial de entrenamientos</h3>
+                {history.length ? <ol>{history.map(run => <li key={run.run_id}>
+                    <div><strong>{run.version || 'Versión sin registrar'}</strong><span>{run.status}</span><small>{run.trained_at ? new Date(run.trained_at).toLocaleString('es-CO') : run.run_id}</small></div>
+                    <div><span>Delay MAE: {number(run.metrics?.delay?.test?.mae)} días</span><span>Cost MAE: {number(run.metrics?.cost?.test?.mae)} ratio BAC</span></div>
+                </li>)}</ol> : <p className="quiet-label">No hay entrenamientos registrados.</p>}
+            </section>
         </section>
         <section className="prediction-compare-controls surface"><div><p className="eyebrow">INPUT ACTUAL</p><h2>Comparar predicciones</h2><p>Ejecuta ambos modelos con el mismo input disponible en Analizar proyecto.</p></div><button type="button" className="secondary-button" onClick={onCompare} disabled={compareLoading}>{compareLoading ? 'Comparando…' : 'Comparar modelos'}</button></section>
         <PredictionComparison data={comparison} />

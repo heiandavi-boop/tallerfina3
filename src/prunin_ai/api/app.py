@@ -35,6 +35,7 @@ from .model_registry import (
     predict_empirical,
     select_model,
 )
+from .model_recommendation import DataDomain, ModelRecommendationEngine
 from ..training.empirical_training_service import EmpiricalTrainingError, run_empirical_training
 
 @asynccontextmanager
@@ -54,6 +55,7 @@ cors_origins = [item.strip() for item in os.getenv("PRUNIN_CORS_ORIGINS", "*").s
 app.add_middleware(CORSMiddleware, allow_origins=cors_origins or ["*"], allow_credentials=False, allow_methods=["*"], allow_headers=["*"])
 runtime = ModelRuntime()
 logger = logging.getLogger("prunin.inference")
+model_recommendation_engine = ModelRecommendationEngine()
 training_jobs: dict[str, dict[str, Any]] = {}
 training_jobs_lock = Lock()
 training_executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="prunin-empirical")
@@ -304,6 +306,11 @@ def model_comparison():
     }
 
 
+@app.post("/api/model-recommendation")
+def recommend_model(payload: ProjectInput, data_domain: DataDomain = "unknown"):
+    return model_recommendation_engine.recommend(payload.model_dump(), runtime, model_records(runtime), data_domain)
+
+
 @app.post("/api/training/empirical")
 def start_empirical_training():
     if os.getenv("PRUNIN_ENABLE_TRAINING_UI", "0") != "1":
@@ -329,6 +336,28 @@ def start_empirical_training():
     return {"job_id": job_id, "status": "queued"}
 
 
+@app.get("/api/training/history")
+def empirical_training_history():
+    runs_dir = ROOT / "reports" / "empirical" / "training_runs"
+    runs = []
+    if runs_dir.is_dir():
+        for path in sorted(runs_dir.glob("*.json"), reverse=True):
+            try:
+                record = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            runs.append({
+                "run_id": record.get("run_id", path.stem),
+                "version": record.get("artifact_version"),
+                "trained_at": record.get("trained_at"),
+                "git_sha": record.get("git_sha"),
+                "status": record.get("status", "unknown"),
+                "metrics": record.get("metrics", {}),
+                "health_training": record.get("health_training"),
+            })
+    return {"runs": runs}
+
+
 @app.get("/api/training/{job_id}")
 def training_job(job_id: str):
     with training_jobs_lock:
@@ -345,6 +374,8 @@ def training_job_logs(job_id: str):
         if job is None:
             raise HTTPException(404, "No se encontró el entrenamiento.")
         return {"job_id": job_id, "events": list(job["events"])}
+
+
 
 
 @app.get("/api/ready")

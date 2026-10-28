@@ -24,7 +24,7 @@ The empirical operational measurement is stored in `reports/efficiency/empirical
 
 ## Recommendation
 
-There is no automatic global winner. Academic remains active by default for continuity and its complete existing workflow. Empirical is available for manual exploration when baseline duration and BAC are the only compatible inputs and the user explicitly accepts its DSLIB scope and weak test results. A real project domain alone is not enough to recommend Empirical as more accurate.
+There is no automatic global winner. `POST /api/model-recommendation` uses the user-declared data domain and feature coverage: it may recommend Empirical for an explicitly real project or when Academic coverage falls below its threshold and Empirical's baseline features are present. Such a recommendation is contextual and low-confidence, not a claim of higher accuracy. Academic remains the default for continuity and its full workflow. A real project domain alone is not enough to claim Empirical is more accurate.
 
 ## Limitations
 

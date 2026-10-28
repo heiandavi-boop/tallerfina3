@@ -92,6 +92,32 @@ def test_manual_selection_returns_registry_response(monkeypatch):
     assert response.json()["active_model"] == "empirical"
 
 
+def test_model_recommendation_uses_declared_real_domain_without_auto_activation(monkeypatch):
+    monkeypatch.setattr(app_module, "model_records", lambda runtime: model_records())
+    payload = client.get("/api/schema").json()["presets"]["at_risk"]
+
+    response = client.post("/api/model-recommendation?data_domain=real_project", json=payload)
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["recommended_model_id"] == "empirical"
+    assert body["confidence"] == "low"
+    assert body["automatic_activation"] is False
+    assert body["input_compatibility"]["empirical"]["compatible"] is True
+
+
+def test_model_recommendation_uses_empirical_for_two_feature_input(monkeypatch):
+    monkeypatch.setattr(app_module, "model_records", lambda runtime: model_records())
+
+    response = client.post("/api/model-recommendation", json={"planned_duration_weeks": 52, "planned_budget": 2500000000})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["recommended_model_id"] == "empirical"
+    assert body["input_compatibility"]["academic"]["coverage"] < body["input_compatibility"]["academic"]["minimum_coverage"]
+    assert body["automatic_winner"] is False
+
+
 def test_empirical_csv_requires_canonical_features(monkeypatch):
     monkeypatch.setattr(app_module, "model_records", lambda runtime: model_records())
     payload = b"planned_duration_weeks\n12\n"
@@ -144,3 +170,11 @@ def test_training_endpoint_is_gated_and_rejects_duplicate_jobs(monkeypatch):
     finally:
         with app_module.training_jobs_lock:
             app_module.training_jobs.clear()
+
+
+def test_training_history_exposes_persisted_versions_and_metrics():
+    response = client.get('/api/training/history')
+
+    assert response.status_code == 200
+    runs = response.json()['runs']
+    assert any(run['version'] == '1.0.1-empirical' and run['status'] == 'completed' for run in runs)

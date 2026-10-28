@@ -71,3 +71,24 @@ Las siete features académicas se registran en `reports/0.9.0-academic/feature_m
 El artefacto local incluye tres .joblib, feature_manifest, split_manifest, configuración resuelta, métricas, baselines y hashes. Los modelos pesados y datasets no están versionados en Git; los reportes ligeros sí. Un clon puede ejecutar CI con fixtures demo, pero la sustentación académica exige los artefactos oficiales locales.
 
 Versiones antiguas retiraron reported_progress, critical_path_delay_days y team_morale. No se reintroducen como features actuales. El modo demo puede conservar Final Status independiente por su fixture; no debe confundirse con el contrato académico derivado.
+
+## Figura A4. Registro multimodelo aditivo
+
+```mermaid
+flowchart LR
+  UI[React Models / Analyze] --> API[FastAPI]
+  API --> REG[Model Registry]
+  REG -->|default| A[Academic 0.9.0]
+  REG -->|manual selection| E[Empirical 1.0.x]
+  A --> AM[Existing Academic runtime]
+  E --> AD[DSLIB input adapter]
+  AD --> EM[Delay / Cost baseline models]
+  AM --> C[Comparison layer]
+  EM --> C
+  API --> REC[Contextual recommendation]
+  API --> JOB[Opt-in async training job]
+  JOB --> ER[Versioned empirical artifact]
+  ER --> REG
+```
+
+Academic remains the default and retains its existing `ModelRuntime`, artifacts, metrics, Team Health fusion, GenAI pipeline, CSV and What-if behavior. Empirical has a separate DSLIB adapter, schema, split/training manifests, model files and metrics. The `model_id` selector and `/api/models/select` change persisted configuration only; they do not copy files. `/api/model-recommendation` uses the caller-declared data domain and feature coverage, reports low confidence, and never activates a model automatically. `/api/training/empirical` is disabled unless `PRUNIN_ENABLE_TRAINING_UI=1`; it returns a job ID while the backend worker prepares, audits, trains and versions the artifact. `/api/training/history` exposes sanitized persisted run summaries. Metrics across datasets are descriptive, not head-to-head.
