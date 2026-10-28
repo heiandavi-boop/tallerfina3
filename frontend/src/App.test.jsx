@@ -156,7 +156,7 @@ describe('Playground ejecutivo', () => {
     const user = userEvent.setup();
     await openProject();
     await user.click(screen.getByRole('button', { name: 'Evaluar riesgo del proyecto' }));
-    expect(await screen.findByText('IA generativa local activa')).toBeTruthy();
+    expect((await screen.findAllByText('IA generativa local activa')).length).toBeGreaterThan(0);
   });
 
   it('muestra Qwen3 conectado antes de analizar según el endpoint de estado', async () => {
