@@ -24,6 +24,8 @@ jobs:
         run: npm test --prefix frontend -- --reporter=dot
       - name: Create local demo-only artifacts for API tests
         run: ./scripts/run_demo.sh
+      - name: Validate original promise KPI
+        run: python scripts/validate_original_promise.py --check
       - name: Compile Python sources
         run: python -m compileall -q src scripts tests
       - name: Run tests
