@@ -4,6 +4,10 @@ Base: main remoto `b2d0ca32f0599fc6c2227f2a5eb3e6dea6ff812a`; cierre previo vali
 
 Nivel objetivo: **4 para los 27 ítems**. No se declara logrado cuando falta medición, operación real o desempeño humano. Las rutas sin prefijo de docs son relativas a raíz; quality.yml se refiere a .github/workflows/quality.yml.
 
+### Evidencia nueva: promesa original
+
+La meta de detectar tempranamente ≥75 % de proyectos Critical o At Risk quedó operacionalizada y versionada sin modificar el modelo. La medición estricta usa toda la cohorte TEST final de riesgo (473 proyectos): al 60 % de avance se han detectado 359, **75.90 %**, con **96 % de cobertura TEST**; al final Risk Alert Recall es **82.45 %**. Se conserva Critical Recall 56.82 % como métrica de severidad exacta. Evidencia: `reports/promise_validation/` y `scripts/validate_original_promise.py`. Esto fortalece R6.1 Cr1, RA1 F4 y RA2 F7 dentro del alcance sintético, sin acreditar generalización empresarial.
+
 ## Tabla 1. Exigencia, evidencia y corrección por criterio
 
 | Código | Exigencia resumida | Qué exige Nivel 4 | Evidencia actual | Archivo/ruta | Estado real | Gap restante | Acción correctiva | Evidencia demostrable en sustentación |
