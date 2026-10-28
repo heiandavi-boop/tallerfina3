@@ -126,6 +126,9 @@ describe('Playground ejecutivo', () => {
     resolvePrediction(await jsonResponse(prediction(fallback, false)));
     expect(await screen.findByRole('heading', { name: 'Resultado del análisis' })).toBeTruthy();
     expect(screen.getAllByText('Crítico').length).toBeGreaterThan(0);
+    expect(screen.getByRole('status', { name: 'Alerta operacional de riesgo' })).toBeTruthy();
+    expect(screen.getByText('Alerta de riesgo')).toBeTruthy();
+    expect(screen.getByText(/Requiere atención: Health ML está en At Risk o Critical/)).toBeTruthy();
     expect(screen.getByText(/imputaron 1/)).toBeTruthy();
   });
 
