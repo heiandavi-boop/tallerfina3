@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520">
+<rect width="900" height="520" fill="white"/>
+<text x="450" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" font-weight="700">Detección acumulada de proyectos en riesgo vs avance</text>
+<text x="450" y="58" text-anchor="middle" font-family="Arial,sans-serif" font-size="13">Denominador fijo: 473 proyectos TEST que finalmente son At Risk o Critical</text>
+<line x1="90" y1="90" x2="90" y2="420" stroke="#333"/><line x1="90" y1="420" x2="780" y2="420" stroke="#333"/>
+<line x1="85" y1="420" x2="780" y2="420" stroke="#ddd" stroke-dasharray="2 4"/><text x="76" y="425" text-anchor="end" font-family="Arial" font-size="12">0%</text>
+<line x1="85" y1="337.5" x2="780" y2="337.5" stroke="#ddd" stroke-dasharray="2 4"/><text x="76" y="342.5" text-anchor="end" font-family="Arial" font-size="12">25%</text>
+<line x1="85" y1="255" x2="780" y2="255" stroke="#ddd" stroke-dasharray="2 4"/><text x="76" y="260" text-anchor="end" font-family="Arial" font-size="12">50%</text>
+<line x1="85" y1="172.5" x2="780" y2="172.5" stroke="#b33" stroke-dasharray="7 5"/><text x="76" y="177.5" text-anchor="end" font-family="Arial" font-size="12">75%</text><text x="790" y="177.5" font-family="Arial" font-size="12" fill="#9b2c2c">Meta 75%</text>
+<line x1="85" y1="90" x2="780" y2="90" stroke="#ddd" stroke-dasharray="2 4"/><text x="76" y="95" text-anchor="end" font-family="Arial" font-size="12">100%</text>
+<polyline fill="none" stroke="#2f6f4e" stroke-width="4" points="90,325.8 255,208.6 420,169.5 585,156.3 750,147.9"/>
+<g font-family="Arial,sans-serif" font-size="12" text-anchor="middle">
+<circle cx="90" cy="325.8" r="6" fill="#2f6f4e"/><text x="90" y="312" font-weight="700">28.5%</text><text x="90" y="445">20%</text><text x="90" y="466" font-size="10" fill="#555">cob. 39.3%</text>
+<circle cx="255" cy="208.6" r="6" fill="#2f6f4e"/><text x="255" y="195" font-weight="700">64.1%</text><text x="255" y="445">40%</text><text x="255" y="466" font-size="10" fill="#555">cob. 77.2%</text>
+<circle cx="420" cy="169.5" r="6" fill="#2f6f4e"/><text x="420" y="156" font-weight="700">75.9%</text><text x="420" y="445">60%</text><text x="420" y="466" font-size="10" fill="#555">cob. 96.0%</text>
+<circle cx="585" cy="156.3" r="6" fill="#2f6f4e"/><text x="585" y="143" font-weight="700">79.9%</text><text x="585" y="445">80%</text><text x="585" y="466" font-size="10" fill="#555">cob. 99.8%</text>
+<circle cx="750" cy="147.9" r="6" fill="#2f6f4e"/><text x="750" y="134" font-weight="700">82.5%</text><text x="750" y="445">Final</text><text x="750" y="466" font-size="10" fill="#555">cob. 100%</text>
+</g>
+<text x="435" y="500" text-anchor="middle" font-family="Arial" font-size="12">Avance máximo del proyecto</text>
+<text x="18" y="255" text-anchor="middle" transform="rotate(-90 18 255)" font-family="Arial" font-size="12">Proyectos finales en riesgo ya detectados</text>
+</svg>
