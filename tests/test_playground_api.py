@@ -175,6 +175,7 @@ def test_csv_template_and_csv_prediction():
     body = r.json()
     assert body['count'] == 1
     assert body['rows'][0]['error'] is None
+    assert body['rows'][0]['input']
     schema = client.get('/api/schema').json()
     academic_template = client.get('/api/csv-template')
     columns = set(pd.read_csv(io.BytesIO(academic_template.content)).columns)
@@ -186,6 +187,31 @@ def test_csv_template_and_csv_prediction():
     future_template = client.get('/api/csv-template?profile=full_future')
     assert future_template.status_code == 200
     assert len(pd.read_csv(io.BytesIO(future_template.content)).columns) == len(schema['fields'])
+
+def test_csv_returns_the_exact_validated_input_for_drilldown():
+    payload = pd.DataFrame([{
+        'planned_duration_weeks': 88,
+        'planned_budget': 750000,
+        'true_progress': 0.72,
+        'spi': 1.11,
+        'cpi': 1.06,
+        'project_type': 'it',
+        'methodology': 'agile',
+    }]).to_csv(index=False).encode()
+
+    response = client.post('/api/predict-csv', files={'file': ('input.csv', payload, 'text/csv')})
+
+    assert response.status_code == 200
+    row = response.json()['rows'][0]
+    assert row['error'] is None
+    assert row['input']['planned_duration_weeks'] == 88
+    assert row['input']['planned_budget'] == 750000
+    assert row['input']['true_progress'] == 0.72
+    assert row['input']['spi'] == 1.11
+    assert row['input']['cpi'] == 1.06
+    assert row['input']['project_type'] == 'it'
+    assert row['input']['methodology'] == 'agile'
+
 
 def test_health_readiness_and_monitoring_endpoints():
     ready = client.get('/api/ready')

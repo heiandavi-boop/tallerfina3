@@ -231,10 +231,11 @@ async def predict_csv(file: UploadFile = File(...)):
         clean = {k: (None if pd.isna(v) else v) for k, v in record.items()}
         try:
             validated = ProjectInput.model_validate(clean)
-            result = run_prediction(validated.model_dump(), include_recommendations=False)
-            rows.append({"row_number": i, "prediction": result, "error": None})
+            validated_input = validated.model_dump(exclude_none=True)
+            result = run_prediction(validated_input, include_recommendations=False)
+            rows.append({"row_number": i, "input": validated_input, "prediction": result, "error": None})
         except Exception as exc:
-            rows.append({"row_number": i, "prediction": None, "error": str(exc)})
+            rows.append({"row_number": i, "input": clean, "prediction": None, "error": str(exc)})
     return {"filename": file.filename, "rows": rows, "count": len(rows), "model": {"version": runtime.version, "mode": runtime.mode}}
 
 

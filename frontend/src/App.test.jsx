@@ -28,7 +28,8 @@ function prediction(recommendations = fallback, complete = true) {
 const whatIfResult = { baseline: prediction(), scenario: prediction(), delta: { risk_score: -.256, delay_days: -7.1, cost_overrun_ratio: -.261 } };
 const csvPrediction = prediction();
 csvPrediction.prediction.final_status = 'challenged';
-const csvResult = { count: 1, rows: [{ row_number: 1, error: null, prediction: csvPrediction }] };
+const csvInput = { ...preset, planned_duration_weeks: 88, spi: 1.11, cpi: 1.06 };
+const csvResult = { count: 1, rows: [{ row_number: 1, input: csvInput, error: null, prediction: csvPrediction }] };
 const jsonResponse = (body, ok = true) => Promise.resolve({ ok, json: () => Promise.resolve(body) });
 
 function installFetch({ recommendation = fallback, complete = true, csv = csvResult, genaiStatus = { enabled: false, provider: 'ollama', model: 'qwen3:8b', available: false, last_error: null } } = {}) {
@@ -69,7 +70,7 @@ describe('Playground ejecutivo', () => {
     withoutTeamHealth.prediction.team_health = null;
     const unavailableTeamHealth = prediction();
     unavailableTeamHealth.prediction.team_health = { score: null, level: 'unavailable' };
-    render(<CsvAnalyzer onAnalyze={vi.fn()} loading={false} error="" results={{
+    render(<CsvAnalyzer onAnalyze={vi.fn()} onOpenProject={vi.fn()} loading={false} error="" results={{
       count: 2, rows: [
         { row_number: 1, prediction: withoutTeamHealth, error: null },
         { row_number: 2, prediction: unavailableTeamHealth, error: null },
@@ -83,7 +84,7 @@ describe('Playground ejecutivo', () => {
     const withTeamHealth = prediction();
     const withoutTeamHealth = prediction();
     withoutTeamHealth.prediction.team_health = null;
-    render(<CsvAnalyzer onAnalyze={vi.fn()} loading={false} error="" results={{
+    render(<CsvAnalyzer onAnalyze={vi.fn()} onOpenProject={vi.fn()} loading={false} error="" results={{
       count: 2, rows: [
         { row_number: 1, prediction: withoutTeamHealth, error: null },
         { row_number: 2, prediction: withTeamHealth, error: null },
@@ -231,6 +232,31 @@ describe('Playground ejecutivo', () => {
     expect(await screen.findByRole('heading', { name: '1 de 1 proyectos analizados' })).toBeTruthy();
     expect(screen.getByText('68,3 días')).toBeTruthy();
     expect(screen.getByText('Con desviaciones')).toBeTruthy();
+  });
+
+  it('abre una fila del archivo en el análisis individual con los mismos datos', async () => {
+    const user = userEvent.setup();
+    await openProject();
+    await user.click(screen.getByRole('tab', { name: 'Analizar varios proyectos' }));
+    const file = new File(['planned_duration_weeks\n88'], 'projects.csv', { type: 'text/csv' });
+    await user.upload(screen.getByLabelText('Seleccionar archivo de proyectos'), file);
+    await user.click(screen.getByRole('button', { name: 'Analizar archivo' }));
+    await screen.findByRole('heading', { name: '1 de 1 proyectos analizados' });
+
+    await user.click(screen.getByRole('button', { name: 'Ver análisis completo de fila 1' }));
+
+    expect(await screen.findByRole('heading', { name: '¿Qué está pasando en el proyecto?' })).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Analizar proyecto' }).getAttribute('aria-selected')).toBe('true');
+    expect(document.querySelector('#field-planned_duration_weeks').value).toBe('88');
+    expect(document.querySelector('#field-spi').value).toBe('1.11');
+    expect(document.querySelector('#field-cpi').value).toBe('1.06');
+    expect(await screen.findByRole('heading', { name: '¿Este proyecto requiere atención?' })).toBeTruthy();
+
+    const detailedRequest = global.fetch.mock.calls
+      .filter(([url]) => url.endsWith('/api/predict'))
+      .at(-1);
+    const body = JSON.parse(detailedRequest[1].body);
+    expect(body).toEqual(csvInput);
   });
 
   it('traduce una fila CSV por debajo de cobertura a un mensaje claro', async () => {

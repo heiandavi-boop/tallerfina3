@@ -223,6 +223,43 @@ export default function Experience() {
         } finally { setCsvLoading(false); }
     };
 
+    const openCsvProject = async row => {
+        if (!row?.input || row.error) {
+            setError('No fue posible abrir esta fila porque sus datos no son válidos.');
+            return;
+        }
+        const importedValues = { ...row.input };
+        setMode('project');
+        setValues(importedValues);
+        setActivePreset(null);
+        setComparison(null);
+        setResult(null);
+        setError('');
+        setTechnicalError('');
+        setLoading(true);
+        setLoadingStage(0);
+        const stageOne = window.setTimeout(() => setLoadingStage(1), 700);
+        const stageTwo = window.setTimeout(() => setLoadingStage(2), 1700);
+        try {
+            const response = await fetch(`${API}/api/predict`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(importedValues),
+            });
+            const data = await responseJson(response);
+            setResult(data);
+            window.requestAnimationFrame(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+        } catch (requestError) {
+            setError(friendlyError(requestError));
+            setTechnicalError(requestError.technical || requestError.message || String(requestError));
+        } finally {
+            window.clearTimeout(stageOne);
+            window.clearTimeout(stageTwo);
+            setLoading(false);
+            setLoadingStage(0);
+        }
+    };
+
     if (!schema) return <div className="boot-screen"><span className="brand-mark">P</span><h1>PRUNIN AI Core</h1><p role={error ? 'alert' : 'status'}>{error || 'Conectando con la API…'}</p></div>;
     const loadingMessages = ['Evaluando el nivel de riesgo…', 'Identificando las señales más influyentes…', genaiStatus?.enabled && genaiStatus?.available ? 'Generando una explicación con IA…' : 'Preparando una recomendación de respaldo…'];
 
@@ -248,7 +285,7 @@ export default function Experience() {
                     <ScenarioPanel schema={schema} values={values} onRun={simulate} loading={simulationLoading} comparison={comparison} />
                     <div className="technical-action"><button type="button" className="evidence-button large-evidence" onClick={() => setDrawerOpen(true)}><span aria-hidden="true">⚙</span> Ver evidencia técnica</button></div>
                 </>}
-            </> : <CsvAnalyzer onAnalyze={analyzeCsv} loading={csvLoading} results={csvResults} error={error} />}
+            </> : <CsvAnalyzer onAnalyze={analyzeCsv} onOpenProject={openCsvProject} loading={csvLoading} results={csvResults} error={error} />}
 
             <footer className="app-footer"><strong>PRUNIN AI Core</strong><span>Proyecto académico · Análisis trazable · Las señales explican el modelo, no prueban causas</span></footer>
         </main>

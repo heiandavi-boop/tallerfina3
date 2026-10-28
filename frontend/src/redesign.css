@@ -2374,3 +2374,31 @@ tbody th {
     border-right: 0;
   }
 }
+
+
+.csv-results-help {
+  margin: -4px 0 14px;
+  color: #66746b;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.table-action {
+  min-width: 126px;
+  padding: 7px 10px;
+  border: 1px solid #b9cdbf;
+  border-radius: 5px;
+  color: #24563c;
+  background: #f4faf6;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.table-action:hover,
+.table-action:focus-visible {
+  border-color: #6f9b7d;
+  background: #eaf5ed;
+  outline: none;
+}
