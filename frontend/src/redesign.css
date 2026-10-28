@@ -1907,3 +1907,63 @@ tbody th {
     transition-duration: .01ms !important;
   }
 }
+
+.risk-alert-banner {
+  display: grid;
+  grid-template-columns: minmax(180px, .7fr) minmax(0, 1fr);
+  gap: 10px 20px;
+  align-items: center;
+  margin: 14px 0 18px;
+  padding: 14px 16px;
+  border: 1px solid #dfe7e1;
+  border-radius: 6px;
+  background: #f8faf8;
+}
+
+.risk-alert-banner>div {
+  display: grid;
+  gap: 4px;
+}
+
+.risk-alert-banner strong {
+  font-size: 18px;
+}
+
+.risk-alert-banner p,
+.risk-alert-banner small {
+  margin: 0;
+}
+
+.risk-alert-banner small {
+  grid-column: 1 / -1;
+  color: #68756c;
+  font-size: 12px;
+}
+
+.risk-alert-banner.active {
+  border-color: #e8cfaa;
+  background: #fff9ed;
+}
+
+.risk-alert-banner.active strong {
+  color: #8a5a14;
+}
+
+.risk-alert-banner.clear {
+  border-color: #cfe3d5;
+  background: #f2f9f4;
+}
+
+.risk-alert-banner.clear strong {
+  color: #286543;
+}
+
+@media (max-width: 720px) {
+  .risk-alert-banner {
+    grid-template-columns: 1fr;
+  }
+
+  .risk-alert-banner small {
+    grid-column: 1;
+  }
+}
