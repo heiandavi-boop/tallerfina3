@@ -1,6 +1,6 @@
 # Cierre definitivo — PRUNIN AI Core
 
-**Veredicto: LISTO PARA ENTREGA ACADÉMICA** como prototipo reproducible para entrega y sustentación. No implica producción ni Nivel 4 en toda la rúbrica. Fecha: 11 de octubre de 2026 (America/Bogota). Base main inicial auditada y confirmada contra remoto: `b2d0ca32f0599fc6c2227f2a5eb3e6dea6ff812a`.
+**Veredicto: LISTO PARA ENTREGA ACADÉMICA** como prototipo reproducible para entrega y sustentación. No implica producción ni Nivel 4 en toda la rúbrica. Fecha: 11 de octubre de 2026 (America/Bogota). Base pre-ajuste restaurada y confirmada contra remoto: `dcd82d4a9a0405e9f6796104e6429cbfd2d0bc80`.
 
 Esta versión incorpora un benchmark operacional medido sobre el artifact académico `0.9.0-academic`; sus datos registran la revisión de código usada para medir. GitHub Actions se ejecuta en cada push/PR, pero un resultado histórico no certifica un HEAD posterior: consultar únicamente el run `quality` asociado al commit final de esta entrega.
 
@@ -14,9 +14,10 @@ Estados utilizados: LISTO, LISTO CON LIMITACIÓN, DISEÑO, PENDIENTE HUMANO y PE
 | Preprocessing | LISTO | audit.py, training/core.py, schema.py, readiness | Scaling estándar innecesario; no detector OOD |
 | Leakage | LISTO CON LIMITACIÓN | split 2800/600/600, overlap 0; feature_manifest | Proximidad temporal CPI/EVM tardío |
 | Health | LISTO CON LIMITACIÓN | baselines/metrics: Macro F1 0.627576 vs 0.277940 | Recall critical 25/44; desbalance |
+| Promesa original / Risk Alert | LISTO CON LIMITACIÓN | reports/promise_validation/: 75.90 % de toda la cohorte final de riesgo detectada al 60 %; cobertura TEST 96 % | Evidencia sintética; no validación empresarial; Critical Recall exacto 56.82 % |
 | Delay | LISTO CON LIMITACIÓN | MAE 27.710468 vs 27.850313; raw/display tests | Mejora marginal; componente más débil |
 | Cost | LISTO CON LIMITACIÓN | MAE 0.147158 pp; R² 0.991816 | Relación estructural CPI/progreso–outcome sintético |
-| Temporal | LISTO CON LIMITACIÓN | temporal_evaluation.json; figura versionada | 20 %: 236/600, 39.333 %; cobertura desigual |
+| Temporal | LISTO CON LIMITACIÓN | temporal_evaluation.json + reports/promise_validation/ | 20 % cobertura 39.333 %; meta de cohorte completa ≥75 % se alcanza al 60 % con cobertura 96 % |
 | GenAI | LISTO CON LIMITACIÓN | qwen3-8b-evaluation.json complete; preflight_genai | 30 casos condicionados; no comparativa empírica de tres LLM |
 | Grounding | LISTO CON LIMITACIÓN | recommendations.py; PROJ_0840 rechazado; tests | Proxy; no verdad semántica total |
 | Team Health | LISTO CON LIMITACIÓN | team_health.py; CsvAnalyzer.jsx; tests | Heurística sin imputación/psicología; fusión no calibrada |
@@ -35,6 +36,12 @@ Estados utilizados: LISTO, LISTO CON LIMITACIÓN, DISEÑO, PENDIENTE HUMANO y PE
 | Written communication | LISTO CON LIMITACIÓN | INFORME_FINAL 25 secciones, APA, tablas/figuras | Completar identidad/datos institucionales y revisión final |
 | Oral communication | PENDIENTE HUMANO | 12 slides; 7/10/12 min; 23 términos; 32 respuestas | Ensayo, voz, postura y defensa no acreditados por GitHub |
 | Real-world validation | PENDIENTE PRODUCTIVO | model_card y alcance de informe | Outcomes reales y evaluación prospectiva externa |
+
+## Validación explícita de la promesa original
+
+Se añadió una evaluación derivada, reproducible y sin reentrenamiento para responder literalmente la meta inicial: `At Risk OR Critical => Risk Alert`. Sobre TEST final, Risk Alert Recall = **82.45 %**, Precision = **92.20 %** y F1 = **87.05 %**. Para la dimensión temprana se usa un denominador fijo de 473 proyectos que finalmente son At Risk/Critical; el primer corte pre-cierre que supera 75 % es **60 % de avance**, con **359/473 = 75.90 %** y **576/600 = 96 %** de cobertura TEST.
+
+El Critical Recall exacto continúa en **56.82 %** y se reporta por separado. No se cambiaron labels, modelos, features, thresholds ni TEST. Evidencia: `scripts/validate_original_promise.py`, `tests/test_risk_alert_metrics.py` y `reports/promise_validation/`.
 
 ## Verificaciones ejecutadas
 
