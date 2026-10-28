@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "source": {
+    "model_version": "0.9.0-academic",
+    "metrics": "reports/0.9.0-academic/metrics.json",
+    "temporal_evaluation": "reports/0.9.0-academic/temporal_evaluation.json",
+    "evaluation_split": "TEST",
+    "test_projects": 600
+  },
+  "promise": {
+    "statement": "Detectar tempranamente al menos el 75 % de los proyectos críticos o en alto riesgo.",
+    "risk_alert_definition": "At Risk OR Critical => Risk Alert; Healthy => No Risk Alert",
+    "target_full_cohort_detection_rate": 0.75,
+    "model_changed": false,
+    "threshold_changed": false
+  },
+  "final": {
+    "final_risk_projects": 473,
+    "confusion_binary": {"tp": 390, "fn": 83, "fp": 33, "tn": 94},
+    "risk_alert_recall": 0.8245243128964059,
+    "risk_alert_precision": 0.9219858156028369,
+    "risk_alert_f1": 0.8705357142857143,
+    "specificity": 0.7401574803149606,
+    "false_negative_rate": 0.17547568710359407,
+    "false_positive_rate": 0.25984251968503935,
+    "binary_accuracy": 0.8066666666666666,
+    "exact_critical_recall": 0.5681818181818182,
+    "health_macro_f1": 0.6275758334320115
+  },
+  "temporal": [
+    {"tp":135,"fn":55,"fp":25,"tn":21,"recall":0.7105263157894737,"precision":0.84375,"f1":0.7714285714285714,"specificity":0.45652173913043476,"false_negative_rate":0.2894736842105263,"false_positive_rate":0.5434782608695652,"accuracy":0.6610169491525424,"cutoff_percent":20,"eligible_projects":236,"total_test_projects":600,"project_coverage":0.3933333333333333,"eligible_risk_projects":190,"eligible_risk_coverage":0.40169133192389006,"full_cohort_detection_rate":0.2854122621564482,"health_macro_f1":0.39793773109518665,"critical_recall":0.1111111111111111},
+    {"tp":303,"fn":76,"fp":41,"tn":43,"recall":0.7994722955145118,"precision":0.8808139534883721,"f1":0.8381742738589212,"specificity":0.5119047619047619,"false_negative_rate":0.20052770448548812,"false_positive_rate":0.4880952380952381,"accuracy":0.7473002159827213,"cutoff_percent":40,"eligible_projects":463,"total_test_projects":600,"project_coverage":0.7716666666666666,"eligible_risk_projects":379,"eligible_risk_coverage":0.8012684989429175,"full_cohort_detection_rate":0.6405919661733616,"health_macro_f1":0.509354768489031,"critical_recall":0.44},
+    {"tp":359,"fn":97,"fp":49,"tn":71,"recall":0.7872807017543859,"precision":0.8799019607843137,"f1":0.8310185185185185,"specificity":0.5916666666666667,"false_negative_rate":0.21271929824561403,"false_positive_rate":0.4083333333333333,"accuracy":0.7465277777777778,"cutoff_percent":60,"eligible_projects":576,"total_test_projects":600,"project_coverage":0.96,"eligible_risk_projects":456,"eligible_risk_coverage":0.9640591966173362,"full_cohort_detection_rate":0.758985200845666,"health_macro_f1":0.5229588790027976,"critical_recall":0.4473684210526316},
+    {"tp":378,"fn":95,"fp":45,"tn":81,"recall":0.7991543340380549,"precision":0.8936170212765957,"f1":0.8437499999999999,"specificity":0.6428571428571429,"false_negative_rate":0.20084566596194503,"false_positive_rate":0.35714285714285715,"accuracy":0.7662771285475793,"cutoff_percent":80,"eligible_projects":599,"total_test_projects":600,"project_coverage":0.9983333333333333,"eligible_risk_projects":473,"eligible_risk_coverage":1.0,"full_cohort_detection_rate":0.7991543340380549,"health_macro_f1":0.5705878972080334,"critical_recall":0.5454545454545454},
+    {"tp":390,"fn":83,"fp":33,"tn":94,"recall":0.8245243128964059,"precision":0.9219858156028369,"f1":0.8705357142857143,"specificity":0.7401574803149606,"false_negative_rate":0.17547568710359407,"false_positive_rate":0.25984251968503935,"accuracy":0.8066666666666666,"cutoff_percent":100,"cutoff_label":"Final","eligible_projects":600,"total_test_projects":600,"project_coverage":1.0,"eligible_risk_projects":473,"eligible_risk_coverage":1.0,"full_cohort_detection_rate":0.8245243128964059,"health_macro_f1":0.6275758334320115,"critical_recall":0.5681818181818182}
+  ],
+  "first_precompletion_cutoff_reaching_target": {
+    "cutoff_percent": 60,
+    "full_cohort_detection_rate": 0.758985200845666,
+    "project_coverage": 0.96,
+    "eligible_projects": 576,
+    "eligible_risk_projects": 456,
+    "eligible_risk_coverage": 0.9640591966173362,
+    "risk_alert_recall_among_eligible": 0.7872807017543859,
+    "risk_alert_precision": 0.8799019607843137
+  },
+  "verdict": "PROMESA PRINCIPAL DEMOSTRADA EN EL ENTORNO EXPERIMENTAL",
+  "caveats": [
+    "La evidencia corresponde a un dataset sintético externo; no acredita generalización empresarial.",
+    "La tasa de detección de cohorte completa cuenta como no detectados los proyectos sin snapshot elegible en cada corte.",
+    "El recall exacto de la clase Critical permanece separado y es menor que el KPI binario de alerta.",
+    "Delay mantiene mejora marginal frente a baseline; Cost requiere interpretar el caveat estructural EVM/CPI.",
+    "No se modificaron modelos, labels, features, thresholds ni TEST para obtener este KPI."
+  ]
+}
