@@ -127,7 +127,7 @@ describe('Playground ejecutivo', () => {
     expect(loadingButton.disabled).toBe(true);
     expect(screen.getByText(/Calculando predicciones/)).toBeTruthy();
     resolvePrediction(await jsonResponse(prediction(fallback, false)));
-    expect(await screen.findByRole('heading', { name: 'Resultado del análisis' })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: '¿Este proyecto requiere atención?' })).toBeTruthy();
     expect(screen.getAllByText('Crítico').length).toBeGreaterThan(0);
     expect(screen.getByRole('status', { name: 'Alerta operacional de riesgo' })).toBeTruthy();
     expect(screen.getByText('Sí: requiere atención')).toBeTruthy();
