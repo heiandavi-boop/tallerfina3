@@ -101,7 +101,7 @@ describe('Playground ejecutivo', () => {
     expect(screen.getByText(/Detectar tempranamente ≥75 %/)).toBeTruthy();
     expect(screen.getByText('75,9 %')).toBeTruthy();
     expect(screen.getByRole('tab', { name: 'Analizar proyecto' }).getAttribute('aria-selected')).toBe('true');
-    expect(screen.getByRole('tab', { name: 'Analizar CSV' })).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Analizar varios proyectos' })).toBeTruthy();
     expect(screen.getByText('IA generativa desactivada')).toBeTruthy();
     expect(screen.getByLabelText(/Cumplimiento del cronograma \(SPI\)/)).toBeTruthy();
     expect(Array.from(document.querySelector('#field-project_type').options).map(option => option.value)).toEqual(['construction', 'healthcare', 'it', 'manufacturing', 'marketing', 'r&d']);
@@ -215,18 +215,18 @@ describe('Playground ejecutivo', () => {
     expect(body.baseline.spi).toBe(.82);
     expect(body.scenario.spi).toBe(1.1);
     expect(body.scenario.cpi).toBe(.91);
-    expect(screen.getByText('-26,1 pp')).toBeTruthy();
+    expect(screen.getByText('-26,1 puntos porcentuales')).toBeTruthy();
   });
 
   it('cambia al modo CSV, descarga plantilla y presenta resultados tabulares', async () => {
     const user = userEvent.setup();
     await openProject();
     await user.click(screen.getByRole('tab', { name: 'Analizar CSV' }));
-    expect(await screen.findByRole('heading', { name: 'Carga masiva de proyectos' })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'Analizar varios proyectos desde un archivo' })).toBeTruthy();
     expect(screen.queryByRole('heading', { name: 'Analizar proyecto' })).toBeNull();
     expect(screen.getByRole('link', { name: 'Descargar plantilla' }).getAttribute('href')).toContain('/api/csv-template');
     const file = new File(['planned_duration_weeks\n52'], 'projects.csv', { type: 'text/csv' });
-    await user.upload(screen.getByLabelText('Seleccionar archivo CSV'), file);
+    await user.upload(screen.getByLabelText('Seleccionar archivo de proyectos'), file);
     await user.click(screen.getByRole('button', { name: 'Analizar archivo' }));
     expect(await screen.findByRole('heading', { name: '1 de 1 proyectos analizados' })).toBeTruthy();
     expect(screen.getByText('68,3 días')).toBeTruthy();

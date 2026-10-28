@@ -3,7 +3,7 @@ import { Field } from './fields.jsx';
 
 const healthLabels = { healthy: 'Saludable', at_risk: 'En riesgo', critical: 'Crítico' };
 const fmtPct = value => value == null ? '—' : `${(Number(value) * 100).toLocaleString('es-CO', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`;
-const fmtPp = value => value == null ? '—' : `${Number(value) > 0 ? '+' : ''}${(Number(value) * 100).toLocaleString('es-CO', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} pp`;
+const fmtPp = value => value == null ? '—' : `${Number(value) > 0 ? '+' : ''}${(Number(value) * 100).toLocaleString('es-CO', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} puntos porcentuales`;
 const audienceLabel = field => field.name === 'spi'
     ? 'Cumplimiento del cronograma (SPI)'
     : field.name === 'cpi'
@@ -50,7 +50,7 @@ function ScenarioComparison({ data }) {
     return <div className="scenario-comparison" id="scenario-comparison" aria-live="polite"><h3>Antes <span aria-hidden="true">→</span> Escenario</h3>
         <div className="comparison-table"><div className="comparison-head"><span>Indicador</span><span>Antes</span><span>Escenario</span><span>Diferencia</span></div>
             <ComparisonRow label="Nivel de riesgo" before={healthLabels[baseline.health] || baseline.health} after={healthLabels[scenario.health] || scenario.health} />
-            <ComparisonRow label="Riesgo combinado" before={fmtPct(baseline.fused_risk_score)} after={fmtPct(scenario.fused_risk_score)} delta={fmtPp(delta.risk_score)} favorable={delta.risk_score <= 0} />
+            <ComparisonRow label="Indicador combinado de riesgo" before={fmtPct(baseline.fused_risk_score)} after={fmtPct(scenario.fused_risk_score)} delta={fmtPp(delta.risk_score)} favorable={delta.risk_score <= 0} />
             <ComparisonRow label="Retraso estimado" before={`${fmtNumber(baseline.delay_days)} días`} after={`${fmtNumber(scenario.delay_days)} días`} delta={`${delta.delay_days > 0 ? '+' : ''}${fmtNumber(delta.delay_days)} ${Math.abs(delta.delay_days) === 1 ? 'día' : 'días'}`} favorable={delta.delay_days <= 0} />
             <ComparisonRow label="Sobrecosto estimado" before={fmtPct(baseline.cost_overrun_ratio)} after={fmtPct(scenario.cost_overrun_ratio)} delta={fmtPp(delta.cost_overrun_ratio)} favorable={delta.cost_overrun_ratio <= 0} />
             <ComparisonRow label="Condición operativa del equipo" before={fmtPct(baseline.team_health?.score)} after={fmtPct(scenario.team_health?.score)} />
