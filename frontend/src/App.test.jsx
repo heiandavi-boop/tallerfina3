@@ -52,7 +52,7 @@ afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 async function openProject() {
   render(<Experience />);
-  await screen.findByRole('heading', { name: 'Analizar proyecto' });
+  await screen.findByRole('heading', { name: '¿Qué está pasando en el proyecto?' });
 }
 
 describe('Playground ejecutivo', () => {
@@ -96,7 +96,10 @@ describe('Playground ejecutivo', () => {
   it('presenta la marca, modos principales y solo variables ML en el formulario inicial', async () => {
     await openProject();
     expect(within(screen.getByRole('banner')).getByText('PRUNIN AI Core')).toBeTruthy();
-    expect(document.querySelector('.tagline').textContent.replace(/\s+/g, ' ')).toContain('Predice · Explica · Recomienda · Simula');
+    expect(document.querySelector('.tagline').textContent.replace(/\s+/g, ' ')).toContain('Anticipa · Explica · Recomienda · Simula');
+    expect(screen.getByRole('heading', { name: '¿Podemos detectar un proyecto en riesgo antes de que sea demasiado tarde?' })).toBeTruthy();
+    expect(screen.getByText(/Detectar tempranamente ≥75 %/)).toBeTruthy();
+    expect(screen.getByText('75,9 %')).toBeTruthy();
     expect(screen.getByRole('tab', { name: 'Analizar proyecto' }).getAttribute('aria-selected')).toBe('true');
     expect(screen.getByRole('tab', { name: 'Analizar CSV' })).toBeTruthy();
     expect(screen.getByText('IA generativa desactivada')).toBeTruthy();
@@ -119,7 +122,7 @@ describe('Playground ejecutivo', () => {
       return jsonResponse(whatIfResult);
     });
     await openProject();
-    await user.click(screen.getByRole('button', { name: 'Analizar proyecto' }));
+    await user.click(screen.getByRole('button', { name: 'Evaluar riesgo del proyecto' }));
     const loadingButton = await screen.findByRole('button', { name: /Analizando proyecto/ });
     expect(loadingButton.disabled).toBe(true);
     expect(screen.getByText(/Calculando predicciones/)).toBeTruthy();
@@ -127,15 +130,15 @@ describe('Playground ejecutivo', () => {
     expect(await screen.findByRole('heading', { name: 'Resultado del análisis' })).toBeTruthy();
     expect(screen.getAllByText('Crítico').length).toBeGreaterThan(0);
     expect(screen.getByRole('status', { name: 'Alerta operacional de riesgo' })).toBeTruthy();
-    expect(screen.getByText('Alerta de riesgo')).toBeTruthy();
-    expect(screen.getByText(/Requiere atención: Health ML está en At Risk o Critical/)).toBeTruthy();
+    expect(screen.getByText('Sí: requiere atención')).toBeTruthy();
+    expect(screen.getByText(/El modelo detecta una condición Crítico/)).toBeTruthy();
     expect(screen.getByText(/imputaron 1/)).toBeTruthy();
   });
 
   it('distingue la recomendación de respaldo y revela trazabilidad sin JSON por defecto', async () => {
     const user = userEvent.setup();
     await openProject();
-    await user.click(screen.getByRole('button', { name: 'Analizar proyecto' }));
+    await user.click(screen.getByRole('button', { name: 'Evaluar riesgo del proyecto' }));
     expect(await screen.findByText(/IA generativa desactivada · Recomendación de respaldo/)).toBeTruthy();
     expect(screen.getByText(/Revisar la proyección de costos/)).toBeTruthy();
     await user.click(screen.getAllByRole('button', { name: /Ver evidencia técnica/ })[0]);
@@ -152,7 +155,7 @@ describe('Playground ejecutivo', () => {
     installFetch({ recommendation: { ...fallback, engine: 'ollama:qwen3:8b', genai_attempted: true, genai_used: true, actions: ['Revisar el cronograma.'] } });
     const user = userEvent.setup();
     await openProject();
-    await user.click(screen.getByRole('button', { name: 'Analizar proyecto' }));
+    await user.click(screen.getByRole('button', { name: 'Evaluar riesgo del proyecto' }));
     expect(await screen.findByText('Qwen3 8B · IA generativa activa')).toBeTruthy();
   });
 
@@ -166,7 +169,7 @@ describe('Playground ejecutivo', () => {
     installFetch({ recommendation: { ...fallback, genai_attempted: true, failure_code: 'ollama_timeout', failure_detail: 'ReadTimeout: Ollama did not respond', genai_failure_reason: 'ReadTimeout: Ollama did not respond', genai_used: false } });
     const user = userEvent.setup();
     await openProject();
-    await user.click(screen.getByRole('button', { name: 'Analizar proyecto' }));
+    await user.click(screen.getByRole('button', { name: 'Evaluar riesgo del proyecto' }));
     expect(await screen.findByText(/Qwen3 no respondió dentro del tiempo esperado; se utilizó recomendación de respaldo/)).toBeTruthy();
     expect(screen.getByText('La predicción se completó correctamente.')).toBeTruthy();
     expect(screen.queryByText(/ReadTimeout/)).toBeNull();
@@ -182,7 +185,7 @@ describe('Playground ejecutivo', () => {
     installFetch({ recommendation: { ...fallback, genai_attempted: true, genai_used: false, failure_code: 'unsupported_numeric_claim', failure_detail: 'Invented 99 days.' } });
     const user = userEvent.setup();
     await openProject();
-    await user.click(screen.getByRole('button', { name: 'Analizar proyecto' }));
+    await user.click(screen.getByRole('button', { name: 'Evaluar riesgo del proyecto' }));
     expect(await screen.findByText(/La respuesta de Qwen3 no cumplió las reglas de evidencia/)).toBeTruthy();
     expect(screen.queryByText('unsupported_numeric_claim')).toBeNull();
   });
@@ -191,7 +194,7 @@ describe('Playground ejecutivo', () => {
     installFetch({ recommendation: { ...fallback, genai_attempted: true, genai_used: false, failure_code: 'invalid_json', failure_detail: 'Expecting value' } });
     const user = userEvent.setup();
     await openProject();
-    await user.click(screen.getByRole('button', { name: 'Analizar proyecto' }));
+    await user.click(screen.getByRole('button', { name: 'Evaluar riesgo del proyecto' }));
     expect(await screen.findByText(/Qwen3 no devolvió una respuesta válida/)).toBeTruthy();
     expect(screen.queryByText('invalid_json')).toBeNull();
   });
@@ -199,7 +202,7 @@ describe('Playground ejecutivo', () => {
   it('envía baseline y escenario completos y muestra la comparación del endpoint what-if', async () => {
     const user = userEvent.setup();
     await openProject();
-    await user.click(screen.getByRole('button', { name: 'Analizar proyecto' }));
+    await user.click(screen.getByRole('button', { name: 'Evaluar riesgo del proyecto' }));
     await screen.findByRole('heading', { name: 'Simula una mejora' });
     const simulation = screen.getByRole('region', { name: 'Simula una mejora' });
     expect(within(simulation).queryByRole('option', { name: 'Variable futura' })).toBeNull();

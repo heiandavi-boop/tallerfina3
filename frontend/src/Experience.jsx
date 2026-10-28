@@ -53,15 +53,48 @@ function AppHeader({ model, apiReady, result, genaiStatus, onTechnical }) {
     return <header className="app-header">
         <div className="header-inner">
             <a className="brand" href="#top" aria-label="PRUNIN AI Core, inicio"><span className="brand-mark">P</span><span><strong>PRUNIN AI Core</strong><small>Predicción temprana de riesgo de proyectos</small></span></a>
-            <div className="header-actions"><span className="tagline">Predice <i>·</i> Explica <i>·</i> Recomienda <i>·</i> Simula</span>{result && <button type="button" className="evidence-button" onClick={onTechnical}><span aria-hidden="true">⚙</span> Ver evidencia técnica</button>}</div>
+            <div className="header-actions"><span className="tagline">Anticipa <i>·</i> Explica <i>·</i> Recomienda <i>·</i> Simula</span>{result && <button type="button" className="evidence-button" onClick={onTechnical}><span aria-hidden="true">⚙</span> Ver evidencia técnica</button>}</div>
         </div>
         <div className="header-inner status-wrap"><StatusBar model={model} apiReady={apiReady} result={result} genaiStatus={genaiStatus} /></div>
     </header>;
 }
 
+function PresentationOverview() {
+    return <div className="presentation-overview">
+        <section className="presentation-hero" aria-labelledby="overview-title">
+            <div className="presentation-copy">
+                <p className="eyebrow">PRUNIN · ALERTA TEMPRANA PARA PROYECTOS</p>
+                <h1 id="overview-title">¿Podemos detectar un proyecto en riesgo antes de que sea demasiado tarde?</h1>
+                <p className="hero-lead">PRUNIN analiza señales de avance, cronograma y costo para ayudar al responsable del proyecto a decidir <strong>dónde intervenir antes del cierre</strong>.</p>
+                <div className="original-promise"><span>Promesa original</span><strong>Detectar tempranamente ≥75 % de los proyectos críticos o en alto riesgo.</strong></div>
+            </div>
+            <aside className="research-result" aria-label="Resultado principal del experimento">
+                <span>Resultado experimental</span>
+                <strong>75,9 %</strong>
+                <p>de todos los proyectos TEST que finalmente quedaron <b>At Risk o Critical</b> ya estaban detectados al <b>60 % de avance</b>.</p>
+                <div><b>96 %</b> cobertura TEST <i>·</i> <b>82,45 %</b> detección final</div>
+            </aside>
+        </section>
+
+        <section className="plain-flow" aria-label="Cómo funciona PRUNIN">
+            <article><span>1</span><div><strong>Observa</strong><p>Avance, SPI, CPI, duración, presupuesto y contexto del proyecto.</p></div></article>
+            <article><span>2</span><div><strong>Detecta</strong><p>Activa una alerta cuando Health queda en <b>At Risk</b> o <b>Critical</b>.</p></div></article>
+            <article><span>3</span><div><strong>Explica</strong><p>Muestra señales que empujan el riesgo y propone acciones revisables.</p></div></article>
+            <article><span>4</span><div><strong>Simula</strong><p>Permite explorar qué cambia si mejoran indicadores del proyecto.</p></div></article>
+        </section>
+
+        <section className="reading-guide" aria-label="Cómo leer los resultados">
+            <article><span className="guide-dot risk" /><div><strong>Risk Alert</strong><p>Responde: <b>¿requiere atención ahora?</b></p></div></article>
+            <article><span className="guide-dot health" /><div><strong>Health</strong><p>Responde: <b>¿qué tan severa es la condición?</b></p></div></article>
+            <article><span className="guide-dot estimate" /><div><strong>Delay + Cost</strong><p>Estiman la magnitud posible de retraso y sobrecosto.</p></div></article>
+        </section>
+        <p className="experiment-scope">Evidencia del benchmark académico con dataset sintético externo. No equivale a validación empresarial ni a operación en producción.</p>
+    </div>;
+}
+
 function StepNav({ result, mode }) {
     if (mode !== 'project') return null;
-    const steps = [['project', 'Proyecto'], ['result', 'Resultado'], ['explanation', 'Explicación'], ['recommendations', 'Acciones'], ['simulation', 'Simulación']];
+    const steps = [['project', '1 · Qué está pasando'], ['result', '2 · ¿Hay alerta?'], ['explanation', '3 · ¿Por qué?'], ['recommendations', '4 · ¿Qué hacer?'], ['simulation', '5 · ¿Qué pasa si…?']];
     return <nav className="step-nav" aria-label="Etapas del análisis">{steps.map(([id, label], index) => <a key={id} className={!result && index > 0 ? 'disabled-step' : ''} href={result || index === 0 ? `#${id}` : undefined} aria-disabled={!result && index > 0}>{index > 0 && <span aria-hidden="true">›</span>}{label}</a>)}</nav>;
 }
 
@@ -186,7 +219,7 @@ export default function Experience() {
         <AppHeader model={schema.model} apiReady={apiReady} result={result} genaiStatus={genaiStatus} onTechnical={() => setDrawerOpen(true)} />
         <main className="page-content">
             {schema.model.mode === 'synthetic_demo' && <aside className="mode-notice" role="note">Modelo de demostración con datos sintéticos. La versión académica se indicará aquí cuando esté cargada.</aside>}
-            <section className="intro-block"><div><p className="eyebrow">PRUNIN · PLAYGROUND ACADÉMICO</p><h1>Una lectura clara del riesgo del proyecto.</h1><p>Analiza el resultado, comprende las señales y explora un escenario alternativo.</p></div></section>
+            <PresentationOverview />
             <div className="mode-switch" role="tablist" aria-label="Modo de análisis">
                 <button type="button" role="tab" aria-selected={mode === 'project'} className={mode === 'project' ? 'active' : ''} onClick={() => { setMode('project'); setError(''); }}>Analizar proyecto</button>
                 <button type="button" role="tab" aria-selected={mode === 'csv'} className={mode === 'csv' ? 'active' : ''} onClick={() => { setMode('csv'); setError(''); }}>Analizar CSV</button>

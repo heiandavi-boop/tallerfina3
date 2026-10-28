@@ -15,6 +15,18 @@ Exigir `RESULTADO: LISTO PARA DEMO` y comprobar que el artefacto sea `0.9.0-acad
 
 GenAI tiene preflight separado: `./scripts/preflight_genai.sh`. Ollama ausente no invalida ML ni el benchmark Qwen versionado completo. Si se usa LAN/QR comprobar red del salón. El frontend debe estar construido; no asumir que el clon incluye dist o modelos pesados.
 
+## Qué debe entender el jurado al abrir el frontend
+
+La primera pantalla está diseñada para que una persona que no conoce PRUNIN entienda el proyecto antes de tocar un control. En los primeros 20–30 segundos señalar, en este orden:
+
+1. **Pregunta:** “¿Podemos detectar un proyecto en riesgo antes de que sea demasiado tarde?”
+2. **Promesa original:** detectar tempranamente ≥75 % de proyectos críticos o en alto riesgo.
+3. **Resultado principal:** 75.9 % de toda la cohorte final en riesgo ya detectada al 60 % de avance, con 96 % de cobertura TEST.
+4. **Cómo funciona:** Observa → Detecta → Explica → Simula.
+5. **Cómo leer la salida:** Risk Alert responde si requiere atención; Health indica severidad; Delay/Cost estiman magnitud.
+
+No empezar la demo hablando de LightGBM, FastAPI, Qwen o Kubernetes. Primero debe quedar claro el problema y la decisión que PRUNIN intenta apoyar. Los detalles técnicos se muestran después o si el jurado los solicita.
+
 ## Secuencia de demo para sustentación
 
 1. Problema: apoyar al director/PMO al interpretar riesgo, sin reemplazar su decisión.
