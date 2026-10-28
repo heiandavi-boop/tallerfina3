@@ -14,9 +14,9 @@ export function ProjectForm({ schema, values, onChange, onAnalyze, loading, acti
     const underMinimum = coverage.ratio < coverage.minimum;
     return <section className="surface project-card" id="project" aria-labelledby="project-title">
         <div className="section-heading"><div><span className="step-number">1</span><div><p className="eyebrow">OBSERVA</p><h2 id="project-title">¿Qué está pasando en el proyecto?</h2></div></div><span className="quiet-label">{mlFields.length} señales utilizadas</span></div>
-        <p className="section-explainer">Ingresa o ajusta la foto actual del proyecto. Para la demo puedes partir de uno de estos ejemplos y observar cómo cambia la alerta.</p>
+        <p className="section-explainer">Ingresa o ajusta la foto actual del proyecto. Para la demo puedes partir de uno de estos escenarios y observar cómo responde el modelo. Son condiciones de entrada, no una clase garantizada.</p>
         <div className="preset-row" role="group" aria-label="Escenarios de demostración"><span>Ejemplos de entrada</span><div>
-            <button type="button" className={`preset healthy ${activePreset === 'healthy' ? 'selected' : ''}`} aria-pressed={activePreset === 'healthy'} onClick={() => onPreset('healthy')}>Ejemplo saludable</button>
+            <button type="button" className={`preset healthy ${activePreset === 'healthy' ? 'selected' : ''}`} aria-pressed={activePreset === 'healthy'} onClick={() => onPreset('healthy')}>Condiciones favorables</button>
             <button type="button" className={`preset at-risk ${activePreset === 'at_risk' ? 'selected' : ''}`} aria-pressed={activePreset === 'at_risk'} onClick={() => onPreset('at_risk')}>Ejemplo en riesgo</button>
             <button type="button" className={`preset critical ${activePreset === 'critical' ? 'selected' : ''}`} aria-pressed={activePreset === 'critical'} onClick={() => onPreset('critical')}>Ejemplo crítico</button>
         </div></div>
