@@ -25,7 +25,7 @@ export function CsvAnalyzer({ onAnalyze, loading, results, error }) {
         <div className="csv-controls"><input ref={inputRef} className="visually-hidden" type="file" accept=".csv,text/csv" aria-label="Seleccionar archivo CSV" onChange={chooseFile} />
             <button type="button" className="file-picker" onClick={() => inputRef.current?.click()}><span aria-hidden="true">＋</span><strong>{file?.name || 'Seleccionar archivo CSV'}</strong><small>CSV · máximo 5 MB y 100 filas</small></button>
             <a className="secondary-button link-button" href={`${import.meta.env.VITE_API_URL || ''}/api/csv-template`}>Descargar plantilla</a>
-            <button type="button" className="primary-button" disabled={!file || loading} onClick={() => onAnalyze(file, '')}>{loading ? <><span className="spinner" /> Analizando CSV…</> : 'Analizar CSV'}</button>
+            <button type="button" className="primary-button" disabled={!file || loading} onClick={() => onAnalyze(file, '')}>{loading ? <><span className="spinner" /> Analizando archivo…</> : 'Analizar archivo'}</button>
         </div>
         {error && <p className="inline-error" role="alert">{error}</p>}{loading && <p className="loading-note" role="status">Procesando filas con el modelo activo…</p>}
     </section>{results && <CsvResults data={results} />}</div>;
@@ -40,7 +40,7 @@ function CsvResults({ data }) {
     });
     const errorColumnSpan = showTeamHealth ? 5 : 4;
     return <section className="surface csv-results" aria-labelledby="csv-results-title"><div className="section-heading"><div><p className="eyebrow">RESULTADOS CSV</p><h2 id="csv-results-title">{successCount} de {data.count} proyectos analizados</h2></div></div>
-        <div className="table-scroll"><table><thead><tr><th>Fila</th><th>Health ML</th><th>Retraso</th><th>Sobrecosto</th>{showTeamHealth && <th>Team Health</th>}<th>Estado</th></tr></thead><tbody>{data.rows.map(row => {
+        <div className="table-scroll"><table><thead><tr><th>Fila</th><th>Nivel de riesgo</th><th>Retraso</th><th>Sobrecosto</th>{showTeamHealth && <th>Condición del equipo</th>}<th>Estado</th></tr></thead><tbody>{data.rows.map(row => {
             const prediction = row.prediction?.prediction;
             return <tr key={row.row_number}><th scope="row">{row.row_number}</th>{row.error || !prediction ? <td colSpan={errorColumnSpan} className="table-error">{friendlyRowError(row.error)}</td> : <><td><span className={`table-health ${prediction.health}`}>{healthLabels[prediction.health] || prediction.health}</span></td><td>{fmtNumber(prediction.delay_days)} días</td><td>{fmtPct(prediction.cost_overrun_ratio)}</td>{showTeamHealth && <td>{fmtPct(prediction.team_health?.score)}</td>}<td>{statusLabels[prediction.final_status] || prediction.final_status}</td></>}</tr>;
         })}</tbody></table></div></section>;

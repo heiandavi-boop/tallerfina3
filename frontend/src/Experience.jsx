@@ -31,21 +31,21 @@ function StatusBar({ model, apiReady, result, genaiStatus }) {
     const evidenceFailures = new Set(['unknown_evidence_feature', 'unsupported_numeric_claim', 'empty_recommendations_with_risk_drivers', 'grounding_validation_failed']);
     const formatFailures = new Set(['invalid_json', 'invalid_schema']);
     const genaiText = genai
-        ? genai.genai_used ? 'Qwen3 8B · IA generativa'
-            : !genai.genai_attempted ? 'IA generativa desactivada · respaldo'
-                : genai.failure_code === 'ollama_timeout' ? 'Qwen3 no respondió a tiempo · respaldo activo'
-                    : evidenceFailures.has(genai.failure_code) ? 'Respuesta Qwen3 rechazada por grounding · respaldo activo'
-                        : formatFailures.has(genai.failure_code) ? 'Formato Qwen3 inválido · respaldo activo'
-                            : 'Qwen3 no disponible · respaldo activo'
-        : !genaiStatus ? 'Consultando Qwen3…'
+        ? genai.genai_used ? 'IA generativa local activa'
+            : !genai.genai_attempted ? 'IA generativa desactivada · respuesta de respaldo'
+                : genai.failure_code === 'ollama_timeout' ? 'La IA generativa no respondió a tiempo · respaldo activo'
+                    : evidenceFailures.has(genai.failure_code) ? 'Respuesta de IA rechazada por validación de evidencia · respaldo activo'
+                        : formatFailures.has(genai.failure_code) ? 'Respuesta de IA inválida · respaldo activo'
+                            : 'IA generativa no disponible · respaldo activo'
+        : !genaiStatus ? 'Consultando IA generativa…'
             : !genaiStatus.enabled ? 'IA generativa desactivada'
-                : genaiStatus.available ? `Qwen3 conectado · ${genaiStatus.model}`
-                    : 'Qwen3 no disponible';
+                : genaiStatus.available ? `IA generativa local disponible`
+                    : 'IA generativa no disponible';
     return <div className="status-bar" aria-label="Estado de la plataforma">
         <span className={`status-chip ${model ? demo ? 'amber' : 'green' : 'neutral'}`}><i />{model ? demo ? `Modelo demo · ${model.version}` : `Modelo académico · ${model.version}` : 'Cargando modelo'}</span>
         <span className={`status-chip ${apiReady ? 'green' : 'amber'}`}><i />{apiReady ? 'API disponible' : 'API no disponible'}</span>
         <span className={`status-chip ${genai?.genai_used || (!genai && genaiStatus?.available) ? 'green' : genai?.genai_attempted || (genaiStatus?.enabled && !genaiStatus?.available) ? 'amber' : 'neutral'}`}><i />{genaiText}</span>
-        <span className={`status-chip ${result?.model?.execution === 'LIVE' ? 'green' : 'neutral'}`}><i />{result?.model?.execution === 'LIVE' ? 'Ejecución LIVE' : 'Inferencia real al analizar'}</span>
+        <span className={`status-chip ${result?.model?.execution === 'LIVE' ? 'green' : 'neutral'}`}><i />{result?.model?.execution === 'LIVE' ? 'Análisis en vivo' : 'Análisis real al ejecutar'}</span>
     </div>;
 }
 
@@ -71,24 +71,35 @@ function PresentationOverview() {
             <aside className="research-result" aria-label="Resultado principal del experimento">
                 <span>Resultado experimental</span>
                 <strong>75,9 %</strong>
-                <p>de todos los proyectos TEST que finalmente quedaron <b>At Risk o Critical</b> ya estaban detectados al <b>60 % de avance</b>.</p>
-                <div><b>96 %</b> cobertura TEST <i>·</i> <b>82,45 %</b> detección final</div>
+                <p>de todos los proyectos de prueba que finalmente quedaron <b>en riesgo o críticos</b> ya estaban detectados al <b>60 % de avance</b>.</p>
+                <div><b>96 %</b> de los proyectos de prueba podían evaluarse <i>·</i> <b>82,45 %</b> detección final</div>
             </aside>
         </section>
 
         <section className="plain-flow" aria-label="Cómo funciona PRUNIN">
-            <article><span>1</span><div><strong>Observa</strong><p>Avance, SPI, CPI, duración, presupuesto y contexto del proyecto.</p></div></article>
-            <article><span>2</span><div><strong>Detecta</strong><p>Activa una alerta cuando Health queda en <b>At Risk</b> o <b>Critical</b>.</p></div></article>
+            <article><span>1</span><div><strong>Observa</strong><p>Avance, cumplimiento del cronograma, comportamiento del costo, duración y presupuesto.</p></div></article>
+            <article><span>2</span><div><strong>Detecta</strong><p>Activa una alerta cuando el nivel de riesgo queda <b>En riesgo</b> o <b>Crítico</b>.</p></div></article>
             <article><span>3</span><div><strong>Explica</strong><p>Muestra señales que empujan el riesgo y propone acciones revisables.</p></div></article>
             <article><span>4</span><div><strong>Simula</strong><p>Permite explorar qué cambia si mejoran indicadores del proyecto.</p></div></article>
         </section>
 
         <section className="reading-guide" aria-label="Cómo leer los resultados">
-            <article><span className="guide-dot risk" /><div><strong>Risk Alert</strong><p>Responde: <b>¿requiere atención ahora?</b></p></div></article>
-            <article><span className="guide-dot health" /><div><strong>Health</strong><p>Responde: <b>¿qué tan severa es la condición?</b></p></div></article>
-            <article><span className="guide-dot estimate" /><div><strong>Delay + Cost</strong><p>Estiman la magnitud posible de retraso y sobrecosto.</p></div></article>
+            <article><span className="guide-dot risk" /><div><strong>Alerta temprana</strong><p>Responde: <b>¿requiere atención ahora?</b></p></div></article>
+            <article><span className="guide-dot health" /><div><strong>Nivel de riesgo</strong><p>Responde: <b>¿qué tan severa es la condición?</b></p></div></article>
+            <article><span className="guide-dot estimate" /><div><strong>Retraso + sobrecosto</strong><p>Estiman la posible magnitud de las desviaciones.</p></div></article>
         </section>
-        <p className="experiment-scope">Evidencia del benchmark académico con dataset sintético externo. No equivale a validación empresarial ni a operación en producción.</p>
+        <details className="plain-glossary">
+            <summary>¿Qué significan los términos que aparecen en la demo?</summary>
+            <div className="glossary-grid">
+                <div><strong>Alerta temprana</strong><p>Indica si el proyecto necesita atención.</p></div>
+                <div><strong>Nivel de riesgo</strong><p>Clasifica el proyecto como Saludable, En riesgo o Crítico.</p></div>
+                <div><strong>SPI</strong><p>Mide cumplimiento del cronograma. Menor que 1 indica atraso frente al plan.</p></div>
+                <div><strong>CPI</strong><p>Mide eficiencia del costo. Menor que 1 indica presión de costo.</p></div>
+                <div><strong>Posible retraso</strong><p>Estimación de días de desviación del cronograma.</p></div>
+                <div><strong>Posible sobrecosto</strong><p>Estimación del aumento del costo frente al presupuesto.</p></div>
+            </div>
+        </details>
+        <p className="experiment-scope">Resultados de una evaluación académica con datos simulados externos publicados. No equivale a una validación empresarial ni a uso en producción.</p>
     </div>;
 }
 
@@ -213,7 +224,7 @@ export default function Experience() {
     };
 
     if (!schema) return <div className="boot-screen"><span className="brand-mark">P</span><h1>PRUNIN AI Core</h1><p role={error ? 'alert' : 'status'}>{error || 'Conectando con la API…'}</p></div>;
-    const loadingMessages = ['Calculando predicciones ML…', 'Evaluando drivers locales…', genaiStatus?.enabled && genaiStatus?.available ? 'Generando recomendación con Qwen3…' : 'Preparando recomendación de respaldo…'];
+    const loadingMessages = ['Evaluando el nivel de riesgo…', 'Identificando las señales más influyentes…', genaiStatus?.enabled && genaiStatus?.available ? 'Generando una explicación con IA…' : 'Preparando una recomendación de respaldo…'];
 
     return <div id="top" className="app-shell">
         <AppHeader model={schema.model} apiReady={apiReady} result={result} genaiStatus={genaiStatus} onTechnical={() => setDrawerOpen(true)} />
@@ -229,7 +240,7 @@ export default function Experience() {
 
             {mode === 'project' ? <>
                 <ProjectForm schema={schema} values={values} onChange={change} onAnalyze={analyze} loading={loading} activePreset={activePreset} onPreset={choosePreset} coverage={coverage} />
-                {loading && <div className="analysis-loading" role="status" aria-live="polite"><span className="spinner large" /><div><strong>{loadingMessages[loadingStage]}</strong><small>{genaiStatus?.enabled && genaiStatus?.available ? 'La generación local puede tardar hasta el timeout configurado.' : 'La API ejecuta la inferencia real y prepara el motor de respaldo.'}</small></div></div>}
+                {loading && <div className="analysis-loading" role="status" aria-live="polite"><span className="spinner large" /><div><strong>{loadingMessages[loadingStage]}</strong><small>{genaiStatus?.enabled && genaiStatus?.available ? 'La explicación con IA puede tardar unos segundos.' : 'El sistema ejecuta el análisis y prepara una respuesta de respaldo.'}</small></div></div>}
                 <div ref={resultRef}><ResultHero result={result} schema={schema} /></div>
                 {result && <>
                     <DriversPanel drivers={result.drivers} fields={schema.fields} />
@@ -239,7 +250,7 @@ export default function Experience() {
                 </>}
             </> : <CsvAnalyzer onAnalyze={analyzeCsv} loading={csvLoading} results={csvResults} error={error} />}
 
-            <footer className="app-footer"><strong>PRUNIN AI Core</strong><span>Proyecto académico · Inferencia trazable · Sensibilidad no causal</span></footer>
+            <footer className="app-footer"><strong>PRUNIN AI Core</strong><span>Proyecto académico · Análisis trazable · Las señales explican el modelo, no prueban causas</span></footer>
         </main>
         <TechnicalDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} result={result} model={schema.model} schema={schema} technicalError={technicalError} genaiStatus={genaiStatus} />
     </div>;

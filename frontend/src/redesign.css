@@ -2321,3 +2321,56 @@ tbody th {
 .indicator-cheat-sheet b {
   color: #304a39;
 }
+
+
+.plain-glossary {
+  border: 1px solid #dfe6e0;
+  border-radius: 8px;
+  background: rgba(255,255,255,.76);
+}
+
+.plain-glossary>summary {
+  padding: 12px 15px;
+  color: #3c5646;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.glossary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  border-top: 1px solid #e5ebe6;
+}
+
+.glossary-grid>div {
+  padding: 13px 15px;
+  border-right: 1px solid #e5ebe6;
+  border-bottom: 1px solid #e5ebe6;
+}
+
+.glossary-grid>div:nth-child(3n) {
+  border-right: 0;
+}
+
+.glossary-grid strong {
+  color: #2f4737;
+  font-size: 12px;
+}
+
+.glossary-grid p {
+  margin: 4px 0 0;
+  color: #66746b;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+@media (max-width: 760px) {
+  .glossary-grid {
+    grid-template-columns: 1fr;
+  }
+  .glossary-grid>div {
+    border-right: 0;
+  }
+}

@@ -75,8 +75,8 @@ describe('Playground ejecutivo', () => {
         { row_number: 2, prediction: unavailableTeamHealth, error: null },
       ]
     }} />);
-    expect(screen.queryByRole('columnheader', { name: 'Team Health' })).toBeNull();
-    expect(screen.getByRole('columnheader', { name: 'Health ML' })).toBeTruthy();
+    expect(screen.queryByRole('columnheader', { name: 'Condición del equipo' })).toBeNull();
+    expect(screen.getByRole('columnheader', { name: 'Nivel de riesgo' })).toBeTruthy();
   });
 
   it('muestra la columna Team Health cuando al menos una fila tiene un score calculable', () => {
@@ -89,7 +89,7 @@ describe('Playground ejecutivo', () => {
         { row_number: 2, prediction: withTeamHealth, error: null },
       ]
     }} />);
-    expect(screen.getByRole('columnheader', { name: 'Team Health' })).toBeTruthy();
+    expect(screen.getByRole('columnheader', { name: 'Condición del equipo' })).toBeTruthy();
     expect(screen.getByText('66,7 %')).toBeTruthy();
   });
 
@@ -103,7 +103,7 @@ describe('Playground ejecutivo', () => {
     expect(screen.getByRole('tab', { name: 'Analizar proyecto' }).getAttribute('aria-selected')).toBe('true');
     expect(screen.getByRole('tab', { name: 'Analizar CSV' })).toBeTruthy();
     expect(screen.getByText('IA generativa desactivada')).toBeTruthy();
-    expect(screen.getByLabelText(/SPI/)).toBeTruthy();
+    expect(screen.getByLabelText(/Cumplimiento del cronograma \(SPI\)/)).toBeTruthy();
     expect(Array.from(document.querySelector('#field-project_type').options).map(option => option.value)).toEqual(['construction', 'healthcare', 'it', 'manufacturing', 'marketing', 'r&d']);
     expect(Array.from(document.querySelector('#field-methodology').options).map(option => option.value)).toEqual(['agile', 'hybrid', 'kanban', 'scrum', 'waterfall']);
     expect(document.querySelector('#field-project_type').value).toBe('healthcare');
@@ -156,13 +156,13 @@ describe('Playground ejecutivo', () => {
     const user = userEvent.setup();
     await openProject();
     await user.click(screen.getByRole('button', { name: 'Evaluar riesgo del proyecto' }));
-    expect(await screen.findByText('Qwen3 8B · IA generativa activa')).toBeTruthy();
+    expect(await screen.findByText('IA generativa local activa')).toBeTruthy();
   });
 
   it('muestra Qwen3 conectado antes de analizar según el endpoint de estado', async () => {
     installFetch({ genaiStatus: { enabled: true, provider: 'ollama', model: 'qwen3:8b', available: true, last_error: null } });
     await openProject();
-    expect(screen.getByText('Qwen3 conectado · qwen3:8b')).toBeTruthy();
+    expect(screen.getByText('IA generativa local disponible')).toBeTruthy();
   });
 
   it('explica de forma moderada el timeout de Qwen y confirma el uso de respaldo', async () => {
@@ -170,7 +170,7 @@ describe('Playground ejecutivo', () => {
     const user = userEvent.setup();
     await openProject();
     await user.click(screen.getByRole('button', { name: 'Evaluar riesgo del proyecto' }));
-    expect(await screen.findByText(/Qwen3 no respondió dentro del tiempo esperado; se utilizó recomendación de respaldo/)).toBeTruthy();
+    expect(await screen.findByText(/La IA generativa no respondió dentro del tiempo esperado; se utilizó una recomendación de respaldo/)).toBeTruthy();
     expect(screen.getByText('La predicción se completó correctamente.')).toBeTruthy();
     expect(screen.queryByText(/ReadTimeout/)).toBeNull();
     await user.click(screen.getAllByRole('button', { name: /Ver evidencia técnica/ })[0]);
@@ -186,7 +186,7 @@ describe('Playground ejecutivo', () => {
     const user = userEvent.setup();
     await openProject();
     await user.click(screen.getByRole('button', { name: 'Evaluar riesgo del proyecto' }));
-    expect(await screen.findByText(/La respuesta de Qwen3 no cumplió las reglas de evidencia/)).toBeTruthy();
+    expect(await screen.findByText(/La respuesta de IA no cumplió las reglas de evidencia/)).toBeTruthy();
     expect(screen.queryByText('unsupported_numeric_claim')).toBeNull();
   });
 
@@ -195,7 +195,7 @@ describe('Playground ejecutivo', () => {
     const user = userEvent.setup();
     await openProject();
     await user.click(screen.getByRole('button', { name: 'Evaluar riesgo del proyecto' }));
-    expect(await screen.findByText(/Qwen3 no devolvió una respuesta válida/)).toBeTruthy();
+    expect(await screen.findByText(/La IA generativa no devolvió una respuesta válida/)).toBeTruthy();
     expect(screen.queryByText('invalid_json')).toBeNull();
   });
 
@@ -227,7 +227,7 @@ describe('Playground ejecutivo', () => {
     expect(screen.getByRole('link', { name: 'Descargar plantilla' }).getAttribute('href')).toContain('/api/csv-template');
     const file = new File(['planned_duration_weeks\n52'], 'projects.csv', { type: 'text/csv' });
     await user.upload(screen.getByLabelText('Seleccionar archivo CSV'), file);
-    await user.click(screen.getByRole('button', { name: 'Analizar CSV' }));
+    await user.click(screen.getByRole('button', { name: 'Analizar archivo' }));
     expect(await screen.findByRole('heading', { name: '1 de 1 proyectos analizados' })).toBeTruthy();
     expect(screen.getByText('68,3 días')).toBeTruthy();
     expect(screen.getByText('Con desviaciones')).toBeTruthy();
@@ -241,7 +241,7 @@ describe('Playground ejecutivo', () => {
     await screen.findByRole('heading', { name: 'Carga masiva de proyectos' });
     const file = new File(['planned_duration_weeks\n52'], 'partial.csv', { type: 'text/csv' });
     await user.upload(screen.getByLabelText('Seleccionar archivo CSV'), file);
-    await user.click(screen.getByRole('button', { name: 'Analizar CSV' }));
+    await user.click(screen.getByRole('button', { name: 'Analizar archivo' }));
     expect(await screen.findByText(/Datos incompletos: no se alcanza la cobertura mínima/)).toBeTruthy();
   });
 });
