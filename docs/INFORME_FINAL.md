@@ -4,7 +4,7 @@
 
 ## 2. Resumen ejecutivo
 
-PRUNIN AI Core integra clasificación y regresión supervisadas con explicación generativa local para apoyar la gestión de riesgos de proyectos. La versión congelada `0.9.0-academic` se evalúa sobre un dataset sintético externo publicado en Mendeley Data. Health supera el baseline en Macro F1, Delay aporta una mejora marginal y Cost presenta desempeño interno alto condicionado por el generador EVM. Qwen3 8B fue evaluado en 30 casos con 29 respuestas aceptadas. Además, un benchmark operacional reproducible midió latencia, throughput y procesamiento individual/batch sobre 100 proyectos TEST. No está validado con proyectos empresariales reales; no se midió productividad humana ni carga productiva. El alcance defendible es un prototipo académico reproducible para entrega y sustentación.
+PRUNIN AI Core integra clasificación y regresión supervisadas con explicación generativa local para apoyar la gestión de riesgos de proyectos. La versión congelada `0.9.0-academic` se evalúa sobre un dataset sintético externo publicado en Mendeley Data. La meta original de detectar tempranamente al menos el 75 % de los proyectos críticos o en alto riesgo se formalizó sin reentrenar: la vista Risk Alert agrupa At Risk + Critical y, usando como denominador fijo los 473 proyectos TEST que finalmente pertenecen a esas clases, alcanza 75.90 % de detección al 60 % de avance con 96 % de cobertura TEST; al final alcanza 82.45 %. Health supera el baseline en Macro F1, Delay aporta una mejora marginal y Cost presenta desempeño interno alto condicionado por el generador EVM. Qwen3 8B fue evaluado en 30 casos con 29 respuestas aceptadas. Además, un benchmark operacional reproducible midió latencia, throughput y procesamiento individual/batch sobre 100 proyectos TEST. No está validado con proyectos empresariales reales; no se midió productividad humana ni carga productiva. El alcance defendible es un prototipo académico reproducible para entrega y sustentación.
 
 ## 3. Introducción
 
@@ -28,7 +28,7 @@ Se evalúa su componente predictivo y la generación estructurada sobre datos si
 
 ## 7. Objetivo general
 
-Construir y evaluar un prototipo reproducible de apoyo a la gestión que estime Health, Delay y Cost a partir de snapshots y traduzca evidencia estructurada en recomendaciones trazables bajo supervisión humana.
+Desarrollar y evaluar un prototipo reproducible de apoyo a la gestión capaz de anticipar riesgos de retraso y sobrecosto, detectar tempranamente proyectos críticos o en alto riesgo y traducir evidencia estructurada en recomendaciones trazables bajo supervisión humana. La meta operacional de la propuesta inicial es detectar al menos el 75 % de los proyectos Critical o At Risk.
 
 ## 8. Objetivos específicos
 
@@ -178,7 +178,30 @@ El reporte `reports/genai/qwen3-8b-evaluation.json` está `complete`, modelo `qw
 
 El caso rechazado fue `mendeley::PROJ_0840`, clase critical, código `unsupported_numeric_claim`: el JSON y las features permitidas eran válidos, pero la respuesta incluyó cifras no admitidas por la evidencia. El guardrail detectó esa condición en lugar de aceptar texto convincente. Es una fortaleza de control, no prueba de que todas las alucinaciones semánticas sean detectadas; revisar lenguaje y pertinencia sigue siendo necesario.
 
+### 17.3 Validación de la meta original de detección
+
+La propuesta inicial estableció una meta operacional: **detectar tempranamente al menos el 75 % de los proyectos críticos o en alto riesgo**. Esa formulación corresponde a una alerta de negocio sobre dos clases, no al recall exclusivo de `Critical`. Por ello se agrega una métrica derivada, sin cambiar el modelo: Healthy = No Alert; At Risk o Critical = Risk Alert.
+
+En TEST final existen 473 proyectos realmente At Risk/Critical. PRUNIN identifica 390 como At Risk/Critical: **Risk Alert Recall 82.45 %**, **Precision 92.20 %** y **F1 87.05 %**. La capacidad de distinguir específicamente la severidad Critical se conserva como métrica separada: recall 56.82 % (25/44).
+
+Para evitar sesgo por cobertura temprana se usa además una métrica estricta de cohorte completa: TP dividido por los 473 proyectos que finalmente son At Risk/Critical. Un proyecto sin snapshot elegible en el corte cuenta como todavía no detectado. Con esta regla, la detección acumulada es 28.54 % al 20 %, 64.06 % al 40 %, **75.90 % al 60 %**, 79.92 % al 80 % y 82.45 % al final. El primer corte pre-cierre que supera la meta es 60 %, con 576/600 proyectos TEST cubiertos (96 %).
+
+Esta métrica formaliza la promesa original; no reentrena, no cambia labels, thresholds ni TEST. Evidencia: `reports/promise_validation/` y `scripts/validate_original_promise.py`.
+
 ## 18. Evaluación temporal
+
+La evaluación temporal se interpreta con dos denominadores. El **recall entre elegibles** mide desempeño dentro de proyectos que ya tienen snapshot antes del cutoff. La **detección de cohorte completa** usa como denominador fijo los 473 proyectos TEST que finalmente son At Risk/Critical y penaliza la falta de observación temprana.
+
+| Avance | Cobertura TEST | Risk Recall entre elegibles | Detección de cohorte completa |
+|---:|---:|---:|---:|
+| 20 % | 39.33 % | 71.05 % | 28.54 % |
+| 40 % | 77.17 % | 79.95 % | 64.06 % |
+| 60 % | 96.00 % | 78.73 % | **75.90 %** |
+| 80 % | 99.83 % | 79.92 % | 79.92 % |
+| Final | 100 % | 82.45 % | 82.45 % |
+
+El punto de cumplimiento experimental de la meta ≥75 % es el corte del **60 % de avance**, antes del cierre y con aproximadamente 40 % del ciclo todavía por ejecutar. Este hallazgo no convierte el benchmark sintético en validación empresarial.
+
 
 **Tabla 3. Desempeño y cobertura por nivel de avance en TEST.**
 
@@ -231,9 +254,11 @@ The Kubernetes Authors (s. f.) documentan los mecanismos de despliegue utilizado
 
 ## 22. Limitaciones
 
-Los datos son sintéticos, el desbalance afecta Health, la detección crítica es incompleta, Delay apenas mejora la mediana y Cost depende del generador EVM. La evaluación temprana tiene cobertura desigual. La fusión no está calibrada; drivers no son causales. El benchmark GenAI es pequeño y condicionado; sus validadores son proxies. La eficiencia operacional se midió localmente, pero no hay baseline humano, validación empresarial ni clúster productivo. La prueba manual balanceada de 99 filas comunicada por el autor no tiene resultados estructurados versionados identificados: no se incorpora como métrica oficial. Existe un test local de 99 filas que verifica contrato y cobertura, sin balance 33/33/33 garantizado.
+Los datos son sintéticos; por tanto, el cumplimiento del KPI es experimental y no empresarial. El desbalance afecta Health, la detección exacta de Critical es incompleta, Delay apenas mejora la mediana y Cost depende del generador EVM. La evaluación temprana tiene cobertura desigual. La fusión no está calibrada; drivers no son causales. El benchmark GenAI es pequeño y condicionado; sus validadores son proxies. La eficiencia operacional se midió localmente, pero no hay baseline humano, validación empresarial ni clúster productivo. La prueba manual balanceada de 99 filas comunicada por el autor no tiene resultados estructurados versionados identificados: no se incorpora como métrica oficial. Existe un test local de 99 filas que verifica contrato y cobertura, sin balance 33/33/33 garantizado.
 
 ## 23. Conclusiones
+
+La promesa principal se cumple **dentro del entorno experimental** cuando se mide de acuerdo con su formulación original: detectar proyectos Critical o At Risk. PRUNIN identifica 75.90 % de toda la cohorte TEST que finalmente queda en riesgo al 60 % de avance, con 96 % de cobertura; al final identifica 82.45 %. Esto no implica validación empresarial y no debe confundirse con el recall exacto de Critical, que es 56.82 %.
 
 Health ofrece señal multiclase útil en este benchmark: Macro F1 0.627576 frente a 0.277940 del baseline, aunque solo recupera 25 de 44 critical. Delay es el componente predictivo más débil: mejorar MAE de 27.850313 a 27.710468 días no respalda una promesa de precisión alta. Cost funciona muy bien internamente (R² 0.991816), con dependencia estructural CPI/progreso–outcome que impide extrapolar el rendimiento empresarial.
 
