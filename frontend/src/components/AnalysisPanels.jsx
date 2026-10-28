@@ -13,6 +13,15 @@ function ProbabilityBars({ probabilities }) {
     return <div className="probability-list">{Object.entries(probabilities).sort((a, b) => Number(b[1]) - Number(a[1])).map(([key, value]) => <div className="probability-row" key={key}><div className="probability-label"><Tone status={key}>{healthLabels[key] || key}</Tone><strong>{fmtPct(value)}</strong></div><div className="probability-track" role="img" aria-label={`${healthLabels[key] || key}: ${fmtPct(value)}`}><span className={`probability-fill ${key}`} style={{ width: `${Math.max(0, Math.min(100, Number(value) * 100))}%` }} /></div></div>)}</div>;
 }
 
+function RiskAlertBanner({ status }) {
+    const active = status === 'at_risk' || status === 'critical';
+    return <div className={`risk-alert-banner ${active ? 'active' : 'clear'}`} role="status" aria-label="Alerta operacional de riesgo">
+        <div><span className="eyebrow">RISK ALERT</span><strong>{active ? 'Alerta de riesgo' : 'Sin alerta de riesgo'}</strong></div>
+        <p>{active ? 'Requiere atención: Health ML está en At Risk o Critical.' : 'Health ML está en Healthy.'}</p>
+        <small>Vista operacional derivada de Health ML; no es un modelo nuevo ni reemplaza la severidad multiclase.</small>
+    </div>;
+}
+
 function TeamHealthCard({ teamHealth }) {
     const labels = { team_utilization: 'Utilización', team_capacity_ratio: 'Capacidad', average_productivity: 'Productividad', rework_ratio: 'Retrabajo', defect_rate: 'Defectos', team_stability: 'Estabilidad', collaboration_level: 'Colaboración' };
     if (!teamHealth) return <article className="metric-card"><span>Team Health</span><strong>—</strong><small>No disponible</small></article>;
@@ -27,6 +36,7 @@ export function ResultHero({ result, schema }) {
     const status = prediction.health;
     return <section className="surface result-card" id="result" aria-labelledby="result-title"><div className="section-heading"><div><span className="step-number">2</span><div><p className="eyebrow">RESULTADO</p><h2 id="result-title">Resultado del análisis</h2></div></div><span className="live-indicator"><i /> Predicción del modelo supervisado</span></div>
         <div className={`result-hero ${status}`}><span className="eyebrow">HEALTH ML</span><h3><Tone status={status}>{healthLabels[status] || status}</Tone></h3><p>Clasificación del modelo académico</p>{prediction.final_status != null && <p className="business-status">Estado de negocio: <strong>{statusLabels[prediction.final_status] || prediction.final_status}</strong><span className="help-dot" title="Derivado de Health en el modelo académico actual." aria-label="Derivado de Health en el modelo académico actual.">?</span></p>}</div>
+        <RiskAlertBanner status={status} />
         <div className="metric-grid"><article className="metric-card"><span>Retraso estimado</span><strong>{fmtNumber(prediction.delay_days)} <small>días</small></strong><small>Estimación operacional · mínimo 0 días</small></article><article className="metric-card"><span>Sobrecosto estimado</span><strong>{fmtPct(prediction.cost_overrun_ratio)}</strong><small>Predicción ML</small></article><TeamHealthCard teamHealth={prediction.team_health} /></div>
         <div className="combined-line"><span>Riesgo combinado</span><strong>{fmtPct(prediction.fused_risk_score)} · {healthLabels[prediction.fused_health] || '—'}</strong><small>ML + señal operativa Team Health</small></div>
         <div className="result-lower-grid"><div><h3>Probabilidad del modelo</h3><ProbabilityBars probabilities={prediction.health_probabilities} /></div><div className="quality-summary"><h3>Calidad de datos</h3>{prediction.input_quality?.complete ? <p className="quality-complete">✓ Datos completos</p> : <p className="quality-warning">⚠ Se imputaron {prediction.input_quality?.missing_count ?? 0} variables ML</p>}{prediction.input_quality?.missing_count > 0 && <small>Imputación según el pipeline de entrenamiento.</small>}</div></div>
