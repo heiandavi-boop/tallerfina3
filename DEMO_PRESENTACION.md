@@ -21,6 +21,7 @@ GenAI tiene preflight separado: `./scripts/preflight_genai.sh`. Ollama ausente n
 2. Arquitectura: separar LightGBM, heurísticas y explicación; usar diagrama, no código largo.
 3. Dataset: Mendeley v2, dataset sintético externo publicado en Mendeley Data; split por proyecto.
 4. Predicción individual: analizar preset y señalar versión/LIVE. El nombre del preset no garantiza su clase predicha.
+4A. Risk Alert: señalar el banner operacional. At Risk/Critical = requiere atención; Healthy = sin alerta. Aclarar que deriva de Health ML, no es un cuarto modelo ni un threshold nuevo.
 5. Health probabilities: leer probabilidades y clase; no confundir con fusión calibrada.
 6. Delay/Cost: Delay operacional ≥0 y raw técnico; Cost negativo válido; limitaciones oficiales explícitas.
 7. Drivers: sensibilidad local; no decir que son causas.
@@ -29,7 +30,7 @@ GenAI tiene preflight separado: `./scripts/preflight_genai.sh`. Ollama ausente n
 10. CSV: plantilla hasta 100 filas; ML completa sin imputación, Team Health opcional sin inventar señales. Columna oculta si ningún score calculable; visible si alguno. No llama Qwen. Tipos: construction, healthcare, it, manufacturing, marketing, r&d; metodologías: agile, hybrid, kanban, scrum, waterfall.
 11. Trazabilidad: prediction_id, versión, timing y raw; mostrar solo el fragmento JSON necesario o descargar evidencia.
 12. CI/MLOps: run exacto del commit completed/success; manifests/hashes; readiness/monitoring brevemente. Kubernetes es diseño, sin clúster activo.
-13. Limitaciones: Health Macro F1 0.627576 frente a 0.277940; Delay MAE 27.710468 frente a 27.850313 días; Cost MAE 0.147158 pp y R² 0.991816 con caveat EVM. Al 20 % solo 236/600 (39.333 %). Medición humana y validación empresarial pendientes.
+13. Resultado principal: la métrica estricta de cohorte completa alcanza 75.90 % al 60 % de avance con 96 % de cobertura TEST; al final Risk Alert Recall 82.45 %, mientras Critical Recall exacto es 56.82 %. Limitaciones: Health Macro F1 0.627576 frente a 0.277940; Delay MAE 27.710468 frente a 27.850313 días; Cost MAE 0.147158 pp y R² 0.991816 con caveat EVM. Al 20 % solo 236/600 (39.333 %). Medición humana y validación empresarial pendientes.
 
 La demo no es un benchmark de eficiencia humana. Priorizar problema y resultados sobre terminales/infraestructura. Para 7 min elegir una interacción; para 10/12 min ampliar según plan de diapositivas.
 
@@ -118,3 +119,12 @@ El autor comunicó una prueba manual balanceada que produjo las tres clases. No 
 No todavía: mediana GenAI 3.092645 s no es baseline humano ni tiempo end-to-end. El protocolo de cinco casos está pendiente en docs/efficiency_evaluation.md.
 
 Guion de diapositivas: `docs/PRESENTACION_FINAL.md`. Informe: `docs/INFORME_FINAL.md`. Referencias: `docs/references.md`.
+
+
+**¿Cumplieron el 75 %?**
+
+Sí, dentro del benchmark sintético: 359/473 proyectos finales At Risk/Critical ya están detectados al 60 % de avance (75.90 %), con 96 % de cobertura TEST. No equivale a validación empresarial.
+
+**¿Por qué no usar 79.95 % al 40 %?**
+
+Ese valor es recall solo entre proyectos elegibles. La defensa usa una métrica más estricta: todos los 473 proyectos finales en riesgo forman el denominador; al 40 % el acumulado es 64.06 % y la meta se cruza al 60 %.
