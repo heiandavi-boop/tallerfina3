@@ -2402,3 +2402,44 @@ tbody th {
   background: #eaf5ed;
   outline: none;
 }
+
+
+.project-import-banner {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 12px;
+  align-items: center;
+  margin: 0 0 16px 43px;
+  padding: 12px 14px;
+  border: 1px solid #bcd7c5;
+  border-left: 4px solid #2f6f4e;
+  border-radius: 7px;
+  background: #f2f9f4;
+}
+
+.project-import-banner strong {
+  color: #24563c;
+  font-size: 13px;
+}
+
+.project-import-banner span {
+  color: #3f5e49;
+  font-size: 12px;
+}
+
+.project-import-banner small {
+  grid-column: 1 / -1;
+  color: #65756b;
+  font-size: 11px;
+}
+
+@media (max-width: 560px) {
+  .project-import-banner {
+    margin-left: 0;
+    grid-template-columns: 1fr;
+  }
+
+  .project-import-banner small {
+    grid-column: 1;
+  }
+}

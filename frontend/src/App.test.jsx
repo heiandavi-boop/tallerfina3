@@ -22,14 +22,15 @@ const model = { version: '0.9.0-academic', mode: 'academic', dataset_source: 'Me
 const schema = { fields, ml_features: model.trained_features, team_health_features: ['team_utilization'], not_used_features: ['future_feature'], what_if_fields: [...model.trained_features, 'team_utilization'], model, presets: { healthy: { ...preset, spi: 1.04, cpi: 1.02 }, at_risk: preset, critical: { ...preset, spi: .61, cpi: .72 } } };
 const fallback = { engine: 'grounded_fallback', genai_attempted: false, genai_used: false, evidence_features: ['cpi', 'true_progress'], reasons: ['CPI muestra una señal de mayor riesgo.'], actions: ['Revisar la proyección de costos y la estimación a la conclusión.'], disclaimer: 'Validar con criterio profesional.' };
 
-function prediction(recommendations = fallback, complete = true) {
-  return { prediction_id: 'test-prediction', model: { ...model, execution: 'LIVE' }, inference_ms: 64.2, driver_source: 'local_model_sensitivity', drivers: [{ feature: 'cpi', label: 'CPI', value: .38, reference: 1, risk_impact: .231, direction: 'increases_risk' }, { feature: 'spi', label: 'SPI', value: .54, reference: 1, risk_impact: -.132, direction: 'reduces_risk' }], recommendations, prediction: { health: 'critical', fused_health: 'critical', fused_risk_score: .702, delay_days: 68.3, cost_overrun_ratio: .234, final_status: 'critical', final_status_source: 'derived_from_health', health_probabilities: { healthy: .005, at_risk: .455, critical: .54 }, input_quality: { complete, coverage: complete ? 1 : .86, missing_count: complete ? 0 : 1 }, team_health: { score: .667, level: 'attention', component_count: 7, weight_coverage: 1, components: { team_utilization: .667, team_capacity_ratio: .72 } } } };
+function prediction(recommendations = fallback, complete = true, input = preset) {
+  return { prediction_id: 'test-prediction', input: { ...input }, model: { ...model, execution: 'LIVE' }, inference_ms: 64.2, driver_source: 'local_model_sensitivity', drivers: [{ feature: 'cpi', label: 'CPI', value: .38, reference: 1, risk_impact: .231, direction: 'increases_risk' }, { feature: 'spi', label: 'SPI', value: .54, reference: 1, risk_impact: -.132, direction: 'reduces_risk' }], recommendations, prediction: { health: 'critical', fused_health: 'critical', fused_risk_score: .702, delay_days: 68.3, cost_overrun_ratio: .234, final_status: 'critical', final_status_source: 'derived_from_health', health_probabilities: { healthy: .005, at_risk: .455, critical: .54 }, input_quality: { complete, coverage: complete ? 1 : .86, missing_count: complete ? 0 : 1 }, team_health: { score: .667, level: 'attention', component_count: 7, weight_coverage: 1, components: { team_utilization: .667, team_capacity_ratio: .72 } } } };
 }
 const whatIfResult = { baseline: prediction(), scenario: prediction(), delta: { risk_score: -.256, delay_days: -7.1, cost_overrun_ratio: -.261 } };
-const csvPrediction = prediction();
-csvPrediction.prediction.final_status = 'challenged';
 const csvInput = { ...preset, planned_duration_weeks: 88, spi: 1.11, cpi: 1.06 };
-const csvResult = { count: 1, rows: [{ row_number: 1, input: csvInput, error: null, prediction: csvPrediction }] };
+const csvPrediction = prediction(fallback, true, csvInput);
+csvPrediction.prediction.final_status = 'challenged';
+const staleCsvInput = { ...preset };
+const csvResult = { filename: 'projects.csv', count: 1, rows: [{ row_number: 1, input: staleCsvInput, error: null, prediction: csvPrediction }] };
 const jsonResponse = (body, ok = true) => Promise.resolve({ ok, json: () => Promise.resolve(body) });
 
 function installFetch({ recommendation = fallback, complete = true, csv = csvResult, genaiStatus = { enabled: false, provider: 'ollama', model: 'qwen3:8b', available: false, last_error: null } } = {}) {
@@ -234,6 +235,24 @@ describe('Playground ejecutivo', () => {
     expect(screen.getByText('Con desviaciones')).toBeTruthy();
   });
 
+  it('carga automáticamente la única fila CSV al volver a Analizar proyecto', async () => {
+    const user = userEvent.setup();
+    await openProject();
+    await user.click(screen.getByRole('tab', { name: 'Analizar varios proyectos' }));
+    const file = new File(['planned_duration_weeks\n88'], 'projects.csv', { type: 'text/csv' });
+    await user.upload(screen.getByLabelText('Seleccionar archivo de proyectos'), file);
+    await user.click(screen.getByRole('button', { name: 'Analizar archivo' }));
+    await screen.findByRole('heading', { name: '1 de 1 proyectos analizados' });
+
+    await user.click(screen.getByRole('tab', { name: 'Analizar proyecto' }));
+
+    expect(document.querySelector('#field-planned_duration_weeks').value).toBe('88');
+    expect(document.querySelector('#field-spi').value).toBe('1.11');
+    expect(document.querySelector('#field-cpi').value).toBe('1.06');
+    expect(screen.getByText('Proyecto cargado desde archivo')).toBeTruthy();
+    expect(screen.getByText(/Fila 1 · projects.csv/)).toBeTruthy();
+  });
+
   it('abre una fila del archivo en el análisis individual con los mismos datos', async () => {
     const user = userEvent.setup();
     await openProject();
@@ -250,6 +269,8 @@ describe('Playground ejecutivo', () => {
     expect(document.querySelector('#field-planned_duration_weeks').value).toBe('88');
     expect(document.querySelector('#field-spi').value).toBe('1.11');
     expect(document.querySelector('#field-cpi').value).toBe('1.06');
+    expect(screen.getByText('Proyecto cargado desde archivo')).toBeTruthy();
+    expect(screen.getByText(/Fila 1 · projects.csv/)).toBeTruthy();
     expect(await screen.findByRole('heading', { name: '¿Este proyecto requiere atención?' })).toBeTruthy();
 
     const detailedRequest = global.fetch.mock.calls

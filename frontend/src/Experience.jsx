@@ -122,6 +122,8 @@ export default function Experience() {
     const [result, setResult] = useState(null);
     const [comparison, setComparison] = useState(null);
     const [csvResults, setCsvResults] = useState(null);
+    const [lastCsvProject, setLastCsvProject] = useState(null);
+    const [importedProjectSource, setImportedProjectSource] = useState(null);
     const [loading, setLoading] = useState(false);
     const [simulationLoading, setSimulationLoading] = useState(false);
     const [csvLoading, setCsvLoading] = useState(false);
@@ -156,10 +158,11 @@ export default function Experience() {
         return { missing, minimum: minimumCoverage, ratio: trainedFeatures.length ? (trainedFeatures.length - missing) / trainedFeatures.length : 1 };
     }, [trainedFeatures, minimumCoverage, values]);
 
-    const change = (name, value) => { setValues(current => ({ ...current, [name]: value })); setActivePreset(null); setError(''); };
+    const change = (name, value) => { setValues(current => ({ ...current, [name]: value })); setActivePreset(null); setImportedProjectSource(null); setError(''); };
     const choosePreset = name => {
         setValues({ ...schema.presets[name] });
         setActivePreset(name);
+        setImportedProjectSource(null);
         setResult(null);
         setComparison(null);
         setError('');
@@ -216,7 +219,16 @@ export default function Experience() {
             const form = new FormData();
             form.append('file', file);
             const response = await fetch(`${API}/api/predict-csv`, { method: 'POST', body: form });
-            setCsvResults(await responseJson(response));
+            const data = await responseJson(response);
+            setCsvResults(data);
+            const successfulRows = (data.rows || []).filter(row => row.prediction && !row.error);
+            if (successfulRows.length === 1) {
+                const row = successfulRows[0];
+                const actualInput = row.prediction?.input || row.input || null;
+                setLastCsvProject(actualInput ? { input: actualInput, rowNumber: row.row_number, filename: data.filename || file.name } : null);
+            } else {
+                setLastCsvProject(null);
+            }
         } catch (requestError) {
             setError(friendlyError(requestError));
             setTechnicalError(requestError.technical || requestError.message || String(requestError));
@@ -224,11 +236,14 @@ export default function Experience() {
     };
 
     const openCsvProject = async row => {
-        if (!row?.input || row.error) {
+        const actualInput = row?.prediction?.input || row?.input || null;
+        if (!actualInput || row.error) {
             setError('No fue posible abrir esta fila porque sus datos no son válidos.');
             return;
         }
-        const importedValues = { ...row.input };
+        const importedValues = { ...actualInput };
+        setImportedProjectSource({ rowNumber: row.row_number, filename: csvResults?.filename || 'archivo cargado' });
+        setLastCsvProject({ input: importedValues, rowNumber: row.row_number, filename: csvResults?.filename || 'archivo cargado' });
         setMode('project');
         setValues(importedValues);
         setActivePreset(null);
@@ -269,14 +284,24 @@ export default function Experience() {
             {schema.model.mode === 'synthetic_demo' && <aside className="mode-notice" role="note">Modelo de demostración con datos sintéticos. La versión académica se indicará aquí cuando esté cargada.</aside>}
             <PresentationOverview />
             <div className="mode-switch" role="tablist" aria-label="Modo de análisis">
-                <button type="button" role="tab" aria-selected={mode === 'project'} className={mode === 'project' ? 'active' : ''} onClick={() => { setMode('project'); setError(''); }}>Analizar proyecto</button>
+                <button type="button" role="tab" aria-selected={mode === 'project'} className={mode === 'project' ? 'active' : ''} onClick={() => {
+                    if (lastCsvProject?.input) {
+                        setValues({ ...lastCsvProject.input });
+                        setActivePreset(null);
+                        setImportedProjectSource({ rowNumber: lastCsvProject.rowNumber, filename: lastCsvProject.filename });
+                        setResult(null);
+                        setComparison(null);
+                    }
+                    setMode('project');
+                    setError('');
+                }}>Analizar proyecto</button>
                 <button type="button" role="tab" aria-selected={mode === 'csv'} className={mode === 'csv' ? 'active' : ''} onClick={() => { setMode('csv'); setError(''); }}>Analizar varios proyectos</button>
             </div>
             <StepNav result={result} mode={mode} />
             {error && mode === 'project' && <div className="error-banner" role="alert"><span>{error}</span><button type="button" aria-label="Cerrar mensaje" onClick={() => setError('')}>×</button></div>}
 
             {mode === 'project' ? <>
-                <ProjectForm schema={schema} values={values} onChange={change} onAnalyze={analyze} loading={loading} activePreset={activePreset} onPreset={choosePreset} coverage={coverage} />
+                <ProjectForm schema={schema} values={values} onChange={change} onAnalyze={analyze} loading={loading} activePreset={activePreset} onPreset={choosePreset} coverage={coverage} importedSource={importedProjectSource} />
                 {loading && <div className="analysis-loading" role="status" aria-live="polite"><span className="spinner large" /><div><strong>{loadingMessages[loadingStage]}</strong><small>{genaiStatus?.enabled && genaiStatus?.available ? 'La explicación con IA puede tardar unos segundos.' : 'El sistema ejecuta el análisis y prepara una respuesta de respaldo.'}</small></div></div>}
                 <div ref={resultRef}><ResultHero result={result} schema={schema} /></div>
                 {result && <>

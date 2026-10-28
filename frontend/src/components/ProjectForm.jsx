@@ -6,7 +6,7 @@ function audienceSpec(spec) {
     return spec;
 }
 
-export function ProjectForm({ schema, values, onChange, onAnalyze, loading, activePreset, onPreset, coverage }) {
+export function ProjectForm({ schema, values, onChange, onAnalyze, loading, activePreset, onPreset, coverage, importedSource }) {
     const mlFields = schema.fields.filter(field => field.usage === 'ml_feature');
     const teamFields = schema.fields.filter(field => field.usage === 'team_health');
     const projectFields = mlFields.filter(field => field.group !== 'Ejecución');
@@ -15,6 +15,7 @@ export function ProjectForm({ schema, values, onChange, onAnalyze, loading, acti
     return <section className="surface project-card" id="project" aria-labelledby="project-title">
         <div className="section-heading"><div><span className="step-number">1</span><div><p className="eyebrow">OBSERVA</p><h2 id="project-title">¿Qué está pasando en el proyecto?</h2></div></div><span className="quiet-label">{mlFields.length} señales utilizadas</span></div>
         <p className="section-explainer">Ingresa o ajusta la foto actual del proyecto. Para la demo puedes partir de uno de estos escenarios y observar cómo responde el modelo. Son condiciones de entrada, no una clase garantizada.</p>
+        {importedSource && <div className="project-import-banner" role="status"><strong>Proyecto cargado desde archivo</strong><span>Fila {importedSource.rowNumber} · {importedSource.filename}</span><small>Los valores visibles abajo corresponden a los datos usados para analizar esa fila.</small></div>}
         <div className="preset-row" role="group" aria-label="Escenarios de demostración"><span>Ejemplos de entrada</span><div>
             <button type="button" className={`preset healthy ${activePreset === 'healthy' ? 'selected' : ''}`} aria-pressed={activePreset === 'healthy'} onClick={() => onPreset('healthy')}>Condiciones favorables</button>
             <button type="button" className={`preset at-risk ${activePreset === 'at_risk' ? 'selected' : ''}`} aria-pressed={activePreset === 'at_risk'} onClick={() => onPreset('at_risk')}>Ejemplo en riesgo</button>
