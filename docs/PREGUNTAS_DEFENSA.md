@@ -146,6 +146,30 @@ Evaluar una observación cuya true_progress no supera un cutoff 20/40/60/80 %, a
 
 **Evidencia:** `reports/0.9.0-academic/temporal_evaluation.json`.
 
+### 24A. ¿Cumplieron la meta original del 75 %?
+
+Sí, **dentro del entorno experimental**. La meta original se refería a proyectos Critical **o** At Risk. Usando como denominador fijo los 473 proyectos TEST que finalmente pertenecen a esas dos clases, PRUNIN ya ha detectado 359 al 60 % de avance: **75.90 %**, con 576/600 proyectos TEST cubiertos (96 %). Al final detecta 390/473 = **82.45 %**.
+
+**Evidencia:** `reports/promise_validation/risk_alert_metrics.json`; `temporal_risk_alert_metrics.csv`.
+
+### 24B. ¿Por qué agrupan At Risk y Critical? ¿No están cambiando el objetivo?
+
+No. La propuesta inicial formuló explícitamente la meta como detectar proyectos **críticos o en alto riesgo**. La agregación Risk Alert únicamente traduce esas dos clases a un KPI binario de atención. El modelo Health sigue siendo multiclase y sus métricas originales permanecen visibles.
+
+**Evidencia:** `reports/0.9.0-academic/health_confusion_matrix.csv`; `scripts/validate_original_promise.py`.
+
+### 24C. ¿Por qué no dicen que cumplen al 40 % si el recall entre elegibles ya es 79.95 %?
+
+Porque al 40 % solo 463/600 proyectos tienen snapshot elegible. Para una afirmación más estricta usamos toda la cohorte de 473 proyectos que finalmente son At Risk/Critical y contamos como no detectados los que todavía no tienen observación. Con ese denominador, al 40 % se ha detectado 64.06 %; la meta de 75 % se cruza por primera vez al 60 %.
+
+**Evidencia:** `reports/promise_validation/temporal_risk_alert_metrics.csv`.
+
+### 24D. Entonces, ¿por qué Critical Recall sigue en 56.82 %?
+
+Porque “detectar que un proyecto necesita atención” y “clasificar exactamente la severidad Critical” son problemas distintos. Risk Alert considera correcta una predicción At Risk para un proyecto Critical porque la alerta de intervención sí fue activada; la métrica multiclase considera esa misma predicción un error de severidad. Por transparencia reportamos ambas.
+
+**Evidencia:** `reports/0.9.0-academic/metrics.json`; `reports/promise_validation/risk_alert_metrics.json`.
+
 ## 25. ¿Está PRUNIN listo para producción?
 
 No. Está listo como prototipo académico reproducible, con limitaciones visibles y necesidad de validación real, controles productivos y pruebas operacionales.
