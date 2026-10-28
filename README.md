@@ -25,6 +25,22 @@ No se mezclan fuentes independientes. Imputación ML por mediana/moda TRAIN; cob
 
 TEST por proyecto, 600 proyectos usando el snapshot más reciente: Health accuracy 0.726667, balanced accuracy 0.682422, Macro F1 0.627576 y critical recall 0.568182; baseline Macro F1 0.277940. Accuracy sola oculta desbalance.
 
+### KPI de la promesa original — Risk Alert
+
+La meta inicial se evalúa como **detectar tempranamente al menos el 75 % de los proyectos críticos o en alto riesgo**. Sin cambiar el modelo, la vista operacional agrupa `At Risk + Critical` como **Risk Alert** y conserva `Healthy` como **No Alert**.
+
+| Corte | Cobertura TEST | Recall entre riesgos elegibles | Proyectos finales en riesgo ya detectados |
+|---:|---:|---:|---:|
+| 20 % | 39.33 % | 71.05 % | 28.54 % |
+| 40 % | 77.17 % | 79.95 % | 64.06 % |
+| 60 % | 96.00 % | 78.73 % | **75.90 %** |
+| 80 % | 99.83 % | 79.92 % | 79.92 % |
+| Final | 100 % | 82.45 % | 82.45 % |
+
+El denominador estricto de la última columna son los **473 proyectos TEST que finalmente son At Risk o Critical**; los proyectos sin snapshot elegible en un corte cuentan como todavía no detectados. El primer corte pre-cierre que supera la meta es **60 % de avance: 359/473 = 75.90 %**, con 576/600 proyectos cubiertos. El recall exacto de la clase Critical permanece separado en 56.82 %.
+
+Evidencia reproducible: [reporte](reports/promise_validation/promise_validation_report.md), [JSON](reports/promise_validation/risk_alert_metrics.json), [CSV temporal](reports/promise_validation/temporal_risk_alert_metrics.csv) y [figura](reports/promise_validation/figures/risk_alert_detection_vs_progress.svg).
+
 Delay MAE 27.710468 frente a 27.850313 días: mejora marginal y componente predictivo más débil. Cost MAE 0.147158 puntos porcentuales y R² 0.991816, relacionado en parte con la estructura CPI/progreso–outcome del generador EVM sintético. Al 20 % de avance la cobertura TEST es solo 236/600 (39.333 %). [Resultados e interpretación](docs/INFORME_FINAL.md).
 
 ## GenAI
@@ -71,7 +87,7 @@ Reproducción del entrenamiento: [docs/training.md](docs/training.md) y scripts/
 
 ## Limitaciones
 
-Dataset sintético, Delay débil, caveat EVM de Cost, cobertura temprana desigual, fusión no calibrada y drivers no causales. No hay baseline humano medido ni validación prospectiva empresarial. Grounding es proxy y requiere revisión humana. [Ética](docs/ethics_security.md). No está listo para producción.
+Dataset sintético, severidad Critical todavía limitada, Delay débil, caveat EVM de Cost, cobertura temprana desigual, fusión no calibrada y drivers no causales. No hay baseline humano medido ni validación prospectiva empresarial. Grounding es proxy y requiere revisión humana. [Ética](docs/ethics_security.md). No está listo para producción.
 
 ## Estado de evaluación
 
