@@ -34,6 +34,8 @@ def test_kubernetes_objects_probes_resources_and_selectors_are_consistent():
     assert container["securityContext"]["allowPrivilegeEscalation"] is False
     assert container["securityContext"]["readOnlyRootFilesystem"] is True
     assert pod["terminationGracePeriodSeconds"] >= 30
+    assert {"name": "tmp", "mountPath": "/tmp"} in container["volumeMounts"]
+    assert pod["volumes"] == [{"name": "tmp", "emptyDir": {"sizeLimit": "256Mi"}}]
     dockerfile = (ROOT / "Dockerfile.playground").read_text(encoding="utf-8")
     assert "--timeout-graceful-shutdown 30" in dockerfile
 

@@ -29,6 +29,9 @@ La versión académica incluye:
 - rolling updates;
 - límites/requests de CPU y memoria;
 - HorizontalPodAutoscaler;
+- PodDisruptionBudget con al menos dos pods disponibles;
+- ejecución no-root, filesystem raíz de solo lectura y `/tmp` temporal limitado;
+- cierre graceful del proceso Uvicorn.
 - reinicio automático administrado por Kubernetes.
 
 El manifiesto es **evidencia de diseño y automatización**, no evidencia de que exista un clúster productivo activo. Su sintaxis/contratos se validan en tests estáticos; este cierre no usó `kubectl` ni operó un cluster. La descripción exacta es: “deployment automation/design validated statically; production cluster not operated.”

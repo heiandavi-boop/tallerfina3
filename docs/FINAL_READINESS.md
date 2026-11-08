@@ -13,7 +13,7 @@ Estado de evidencia para la entrega académica. No asigna calificación oficial 
 | KPI original | `python scripts/validate_original_promise.py --check`: `PROMISE VALIDATION: OK`; detección de cohorte completa al 60 %: 0.758985. |
 | Preflight demo | `RESULTADO: LISTO PARA DEMO`, artifact `0.9.0-academic`. |
 | Preflight GenAI | `RESULTADO: OLLAMA READY`; Qwen3 8B disponible durante esta corrida local. |
-| Manifiesto Kubernetes | YAML parseable y pruebas estáticas Deployment/Service/HPA/PDB, probes, recursos, seguridad y selectores. No hay `kubectl` ni cluster operado. |
+| Manifiesto Kubernetes | YAML parseable y pruebas estáticas Deployment/Service/HPA/PDB, probes, recursos, no-root, rootfs read-only con `/tmp` acotado, cierre graceful y selectores. No hay `kubectl` ni cluster operado. |
 
 ## Métricas que se preservan
 
