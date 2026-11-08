@@ -1,14 +1,45 @@
+# Python
 .venv/
-node_modules/
-frontend/node_modules/
-__pycache__/
+**/__pycache__/
 *.py[cod]
 .pytest_cache/
-.DS_Store
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Node
+node_modules/
+frontend/node_modules/
+
+# Environment
 .env
-artifacts/*
-!artifacts/.gitkeep
+.env.*
+!.env.example
+!.env.playground.example
+
+# OS
+.DS_Store
+
+# Notebook
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+# Internal validation
+reports/closure/
+
+# Data
 data/raw/**/*
 !data/raw/**/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+
+# Heavy model artifacts
+artifacts/*
+!artifacts/.gitkeep
+!artifacts/0.9.0-academic/
+artifacts/0.9.0-academic/*
+!artifacts/0.9.0-academic/input_profile.json

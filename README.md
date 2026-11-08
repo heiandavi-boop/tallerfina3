@@ -58,7 +58,7 @@ Con entorno, frontend y artefactos preparados:
 ./scripts/run_playground.sh
 ```
 
-Abrir http://localhost:8000. El preflight esperado es `RESULTADO: LISTO PARA DEMO`. [Instalación, LAN/QR y detalle de la demo](docs/playground.md); [guion](DEMO_PRESENTACION.md). Un clon no incluye modelos pesados ni datasets; verificar los artefactos oficiales locales para sustentar. La selección usa PRUNIN_ARTIFACT_DIR, luego artifacts/0.9.0-academic y después demo-0.1.0, rotulado como demo sintético.
+Abrir http://localhost:8000. El preflight esperado es `RESULTADO: LISTO PARA DEMO`. [Instalación, LAN/QR y detalle de la demo](docs/playground.md); [guion](DEMO_PRESENTACION.md). `frontend/dist/` se versiona para facilitar la sustentación offline. El repositorio no incluye los `.joblib` académicos ni datasets pesados; un clon requiere copiar artefactos aprobados localmente o reproducirlos según [docs/training.md](docs/training.md). Los reportes científicos sí permanecen versionados; `reports/closure/` contiene salidas internas de proceso y no forma parte de la entrega. La selección usa PRUNIN_ARTIFACT_DIR, luego artifacts/0.9.0-academic y después demo-0.1.0, rotulado como demo sintético.
 
 Para activar GenAI local, con Ollama y qwen3:8b instalados:
 
