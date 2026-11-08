@@ -2,7 +2,7 @@
 
 Guion técnico para la entrega académica. El HEAD final y la ejecución CI que respaldan el estado se registran en [docs/FINAL_READINESS.md](docs/FINAL_READINESS.md); no reutilizar SHA ni workflow de auditorías anteriores como evidencia actual.
 
-Preparación oral: [docs/PRESENTACION_FINAL.md](docs/PRESENTACION_FINAL.md) (versiones de 7/10/12 min), [docs/GLOSARIO_DEFENSA.md](docs/GLOSARIO_DEFENSA.md), [docs/PREGUNTAS_DEFENSA.md](docs/PREGUNTAS_DEFENSA.md) y [docs/ENSAYO_SUSTENTACION.md](docs/ENSAYO_SUSTENTACION.md). Voz, postura y respuesta espontánea siguen pendientes de ensayo humano.
+Preparación oral: [docs/PRESENTACION_FINAL.md](docs/PRESENTACION_FINAL.md) (versiones de 7/10/12 min), [docs/GLOSARIO_DEFENSA.md](docs/GLOSARIO_DEFENSA.md) y [docs/PREGUNTAS_DEFENSA.md](docs/PREGUNTAS_DEFENSA.md). Voz, postura y respuesta espontánea siguen pendientes de ensayo humano.
 
 ## Preparación
 
@@ -31,7 +31,7 @@ No empezar la demo hablando de LightGBM, FastAPI, Qwen o Kubernetes. Primero deb
 
 1. Problema: apoyar al director/PMO al interpretar riesgo, sin reemplazar su decisión.
 2. Arquitectura: separar LightGBM, heurísticas y explicación; usar diagrama, no código largo.
-3. Dataset: Mendeley v2, dataset sintético externo publicado en Mendeley Data; split por proyecto.
+3. Datos y evolución: PRUNIN investigó previamente con simulaciones propias y otras fuentes; **los tres LightGBM mostrados usan Mendeley Data v2** y un split por proyecto. Ver [historia verificada y antecedentes](docs/project_evolution.md).
 4. Predicción individual: analizar preset y señalar versión/LIVE. El nombre del preset no garantiza su clase predicha.
 4A. Risk Alert: señalar el banner operacional. At Risk/Critical = requiere atención; Healthy = sin alerta. Aclarar que deriva de Health ML, no es un cuarto modelo ni un threshold nuevo.
 5. Health probabilities: leer probabilidades y clase; no confundir con fusión calibrada.
