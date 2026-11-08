@@ -1,6 +1,6 @@
 # Referencias consolidadas (APA 7)
 
-Fuentes primarias consultadas y verificadas. Se utiliza s. f. en documentación viva sin fecha editorial inequívoca y fecha de recuperación; no se infiere el año del identificador del modelo. Los artículos/dataset conservan autor, año y DOI o URL verificables.
+Fuentes primarias consultadas y verificadas contra páginas editoriales/model cards o registros bibliográficos. Se utiliza s. f. en documentación viva sin fecha editorial inequívoca y fecha de recuperación; no se infiere el año del identificador del modelo. Los artículos/dataset conservan autor, año y DOI o URL verificables.
 
 FastAPI. (s. f.). *FastAPI documentation*. Recuperado el 8 de noviembre de 2026, de https://fastapi.tiangolo.com/
 
@@ -30,6 +30,6 @@ The Kubernetes Authors. (s. f.). *Deployments*. Recuperado el 8 de noviembre de 
 
 ## Verificación y alcance
 
-Fuentes consultadas el 8 de noviembre de 2026. Se verificaron los registros de Mendeley v2, las fichas oficiales de Google/Qwen/Mistral, FastAPI, Ollama, PMI, scikit-learn y Kubernetes. El extractor de páginas no pudo obtener el cuerpo del abstract de NeurIPS; la ruta bibliográfica fue preservada y no se cambia el metadata conocido del artículo. Las prestaciones del fabricante no son resultados PRUNIN; no hay comparación empírica completa de Gemma/Ministral. No se inventaron DOI.
+Fuentes consultadas el 8 de noviembre de 2026. Se verificaron los registros de Mendeley v2, las fichas oficiales de Google/Qwen/Mistral, FastAPI, Ollama, PMI, scikit-learn y Kubernetes. El extractor de la página NeurIPS no pudo obtener el abstract; el registro bibliográfico OpenAlex confirma título, autores, año y venue para LightGBM. Se conserva la URL de proceedings y no se inventa DOI. Las prestaciones del fabricante no son resultados PRUNIN; no hay comparación empírica completa de Gemma/Ministral.
 
 Citas del informe: Hajihoseyni (2026), Ke et al. (2017), Ollama (s. f.), Pedregosa et al. (2011), Project Management Institute (2020), Qwen Team (2025), Google DeepMind (s. f.-a, s. f.-b), Mistral AI (s. f.-a, s. f.-b), FastAPI (s. f.) y The Kubernetes Authors (s. f.). Los reportes propios son evidencia interna versionada; no publicaciones externas.

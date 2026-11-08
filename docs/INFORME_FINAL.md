@@ -300,4 +300,4 @@ Qwen. (s. f.). *Qwen3-8B* [Ficha de modelo]. Hugging Face. Recuperado el 8 de no
 
 The Kubernetes Authors. (s. f.). *Deployments*. Recuperado el 8 de noviembre de 2026, de https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 
-Verificación de URLs y alcance: [referencias consolidadas](references.md). La página oficial Mendeley confirma título, autor, versión y DOI. El extractor no obtuvo el abstract de NeurIPS; se conserva su URL primaria sin inventar DOI. Las fichas de modelos sustentan datos documentales, no resultados PRUNIN.
+Verificación de URLs y alcance: [referencias consolidadas](references.md). La página oficial Mendeley confirma título, autor, versión y DOI. Aunque el extractor no obtuvo el abstract de NeurIPS, OpenAlex confirma el metadata bibliográfico de LightGBM; no se inventa DOI. Las fichas de modelos sustentan datos documentales, no resultados PRUNIN.
