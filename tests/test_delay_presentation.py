@@ -13,6 +13,7 @@ def test_runtime_preserves_raw_delay_and_only_clamps_delay(raw, display):
     evidence = {'delay_days': raw, 'cost_overrun_ratio': -0.12}
     fake = object.__new__(ModelRuntime)
     fake.manifest = {'numeric_features': ['spi'], 'categorical_features': []}
+    fake.input_profile = {}
     fake.brain = SimpleNamespace(predict=lambda row: dict(evidence))
     result = fake.predict({'spi': 1.0})
     assert result['delay_days'] == display

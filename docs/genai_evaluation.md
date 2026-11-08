@@ -66,11 +66,17 @@ Reporte: `reports/genai/qwen3-8b-evaluation.json`, status=complete, 30 casos con
 | latency_ms_median | 3092.6450000000 |
 | latency_ms_p95 | 6634.7200000000 |
 
-Son 29 respuestas aceptadas y una rechazada por cifra no soportada. Schema/features válidas y acción no vacía no prueban calidad semántica ni utilidad real. Muestra condicionada y equipo local; no benchmark comparativo de tres modelos. No se reejecutó el benchmark en este cierre.
+Son 29 respuestas aceptadas y una rechazada por cifra no soportada. Schema/features válidas y acción no vacía no prueban calidad semántica ni utilidad real. Muestra condicionada y equipo local; este reporte oficial no es un benchmark comparativo completo de tres modelos. No se reejecutó ni sobrescribió el benchmark oficial en este cierre.
 
-## Eficiencia
+## Benchmark comparativo y concurrencia local
 
-Ver `efficiency_evaluation.md`: baseline humano pendiente. Medir cinco casos, conservar tiempos y respuestas, calcular mediana real y solo entonces ejecutar:
+`scripts/benchmark_genai_candidates.py` ejecuta 30 casos TEST comunes para cada tag Ollama instalado, usando el mismo `build_grounded_prompt`, `generate_ollama_grounded`/validador, JSON, temperatura 0.1, timeout y hardware de la corrida. No descarga modelos. El reporte comparativo generado en este cierre está en `reports/genai/comparison/`; su estado `partial` indica Qwen disponible y Gemma/Ministral `not_available`. Sus métricas pertenecen a una nueva corrida y no reemplazan el resultado oficial descrito arriba.
+
+`scripts/benchmark_genai_concurrency.py` ejecutó 30 casos por nivel en esta máquina. Resultado: éxito 96.67/93.33/73.33/36.67 %, timeout 0/0/26.67/63.33 %, p50 6256.955/12305.81/28567.37/30002.805 ms, p95 15337.88/23252.48/30003.31/30005.73 ms y throughput 0.1335/0.1402/0.1475/0.2499 req/s para concurrencia 1/2/4/8. Se observa throughput más alto junto con caída del éxito; no se infiere capacidad productiva. Tabla, hardware y datos crudos: `reports/genai/concurrency/`. Es una prueba local exploratoria, no una prueba productiva ni evidencia de escalabilidad. Si Ollama/modelo no están disponibles, los scripts registran el benchmark no ejecutado y terminan sin descargar nada.
+
+## Eficiencia humana pendiente
+
+El benchmark API en `efficiency_evaluation.md` mide eficiencia operacional automatizada, no tiempo o productividad de una persona. Para investigar este resultado distinto, usar el protocolo `human_efficiency_validation.md` y la plantilla vacía de `reports/human_validation/`. No completar datos retrospectivamente ni convertir latencia LLM en ahorro humano. El script histórico `benchmark_efficiency.py` requiere un baseline manual observado; no pasar valores supuestos:
 
 ```bash
 python scripts/benchmark_efficiency.py \

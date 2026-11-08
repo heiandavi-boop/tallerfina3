@@ -1,0 +1,534 @@
+{
+    "status": "complete",
+    "target_level": 4,
+    "integrity": {
+        "scientific_changes": "NINGUNO",
+        "official_models_or_targets_modified": false,
+        "test_used_for_model_selection": false,
+        "human_results_fabricated": false,
+        "production_cluster_claimed": false
+    },
+    "criteria": [
+        {
+            "code": "R6.1-Cr1",
+            "requirement": "Problema y contexto",
+            "target_level": 4,
+            "evidence": [
+                "docs/INFORME_FINAL.md",
+                "README.md",
+                "reports/promise_validation/"
+            ],
+            "automated_evidence": [
+                "scripts/validate_original_promise.py --check"
+            ],
+            "human_evidence": [
+                "Explicar alcance sintético y necesidad empresarial sin atribuir impacto medido."
+            ],
+            "status": "DEMONSTRATED_WITH_LIMITATION",
+            "remaining_gap": "No existe estudio de impacto ni validación empresarial.",
+            "safe_claim": "La promesa se evalúa en el benchmark sintético congelado.",
+            "unsafe_claim": "PRUNIN ya mejora resultados de empresas."
+        },
+        {
+            "code": "R6.1-Cr2",
+            "requirement": "Elección de IA generativa",
+            "target_level": 4,
+            "evidence": [
+                "docs/genai_model_selection.md",
+                "reports/genai/comparison/benchmark_summary.json"
+            ],
+            "automated_evidence": [
+                "Benchmark comparable de 30 casos; solo Qwen3 8B disponible en esta máquina."
+            ],
+            "human_evidence": [
+                "Defender la elección multicriterio y reconocer que no hay comparación empírica completa."
+            ],
+            "status": "DEMONSTRATED_WITH_LIMITATION",
+            "remaining_gap": "Gemma 3 4B y Ministral 3 8B no están instalados; no hay resultado comparativo para ellos.",
+            "safe_claim": "La comparación está implementada y parcial; la selección de Qwen sigue siendo técnico-operativa.",
+            "unsafe_claim": "Qwen es el mejor modelo."
+        },
+        {
+            "code": "R6.1-Cr3",
+            "requirement": "Integración de IA generativa",
+            "target_level": 4,
+            "evidence": [
+                "src/prunin_ai/api/recommendations.py",
+                "docs/architecture.md",
+                "tests/test_genai_grounding.py"
+            ],
+            "automated_evidence": [
+                "JSON schema, allow-list, numeric grounding, timeout, fallback y preflight."
+            ],
+            "human_evidence": [
+                "Mostrar estado Ollama y un caso aceptado/rechazado sin confundir fallback con GenAI."
+            ],
+            "status": "DEMONSTRATED_WITH_LIMITATION",
+            "remaining_gap": "No se ha demostrado operación escalable ni utilidad semántica con usuarios.",
+            "safe_claim": "La integración local está implementada con validación y fallback.",
+            "unsafe_claim": "La integración está validada en producción."
+        },
+        {
+            "code": "R6.1-Cr4",
+            "requirement": "Evaluación e interpretación GenAI",
+            "target_level": 4,
+            "evidence": [
+                "docs/genai_evaluation.md",
+                "reports/genai/qwen3-8b-evaluation.json",
+                "reports/genai/comparison/benchmark_summary.json"
+            ],
+            "automated_evidence": [
+                "30 casos oficiales congelados y benchmark comparativo independiente parcial."
+            ],
+            "human_evidence": [
+                "Interpretar métricas como proxies y no como utilidad profesional."
+            ],
+            "status": "DEMONSTRATED_WITH_LIMITATION",
+            "remaining_gap": "Muestra pequeña; evaluación semántica y utilidad humana no medidas.",
+            "safe_claim": "Se miden esquema, grounding proxy, cifras y latencia en las corridas identificadas.",
+            "unsafe_claim": "Grounding garantiza verdad o recomendaciones eficaces."
+        },
+        {
+            "code": "R6.2-Cr5",
+            "requirement": "Tareas automatizables",
+            "target_level": 4,
+            "evidence": [
+                "docs/INFORME_FINAL.md",
+                "src/prunin_ai/api/app.py",
+                "frontend/src/Experience.jsx"
+            ],
+            "automated_evidence": [
+                "Predicción individual, CSV, What-if y recomendación grounded separados."
+            ],
+            "human_evidence": [
+                "Explicar qué tarea automatiza ML/API y cuál apoya GenAI."
+            ],
+            "status": "DEMONSTRATED_WITH_LIMITATION",
+            "remaining_gap": "No se ha probado impacto del flujo sobre decisiones empresariales.",
+            "safe_claim": "Se automatiza inferencia y síntesis textual revisable.",
+            "unsafe_claim": "Se automatizó la decisión del director de proyecto."
+        },
+        {
+            "code": "R6.2-Cr6",
+            "requirement": "Eficiencia, escala y productividad",
+            "target_level": 4,
+            "evidence": [
+                "docs/efficiency_evaluation.md",
+                "reports/efficiency/",
+                "reports/genai/concurrency/",
+                "docs/human_efficiency_validation.md"
+            ],
+            "automated_evidence": [
+                "Benchmark operacional N=1/10/25/50/100 y concurrencia local 1/2/4/8."
+            ],
+            "human_evidence": [
+                "Ejecutar protocolo pareado con consentimiento para medir tiempo/calidad humana."
+            ],
+            "status": "DEMONSTRATED_WITH_LIMITATION",
+            "remaining_gap": "Medición local no acredita carga productiva, escalabilidad ni productividad humana.",
+            "safe_claim": "La eficiencia operacional automatizada se midió en hardware local.",
+            "unsafe_claim": "PRUNIN ahorra tiempo laboral o es escalable en producción."
+        },
+        {
+            "code": "R6.2-Cr7",
+            "requirement": "Ética y mitigación de riesgos",
+            "target_level": 4,
+            "evidence": [
+                "docs/ethics_security.md",
+                "docs/drift_monitoring.md"
+            ],
+            "automated_evidence": [
+                "Validación de entrada, coverage gate, grounding, fallback, provenance y avisos OOD."
+            ],
+            "human_evidence": [
+                "Revisión de propósito, consentimiento y límites antes de usar datos reales."
+            ],
+            "status": "DEMONSTRATED_WITH_LIMITATION",
+            "remaining_gap": "Riesgo residual de representatividad, seguridad, semántica, fairness y mal uso.",
+            "safe_claim": "Hay controles parciales y riesgos residuales explícitos.",
+            "unsafe_claim": "Los riesgos están totalmente mitigados."
+        },
+        {
+            "code": "R6.2-Cr8",
+            "requirement": "Documentación",
+            "target_level": 4,
+            "evidence": [
+                "README.md",
+                "docs/INFORME_FINAL.md",
+                "docs/rubric_matrix.md",
+                "docs/FINAL_READINESS.md"
+            ],
+            "automated_evidence": [
+                "Referencias, links, tests, reportes reproducibles y matriz final."
+            ],
+            "human_evidence": [
+                "Completar identidad institucional, revisar formato final y ensayar."
+            ],
+            "status": "DEMONSTRATED_WITH_LIMITATION",
+            "remaining_gap": "La identidad académica y la presentación final requieren revisión del autor.",
+            "safe_claim": "La documentación técnica y académica está versionada con límites.",
+            "unsafe_claim": "La entrega institucional está completa sin revisión del estudiante."
+        },
+        {
+            "code": "RA1-F1",
+            "requirement": "Estructura y cohesión escrita",
+            "target_level": 4,
+            "evidence": [
+                "docs/INFORME_FINAL.md"
+            ],
+            "automated_evidence": [
+                "Informe con secciones de contexto, método, resultados, límites y conclusiones."
+            ],
+            "human_evidence": [
+                "Revisar portada e instrucciones del formato institucional."
+            ],
+            "status": "DEMONSTRATED_WITH_LIMITATION",
+            "remaining_gap": "Formato/portada institucional dependen de la entrega final.",
+            "safe_claim": "El informe posee estructura académica definida.",
+            "unsafe_claim": "La evaluación escrita Nivel 4 está garantizada."
+        },
+        {
+            "code": "RA1-F2",
+            "requirement": "Intención comunicativa",
+            "target_level": 4,
+            "evidence": [
+                "docs/INFORME_FINAL.md",
+                "README.md"
+            ],
+            "automated_evidence": [
+                "Resultados diferenciados de interpretación y límites."
+            ],
+            "human_evidence": [
+                "Revisión de claridad con audiencia objetivo."
+            ],
+            "status": "DEMONSTRATED_WITH_LIMITATION",
+            "remaining_gap": "No se ha evaluado comprensión de lectores externos.",
+            "safe_claim": "El texto explicita audiencia, objetivos y alcance.",
+            "unsafe_claim": "Los lectores comprenderán necesariamente todos los resultados."
+        },
+        {
+            "code": "RA1-F3",
+            "requirement": "Canales y medios",
+            "target_level": 4,
+            "evidence": [
+                "docs/PRESENTACION_FINAL.md",
+                "DEMO_PRESENTACION.md",
+                "frontend/",
+                "reports/0.9.0-academic/figures/"
+            ],
+            "automated_evidence": [
+                "Playground, informe, figuras, CSV/JSON y presentación preparados."
+            ],
+            "human_evidence": [
+                "Probar proyección, red, legibilidad y copia offline."
+            ],
+            "status": "DEMONSTRATED_WITH_LIMITATION",
+            "remaining_gap": "Uso efectivo en el salón no observado.",
+            "safe_claim": "Los medios están preparados y son complementarios.",
+            "unsafe_claim": "La demo funcionará en cualquier red o equipo."
+        },
+        {
+            "code": "RA1-F4",
+            "requirement": "Conclusiones",
+            "target_level": 4,
+            "evidence": [
+                "docs/INFORME_FINAL.md",
+                "reports/promise_validation/",
+                "reports/0.9.0-academic/"
+            ],
+            "automated_evidence": [
+                "Métricas históricas enlazadas; 75.90 % al 60 % separado de Critical Recall 56.82 %."
+            ],
+            "human_evidence": [
+                "Defender conclusiones sin extrapolar a empresas."
+            ],
+            "status": "DEMONSTRATED_WITH_LIMITATION",
+            "remaining_gap": "Generalización externa no validada.",
+            "safe_claim": "La promesa se cumple experimentalmente en TEST sintético bajo la métrica declarada.",
+            "unsafe_claim": "La eficacia empresarial está demostrada."
+        },
+        {
+            "code": "RA1-F5",
+            "requirement": "Gramática, tablas y figuras",
+            "target_level": 4,
+            "evidence": [
+                "docs/INFORME_FINAL.md",
+                "reports/0.9.0-academic/figures/"
+            ],
+            "automated_evidence": [
+                "Fuentes y datos tabulares rastreables."
+            ],
+            "human_evidence": [
+                "Revisar render final, resolución y legibilidad."
+            ],
+            "status": "DEMONSTRATED_WITH_LIMITATION",
+            "remaining_gap": "El render depende del medio de entrega.",
+            "safe_claim": "Las figuras/versiones provienen de reportes existentes.",
+            "unsafe_claim": "El formato final ya fue revisado en todos los medios."
+        },
+        {
+            "code": "RA1-Referencias",
+            "requirement": "Referencias",
+            "target_level": 4,
+            "evidence": [
+                "docs/references.md",
+                "docs/INFORME_FINAL.md"
+            ],
+            "automated_evidence": [
+                "Referencias DOI y documentación oficial citadas en contexto."
+            ],
+            "human_evidence": [
+                "Verificar estilo APA y enlaces antes de entregar."
+            ],
+            "status": "DEMONSTRATED_WITH_LIMITATION",
+            "remaining_gap": "Fuentes web vivas pueden no mostrar fecha editorial estable.",
+            "safe_claim": "No se inventan DOI; enlaces se documentan como fuentes consultadas.",
+            "unsafe_claim": "Cada referencia ha sido validada institucionalmente."
+        },
+        {
+            "code": "RA2-F1",
+            "requirement": "Estructura oral",
+            "target_level": 4,
+            "evidence": [
+                "docs/PRESENTACION_FINAL.md",
+                "docs/ENSAYO_SUSTENTACION.md"
+            ],
+            "automated_evidence": [],
+            "human_evidence": [
+                "Ensayar apertura, método, hallazgos, límites y cierre con transiciones."
+            ],
+            "status": "PREPARED_HUMAN",
+            "remaining_gap": "No existe sustentación observada.",
+            "safe_claim": "Guion preparado para Nivel 4; desempeño depende de la sustentación real.",
+            "unsafe_claim": "La estructura oral Nivel 4 está demostrada."
+        },
+        {
+            "code": "RA2-F2",
+            "requirement": "Intención oral",
+            "target_level": 4,
+            "evidence": [
+                "docs/PRESENTACION_FINAL.md",
+                "docs/ENSAYO_SUSTENTACION.md"
+            ],
+            "automated_evidence": [],
+            "human_evidence": [
+                "Cronometrar versiones y comprobar que el mensaje central se entiende."
+            ],
+            "status": "PREPARED_HUMAN",
+            "remaining_gap": "Tiempos planificados, no medidos en voz alta.",
+            "safe_claim": "Mensajes y tiempos están preparados; falta ensayo observado.",
+            "unsafe_claim": "La exposición cumple el tiempo real."
+        },
+        {
+            "code": "RA2-F3",
+            "requirement": "Lenguaje profesional",
+            "target_level": 4,
+            "evidence": [
+                "docs/GLOSARIO_DEFENSA.md",
+                "docs/PREGUNTAS_DEFENSA.md"
+            ],
+            "automated_evidence": [],
+            "human_evidence": [
+                "Explicar términos y unidades de forma fluida sin leer."
+            ],
+            "status": "PREPARED_HUMAN",
+            "remaining_gap": "Fluidez oral no observada.",
+            "safe_claim": "Definiciones y respuestas están preparadas.",
+            "unsafe_claim": "El lenguaje profesional ya fue demostrado en defensa."
+        },
+        {
+            "code": "RA2-F4",
+            "requirement": "Técnicas vocales",
+            "target_level": 4,
+            "evidence": [
+                "docs/ENSAYO_SUSTENTACION.md"
+            ],
+            "automated_evidence": [],
+            "human_evidence": [
+                "Grabar ensayo y revisar volumen, ritmo, respiración, pausas y muletillas."
+            ],
+            "status": "PREPARED_HUMAN",
+            "remaining_gap": "La voz solo se acredita durante desempeño humano.",
+            "safe_claim": "Checklist preparado; falta práctica y observación.",
+            "unsafe_claim": "Las técnicas vocales se acreditan con el repositorio."
+        },
+        {
+            "code": "RA2-F5",
+            "requirement": "Recursos de apoyo",
+            "target_level": 4,
+            "evidence": [
+                "docs/PRESENTACION_FINAL.md",
+                "DEMO_PRESENTACION.md",
+                "frontend/"
+            ],
+            "automated_evidence": [
+                "Playground y recursos audiovisuales preparados."
+            ],
+            "human_evidence": [
+                "Probar operación en vivo y plan offline."
+            ],
+            "status": "PREPARED_HUMAN",
+            "remaining_gap": "Uso durante sustentación no observado.",
+            "safe_claim": "Recursos preparados; desempeño depende de la exposición.",
+            "unsafe_claim": "El uso de recursos Nivel 4 está demostrado."
+        },
+        {
+            "code": "RA2-F6",
+            "requirement": "Lenguaje no verbal",
+            "target_level": 4,
+            "evidence": [
+                "docs/ENSAYO_SUSTENTACION.md"
+            ],
+            "automated_evidence": [],
+            "human_evidence": [
+                "Ensayar postura, contacto visual, gestos y uso de puntero; recibir feedback."
+            ],
+            "status": "PREPARED_HUMAN",
+            "remaining_gap": "No puede acreditarse con código ni documentación.",
+            "safe_claim": "Checklist preparado; evidencia requiere observación presencial/remota.",
+            "unsafe_claim": "Postura o contacto visual están demostrados."
+        },
+        {
+            "code": "RA2-F7",
+            "requirement": "Defensa y argumentación",
+            "target_level": 4,
+            "evidence": [
+                "docs/PREGUNTAS_DEFENSA.md",
+                "docs/GLOSARIO_DEFENSA.md"
+            ],
+            "automated_evidence": [],
+            "human_evidence": [
+                "Responder preguntas con respuesta breve, evidencia y límite; reconocer lo no medido."
+            ],
+            "status": "PREPARED_HUMAN",
+            "remaining_gap": "Respuesta espontánea no observada.",
+            "safe_claim": "Banco de respuestas listo para ensayo.",
+            "unsafe_claim": "La defensa espontánea está acreditada."
+        },
+        {
+            "code": "R7.1-Cr1",
+            "requirement": "Preprocesamiento",
+            "target_level": 4,
+            "evidence": [
+                "src/prunin_ai/data/audit.py",
+                "src/prunin_ai/training/core.py",
+                "src/prunin_ai/monitoring/drift.py",
+                "docs/drift_monitoring.md"
+            ],
+            "automated_evidence": [
+                "Split por proyecto, imputación TRAIN, encoding, coverage gate y perfiles OOD TRAIN."
+            ],
+            "human_evidence": [
+                "Explicar límites de IQR, unidades y temporalidad EVM."
+            ],
+            "status": "DEMONSTRATED_WITH_LIMITATION",
+            "remaining_gap": "OOD univariado no detecta todo shift y requiere umbrales con outcomes.",
+            "safe_claim": "Preprocesamiento y aviso OOD académico reproducible.",
+            "unsafe_claim": "Todo input fuera de distribución queda detectado."
+        },
+        {
+            "code": "R7.1-Cr2",
+            "requirement": "Herramientas y dominio",
+            "target_level": 4,
+            "evidence": [
+                "docs/training.md",
+                "requirements.txt",
+                "src/"
+            ],
+            "automated_evidence": [
+                "Integración de pandas, sklearn, LightGBM, FastAPI, Pydantic, React y Ollama opcional."
+            ],
+            "human_evidence": [
+                "Explicar por qué cada herramienta pertenece al flujo."
+            ],
+            "status": "DEMONSTRATED_WITH_LIMITATION",
+            "remaining_gap": "Dominio oral requiere sustentación.",
+            "safe_claim": "Las herramientas cumplen roles visibles en el código.",
+            "unsafe_claim": "La lista de dependencias demuestra por sí sola Nivel 4."
+        },
+        {
+            "code": "R7.1-Cr3",
+            "requirement": "Pipeline",
+            "target_level": 4,
+            "evidence": [
+                "scripts/train_all.sh",
+                "docs/training.md",
+                "tests/test_dataset_pipeline.py"
+            ],
+            "automated_evidence": [
+                "Flujo fail-fast y tests de preparación/split; CI no descarga datasets."
+            ],
+            "human_evidence": [
+                "Demostrar reproducción en entorno separado sin sobrescribir artifacts oficiales."
+            ],
+            "status": "DEMONSTRATED_WITH_LIMITATION",
+            "remaining_gap": "El entrenamiento académico no se repitió en este cierre.",
+            "safe_claim": "El pipeline está implementado y documentado.",
+            "unsafe_claim": "Este cierre reprodujo el entrenamiento oficial."
+        },
+        {
+            "code": "R7.2-Cr4",
+            "requirement": "Automatización de despliegue",
+            "target_level": 4,
+            "evidence": [
+                ".github/workflows/quality.yml",
+                "Dockerfile.playground",
+                "deploy/k8s/prunin-ai-core.yaml",
+                "tests/test_deployment_manifests.py"
+            ],
+            "automated_evidence": [
+                "CI, build Docker definido y manifiesto validado estáticamente."
+            ],
+            "human_evidence": [
+                "Ejecutar CI sobre HEAD final y, fuera del alcance, operar un clúster aprobado."
+            ],
+            "status": "DEMONSTRATED_WITH_LIMITATION",
+            "remaining_gap": "No se construyó imagen ni operó cluster; no hay despliegue productivo.",
+            "safe_claim": "deployment automation/design validated statically; production cluster not operated.",
+            "unsafe_claim": "Kubernetes está desplegado."
+        },
+        {
+            "code": "R7.2-Cr5",
+            "requirement": "Escalabilidad y robustez",
+            "target_level": 4,
+            "evidence": [
+                "tests/test_genai_grounding.py",
+                "tests/test_playground_api.py",
+                "tests/test_deployment_manifests.py",
+                "reports/genai/concurrency/"
+            ],
+            "automated_evidence": [
+                "Fallback, timeout, validación, cobertura y concurrencia local 1/2/4/8."
+            ],
+            "human_evidence": [
+                "Inspeccionar resultados y mantener claims locales; aprobar cargas antes de producción."
+            ],
+            "status": "DEMONSTRATED_WITH_LIMITATION",
+            "remaining_gap": "Sin carga sostenida, recuperación, balanceo o clúster real probado.",
+            "safe_claim": "Hay controles locales y diseño estático, no garantía productiva.",
+            "unsafe_claim": "El sistema escala a 10 réplicas bajo carga real."
+        },
+        {
+            "code": "R7.2-Cr6",
+            "requirement": "MLOps",
+            "target_level": 4,
+            "evidence": [
+                "docs/mlops_production.md",
+                "src/prunin_ai/api/monitoring.py",
+                "src/prunin_ai/monitoring/drift.py",
+                "scripts/check_drift.py",
+                "reports/0.9.0-academic/reproducibility.json"
+            ],
+            "automated_evidence": [
+                "Versionado, fingerprints, split, prediction_id, logs, readiness, métricas, CI y drift offline."
+            ],
+            "human_evidence": [
+                "Aprobar datos/outcomes y política antes de promover candidato; TEST permanece congelado."
+            ],
+            "status": "DEMONSTRATED_WITH_LIMITATION",
+            "remaining_gap": "Drift centralizado/continuo y retraining productivo no implementados.",
+            "safe_claim": "Capacidades académicas reproducibles y detector offline; sin retraining automático.",
+            "unsafe_claim": "MLOps productivo con drift y retraining continuo está operando."
+        }
+    ]
+}

@@ -1,0 +1,98 @@
+{
+  "profile_version": 1,
+  "reference_split": "TRAIN",
+  "numeric": {
+    "planned_duration_weeks": {
+      "q1": 65.175,
+      "median": 86.89999999999999,
+      "q3": 108.625,
+      "iqr": 43.45,
+      "lower_bound": -1.4210854715202004e-14,
+      "upper_bound": 173.8,
+      "missing_rate": 0.0
+    },
+    "planned_budget": {
+      "q1": 848797.08,
+      "median": 1218610.195,
+      "q3": 1762518.55,
+      "iqr": 913721.4700000001,
+      "lower_bound": -521785.1250000001,
+      "upper_bound": 3133100.755,
+      "missing_rate": 0.0
+    },
+    "true_progress": {
+      "q1": 0.4126720172799523,
+      "median": 0.6615775429349093,
+      "q3": 0.8753998578992591,
+      "iqr": 0.46272784061930683,
+      "lower_bound": -0.281419743649008,
+      "upper_bound": 1.5694916188282195,
+      "missing_rate": 0.0
+    },
+    "spi": {
+      "q1": 0.9674275892981065,
+      "median": 1.0000000000000002,
+      "q3": 1.0336450889948978,
+      "iqr": 0.06621749969679136,
+      "lower_bound": 0.8681013397529194,
+      "upper_bound": 1.1329713385400848,
+      "missing_rate": 0.0
+    },
+    "cpi": {
+      "q1": 0.9003649818418078,
+      "median": 0.9482189850889119,
+      "q3": 0.9965547139579034,
+      "iqr": 0.0961897321160956,
+      "lower_bound": 0.7560803836676644,
+      "upper_bound": 1.1408393121320468,
+      "missing_rate": 0.0
+    }
+  },
+  "categorical": {
+    "project_type": {
+      "categories": [
+        "construction",
+        "healthcare",
+        "it",
+        "manufacturing",
+        "marketing",
+        "r&d"
+      ],
+      "distribution": {
+        "it": 0.29583234853856455,
+        "construction": 0.26504766406680846,
+        "r&d": 0.20594028204522177,
+        "marketing": 0.08441660757898053,
+        "manufacturing": 0.07535649570629481,
+        "healthcare": 0.07340660206412984
+      },
+      "missing_rate": 0.0
+    },
+    "methodology": {
+      "categories": [
+        "agile",
+        "hybrid",
+        "kanban",
+        "scrum",
+        "waterfall"
+      ],
+      "distribution": {
+        "agile": 0.2746198692192547,
+        "waterfall": 0.23804459150712992,
+        "scrum": 0.23160403371937288,
+        "hybrid": 0.128535413219885,
+        "kanban": 0.12719609233435752
+      },
+      "missing_rate": 0.0
+    }
+  },
+  "thresholds": {
+    "psi": 0.2,
+    "missing_rate_shift": 0.1
+  },
+  "artifact_version": "0.9.0-academic",
+  "reference_project_count": 2800,
+  "reference_snapshot_count": 50772,
+  "dataset_sha256": "32b7586db9dda0b3994573a3985c114dafe65dee93c948254b69f00d194c0ac3",
+  "split_sha256": "ed8f9db66e254123e411e7d016e91c01563a58c11e3a7f337bd9592ab92db26c"
+}

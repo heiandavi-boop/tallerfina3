@@ -31,7 +31,17 @@ No se asignan puntuaciones, pesos ni ranking numérico inventados. Un contexto m
 
 ## Evidencia específica disponible
 
-El benchmark Qwen está `complete`, 30 casos, éxito/grounding 29/30. Es evaluación del modelo elegido, no comparación de tres modelos ni prueba de utilidad humana. El groundedness es proxy; schema válido no basta. La elección satisface requisitos locales y reduce una dependencia obligatoria de API externa, sin afirmar que una API externa sea inferior.
+### Evidencia empírica nueva
+
+`reports/genai/comparison/benchmark_summary.json` y `benchmark_raw.csv` registran una comparación independiente con 30 casos comunes, misma evidencia, constructor de prompt, validador, temperatura 0.1, timeout de 30 s y hardware. El estado global es `partial`: `qwen3:8b` estaba instalado; `gemma3:4b` y `ministral:8b` se marcaron `not_available`, sin descarga automática.
+
+En esta corrida nueva de Qwen: generación/schema/grounding proxy/actionability 29/30 (0.9667), cifras no soportadas 0/30, timeout 0/30, JSON inválido 1/30, mediana 6336.35 ms y p95 13340.74 ms. La muestra y latencia difieren de la evaluación oficial congelada de 30 casos, que permanece en `reports/genai/qwen3-8b-evaluation.json` (29/30, una cifra no soportada, mediana 3092.645 ms, p95 6634.72 ms). Son corridas distintas, no una sustitución ni una mejora comparativa de Qwen.
+
+### Evidencia documental y disponibilidad
+
+Las comparaciones de licencia, contexto, capacidad publicada e integración provienen de fichas oficiales enlazadas abajo. Los claims de tamaño/contexto no son mediciones PRUNIN. Gemma y Ministral no produjeron resultados empíricos en esta máquina. Por ello, la selección de Qwen sigue siendo técnico-operativa; no existe ranking empírico entre los tres.
+
+El groundedness es proxy; schema válido no basta para semántica. Esta corrida tampoco mide utilidad humana ni productividad. Los artefactos oficiales Qwen anteriores no se modificaron.
 
 Para Nivel 4 de elección, esta tabla mejora la cobertura documental, pero no acredita exhaustividad experimental ni hardware/latencia comparables. No se atribuye una victoria empírica a Qwen.
 
@@ -44,4 +54,4 @@ Para Nivel 4 de elección, esta tabla mejora la cobertura documental, pero no ac
 - Mistral AI. (s. f.-b). [Ministral 3 8B Instruct 2512 model card](https://huggingface.co/mistralai/Ministral-3-8B-Instruct-2512).
 - Mistral AI. (s. f.-a). [Ministral 3 8B documentation](https://docs.mistral.ai/models/ministral-3-8b-25-12).
 
-Consulta/verificación: 11 de octubre de 2026. APA consolidada y citas del informe: `references.md`. No reejecutar ni sobrescribir la evaluación oficial al revisar la selección.
+Consulta/verificación documental: 8 de noviembre de 2026. APA consolidada y citas del informe: `references.md`. La evaluación oficial permanece intacta; la corrida comparativa nueva se conserva en `reports/genai/comparison/`.

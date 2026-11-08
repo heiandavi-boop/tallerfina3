@@ -19,7 +19,7 @@ Numéricas: planned_duration_weeks, planned_budget, true_progress, spi, cpi. Cat
 - project_type: construction, healthcare, it, manufacturing, marketing, r&d.
 - methodology: agile, hybrid, kanban, scrum, waterfall.
 
-No se mezclan fuentes independientes. Imputación ML por mediana/moda TRAIN; cobertura mínima API 60 %. true_progress solo tolera ruido flotante de 1e-9 en límites. Team Health no se imputa y necesita señales suficientes. [Model card](docs/model_card.md) y [preparación](docs/training.md).
+No se mezclan fuentes independientes. Imputación ML por mediana/moda TRAIN; cobertura mínima API 60 %. true_progress solo tolera ruido flotante de 1e-9 en límites. Team Health no se imputa y necesita señales suficientes. La API puede emitir una advertencia OOD basada en perfil TRAIN; no cambia la predicción. [Model card](docs/model_card.md), [preparación](docs/training.md) y [drift/OOD](docs/drift_monitoring.md).
 
 ## Resultados clave
 
@@ -45,7 +45,9 @@ Delay MAE 27.710468 frente a 27.850313 días: mejora marginal y componente predi
 
 ## GenAI
 
-Benchmark Qwen3 8B versionado: complete, 30 casos, éxito/grounding 29/30, esquema/features válidas 30/30, acciones no vacías 30/30, una cifra no soportada; timeout/JSON inválido cero. Mediana 3092.645 ms y p95 6634.72 ms. Son proxies locales y muestra condicionada a drivers, no utilidad empresarial demostrada. Selección de Qwen frente a Gemma/Ministral técnico-operativa; sin benchmark empírico comparativo. [Selección](docs/genai_model_selection.md), [evaluación](docs/genai_evaluation.md) y [eficiencia pendiente](docs/efficiency_evaluation.md).
+Benchmark Qwen3 8B oficial congelado: complete, 30 casos, éxito/grounding 29/30, esquema/features válidas 30/30, acciones no vacías 30/30, una cifra no soportada; timeout/JSON inválido cero. Mediana 3092.645 ms y p95 6634.72 ms. Benchmark comparativo nuevo, independiente y no sustitutivo: 30 casos, estado `partial`; solo Qwen está instalado (29/30 aceptadas, 0.9667 schema/grounded/actionability, 0 cifras no soportadas, 0 timeouts, 1 JSON inválido, mediana 6336.35 ms y p95 13340.74 ms); Gemma 3 4B y Ministral 3 8B quedan `not_available`. Ambas corridas son locales, condicionadas a drivers, no evidencia de utilidad empresarial. [Comparación](reports/genai/comparison/benchmark_report.md), [selección](docs/genai_model_selection.md) y [evaluación](docs/genai_evaluation.md).
+
+Concurrencia local, 30 casos por nivel: éxito 96.67/93.33/73.33/36.67 % en 1/2/4/8; timeout 0/0/26.67/63.33 %; throughput 0.1335/0.1402/0.1475/0.2499 req/s. El mayor throughput viene con una caída marcada del éxito. No es prueba productiva ni demuestra escalabilidad. [Reporte](reports/genai/concurrency/report.md).
 
 ## Ejecutar y demostrar
 
@@ -64,7 +66,7 @@ Para activar GenAI local, con Ollama y qwen3:8b instalados:
 PRUNIN_ENABLE_OLLAMA=1 PRUNIN_OLLAMA_MODEL=qwen3:8b ./scripts/run_playground.sh
 ```
 
-Ejecutar `./scripts/preflight_genai.sh` por separado con el API activo. Si Ollama falla, ML y fallback permanecen disponibles. `/api/genai-status` muestra estado; timeout por defecto 30 s configurable. No reejecutar el benchmark oficial durante el cierre.
+Ejecutar `./scripts/preflight_genai.sh` por separado con Ollama y API activos. Si Ollama falla, ML y fallback permanecen disponibles. `/api/genai-status` muestra estado; timeout por defecto 30 s configurable. El benchmark comparativo y la concurrencia son scripts manuales; no descargan modelos y la prueba local no se llama productiva.
 
 Demo: análisis individual, probabilidades, drivers, What-if, CSV hasta 100 filas, JSON descargable con prediction_id y versión. Delay presenta `max(0, delay_days_raw)` y conserva raw en detalle técnico; métricas históricas no cambian. Cost negativo puede representar ahorro. Team Health del CSV se oculta si ninguna fila tiene score, aparece si alguna lo tiene.
 
@@ -81,19 +83,20 @@ npm run build --prefix frontend
 ./scripts/preflight_demo.sh
 ```
 
-quality CI usa Python 3.12/Node 22, npm ci, frontend build/tests, artefactos demo efímeros, compileall y pytest; no descarga Mendeley ni ejecuta Ollama/benchmark pesado. CI verde se acredita por SHA y run completado. Docker empaqueta frontend/API; Kubernetes es [diseño](deploy/k8s/prunin-ai-core.yaml), tres réplicas y HPA 3–10, sin clúster productivo probado. [MLOps](docs/mlops_production.md) expone readiness, monitoring y /metrics; centralización, drift y retraining continuo siguen pendientes.
+quality CI usa Python 3.12/Node 22, npm ci, frontend build/tests, artefactos demo efímeros, compileall y pytest; no descarga Mendeley ni ejecuta Ollama/benchmark pesado. CI verde se acredita por SHA y run completado. Docker empaqueta frontend/API; Kubernetes es [diseño validado estáticamente](deploy/k8s/prunin-ai-core.yaml), tres réplicas y HPA 3–10, sin clúster productivo operado. [MLOps](docs/mlops_production.md) expone readiness, monitoring y /metrics; drift tiene detector offline testeable, mientras monitorización central y retraining continuo siguen pendientes.
 
 Reproducción del entrenamiento: [docs/training.md](docs/training.md) y scripts/train_all.sh (fail-fast). Ejecutarla en entorno separado; no sobrescribir modelos/resultados congelados para preparar la entrega.
 
 ## Limitaciones
 
-Dataset sintético, severidad Critical todavía limitada, Delay débil, caveat EVM de Cost, cobertura temprana desigual, fusión no calibrada y drivers no causales. No hay baseline humano medido ni validación prospectiva empresarial. Grounding es proxy y requiere revisión humana. [Ética](docs/ethics_security.md). No está listo para producción.
+Dataset sintético, severidad Critical todavía limitada, Delay débil, caveat EVM de Cost, cobertura temprana desigual, fusión no calibrada y drivers no causales. No hay baseline humano medido ni validación prospectiva empresarial. Grounding es proxy y requiere revisión humana. La eficiencia del API no demuestra productividad humana; el [protocolo humano](docs/human_efficiency_validation.md) y el [ensayo RA2](docs/ENSAYO_SUSTENTACION.md) quedan preparados, no ejecutados. [Ética](docs/ethics_security.md). No está listo para producción.
 
 ## Estado de evaluación
 
 - [Informe final](docs/INFORME_FINAL.md)
 - [Matriz completa PAIII: técnica, RA1 y RA2](docs/rubric_matrix.md)
 - [Cierre, evidencias y pendientes](docs/FINAL_READINESS.md)
+- [Matriz final de 27 criterios](reports/rubric_final/rubric_final.md) y [checklist de entrega](docs/ENTREGA_FINAL_CHECKLIST.md)
 - [Resultados predictivos congelados](reports/0.9.0-academic/)
 - [Resultados GenAI](reports/genai/)
 - [Presentación de 7/10/12 minutos](docs/PRESENTACION_FINAL.md)

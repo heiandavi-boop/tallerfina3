@@ -298,3 +298,60 @@ Las figuras existentes provienen de reportes reales; enseñar cobertura junto a 
 | 12 minutos | PENDIENTE | |
 
 La documentación prepara RA2 F1/F2/F3/F5/F7; no acredita su ejecución oral. Voz y lenguaje no verbal no pueden demostrarse mediante CI. Completar identidad institucional de la portada, verificar legibilidad/proyección y hacer ensayo con preguntas difíciles antes de entregar/sustentar.
+
+## VERSIÓN 7 MIN
+
+| Slide / tiempo | Mensaje central | Qué decir | Qué mostrar | Transición | Qué NO decir |
+|---|---|---|---|---|---|
+| 1 · 25 s | Decisión humana de PMO | Priorizar revisión de señales, no sustituir al director | Pregunta, usuario y decisión | La pregunta fija qué significa éxito | Impacto/ROI empresarial medido |
+| 2 · 25 s | Promesa original | La meta agrupa Critical o At Risk como alerta | Definición KPI | La alerta sale de esta arquitectura | Risk Alert como modelo nuevo |
+| 3 · 30 s | Capas separadas | LightGBM predice; heurísticas y Qwen explican aparte | Diagrama | El flujo depende de datos y split | Qwen predice Health |
+| 4 · 35 s | Alcance sintético | 4000 proyectos; split disjunto por proyecto; imputación TRAIN | Split 2800/600/600 | Veamos qué aprende cada modelo | Dataset empresarial real |
+| 5 · 30 s | Tres modelos y reglas | Health clasifica; Delay/Cost regresan; Team Health es heurística | Tabla features/modelos | Compare métricas y baseline | Team Health como psicología |
+| 6 · 55 s | Alerta no es severidad | 82.45 % Risk Alert final; Critical Recall 56.82 %; Delay marginal | Métricas TEST y baseline | La pregunta clave es cuándo | 82.45 % de Critical |
+| 7 · 40 s | Meta al 60 % | 359/473 = 75.90 %, cobertura 96 % | Figura temporal | La explicación tiene evaluación propia | 79.95 % al 40 % como meta cumplida |
+| 8 · 50 s | GenAI evaluada con límites | Qwen 29/30 oficial; comparativa parcial; proxy, no utilidad | Métricas y estado candidatos | Pasemos a la experiencia | Qwen es el mejor |
+| 9 · 60 s | Uso de la alerta | Mostrar una predicción y nombrar señales como sensibilidad local | Playground individual | El diseño requiere controles | Driver como causa |
+| 10 · 25 s | Diseño no es producción | CI y trazabilidad; Kubernetes validado estáticamente | Estado implementado/diseñado | Resumamos lo demostrado | Clúster desplegado |
+| 11 · 25 s | Límites visibles | Sintético, Critical limitado, Delay débil, sin estudio humano | Demostrado/pendiente | La conclusión se restringe al experimento | Validación empresarial |
+| 12 · 20 s | Resultado experimental | Meta alcanzada al 60 % en TEST sintético | 75.90 %, 96 %, 56.82 % | Abrir preguntas | Listo para producción |
+
+Total planificado: 420 s. Una interacción individual; no leer JSON ni terminal. Ajustar tiempos con ensayo grabado.
+
+## VERSIÓN 10 MIN
+
+| Slide / tiempo | Mensaje central | Qué decir | Qué mostrar | Transición | Qué NO decir |
+|---|---|---|---|---|---|
+| 1 · 35 s | Decisión humana de PMO | Contexto, usuario y falta de impacto empresarial medido | Problema → usuario → decisión | La pregunta define la evaluación | ROI medido |
+| 2 · 35 s | Promesa original | Distinguir detección de severidad | KPI Risk Alert | La arquitectura mantiene roles separados | Cambiamos labels |
+| 3 · 40 s | Capas separadas | Predictor, heurística, explicación y fallback | Diagrama | El split delimita datos | Qwen es predictor |
+| 4 · 45 s | Alcance sintético | Procedencia, conteos, agrupación y TRAIN-only preprocessing | Dataset/split/whitelist | Veamos los modelos | Datos empresariales |
+| 5 · 40 s | Tres modelos y reglas | Health, Delay, Cost; estados derivados; Team Health heurístico | Tabla features→salida | Comparemos baseline | Cuatro modelos predictivos |
+| 6 · 80 s | Alerta no es severidad | Macro F1 0.627576; Risk Alert 82.45 %; Critical 56.82 %; caveats | Resumen TEST y confusión | La meta requiere tiempo de detección | Ocultar falsos negativos |
+| 7 · 60 s | Meta al 60 % | Denominador fijo 473; 359 detectados; cobertura 576/600 | Figura y tabla | GenAI se evalúa aparte | Recall elegible al 40 % |
+| 8 · 80 s | GenAI evaluada con límites | Evaluación oficial congelada y comparativa parcial | Qwen y `not_available` | La app refleja separación | Ranking completo |
+| 9 · 90 s | Uso de la alerta | Predicción, drivers, una recomendación y What-if; no causalidad | Playground + simulación | Operación con controles | What-if como causa |
+| 10 · 35 s | Diseño no es producción | Versiones, manifests, CI, endpoints, drift offline y K8s estático | Estado MLOps | Revisemos límites | Retraining continuo o cluster activo |
+| 11 · 30 s | Límites visibles | Sin empresa/usuario; benchmark operacional local | Demo/tests/alcance | Conclusión experimental | Ahorro humano |
+| 12 · 30 s | Resultado experimental | 75.90 % al 60 %, 82.45 % final, 56.82 % Critical | KPI temporal | Preguntas | Producción validada |
+
+Total planificado: 600 s. Reservar más tiempo para baseline y resultado; no extender detalles de infraestructura.
+
+## VERSIÓN 12 MIN
+
+| Slide / tiempo | Mensaje central | Qué decir | Qué mostrar | Transición | Qué NO decir |
+|---|---|---|---|---|---|
+| 1 · 40 s | Decisión humana de PMO | Contexto, responsable y ausencia de impacto medido | Problema → usuario → decisión | La pregunta vuelve medible la meta | ROI probado |
+| 2 · 40 s | Promesa original | Definir Risk Alert sin reemplazar Health | KPI y definición | El pipeline separa tareas | KPI seleccionado con TEST |
+| 3 · 45 s | Capas separadas | Predictor, drivers, Qwen, validator y fallback | Arquitectura | El split evita contaminación directa | Qwen altera predicciones |
+| 4 · 55 s | Alcance sintético | DOI, conteos, split, whitelist y riesgo EVM temporal | Split/procedencia | Veamos outputs y baseline | Proyectos reales |
+| 5 · 50 s | Tres modelos y reglas | Health, regresiones, estados derivados y heurísticas | Tabla modelo/feature | El baseline revela desbalance | Team Health calibrado |
+| 6 · 100 s | Alerta no es severidad | Leer matriz; comparar Macro F1/baseline; interpretar Delay y Cost | Confusión y tabla TEST | La promesa también es temporal | Critical Recall igual a alerta |
+| 7 · 75 s | Meta al 60 % | Denominador fijo; no elegibles cuentan no detectados; 359/473 | Curva temporal y cortes | GenAI tiene evaluación separada | 79.95 % al 40 % como cumplimiento |
+| 8 · 90 s | GenAI evaluada con límites | Separar evaluación congelada de benchmark parcial nuevo | JSON y comparación | La interfaz mantiene esos roles | Qwen es mejor o grounding es verdad |
+| 9 · 110 s | Uso de alerta y evidencia | Análisis, probabilidades, drivers, recomendación, What-if/CSV | Playground; plan de fallback | Guardrails no eliminan todo riesgo | Driver causal; CSV llama Qwen |
+| 10 · 45 s | Diseño no es producción | Versionado, fingerprints, readiness, métricas, drift offline y YAML | Endpoints y manifiesto | Los límites delimitan conclusión | Producción/retraining activo |
+| 11 · 35 s | Límites visibles | Representatividad, utilidad humana, concurrencia local y seguridad | Matriz riesgos | Concluyo solo lo respaldado | Productividad humana medida |
+| 12 · 35 s | Resultado experimental | 75.90 %, cobertura 96 %, 82.45 % final, Critical 56.82 % | Cifra principal y caveat | Abrir preguntas | Validación empresarial |
+
+Total planificado: 720 s. Ensayar navegación y fallback sin improvisar cifras; registrar tiempos reales en `ENSAYO_SUSTENTACION.md`.

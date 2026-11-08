@@ -17,12 +17,27 @@ spec:
       labels:
         app: prunin-ai-core
     spec:
+      terminationGracePeriodSeconds: 45
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: api
           image: prunin-ai-core:0.9.0-academic
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
           ports:
             - containerPort: 8000
           env:
+            - name: PYTHONDONTWRITEBYTECODE
+              value: "1"
             - name: PRUNIN_CORS_ORIGINS
               value: "https://prunin.example"
             - name: PRUNIN_ENABLE_OLLAMA
@@ -80,3 +95,13 @@ spec:
         target:
           type: Utilization
           averageUtilization: 65
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: prunin-ai-core
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: prunin-ai-core

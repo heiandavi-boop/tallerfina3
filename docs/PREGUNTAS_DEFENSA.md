@@ -188,11 +188,11 @@ Validación externa/prospectiva, outcomes reales, gobierno/controles de datos, r
 
 **Evidencia:** `docs/mlops_production.md; docs/ethics_security.md`.
 
-## 28. ¿Cómo monitorearían drift?
+## 28. ¿Cómo monitorean drift?
 
-Hoy hay contadores/latencias locales, no drift estadístico automático. Futuro: comparar distribución de inputs y desempeño con outcomes respecto a una referencia aprobada, centralizar métricas, revisar alertas y subgrupos; umbrales deben justificarse con datos reales.
+Hay un detector académico offline de PSI/missing-rate y una advertencia OOD univariada perfilada con TRAIN. Futuro: ejecutar cohortes aprobadas periódicamente, asociar outcomes, justificar umbrales y centralizar métricas; no activar retraining automático.
 
-**Evidencia:** `docs/mlops_production.md; src/prunin_ai/api/monitoring.py`.
+**Evidencia:** `docs/drift_monitoring.md`; `src/prunin_ai/monitoring/drift.py`; `scripts/check_drift.py`.
 
 ## 29. ¿Cuándo reentrenarían?
 
@@ -225,5 +225,134 @@ Mediante captura/pseudonimización acordada, correspondencia semántica y de uni
 **Delay negativo:** raw=-0.3 conserva delay_days_raw=-0.3; delay_days presenta 0. El ajuste es operacional, no una mejora del modelo ni de métricas. Cost negativo no se trunca.
 
 **Prueba 99:** el autor comunicó una validación funcional manual balanceada; no hay resultados estructurados versionados identificados de esa corrida. El test local de 99 filas es una prueba de contrato/cobertura distinta; los resultados oficiales son 600 proyectos TEST. No citar una accuracy recordada.
+
+## Guía de respuestas cortas: evidencia y límite
+
+Usar este formato durante el ensayo. La plantilla prepara la defensa pero no acredita respuesta oral espontánea.
+
+**¿Cumplieron el 75 %?**
+**RESPUESTA CORTA:** Sí, en el benchmark sintético: 359/473 = 75.90 % al 60 % de avance y 96 % de cobertura.
+**EVIDENCIA:** `reports/promise_validation/risk_alert_metrics.json`.
+**LÍMITE:** No es validación empresarial ni Critical Recall.
+
+**¿Por qué no usar 79.95 % al 40 %?**
+**RESPUESTA CORTA:** Es recall entre elegibles; con cohorte fija el valor es 64.06 %.
+**EVIDENCIA:** `reports/promise_validation/temporal_risk_alert_metrics.csv`.
+**LÍMITE:** La cobertura temprana cambia por cutoff.
+
+**¿Por qué dataset sintético?**
+**RESPUESTA CORTA:** Ofrece un benchmark versionado con snapshots/outcomes disponibles; no contiene clientes PRUNIN.
+**EVIDENCIA:** `dataset_summary.json`; DOI Mendeley v2.
+**LÍMITE:** Representatividad externa no demostrada.
+
+**¿Cómo evitaron leakage?**
+**RESPUESTA CORTA:** Split por `project_id`, whitelist sin targets, fit TRAIN y selección en VALIDATION.
+**EVIDENCIA:** `split_manifest.json`, `feature_manifest.json`, `tests/test_split_no_leakage.py`.
+**LÍMITE:** CPI/progreso tardíos siguen próximos al outcome simulado.
+
+**¿Por qué Critical Recall es 56.82 %?**
+**RESPUESTA CORTA:** Detecta 25/44 Critical; 13 quedaron At Risk y 6 Healthy.
+**EVIDENCIA:** `health_confusion_matrix.csv`; `metrics.json`.
+**LÍMITE:** La alerta binaria no corrige la severidad multiclase.
+
+**¿Por qué Delay es débil?**
+**RESPUESTA CORTA:** MAE 27.710468 días mejora marginalmente el baseline 27.850313.
+**EVIDENCIA:** `reports/0.9.0-academic/baselines.json`.
+**LÍMITE:** No es una estimación precisa garantizada.
+
+**¿Por qué conservar Delay?**
+**RESPUESTA CORTA:** Es parte del experimento congelado; cambiarlo alteraría el resultado histórico.
+**EVIDENCIA:** Artifact 0.9.0-academic y comparación VALIDATION del experimento Delay.
+**LÍMITE:** No se afirma calidad suficiente para decisiones de plazo.
+
+**¿Por qué Cost tiene R² tan alto?**
+**RESPUESTA CORTA:** CPI/EVM y outcome mantienen relación estructural en el generador sintético.
+**EVIDENCIA:** MAE 0.147158 pp; R² 0.991816; temporal MAE 3.136943 pp al 20 %.
+**LÍMITE:** No demuestra desempeño con costos reales.
+
+**¿Qwen predice?**
+**RESPUESTA CORTA:** No; LightGBM predice y Qwen explica evidencia estructurada.
+**EVIDENCIA:** `recommendations.py`, arquitectura y metadata API.
+**LÍMITE:** La explicación puede contener errores semánticos.
+
+**¿Qué pasa si Qwen falla?**
+**RESPUESTA CORTA:** Se usa fallback determinístico y se conserva la predicción ML.
+**EVIDENCIA:** `tests/test_genai_grounding.py`.
+**LÍMITE:** Análisis individual espera timeout; fallback no es GenAI.
+
+**¿Por qué Qwen?**
+**RESPUESTA CORTA:** Por integración local existente y requisitos técnico-operativos.
+**EVIDENCIA:** `docs/genai_model_selection.md`; benchmark comparativo parcial.
+**LÍMITE:** No se demostró superioridad frente a otros modelos.
+
+**¿Por qué no compararon los LLM?**
+**RESPUESTA CORTA:** La comparación ahora se implementó; solo Qwen estaba disponible en esta máquina.
+**EVIDENCIA:** `reports/genai/comparison/benchmark_summary.json`.
+**LÍMITE:** Gemma y Ministral quedan `not_available`; la comparación es parcial.
+
+**¿Team Health es IA?**
+**RESPUESTA CORTA:** Es una heurística operacional determinística, no un modelo supervisado.
+**EVIDENCIA:** `src/prunin_ai/features/team_health.py`.
+**LÍMITE:** No usar como salud mental, moral o evaluación individual de RR. HH.
+
+**¿Los drivers son causales?**
+**RESPUESTA CORTA:** No; son sensibilidad local al sustituir una feature por referencia.
+**EVIDENCIA:** `model_runtime.py` y disclaimers UI/API.
+**LÍMITE:** No estiman efectos de intervención.
+
+**¿Cómo detectan OOD?**
+**RESPUESTA CORTA:** Perfil TRAIN, fence univariado de 1.5 IQR y categoría no vista; API solo advierte.
+**EVIDENCIA:** `input_profile.json`, `monitoring/drift.py`, tests de drift.
+**LÍMITE:** No detecta todos los cambios multivariados y no altera predicción.
+
+**¿Kubernetes está desplegado?**
+**RESPUESTA CORTA:** No; el manifiesto se valida estáticamente.
+**EVIDENCIA:** `tests/test_deployment_manifests.py`; “deployment automation/design validated statically; production cluster not operated.”
+**LÍMITE:** No se operó ni validó un clúster.
+
+**¿Es escalable?**
+**RESPUESTA CORTA:** Hay prueba local de concurrencia, no validación productiva de escalabilidad.
+**EVIDENCIA:** `reports/genai/concurrency/summary.json`; HPA del manifiesto.
+**LÍMITE:** Sin carga sostenida ni clúster real.
+
+**¿Hay retraining automático?**
+**RESPUESTA CORTA:** No; requiere datos/outcomes aprobados y comparación en VALIDATION.
+**EVIDENCIA:** `docs/mlops_production.md`; `docs/drift_monitoring.md`.
+**LÍMITE:** TEST debe permanecer congelado; no hay servicio activo.
+
+**¿Está listo para producción?**
+**RESPUESTA CORTA:** No; es un prototipo académico.
+**EVIDENCIA:** Model card, ética, readiness y diseño Kubernetes.
+**LÍMITE:** Faltan validación prospectiva, accesos, monitorización central y pruebas de operación.
+
+**¿Qué falta para producción?**
+**RESPUESTA CORTA:** Datos reales aprobados, evaluación externa, seguridad operacional, observabilidad y capacidad probada.
+**EVIDENCIA:** `docs/mlops_production.md`; `docs/ethics_security.md`.
+**LÍMITE:** Esta lista no significa que el despliegue esté iniciado.
+
+**¿Se validó con empresas?**
+**RESPUESTA CORTA:** No.
+**EVIDENCIA:** Dataset Mendeley sintético; no hay estudio empresarial versionado.
+**LÍMITE:** No afirmar ROI, utilidad o generalización empresarial.
+
+**¿Cómo justifican eficiencia?**
+**RESPUESTA CORTA:** Con mediciones automatizadas de latencia, percentiles, throughput, éxito y batch.
+**EVIDENCIA:** `reports/efficiency/`; prueba de concurrencia local.
+**LÍMITE:** No mide ahorro ni productividad humana.
+
+**¿Qué significa Macro F1?**
+**RESPUESTA CORTA:** Media no ponderada del F1 de las clases.
+**EVIDENCIA:** Health Macro F1 0.627576; baseline 0.277940.
+**LÍMITE:** No equivale a porcentaje de acierto ni calibración.
+
+**¿Qué pasa con falsos negativos?**
+**RESPUESTA CORTA:** Puede no activarse una alerta; por eso hay que revisar casos y mantener decisión humana.
+**EVIDENCIA:** Matriz de confusión y recall por clase.
+**LÍMITE:** El daño operativo no se midió con usuarios.
+
+**¿Qué pasa con Critical clasificado At Risk?**
+**RESPUESTA CORTA:** Es error de severidad, pero sí activa Risk Alert.
+**EVIDENCIA:** Matriz Health y métricas Risk Alert separadas.
+**LÍMITE:** La alerta no sustituye el diagnóstico de severidad.
 
 **Cierre de respuesta:** si la pregunta pide evidencia ausente, reconocer el límite y señalar el protocolo/pendiente; no improvisar una cifra.

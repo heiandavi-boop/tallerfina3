@@ -16,6 +16,8 @@ La versión académica incluye:
 - Dockerfile reproducible;
 - fallback ante falla GenAI;
 - pipeline `train_all.sh` fail-fast.
+- perfil de calidad/OOD calculado solo con proyectos TRAIN y fingerprints;
+- detector offline de PSI y missing-rate con CLI y pruebas sintéticas.
 
 ## Diseño escalable reproducible
 
@@ -29,7 +31,7 @@ La versión académica incluye:
 - HorizontalPodAutoscaler;
 - reinicio automático administrado por Kubernetes.
 
-El manifiesto es **evidencia de diseño y automatización**, no evidencia de que exista un clúster productivo activo.
+El manifiesto es **evidencia de diseño y automatización**, no evidencia de que exista un clúster productivo activo. Su sintaxis/contratos se validan en tests estáticos; este cierre no usó `kubectl` ni operó un cluster. La descripción exacta es: “deployment automation/design validated statically; production cluster not operated.”
 
 ## Monitorización
 
@@ -58,7 +60,7 @@ TEST permanece reservado para evaluación final después de congelar la selecci�
 
 ## Limitación actual
 
-No existe todavía validación productiva, almacenamiento central de métricas, alertas reales ni retraining continuo con datos PRUNIN. Por integridad académica, esas capacidades se presentan como siguiente paso y no como operación ya desplegada.
+No existe todavía validación productiva, almacenamiento central de métricas, alertas reales, drift continuo/productivo ni retraining continuo con datos PRUNIN. Hay un detector académico offline y un aviso de entrada OOD basado en TRAIN; no es una monitorización central. Por integridad académica, no se presenta como operación ya desplegada.
 
 ## Separación entre implementación y operación pendiente
 

@@ -1,0 +1,85 @@
+{
+  "status": "partial",
+  "created_at_utc": "2026-11-08T13:19:15.059065+00:00",
+  "cases_requested": 30,
+  "timeout_seconds": 30.0,
+  "temperature": 0.1,
+  "format": "json",
+  "prompt_builder": "build_grounded_prompt",
+  "validator": "validate_generated_payload",
+  "hardware": {
+    "platform": "macOS-27.2-arm64-arm-64bit",
+    "processor": "arm",
+    "logical_cpu_count": 15,
+    "python_version": "3.12.15"
+  },
+  "ollama_available": true,
+  "ollama_error": null,
+  "models": {
+    "gemma3:4b": {
+      "status": "not_available",
+      "reason": "Model tag is not installed; no download was attempted.",
+      "metrics": null
+    },
+    "ministral:8b": {
+      "status": "not_available",
+      "reason": "Model tag is not installed; no download was attempted.",
+      "metrics": null
+    },
+    "qwen3:8b": {
+      "status": "complete",
+      "warmup_excluded": true,
+      "warmup_failure_code": null,
+      "metrics": {
+        "requests_total": 30,
+        "generation_success_rate": 0.9666666666666667,
+        "schema_valid_rate": 0.9666666666666667,
+        "grounded_rate": 0.9666666666666667,
+        "unsupported_numeric_claim_rate": 0.0,
+        "actionability_rate": 0.9666666666666667,
+        "timeout_rate": 0.0,
+        "invalid_json_rate": 0.03333333333333333,
+        "latency_ms_median": 6336.35,
+        "latency_ms_p95": 13340.74
+      }
+    }
+  },
+  "notes": [
+    "No automatic model downloads are performed.",
+    "All available candidates share the same 30 prepared TEST cases and evidence payloads."
+  ],
+  "artifact_version": "0.9.0-academic",
+  "case_ids": [
+    "mendeley::PROJ_0760",
+    "mendeley::PROJ_2717",
+    "mendeley::PROJ_0062",
+    "mendeley::PROJ_0539",
+    "mendeley::PROJ_2331",
+    "mendeley::PROJ_0840",
+    "mendeley::PROJ_0757",
+    "mendeley::PROJ_3943",
+    "mendeley::PROJ_0223",
+    "mendeley::PROJ_1423",
+    "mendeley::PROJ_1238",
+    "mendeley::PROJ_3932",
+    "mendeley::PROJ_3573",
+    "mendeley::PROJ_3973",
+    "mendeley::PROJ_2414",
+    "mendeley::PROJ_3604",
+    "mendeley::PROJ_0953",
+    "mendeley::PROJ_3737",
+    "mendeley::PROJ_2856",
+    "mendeley::PROJ_3967",
+    "mendeley::PROJ_0556",
+    "mendeley::PROJ_1660",
+    "mendeley::PROJ_1293",
+    "mendeley::PROJ_0927",
+    "mendeley::PROJ_2892",
+    "mendeley::PROJ_1789",
+    "mendeley::PROJ_2399",
+    "mendeley::PROJ_0211",
+    "mendeley::PROJ_3837",
+    "mendeley::PROJ_3183"
+  ],
+  "evaluation_unit": "latest TEST project snapshot with at least one increasing-risk local driver"
+}

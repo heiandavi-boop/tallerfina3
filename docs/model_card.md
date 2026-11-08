@@ -65,6 +65,10 @@ Delay es el modelo predictivo más débil y su mejora es marginal. Cost tiene re
 
 Fuentes: reports/0.9.0-academic/; docs/references.md; docs/INFORME_FINAL.md. Artefactos, configuración y reglas permanecen congelados durante el cierre.
 
+## Calidad de entrada, OOD y drift
+
+La API registra cobertura, features faltantes y `ood_warning`/`ood_features`. El aviso usa límites univariados IQR y categorías vistas únicamente en TRAIN; no modifica la predicción. Si el perfil TRAIN no existe, OOD se declara no disponible. El detector batch PSI/missing-rate está descrito en `docs/drift_monitoring.md`; no es monitor productivo, no activa retraining y no detecta todos los cambios multivariados.
+
 ## Alcance de validación y comunicación de cierre
 
 La revisión final distingue métricas congeladas de smoke tests de API/GenAI. Datos faltantes reciben solo la imputación ML declarada; inputs de rangos válidos pueden seguir fuera de distribución. No hay detector OOD/drift automático productivo. La muestra Qwen está condicionada a drivers y no acredita utilidad profesional; no sustituye human oversight. No usar baseline accuracy ni R² como prueba de validez empresarial.

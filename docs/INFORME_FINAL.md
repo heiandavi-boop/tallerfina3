@@ -1,6 +1,6 @@
 # 1. PRUNIN AI Core: informe final del Proyecto Aplicado III
 
-**Portada textual.** Versión académica: 0.9.0-academic. Fecha de cierre: 11 de octubre de 2026. Repositorio: heiandavi-boop/tallerfina3. Audiencia: profesor/mentor, evaluador técnico y responsables de gestión de proyectos. Autor: completar con el nombre y datos institucionales antes de entregar; no se inventan identidades. HEAD main inicial auditado: b2d0ca32f0599fc6c2227f2a5eb3e6dea6ff812a. Métricas tomadas de reportes versionados; estado de checks en FINAL_READINESS.md.
+**Portada textual.** Versión académica: 0.9.0-academic. Fecha de cierre técnico: 8 de noviembre de 2026. Repositorio: heiandavi-boop/tallerfina3. Audiencia: profesor/mentor, evaluador técnico y responsables de gestión de proyectos. Autor: completar con el nombre y datos institucionales antes de entregar; no se inventan identidades. HEAD al inicio de esta auditoría: `ffcdc3c509af1907f7daee4a3c1468d3a649b1df`; HEAD final exacto y CI se consignan en FINAL_READINESS.md tras publicarlos.
 
 ## 2. Resumen ejecutivo
 
@@ -49,7 +49,7 @@ El informe se dirige al profesor/mentor y evaluador técnico, con una lectura em
 
 ## 10. Arquitectura
 
-React/Vite envía entradas validadas a FastAPI. `ModelRuntime` carga manifest, configuración y pipelines LightGBM. `PruninAcademicBrain` devuelve predicciones crudas y calcula reglas operativas independientes. El runtime añade la política de presentación de Delay. Los drivers se calculan mediante perturbaciones hacia referencias. Qwen3 8B, vía Ollama, recibe evidencia estructurada y explica; un validador acepta o rechaza su salida. El fallback determinístico conserva disponibilidad. `/api/ready`, `/api/monitoring` y `/metrics` aportan observabilidad local. Evidencia: `src/prunin_ai/api/`, `inference/brain.py` y `frontend/src/`.
+React/Vite envía entradas validadas a FastAPI (FastAPI, s. f.). `ModelRuntime` carga manifest, configuración y pipelines LightGBM. `PruninAcademicBrain` devuelve predicciones crudas y calcula reglas operativas independientes. El runtime añade la política de presentación de Delay. Los drivers se calculan mediante perturbaciones hacia referencias. Qwen3 8B, vía Ollama, recibe evidencia estructurada y explica; un validador acepta o rechaza su salida. El fallback determinístico conserva disponibilidad. `/api/ready`, `/api/monitoring` y `/metrics` aportan observabilidad local. Evidencia: `src/prunin_ai/api/`, `inference/brain.py` y `frontend/src/`.
 
 **Figura 1. Arquitectura híbrida implementada.**
 
@@ -87,13 +87,13 @@ El adaptador `data/adapters/mendeley_evm.py` estandariza columnas, unidades e id
 
 El split por `project_id` mantiene 2800 proyectos TRAIN, 600 VALIDATION y 600 TEST. Los snapshots de un proyecto permanecen juntos; `scripts/verify_split.py` comprueba conjuntos disjuntos. La whitelist excluye targets, costo y duración reales y outcomes finales. El ajuste del preprocesador usa TRAIN; la comparación de candidatos usa VALIDATION. TEST es evaluación descriptiva del candidato congelado. Esta separación evita leakage directo, pero no elimina la proximidad entre CPI/EVM tardío y outcome sintético. Evidencia: `split_summary.json`, manifest y reproducibility.
 
-El preprocesamiento usa herramientas de scikit-learn (Scikit-learn developers, s. f.). El esquema Pydantic valida tipos, categorías y rangos; `true_progress` tolera únicamente ruido flotante ≤ 1e-9 en límites 0/1 y rechaza desviaciones reales. No se aplicó StandardScaler para cumplir una casilla: los árboles separan por umbrales y no requieren estandarización numérica. Sí existe estandarización semántica de nombres/unidades y normalización de progreso a su dominio. La detección IQR señala observaciones atípicas, sin eliminar automáticamente valores válidos ni cambiar el dataset. Hashes SHA256 y readiness permiten verificar procedencia e integridad. Inputs dentro de rango todavía pueden estar fuera de distribución: no existe un detector OOD productivo.
+El preprocesamiento usa herramientas de scikit-learn (Pedregosa et al., 2011). El esquema Pydantic valida tipos, categorías y rangos; `true_progress` tolera únicamente ruido flotante ≤ 1e-9 en límites 0/1 y rechaza desviaciones reales. No se aplicó StandardScaler para cumplir una casilla: los árboles separan por umbrales y no requieren estandarización numérica. Sí existe estandarización semántica de nombres/unidades y normalización de progreso a su dominio. La detección IQR señala observaciones atípicas, sin eliminar automáticamente valores válidos ni cambiar el dataset. Hashes SHA256 y readiness permiten verificar procedencia e integridad. El perfil académico OOD se calcula con el split TRAIN; genera solo una advertencia en API y no modifica la predicción. El detector batch de PSI/missing-rate es offline, no un monitor productivo; no detecta todo shift multivariado.
 
 ## 13. Modelos predictivos
 
 Health es clasificación supervisada LightGBM; Delay y Cost son regresiones LightGBM. Se mantienen los artefactos y reglas de generación de etiquetas del experimento. Final Status deriva de Health: healthy → successful, at_risk → challenged, critical → critical; no es un cuarto modelo académico. Los baselines se ajustan sobre TRAIN: clase mayoritaria para Health y mediana por proyecto para regresión. Evidencia: `training/core.py`, `targets.py`, `baselines.json` y `feature_manifest.json`.
 
-Las numéricas son `planned_duration_weeks`, `planned_budget`, `true_progress`, `spi`, `cpi`; las categóricas, `project_type` y `methodology`. Tipos: construction, healthcare, it, manufacturing, marketing, r&d. Metodologías: agile, hybrid, kanban, scrum, waterfall. Las variables futuras del catálogo no se presentan como features entrenadas. Los drivers son sensibilidad local ante sustitución por una referencia, no efectos causales.
+Las numéricas son `planned_duration_weeks`, `planned_budget`, `true_progress`, `spi`, `cpi`; las categóricas, `project_type` y `methodology`. Tipos: construction, healthcare, it, manufacturing, marketing, r&d. Metodologías: agile, hybrid, kanban, scrum, waterfall. SPI/CPI se interpretan bajo la metodología de Earned Value Management (Project Management Institute, 2020); las variables futuras del catálogo no se presentan como features entrenadas. Los drivers son sensibilidad local ante sustitución por una referencia, no efectos causales.
 
 Es una heurística operacional determinística, no un modelo supervisado ni indicador psicológico. Usa utilización, capacidad, productividad, retrabajo, defectos, estabilidad y colaboración disponibles. Requiere al menos tres componentes válidos y cobertura ponderada ≥ 0.5 según configuración existente. No imputa faltantes. En batch se oculta toda la columna si ninguna fila tiene score calculable; si alguna lo tiene, la columna aparece y las filas sin score siguen sin valor. La fusión 0.85 ML / 0.15 Team Health es heurística no calibrada con outcomes reales y se distingue del Health supervisado.
 
@@ -101,9 +101,9 @@ La elección de LightGBM responde al problema tabular y a la integración con pi
 
 ## 14. IA generativa
 
-Qwen3 8B corre localmente mediante Ollama y convierte predicciones y drivers en explicación y recomendaciones. No predice Health, Delay ni Cost. CSV y What-if ejecutan ML sin generación; la generación opcional pertenece al análisis individual. El fallback `grounded_fallback` es determinístico y no se etiqueta como IA generativa.
+Qwen3 8B corre localmente mediante Ollama (Ollama, s. f.) y convierte predicciones y drivers en explicación y recomendaciones. No predice Health, Delay ni Cost. CSV y What-if ejecutan ML sin generación; la generación opcional pertenece al análisis individual. El fallback `grounded_fallback` es determinístico y no se etiqueta como IA generativa.
 
-Se conservó Qwen por ejecución local, soporte de español, tamaño y compatibilidad operativa con Ollama (Qwen Team, 2025). Gemma 3 4B y Ministral 3 8B se consideraron mediante documentación técnica oficial. No se ejecutó un benchmark comparativo PRUNIN entre los tres ni se afirma superioridad empírica de Qwen. El benchmark existente verifica únicamente Qwen en la configuración local usada.
+Se conservó Qwen por ejecución local, soporte de español, tamaño y compatibilidad operativa (Qwen Team, 2025). El benchmark comparativo nuevo usó 30 casos comunes con el mismo prompt/validador; quedó `partial` porque solo Qwen estaba instalado. La nueva corrida de Qwen obtuvo éxito/schema/grounding proxy/actionability 29/30, cero claims numéricos no soportados, un JSON inválido, cero timeouts, mediana 6336.35 ms y p95 13340.74 ms. Gemma 3 4B y Ministral 3 8B constan `not_available`; no se descargaron. Estas cifras no sustituyen la evaluación Qwen oficial congelada ni establecen ranking entre modelos.
 
 El prompt restringe la respuesta a evidencia estructurada; el validador exige esquema JSON, features permitidas y ausencia de cifras nuevas no soportadas. Timeout, JSON inválido o evidencia no admitida activan fallback sin retirar la predicción ML. La trazabilidad distingue intento y uso GenAI, motor, error y tiempos. Groundedness es un proxy determinístico de ingeniería, no prueba de verdad semántica; una frase aceptada todavía puede ser incorrecta o poco útil. Se requiere revisión humana.
 
@@ -236,25 +236,27 @@ Todas las ejecuciones normales tuvieron 100 % de éxito (80 runs raw: 40 por mod
 
 La robustez se verificó fuera del throughput: fila con una feature faltante aceptada al 85.71 % y reportada como imputada por la política ML; cobertura inferior al 60 %, categoría inválida y `true_progress=1.2` rechazados; CSV inválido devuelto como error controlado por fila. Resultado 5/5 checks; cero timeouts/HTTP failures en la prueba normal. Una muestra GenAI separada de cinco casos tuvo 5/5 Qwen aceptados, mediana 1136.04 ms y p95 7314.038 ms; no se mezcló con la comparación ML/batch ni sustituyó el benchmark oficial de 30 casos.
 
-El entorno fue macOS arm64, Python 3.12.15, API local, artifact 0.9.0-academic; el SHA de ejecución fue `e0beff14db7eab98f19c20ea90a3b3f7e4deea6b`. El API no expone workers, por lo que ese dato queda sin determinar. Estos resultados describen eficiencia operacional/capacidad del proceso automatizado en esta laptop. No demuestran productividad humana, ahorro laboral, producción, concurrencia ni rendimiento universal. Evidencia reproducible, datos crudos, casos, robustez, GenAI separada y gráficos: `reports/efficiency/`; método y comando: [protocolo](efficiency_evaluation.md).
+La prueba GenAI concurrente local usó 30 casos por nivel, con warm-up excluido y timeout de 30 s. Para concurrencia 1/2/4/8, el éxito fue 96.67/93.33/73.33/36.67 %, los timeouts 0/0/26.67/63.33 %, p50 6256.955/12305.81/28567.37/30002.805 ms, p95 15337.88/23252.48/30003.31/30005.73 ms y throughput 0.1335/0.1402/0.1475/0.2499 req/s. Aumenta throughput a la vez que se degrada éxito/latencia. Es prueba local no productiva; no valida escalabilidad.
+
+El benchmark de API se ejecutó en macOS arm64, Python 3.12.15, artifact 0.9.0-academic; el SHA medido para esa corrida fue `e0beff14db7eab98f19c20ea90a3b3f7e4deea6b`. El API no expone workers, por lo que ese dato queda sin determinar. Estos resultados describen eficiencia operacional local. No demuestran productividad humana, ahorro laboral, producción ni rendimiento universal. Evidencia API: `reports/efficiency/`; benchmark GenAI comparativo/concurrente separado: `reports/genai/comparison/` y `reports/genai/concurrency/`; método: [protocolo](efficiency_evaluation.md).
 
 ## 20. Riesgos éticos
 
-Se documentan privacidad, alucinaciones, sesgo de automatización, representatividad sintética, leakage, drift y falsa causalidad. Ollama local reduce transferencia a terceros, pero no reemplaza controles de acceso y retención. La supervisión humana es obligatoria para decisiones de impacto. Team Health no debe usarse para evaluar salud mental ni individuos. La validación real es necesaria antes de recomendaciones empresariales de alto impacto. Evidencia: `docs/ethics_security.md`.
+Se documentan privacidad, alucinaciones, sesgo de automatización, representatividad sintética, leakage, drift, OOD y falsa causalidad. El perfil TRAIN detecta algunos valores numéricos fuera de fences IQR y categorías no observadas; el detector PSI/missing-rate compara cohortes offline. Ninguno cubre todo shift o acredita control productivo. Ollama local reduce transferencia a terceros, pero no reemplaza controles de acceso y retención. La supervisión humana es obligatoria para decisiones de impacto. Team Health no debe usarse para evaluar salud mental ni individuos. Evidencia: `docs/ethics_security.md`, `docs/drift_monitoring.md` y tests.
 
 La [matriz ética](ethics_security.md) distingue impactos, mitigaciones implementadas y límites: faltantes y OOD no equivalen, logging no reemplaza auditoría empresarial y local no equivale a control de acceso.
 
 ## 21. MLOps
 
-La infraestructura académica incluye versionado, hashes SHA256, manifests, configuración resuelta, model card, CI, logs con prediction_id y endpoints de readiness/monitoring/métricas. Los contadores son en memoria por proceso. La política de actualización requiere datos aprobados, revisión de degradación y selección en VALIDATION. Prometheus centralizado, alertas reales, drift automático y retraining productivo continuo no están implementados como operación real.
+La infraestructura académica incluye versionado, hashes SHA256, manifests, configuración resuelta, model card, CI, logs con prediction_id y endpoints de readiness/monitoring/métricas. El detector drift offline y perfil OOD TRAIN son funcionalidades testeables, no monitorización central. Los contadores son en memoria por proceso. La política de actualización requiere datos aprobados, revisión de degradación y selección en VALIDATION. Prometheus centralizado, alertas reales y retraining productivo continuo no están implementados como operación real.
 
-Dockerfile empaqueta frontend y API usando lockfile. El manifiesto Kubernetes define Deployment con tres réplicas, RollingUpdate, probes, requests/limits, Service y HPA mínimo 3/máximo 10. Es diseño desplegable; no un clúster activo ni una prueba de producción. Requiere imagen con artefactos, dominio y recursos adecuados, metrics-server para HPA y observabilidad central antes de operar. No se montó infraestructura ni se afirmó throughput bajo carga.
+Dockerfile empaqueta frontend y API usando lockfile. El manifiesto Kubernetes define Deployment con tres réplicas, RollingUpdate, probes, requests/limits, Service, PDB y HPA mínimo 3/máximo 10; los contratos se validaron estáticamente. Es diseño, no clúster activo ni prueba de producción. Requiere imagen con artefactos, dominio y recursos adecuados, metrics-server para HPA y observabilidad central antes de operar. No se montó infraestructura.
 
 The Kubernetes Authors (s. f.) documentan los mecanismos de despliegue utilizados conceptualmente; no es una evidencia de operación de PRUNIN. La política de retraining se activa con datos suficientes/aprobados y degradación o drift revisados; compara en VALIDATION y mantiene TEST congelado. El cierre no ejecutó retraining.
 
 ## 22. Limitaciones
 
-Los datos son sintéticos; por tanto, el cumplimiento del KPI es experimental y no empresarial. El desbalance afecta Health, la detección exacta de Critical es incompleta, Delay apenas mejora la mediana y Cost depende del generador EVM. La evaluación temprana tiene cobertura desigual. La fusión no está calibrada; drivers no son causales. El benchmark GenAI es pequeño y condicionado; sus validadores son proxies. La eficiencia operacional se midió localmente, pero no hay baseline humano, validación empresarial ni clúster productivo. La prueba manual balanceada de 99 filas comunicada por el autor no tiene resultados estructurados versionados identificados: no se incorpora como métrica oficial. Existe un test local de 99 filas que verifica contrato y cobertura, sin balance 33/33/33 garantizado.
+Los datos son sintéticos; por tanto, el cumplimiento del KPI es experimental y no empresarial. El desbalance afecta Health, la detección exacta de Critical es incompleta, Delay apenas mejora la mediana y Cost depende del generador EVM. La evaluación temprana tiene cobertura desigual. La fusión no está calibrada; drivers no son causales. El benchmark GenAI es pequeño y condicionado; sus validadores son proxies. La comparación empírica de candidatos quedó parcial porque solo Qwen estaba instalado. La concurrencia local elevó throughput pero degradó éxito y aumentó timeouts; no es prueba de escalabilidad. La eficiencia operacional se midió localmente, pero no hay baseline humano, validación empresarial ni clúster productivo. El protocolo humano se dejó preparado con plantilla vacía, sin resultados. La prueba manual balanceada de 99 filas comunicada por el autor no tiene resultados estructurados versionados identificados: no se incorpora como métrica oficial.
 
 ## 23. Conclusiones
 
@@ -272,24 +274,30 @@ Opcionalmente estudiar tiempos/calidad con usuarios bajo protocolo controlado; o
 
 ## 25. Referencias
 
-Google DeepMind. (s. f.-a). *Gemma 3 4B IT* [Ficha de modelo]. Hugging Face. Recuperado el 11 de octubre de 2026, de https://huggingface.co/google/gemma-3-4b-it
+FastAPI. (s. f.). *FastAPI documentation*. Recuperado el 8 de noviembre de 2026, de https://fastapi.tiangolo.com/
 
-Google DeepMind. (s. f.-b). *Gemma 3 model card*. Google AI for Developers. Recuperado el 11 de octubre de 2026, de https://ai.google.dev/gemma/docs/core/model_card_3
+Google DeepMind. (s. f.-a). *Gemma 3 4B IT* [Ficha de modelo]. Hugging Face. Recuperado el 8 de noviembre de 2026, de https://huggingface.co/google/gemma-3-4b-it
+
+Google DeepMind. (s. f.-b). *Gemma 3 model card*. Google AI for Developers. Recuperado el 8 de noviembre de 2026, de https://ai.google.dev/gemma/docs/core/model_card_3
 
 Hajihoseyni, R. (2026). *Simulated project risk and earned-value dataset: Project features, monthly PV/EV/AC time series and delay/cost outcomes* (Versión 2) [Conjunto de datos]. Mendeley Data. https://doi.org/10.17632/2p5sz57wh2.2
 
 Ke, G., Meng, Q., Finley, T., Wang, T., Chen, W., Ma, W., Ye, Q., & Liu, T.-Y. (2017). LightGBM: A highly efficient gradient boosting decision tree. *Advances in Neural Information Processing Systems, 30*. https://papers.nips.cc/paper_files/paper/2017/hash/6449f44a102fde848669bdd9eb6b76fa-Abstract.html
 
-Mistral AI. (s. f.-a). *Ministral 3 8B Instruct 2512* [Ficha de modelo]. Hugging Face. Recuperado el 11 de octubre de 2026, de https://huggingface.co/mistralai/Ministral-3-8B-Instruct-2512
+Mistral AI. (s. f.-a). *Ministral 3 8B Instruct 2512* [Ficha de modelo]. Hugging Face. Recuperado el 8 de noviembre de 2026, de https://huggingface.co/mistralai/Ministral-3-8B-Instruct-2512
 
-Mistral AI. (s. f.-b). *Ministral 3 8B*. Mistral Docs. Recuperado el 11 de octubre de 2026, de https://docs.mistral.ai/models/ministral-3-8b-25-12
+Mistral AI. (s. f.-b). *Ministral 3 8B*. Mistral Docs. Recuperado el 8 de noviembre de 2026, de https://docs.mistral.ai/models/ministral-3-8b-25-12
+
+Ollama. (s. f.). *API documentation*. Recuperado el 8 de noviembre de 2026, de https://docs.ollama.com/api
+
+Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., Blondel, M., Prettenhofer, P., Weiss, R., Dubourg, V., VanderPlas, J., Passos, A., Cournapeau, D., Brucher, M., Perrot, M., & Duchesnay, E. (2011). Scikit-learn: Machine learning in Python. *Journal of Machine Learning Research, 12*, 2825–2830. https://jmlr.csail.mit.edu/papers/v12/pedregosa11a.html
+
+Project Management Institute. (2020). *The standard for earned value management*. https://www.pmi.org/standards/earned-value-management
 
 Qwen Team. (2025, 29 de abril). *Qwen3: Think deeper, act faster*. https://qwenlm.github.io/blog/qwen3/
 
-Qwen. (s. f.). *Qwen3-8B* [Ficha de modelo]. Hugging Face. Recuperado el 11 de octubre de 2026, de https://huggingface.co/Qwen/Qwen3-8B
+Qwen. (s. f.). *Qwen3-8B* [Ficha de modelo]. Hugging Face. Recuperado el 8 de noviembre de 2026, de https://huggingface.co/Qwen/Qwen3-8B
 
-Scikit-learn developers. (s. f.). *About us*. Recuperado el 11 de octubre de 2026, de https://scikit-learn.org/stable/about.html
+The Kubernetes Authors. (s. f.). *Deployments*. Recuperado el 8 de noviembre de 2026, de https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 
-The Kubernetes Authors. (s. f.). *Deployments*. Recuperado el 11 de octubre de 2026, de https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
-
-Verificación bibliográfica y alcance: [referencias consolidadas](references.md). Evidencia propia: reports/0.9.0-academic/{dataset_summary,feature_manifest,metrics,baselines,temporal_evaluation,reproducibility}.json; reports/experiments/delay/comparison.json; reports/genai/qwen3-8b-evaluation.json. Citas homónimas de fichas/documentación viva se identifican también por título/enlace en la comparación GenAI; no se les inventa fecha editorial.
+Verificación de URLs y alcance: [referencias consolidadas](references.md). La página oficial Mendeley confirma título, autor, versión y DOI. El extractor no obtuvo el abstract de NeurIPS; se conserva su URL primaria sin inventar DOI. Las fichas de modelos sustentan datos documentales, no resultados PRUNIN.

@@ -282,3 +282,19 @@ def test_academic_brain_ignores_stale_final_status_model_but_demo_keeps_it(monke
     assert "final_status" not in academic.models
     assert "final_status.joblib" in set(loaded)
     assert "final_status" in demo.models
+
+
+def test_final_rubric_report_has_27_auditable_criteria_and_allowed_states():
+    report = json.loads((ROOT / "reports/rubric_final/rubric_final.json").read_text(encoding="utf-8"))
+    criteria = report["criteria"]
+    required = {
+        "code", "requirement", "target_level", "evidence", "automated_evidence",
+        "human_evidence", "status", "remaining_gap", "safe_claim", "unsafe_claim",
+    }
+    allowed = {"DEMONSTRATED", "DEMONSTRATED_WITH_LIMITATION", "PREPARED_HUMAN", "DESIGN_ONLY"}
+
+    assert len(criteria) == 27
+    assert len({item["code"] for item in criteria}) == 27
+    assert all(required <= set(item) for item in criteria)
+    assert all(item["target_level"] == 4 and item["status"] in allowed for item in criteria)
+    assert all(item["status"] == "PREPARED_HUMAN" for item in criteria if item["code"].startswith("RA2-"))

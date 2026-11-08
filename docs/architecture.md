@@ -66,7 +66,7 @@ Fuente: `scripts/train_all.sh`, con `set -euo pipefail`, bloqueos explícitos an
 
 ## Entradas, artefactos y trazabilidad
 
-Las siete features académicas se registran en `reports/0.9.0-academic/feature_manifest.json`. No se imputan señales Team Health. Delay raw permanece en `delay_days_raw`; API/CSV/What-if presentan `delay_days=max(0, raw)`. Cost negativo conserva ahorro. Final Status mapea healthy→successful, at_risk→challenged, critical→critical.
+Las siete features académicas se registran en `reports/0.9.0-academic/feature_manifest.json`. No se imputan señales Team Health. La API informa cobertura/faltantes y, si está disponible el perfil TRAIN, `ood_warning`/`ood_features`; el aviso IQR/categoría no cambia la predicción. Delay raw permanece en `delay_days_raw`; API/CSV/What-if presentan `delay_days=max(0, raw)`. Cost negativo conserva ahorro. Final Status mapea healthy→successful, at_risk→challenged, critical→critical. Ver `docs/drift_monitoring.md`.
 
 El artefacto local incluye tres .joblib, feature_manifest, split_manifest, configuración resuelta, métricas, baselines y hashes. Los modelos pesados y datasets no están versionados en Git; los reportes ligeros sí. Un clon puede ejecutar CI con fixtures demo, pero la sustentación académica exige los artefactos oficiales locales.
 

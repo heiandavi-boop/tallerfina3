@@ -72,6 +72,10 @@ def test_predict_live():
         else 'independent_model'
     )
     assert body['prediction']['final_status_source'] == expected_status_source
+    assert body['prediction']['input_quality']['coverage'] == 1.0
+    assert body['prediction']['input_quality']['missing_features'] == []
+    assert isinstance(body['prediction']['input_quality']['ood_warning'], bool)
+    assert isinstance(body['prediction']['input_quality']['ood_features'], list)
     assert body['driver_source'] == 'local_model_sensitivity'
     assert {driver['feature'] for driver in body['drivers']} <= set(body['model']['trained_features'])
     assert 'no demuestra causalidad' in body['drivers_disclaimer']
@@ -187,6 +191,71 @@ def test_csv_template_and_csv_prediction():
     future_template = client.get('/api/csv-template?profile=full_future')
     assert future_template.status_code == 200
     assert len(pd.read_csv(io.BytesIO(future_template.content)).columns) == len(schema['fields'])
+
+def test_empty_and_header_only_csv_are_rejected():
+    for payload in (b'', b'planned_budget,spi\n'):
+        response = client.post('/api/predict-csv', files={'file': ('empty.csv', payload, 'text/csv')})
+        assert response.status_code == 400
+
+def test_invalid_and_over_limit_csv_are_rejected():
+    invalid = client.post('/api/predict-csv', files={'file': ('invalid.csv', b'"unterminated', 'text/csv')})
+    assert invalid.status_code == 400
+    preset = client.get('/api/schema').json()['presets']['at_risk']
+    payload = pd.DataFrame([preset] * 101).to_csv(index=False).encode()
+    oversized = client.post('/api/predict-csv', files={'file': ('large.csv', payload, 'text/csv')})
+    assert oversized.status_code == 400
+
+def test_csv_isolates_invalid_rows_and_reports_nan_and_low_coverage():
+    schema = client.get('/api/schema').json()
+    template = pd.read_csv(io.BytesIO(client.get('/api/csv-template').content))
+    valid = template.iloc[0].to_dict()
+    invalid_category = dict(valid, project_type='unknown')
+    with_nan = dict(valid, spi='NaN')
+    low_coverage = dict(valid)
+    for name in schema['ml_features'][3:]:
+        low_coverage[name] = None
+    payload = pd.DataFrame([valid, invalid_category, with_nan, low_coverage]).to_csv(index=False).encode()
+
+    response = client.post('/api/predict-csv', files={'file': ('mixed.csv', payload, 'text/csv')})
+
+    assert response.status_code == 200
+    rows = response.json()['rows']
+    assert rows[0]['error'] is None
+    assert 'project_type' in rows[1]['error']
+    assert rows[2]['error'] is None
+    assert rows[2]['prediction']['prediction']['input_quality']['missing_features'] == ['spi']
+    assert 'Cobertura insuficiente' in rows[3]['error']
+
+def test_malformed_prediction_and_what_if_values_are_rejected():
+    malformed = client.post('/api/predict', content='{', headers={'content-type': 'application/json'})
+    assert malformed.status_code == 422
+    schema = client.get('/api/schema').json()
+    invalid_range = dict(schema['presets']['at_risk'], spi=2.1)
+    assert client.post('/api/predict', json=invalid_range).status_code == 422
+    baseline = dict(schema['presets']['at_risk'])
+    scenario = dict(baseline, cpi=2.1)
+    assert client.post('/api/what-if', json={'baseline': baseline, 'scenario': scenario}).status_code == 422
+
+def test_input_ood_is_warning_only_and_does_not_change_prediction(monkeypatch):
+    schema = client.get('/api/schema').json()
+    payload = dict(schema['presets']['at_risk'])
+    baseline = client.post('/api/predict?include_recommendations=false', json=payload).json()['prediction']
+    original_profile = runtime.input_profile
+    monkeypatch.setattr(runtime, 'input_profile', {
+        'numeric': {'planned_duration_weeks': {'lower_bound': 1.0, 'upper_bound': 2.0}},
+        'categorical': {},
+    })
+
+    response = client.post('/api/predict?include_recommendations=false', json=payload)
+
+    assert response.status_code == 200
+    observed = response.json()['prediction']
+    assert observed['input_quality']['ood_warning'] is True
+    assert observed['input_quality']['ood_features'] == ['planned_duration_weeks']
+    assert {key: value for key, value in observed.items() if key != 'input_quality'} == {
+        key: value for key, value in baseline.items() if key != 'input_quality'
+    }
+    monkeypatch.setattr(runtime, 'input_profile', original_profile)
 
 def test_csv_returns_the_exact_validated_input_for_drilldown():
     template = client.get('/api/csv-template')

@@ -1,8 +1,8 @@
 # Guion técnico para la demo de PRUNIN AI Core
 
-Cierre definitivo aplicado sobre main inicial `b2d0ca32f0599fc6c2227f2a5eb3e6dea6ff812a`, actualizado desde remoto y con el cierre anterior integrado sin duplicaciones. El HEAD final y CI se verifican por commit, no por un workflow histórico; ver docs/FINAL_READINESS.md.
+Guion técnico para la entrega académica. El HEAD final y la ejecución CI que respaldan el estado se registran en [docs/FINAL_READINESS.md](docs/FINAL_READINESS.md); no reutilizar SHA ni workflow de auditorías anteriores como evidencia actual.
 
-Preparación oral: docs/PRESENTACION_FINAL.md (7/10/12 min, voz y postura pendientes), docs/GLOSARIO_DEFENSA.md y docs/PREGUNTAS_DEFENSA.md (32 respuestas con evidencia).
+Preparación oral: [docs/PRESENTACION_FINAL.md](docs/PRESENTACION_FINAL.md) (versiones de 7/10/12 min), [docs/GLOSARIO_DEFENSA.md](docs/GLOSARIO_DEFENSA.md), [docs/PREGUNTAS_DEFENSA.md](docs/PREGUNTAS_DEFENSA.md) y [docs/ENSAYO_SUSTENTACION.md](docs/ENSAYO_SUSTENTACION.md). Voz, postura y respuesta espontánea siguen pendientes de ensayo humano.
 
 ## Preparación
 
@@ -13,7 +13,7 @@ Preparación oral: docs/PRESENTACION_FINAL.md (7/10/12 min, voz y postura pendie
 
 Exigir `RESULTADO: LISTO PARA DEMO` y comprobar que el artefacto sea `0.9.0-academic`. El fallback demo está rotulado y no acredita métricas académicas. El preflight usa TestClient local; la apertura del servidor en navegador es comprobación adicional del expositor. No reentrenar durante la preparación final.
 
-GenAI tiene preflight separado: `./scripts/preflight_genai.sh`. Ollama ausente no invalida ML ni el benchmark Qwen versionado completo. Si se usa LAN/QR comprobar red del salón. El frontend debe estar construido; no asumir que el clon incluye dist o modelos pesados.
+GenAI tiene preflight separado: `./scripts/preflight_genai.sh`. Ollama ausente no invalida ML ni la evaluación Qwen oficial congelada. La comparación de candidatos quedó parcial y la prueba de concurrencia es local, no productiva; ver `reports/genai/comparison/` y `reports/genai/concurrency/`. Si se usa LAN/QR comprobar red del salón. El frontend debe estar construido; no asumir que un clon incluye modelos pesados o el perfil OOD, que puede generarse desde TRAIN con `scripts/check_drift.py`.
 
 ## Qué debe entender el jurado al abrir el frontend
 

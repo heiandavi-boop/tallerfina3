@@ -15,7 +15,7 @@ import qrcode
 import yaml
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import FileResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 from .catalog import PRESETS
@@ -224,6 +224,8 @@ async def predict_csv(file: UploadFile = File(...)):
         df = pd.read_csv(io.BytesIO(raw))
     except Exception as exc:
         raise HTTPException(400, f"No fue posible leer el CSV: {exc}")
+    if df.empty:
+        raise HTTPException(400, "El CSV debe contener al menos una fila de datos.")
     if len(df) > 100:
         raise HTTPException(400, "La demo pública procesa máximo 100 filas por archivo.")
     rows = []
@@ -261,13 +263,13 @@ def csv_template(profile: str = "academic"):
         columns = [field["name"] for field in fields]
         filename = "prunin_full_future_template.csv"
     row = {name: PRESETS["at_risk"].get(name) for name in columns}
-    path = ROOT / "artifacts" / filename
-    pd.DataFrame([row], columns=columns).to_csv(path, index=False)
+    csv_content = pd.DataFrame([row], columns=columns).to_csv(index=False).encode("utf-8")
     ml_fields = [field["name"] for field in fields if field["usage"] == "ml_feature"]
     team_fields = [field["name"] for field in fields if field["usage"] == "team_health"]
-    return FileResponse(
-        path, media_type="text/csv", filename=filename,
+    return StreamingResponse(
+        iter([csv_content]), media_type="text/csv",
         headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
             "X-Required-ML-Features": ",".join(ml_fields),
             "X-Optional-Team-Health-Features": ",".join(team_fields),
         },

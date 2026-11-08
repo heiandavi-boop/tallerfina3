@@ -9,6 +9,7 @@ import pandas as pd
 import yaml
 
 from ..inference.brain import PruninAcademicBrain
+from ..monitoring.drift import assess_input_ood
 from .catalog import FIELD_CATALOG, FIELD_MAP, PRESETS
 
 
@@ -77,6 +78,7 @@ class ModelRuntime:
         self.brain = PruninAcademicBrain(self.artifact_dir, self.config)
         self.manifest = self._load_json("feature_manifest.json", {})
         self.metrics = self._load_json("metrics.json", {})
+        self.input_profile = self._load_json("input_profile.json", {})
 
     def _load_json(self, name: str, default: Any):
         p = self.artifact_dir / name
@@ -115,8 +117,11 @@ class ModelRuntime:
             "minimum_coverage": minimum_coverage,
             "imputation_policy": "numeric=training_median; categorical=training_mode",
             "missing_trained_features": missing,
+            "missing_features": missing,
             "missing_count": len(missing),
             "complete": not missing,
+            "ood_available": bool(self.input_profile),
+            **assess_input_ood(aligned, self.input_profile),
         }
         return result
 

@@ -2,27 +2,35 @@
 
 PRUNIN apoya decisiones humanas. No sustituye al director de proyecto. La matriz distingue medidas técnicas existentes de controles productivos pendientes; no afirma que todos los riesgos estén resueltos ni acredita automáticamente Nivel 4.
 
-## Tabla 1. Riesgos, impactos y controles
+## Tabla 1. Matriz de riesgos y controles
 
-| Riesgo | Impacto | Mitigación implementada | Limitación restante |
-|---|---|---|---|
-| Sesgo/desbalance | Desatender clases minoritarias | Macro F1, balanced accuracy y recall por clase; baseline explícito | Recall crítico incompleto; no validación de subgrupos empresariales |
-| Dataset sintético / representatividad | Generalizar simulación a empresas | Procedencia sintética y limitaciones en README/model card | Validación externa/prospectiva real pendiente |
-| Privacidad | Transferencia de información de proyectos | Ollama local; prompt con evidencia estructurada, no texto libre del proyecto | Local no reemplaza control de acceso, minimización/retención |
-| Seguridad y exposición de información | Acceso no autorizado o exposición técnica | Validación Pydantic, límites CSV y CORS configurable; debug GenAI apagado por defecto | Sin autenticación/rate limiting productivo; JSON/debug puede incluir entradas |
-| Alucinación / output no grounded | Texto convincente con cifras o features no soportadas | Prompt grounded, esquema, allow-list y validador de cifras; rechazo y fallback | No verifica verdad semántica total; exige revisión humana |
-| Automation bias / decisiones humanas | Aceptar recomendación como decisión | Avisos y separación entre ML, heurísticas y explicación | No hay ensayo humano de sesgo ni mecanismo de aprobación empresarial |
-| Falsa causalidad | Tratar perturbaciones/importance como causas | Drivers rotulados sensibilidad local; advertencia explícita | Correlaciones/perturbaciones no prueban intervenciones |
-| Leakage | Métricas optimistas por información futura | Split por project_id, whitelist outcomes excluidos, preprocesamiento TRAIN | CPI/progreso tardíos próximos al outcome sintético |
-| Drift | Degradación con nueva población/tiempo | Versionado, hashes, métricas runtime y política de actualización | No detector de drift productivo ni alertas centralizadas |
-| Datos faltantes | Inferencia con información insuficiente | Missing_trained_features/cobertura; gate ≥60 %; imputación TRAIN visible | Imputación puede debilitar resultado; cobertura no es calidad total |
-| Inputs fuera de distribución (OOD) | Rangos válidos pero combinación inédita | Validación de rangos/categorías y aviso de límite sintético | No detector estadístico OOD; magnitudes/moneda deben validarse antes de uso real |
-| Disponibilidad LLM | Fallo/timeout bloquea interpretación | Timeout acotado y fallback; ML independiente; batch/What-if sin Qwen | Análisis individual espera timeout; concurrencia no validada |
-| Team Health | Inferir psicología o perjudicar individuos | Heurística operacional; mínimo componentes/cobertura; sin imputación | Sin calibración empresarial; no usar en decisiones individuales de RR. HH. |
-| Trazabilidad | No identificar modelo, input o fallo | Prediction_id, versión, JSON de resultado, logs de motor/tiempos/errores | Logs no constituyen almacenamiento central persistente ni auditoría empresarial |
-| Presentación Delay/Cost | Ocultar negativos o alterar métricas | Delay operacional ≥0 con raw preservado; Cost negativo intacto | Clamp no mejora precisión académica ni elimina debilidad Delay |
+La probabilidad es una valoración cualitativa de diseño (baja/media/alta), no una frecuencia medida. El riesgo residual permanece y requiere evaluación antes de uso real.
 
-Fuente: `schema.py`, `app.py`, `model_runtime.py`, `recommendations.py`, `monitoring.py`, `team_health.py`, tests y reportes académicos. Los avisos de human-in-the-loop son controles de comunicación, no evidencia de supervisión institucional ya desplegada.
+| Riesgo | Impacto | Probabilidad cualitativa | Mitigación implementada | Mitigación futura | Riesgo residual | Evidencia |
+|---|---|---|---|---|---|---|
+| Bias entre subgrupos | Daño o peor atención para grupos no representados | Desconocida; no hay atributos/evidencia de subgrupos | Métricas por clase y limitación explícita | Evaluar equidad con grupos legítimos y gobernanza | Alto/desconocido: no se evaluaron subgrupos | `reports/0.9.0-academic/metrics.json`; model card |
+| Imbalance de labels | Falsos negativos de clases minoritarias | Alta en TEST, medida por distribución | Macro F1, balanced accuracy, recall y baseline | Obtener más outcomes representativos; definir costos con interesados | Critical Recall permanece 56.82 % | `health_confusion_matrix.csv`; metrics |
+| Representatividad sintética | Generalización inválida a empresas | Alta como límite de diseño | Procedencia y disclaimer visibles | Validación prospectiva externa aprobada | No hay validación empresarial | `dataset_summary.json`; `docs/model_card.md` |
+| Privacidad | Exposición de datos de proyectos | Media; depende de despliegue/configuración | Ollama local opcional; evidencia estructurada; no se envía texto libre | Minimización, pseudonimización, retención y revisión legal | Local no implica acceso/retención seguros | `recommendations.py`; `docs/playground.md` |
+| Alucinaciones | Recomendación falsa o engañosa | Media/alta; muestra pequeña | JSON schema, allow-list, grounding numérico, timeout y fallback | Evaluación semántica humana y casos adversariales | Grounding no verifica verdad semántica | `tests/test_genai_grounding.py`; reporte Qwen |
+| Automation bias | Aceptación acrítica de alertas | Media, no medida | Disclaimers, explicación de severidad y revisión humana | Estudio humano y aprobación institucional | No hay mecanismo de aprobación empresarial | `docs/human_efficiency_validation.md`; frontend |
+| Falsa causalidad | Intervención equivocada por driver correlacional | Media | Etiquetas de sensibilidad local y advertencia “no demuestra causalidad” | Validar cualquier intervención con diseño causal independiente | Drivers no son causas | `model_runtime.py`; frontend |
+| Leakage | Métricas optimistas | Media por cercanía temporal EVM | Split por project_id, whitelist, preprocesamiento TRAIN, TEST reservado | Evaluación temporal externa con outcomes disponibles al corte | Proximidad CPI/progreso tardío persiste | `split_manifest.json`; `feature_manifest.json` |
+| Drift | Degradación no detectada | Alta si población cambia; no medida | Detector offline PSI/missing-rate en `monitoring/drift.py` | Cómputo periódico aprobado, alertas y evaluación de outcomes | No hay monitor productivo/alertas centralizadas | `scripts/check_drift.py`; `docs/drift_monitoring.md` |
+| OOD | Entrada válida sintácticamente pero ajena a TRAIN | Media, no medida en usuarios | Aviso por fence IQR/categoría no vista; no cambia predicción | Calibrar límites con datos aprobados, monitorizar falsos avisos | Fence univariado no detecta toda combinación OOD | `input_profile.json`; API `input_quality` |
+| Datos faltantes | Resultado basado en evidencia insuficiente | Media | Coverage gate ≥60 %, lista de faltantes e imputación declarada | Captura más completa y análisis por patrón de falta | Imputación puede sesgar la salida | `ModelRuntime`; tests API |
+| Acceso no autorizado | Lectura/modificación de datos o abuso API | Media; deployment local sin auth | Pydantic, límites de carga, CORS configurable; manifiesto restringe contenedor | Autenticación, autorización, rate limit, secretos y auditoría | API actual no autentica usuarios | `schema.py`; `app.py`; manifiesto K8s |
+| Prompt injection / entrada estructurada malformada | Alterar instrucciones o forzar salida no permitida | Baja/media; no hay texto libre en contrato ML | Tipos/rangos/categorías, JSON schema, prompt fijo y allow-list | Tests adversariales, límites de tamaño y defensa de runtime | Categorías y evidencias no prueban ausencia de ataque semántico | `schema.py`; `recommendations.py`; tests |
+| Disponibilidad del LLM | Análisis individual demora o cae a fallback | Media | Timeout, estado, código de error y fallback; ML independiente | Prueba de carga controlada y política de capacidad | Degradación/latencia local depende del runtime | `recommendations.py`; tests |
+| Team Health mal usado | Inferencia psicológica o daño a integrantes | Media | “Condición operativa”; regla determinística; no imputación; exclusión de RR. HH. | Política de uso, revisión legal y capacitación | Puede ser reinterpretado por usuario | `team_health.py`; `docs/model_card.md` |
+| Trazabilidad insuficiente | No reconstruir decisión/modelo usado | Baja/media | prediction_id, versión, inputs y logs de motor/tiempos | Almacenamiento append-only, retención y auditoría | Logs son locales/en memoria, no auditoría empresarial | `app.py`; export JSON; `/metrics` |
+| Desajuste de versión de modelo | Respuesta asociada al artifact equivocado | Media en operaciones manuales | Versión en metadata/resultado y readiness de modelos | Manifest firmado, validación de hashes al cargar y promoción controlada | No hay registry ni promoción productiva | `ModelRuntime`; `reproducibility.json` |
+| Uso en decisiones de RR. HH. | Decisión de alto impacto sobre personas basada en heurística | Baja dentro del propósito, impacto alto | Disclaimer explícito y no uso psicológico/de individuos | Prohibición institucional y controles de acceso/caso de uso | No se puede impedir mal uso fuera del prototipo | model card; UI Team Health |
+| Overconfidence | Tratar scores como certeza/probabilidad calibrada | Media | Caveats para fusión, Delay, Cost, drivers y métricas | Calibración y validación prospectiva, sin alterar este cierre | Fusión 0.85/0.15 no calibrada; incertidumbre de dominio | model card; README |
+| Uso productivo prematuro | Pérdida operativa/financiera por despliegue sin validación | Media | “No listo para producción”; Kubernetes solo diseño | Revisiones de seguridad, carga, datos y aprobación formal | No hay clúster ni validación empresarial | `docs/mlops_production.md`; K8s static tests |
+| Error de lectura Delay/Cost | Interpretar ahorro como sobrecosto o Delay como preciso | Media | Delay raw/truncado separado; Cost negativo rotulado como debajo del presupuesto | Pruebas de comprensión con usuarios | Delay predictivo débil; presentación no mejora precisión | frontend tests; informe |
+
+Fuente: `schema.py`, `app.py`, `model_runtime.py`, `recommendations.py`, `monitoring.py`, `team_health.py`, tests y reportes académicos. Los avisos human-in-the-loop son controles de comunicación, no evidencia de supervisión institucional desplegada.
 
 ## Límites y uso responsable
 

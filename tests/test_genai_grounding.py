@@ -223,6 +223,21 @@ def test_ollama_status_reports_available_model_and_disabled_state(monkeypatch):
     assert status["available"] is False
 
 
+def test_ollama_unavailable_is_reported_without_claiming_model_available(monkeypatch):
+    monkeypatch.setenv("PRUNIN_ENABLE_OLLAMA", "1")
+    monkeypatch.setattr(
+        recommendations.requests,
+        "get",
+        lambda *args, **kwargs: (_ for _ in ()).throw(requests.exceptions.ConnectionError("offline")),
+    )
+
+    status = recommendations.check_ollama_status()
+
+    assert status["enabled"] is True
+    assert status["available"] is False
+    assert status["last_error"]["failure_code"] == "ollama_unavailable"
+
+
 def test_ollama_timeout_uses_one_environment_default_and_supports_override(monkeypatch):
     monkeypatch.delenv("PRUNIN_OLLAMA_TIMEOUT_SECONDS", raising=False)
     assert recommendations.ollama_timeout_seconds() == 30

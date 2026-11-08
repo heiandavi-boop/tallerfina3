@@ -1,129 +1,65 @@
-# Cierre definitivo — PRUNIN AI Core
+# Cierre final PRUNIN AI Core
 
-**Veredicto: LISTO PARA ENTREGA ACADÉMICA** como prototipo reproducible para entrega y sustentación. No implica producción ni Nivel 4 en toda la rúbrica. Fecha: 11 de octubre de 2026 (America/Bogota). Base pre-ajuste restaurada y confirmada contra remoto: `dcd82d4a9a0405e9f6796104e6429cbfd2d0bc80`.
-
-Esta versión incorpora un benchmark operacional medido sobre el artifact académico `0.9.0-academic`; sus datos registran la revisión de código usada para medir. GitHub Actions se ejecuta en cada push/PR, pero un resultado histórico no certifica un HEAD posterior: consultar únicamente el run `quality` asociado al commit final de esta entrega.
-
-## Tabla 1. Preparación por área
-
-Estados utilizados: LISTO, LISTO CON LIMITACIÓN, DISEÑO, PENDIENTE HUMANO y PENDIENTE PRODUCTIVO. Rutas de reportes académicos son relativas a reports/0.9.0-academic; las de cierre a reports/closure/definitive; código relativo a raíz.
-
-| Área | Estado | Evidencia | Limitación |
-|---|---|---|---|
-| Dataset | LISTO CON LIMITACIÓN | dataset_summary.json: 4000/72549, DOI v2 | Sintético externo; no validación empresarial |
-| Preprocessing | LISTO | audit.py, training/core.py, schema.py, readiness | Scaling estándar innecesario; no detector OOD |
-| Leakage | LISTO CON LIMITACIÓN | split 2800/600/600, overlap 0; feature_manifest | Proximidad temporal CPI/EVM tardío |
-| Health | LISTO CON LIMITACIÓN | baselines/metrics: Macro F1 0.627576 vs 0.277940 | Recall critical 25/44; desbalance |
-| Promesa original / Risk Alert | LISTO CON LIMITACIÓN | reports/promise_validation/: 75.90 % de toda la cohorte final de riesgo detectada al 60 %; cobertura TEST 96 % | Evidencia sintética; no validación empresarial; Critical Recall exacto 56.82 % |
-| Delay | LISTO CON LIMITACIÓN | MAE 27.710468 vs 27.850313; raw/display tests | Mejora marginal; componente más débil |
-| Cost | LISTO CON LIMITACIÓN | MAE 0.147158 pp; R² 0.991816 | Relación estructural CPI/progreso–outcome sintético |
-| Temporal | LISTO CON LIMITACIÓN | temporal_evaluation.json + reports/promise_validation/ | 20 % cobertura 39.333 %; meta de cohorte completa ≥75 % se alcanza al 60 % con cobertura 96 % |
-| GenAI | LISTO CON LIMITACIÓN | qwen3-8b-evaluation.json complete; preflight_genai | 30 casos condicionados; no comparativa empírica de tres LLM |
-| Grounding | LISTO CON LIMITACIÓN | recommendations.py; PROJ_0840 rechazado; tests | Proxy; no verdad semántica total |
-| Team Health | LISTO CON LIMITACIÓN | team_health.py; CsvAnalyzer.jsx; tests | Heurística sin imputación/psicología; fusión no calibrada |
-| CSV | LISTO | Tests API/frontend y api_smoke.json 5 filas | 100 es límite configurado, no throughput bajo carga |
-| What-if | LISTO | Tests API y smoke de raw negativo | Sensibilidad operacional; no intervención causal |
-| API | LISTO | /api/health, /api/ready, schema y preflight | Uso local; controles productivos pendientes |
-| Frontend | LISTO | 14 tests passing; build success; dist | Probar navegador/proyección/red en salón |
-| Tests | LISTO | 116 backend passing; npm ci, 14 frontend; compileall/pip check; tests puros del benchmark | CI demo omite los dos tests que requieren artifact/dataset académico local |
-| CI | CONFIGURADO | quality ejecuta npm ci/build/tests, artifacts demo, compileall y pytest en push/PR | Asociar resultado al HEAD exacto publicado |
-| Docker | LISTO CON LIMITACIÓN | Dockerfile.playground: Node22, npm ci, API Python | Imagen no construida en cierre; requiere artefactos locales |
-| Kubernetes | DISEÑO | Deployment3/Service/probes/RollingUpdate/HPA3–10 | Sin clúster; metrics-server/imagen y pruebas pendientes |
-| Monitoring | LISTO CON LIMITACIÓN | monitoring.py, /api/monitoring y /metrics | Contadores en memoria por proceso; no centralización |
-| MLOps | LISTO CON LIMITACIÓN | Versiones, SHA256, manifests, prediction_id, CI y política | Sin alertas/drift/retraining continuo productivo |
-| Efficiency | LISTO CON LIMITACIÓN | reports/efficiency/operational_benchmark_summary.json; benchmark reproducible individual/batch, N=1–100 | Medición local secuencial; sin baseline de usuarios, carga productiva ni concurrencia |
-| Ethics | LISTO CON LIMITACIÓN | Matriz de 15 riesgos, impactos y controles | Representatividad, OOD, seguridad y semántica residuales |
-| Written communication | LISTO CON LIMITACIÓN | INFORME_FINAL 25 secciones, APA, tablas/figuras | Completar identidad/datos institucionales y revisión final |
-| Oral communication | PENDIENTE HUMANO | 12 slides; 7/10/12 min; 23 términos; 32 respuestas | Ensayo, voz, postura y defensa no acreditados por GitHub |
-| Real-world validation | PENDIENTE PRODUCTIVO | model_card y alcance de informe | Outcomes reales y evaluación prospectiva externa |
-
-## Validación explícita de la promesa original
-
-Se añadió una evaluación derivada, reproducible y sin reentrenamiento para responder literalmente la meta inicial: `At Risk OR Critical => Risk Alert`. Sobre TEST final, Risk Alert Recall = **82.45 %**, Precision = **92.20 %** y F1 = **87.05 %**. Para la dimensión temprana se usa un denominador fijo de 473 proyectos que finalmente son At Risk/Critical; el primer corte pre-cierre que supera 75 % es **60 % de avance**, con **359/473 = 75.90 %** y **576/600 = 96 %** de cobertura TEST.
-
-El Critical Recall exacto continúa en **56.82 %** y se reporta por separado. No se cambiaron labels, modelos, features, thresholds ni TEST. Evidencia: `scripts/validate_original_promise.py`, `tests/test_risk_alert_metrics.py` y `reports/promise_validation/`.
+Estado de evidencia para la entrega académica. No asigna calificación oficial ni afirma validación empresarial/producción. El SHA exacto de publicación y el run `quality` deben corresponder al `main` publicado; el identificador de workflow se comunica en la entrega final y no se reutiliza ningún run histórico.
 
 ## Verificaciones ejecutadas
 
-pip check: sin dependencias rotas. compileall: success. Backend académico: 116 passed. npm ci: success desde lockfile. Frontend: 14 passed. Build: success. Preflight con 0.9.0-academic: RESULTADO: LISTO PARA DEMO. Preflight GenAI separado: RESULTADO: OLLAMA READY. El benchmark operacional está `complete`, con 100 casos únicos TEST, 80 runs individuales/batch, GenAI apagada y 100 % de éxito normal. Sus reports/figures están en `reports/efficiency/`; el reporte identifica HEAD medido `e0beff1`. El throughput y speedup son locales, no productivos ni humanos.
+| Gate | Resultado observado |
+|---|---|
+| Dependencias Python | `pip install -r requirements.txt` completó; `pip check`: `No broken requirements found.` |
+| Frontend | `npm ci` desde lockfile final; `npm audit`: 0 vulnerabilidades; Vitest: 18 passed; `npm run build`: success. |
+| Backend | `PYTHONPATH=src python -m pytest -q`: 137 passed, 1 skipped, 0 failed. El skip es `kubectl` opcional no instalado. |
+| Sintaxis Python | `python -m compileall -q src scripts tests`: success. |
+| KPI original | `python scripts/validate_original_promise.py --check`: `PROMISE VALIDATION: OK`; detección de cohorte completa al 60 %: 0.758985. |
+| Preflight demo | `RESULTADO: LISTO PARA DEMO`, artifact `0.9.0-academic`. |
+| Preflight GenAI | `RESULTADO: OLLAMA READY`; Qwen3 8B disponible durante esta corrida local. |
+| Manifiesto Kubernetes | YAML parseable y pruebas estáticas Deployment/Service/HPA/PDB, probes, recursos, seguridad y selectores. No hay `kubectl` ni cluster operado. |
 
-Benchmark operacional local: `reports/efficiency/operational_benchmark_summary.json`, `operational_benchmark_raw.csv`, casos TEST, robustness y cuatro figuras. 100 proyectos únicos, N=1/10/25/50/100, 10/10/10/5/5 repeticiones por modo, tres warm-ups; GenAI apagada. N=100: batch 4215.74 ms vs individual secuencial 4440.90 ms, throughput mediano 23.721 proy/s, ambos con 100 % de éxito. No equivale a productividad humana ni a carga productiva. Muestra Qwen separada: `reports/efficiency/genai_operational_sample.json`.
+## Métricas que se preservan
 
-Se ejecutó un smoke funcional sobre cinco casos cuyos IDs provienen del benchmark Qwen: API/CSV sin LLM, cobertura ML completa y ausencia de Team Health inventado; What-if conserva raw=-0.3 usando un stub temporal en memoria. Ese stub es una prueba de política, no una predicción académica ni un cambio de modelo. Tiempos observados se guardan con alcance local, sin llamarlos ahorro humano/throughput productivo. No se reejecutó el benchmark oficial ni entrenamiento.
+Promesa original: “Detectar tempranamente al menos el 75 % de los proyectos críticos o en alto riesgo.” Risk Alert, que agrupa At Risk OR Critical, detecta **359/473 = 75.90 %** al 60 % de avance con **96 % de cobertura TEST**. Risk Alert Recall final: **82.45 %**; Precision: **92.20 %**; F1: **87.05 %**. El **Critical Recall exacto sigue en 56.82 %**. No son métricas intercambiables.
 
-Logs, comandos y hashes: reports/closure/definitive/. Los logs pueden normalizar espacios finales sin cambiar resultados. La reproducción desde un clon necesita modelos/datasets locales; CI usa fixtures efímeros y puede omitir pruebas académicas dependientes de datos.
+Health Macro F1: **0.627576**. Delay MAE: **27.710468 días** frente a baseline **27.850313**; mejora marginal. Cost MAE: **0.147158 puntos porcentuales** y R² **0.991816**, con caveat estructural CPI/EVM del generador sintético.
 
-## Integridad preservada
+La evaluación Qwen oficial congelada no se modificó ni se reejecutó: 30 casos, 29/30 aceptadas, 1 claim numérico no soportado, mediana 3092.645 ms y p95 6634.72 ms.
 
-Los .joblib existentes, artefactos, configuración, pesos, thresholds, definición de targets, seed, dataset académico, split, mapping Final Status, fusión 0.85/0.15 y arquitectura LightGBM/Qwen permanecen intactos. Los reportes académicos y benchmark Qwen históricos no se reescribieron. Hashes inicial/final se comprueban en validation.json. No se entrenó el modelo académico; los tests pueden ajustar fixtures temporales y CI genera únicamente artefactos demo de prueba.
+## Benchmarks nuevos, separados
 
-Delay operacional=max(0, raw) aplica en API/UI/CSV/What-if; raw queda en detalle técnico y métricas crudas históricas permanecen. Cost negativo conserva ahorro. Team Health del batch se oculta si ningún score es calculable y aparece si alguno lo es; no se imputa. Se añadieron scripts/reportes de benchmark operacional, sin dependencia nueva, RAG, cloud, base de datos ni infraestructura real. No se modificaron modelos ni artefactos.
+El benchmark de candidatos GenAI es `partial`: misma cohorte TEST de 30 casos, hardware, prompt/evidencia, temperatura 0.1, timeout 30 s y validador. Solo `qwen3:8b` estaba disponible; `gemma3:4b` y `ministral:8b` se marcaron `not_available`, sin descarga. En la nueva corrida Qwen obtuvo 29/30 generación/schema/grounding proxy/actionability, cero cifras no soportadas, un JSON inválido, cero timeouts, mediana 6336.35 ms y p95 13340.74 ms. Estos valores no reemplazan la evaluación Qwen oficial.
 
-## Auditoría Nivel 4 y acciones humanas
+La prueba local de concurrencia (30 casos/nivel) midió éxito 96.67/93.33/73.33/36.67 %, timeout 0/0/26.67/63.33 %, p50 6256.955/12305.81/28567.37/30002.805 ms, p95 15337.88/23252.48/30003.31/30005.73 ms y throughput 0.1335/0.1402/0.1475/0.2499 req/s en concurrencia 1/2/4/8. El throughput crece junto con fallos y timeouts. **No es una prueba productiva ni evidencia de escalabilidad.**
 
-La matriz rubric_matrix.md cubre 27 ítems con exigencia, Nivel 4, evidencia/ruta, estado, gap, corrección y demostración; incluye auditoría final con banderas repo/acción humana. Evidencias compatibles documentales/técnicas no son calificación oficial.
+## Integridad científica
 
-R6.2 Cr6 tiene evidencia cuantitativa de eficiencia operacional local y comparación individual/batch; no demuestra productividad humana ni rendimiento productivo, por lo que la valoración final del nivel corresponde al evaluador. Siguen sin acreditarse una comparación empírica completa de tres LLM, mitigación ética total, escalabilidad/orquestación operada ni MLOps con retraining continuo. RA2 está preparado, no se observó actuación: F4 voz y F6 lenguaje no verbal requieren ensayo humano explícito.
+**Cambios científicos: NINGUNO.** No se modificaron dataset académico, targets/labels, split, seed, thresholds del modelo, `.joblib`, predicciones TEST, métricas/reportes históricos ni evaluación Qwen congelada. El benchmark comparativo y la concurrencia son corridas nuevas independientes. `input_profile.json` es un perfil estadístico derivado exclusivamente de los project IDs TRAIN (2,800 proyectos / 50,772 snapshots); no altera predicciones y su OOD solo advierte. Dataset y split conservan sus SHA256 registrados.
 
-Pendientes: completar autor/institución de portada; revisar/ensayar guion de 7/10/12 min; practicar voz/postura y respuestas; comprobar legibilidad/proyección y LAN; antes de uso real obtener datos/outcomes aprobados, validación externa y controles operacionales. Un estudio humano controlado de tiempos/calidad queda como trabajo futuro opcional; no es necesario para afirmar la eficiencia operacional automatizada medida. Son pendientes visibles, no pruebas fabricadas.
+Fingerprints observados antes de cerrar:
 
-La prueba manual adicional de 99 proyectos balanceados comunicada por el autor no tiene resultado estructurado versionado identificado. Se mantiene como validación funcional manual, sin metricar números recordados; el test de 99 filas del repo verifica contrato/cobertura y no garantiza balance. Lo oficial continúa en TEST de 600 proyectos.
+| Archivo | SHA256 |
+|---|---|
+| `data/processed/mendeley_core.csv` | `32b7586db9dda0b3994573a3985c114dafe65dee93c948254b69f00d194c0ac3` |
+| `artifacts/0.9.0-academic/split_manifest.json` | `ed8f9db66e254123e411e7d016e91c01563a58c11e3a7f337bd9592ab92db26c` |
+| `artifacts/0.9.0-academic/training_config_resolved.yaml` | `e8049c4e9ef4015e3bbb52323620e4e8584fb557b580381442680397eb505b49` |
+| `artifacts/0.9.0-academic/health.joblib` | `81dba769ecbcec2f64a312432ab5eb9720af3d37e5018f15249e821e1ca52c18` |
+| `artifacts/0.9.0-academic/delay_days.joblib` | `84924fc4ddfbcd3842dfc24686286bc9affc23a7f4024698607b678af78916b3` |
+| `artifacts/0.9.0-academic/cost_overrun_ratio.joblib` | `0881ac24d6780378fce8ca9fcfd0f03d5f89c7ef475a33c882ec01efff9c7ba6` |
+| `reports/0.9.0-academic/metrics.json` | `5464f55fe9e8f507259c71141681bd5a3aad6d3764a79744a57a42f0f984f89a` |
 
-## Evidencias para la sustentación
+El detector de drift/OOD es académico/offline. Kubernetes quedó como diseño validado estáticamente: “deployment automation/design validated statically; production cluster not operated.” No se activó retraining automático.
 
-INFORME_FINAL.md desarrolla contexto → problema → método → resultados → significado → límites → conclusiones. PRESENTACION_FINAL.md prepara 12 slides con mensajes, speech, transiciones y tiempos planificados. GLOSARIO_DEFENSA.md define 23 términos. PREGUNTAS_DEFENSA.md contiene 32 respuestas con fuente. DEMO_PRESENTACION.md describe flujo de demo sin código/terminal prolongados. architecture.md contiene arquitectura, pipeline y flujo GenAI Mermaid; figuras predictivas existentes fueron inspeccionadas y no alteradas.
+## Estado de 27 criterios
 
-PRUNIN AI Core está listo como prototipo académico reproducible para entrega y sustentación. Combina modelos predictivos supervisados con una capa generativa local y grounded para apoyar la interpretación del riesgo de proyectos. Sus resultados se validaron sobre un dataset sintético externo, por lo que aún requiere validación prospectiva con datos empresariales reales antes de un uso productivo.
+La tabla completa machine-readable, con evidencia, claims seguros/no seguros y gaps, está en [reports/rubric_final/rubric_final.json](../reports/rubric_final/rubric_final.json); resumen: [reports/rubric_final/rubric_final.md](../reports/rubric_final/rubric_final.md). La evaluación clasifica 20 criterios como `DEMONSTRATED_WITH_LIMITATION` y 7 como `PREPARED_HUMAN` (RA2 F1–F7). Ningún criterio oral se declara demostrado.
 
-## Inventario exacto contra main inicial
+## Pendientes humanos antes de entregar
 
-La entrega incluye la integración del cierre anterior y la ampliación actual. El manifest machine-readable está en reports/closure/definitive/changed_files.json. Archivos por estado:
+- Completar autor, institución y portada.
+- Revisar renders, referencias y slides en el formato de entrega.
+- Ensayar y registrar una versión de 7/10/12 minutos.
+- Practicar voz, pausas, volumen, postura, contacto visual y defensa espontánea.
+- Probar red/proyector, fallback sin Ollama y copia offline.
+- No presentar eficiencia operacional como productividad humana ni el benchmark local como prueba productiva.
 
-- M: `DEMO_PRESENTACION.md`
-- M: `Dockerfile.playground`
-- M: `README.md`
-- A: `docs/FINAL_READINESS.md`
-- A: `docs/GLOSARIO_DEFENSA.md`
-- A: `docs/INFORME_FINAL.md`
-- A: `docs/PREGUNTAS_DEFENSA.md`
-- A: `docs/PRESENTACION_FINAL.md`
-- M: `docs/architecture.md`
-- A: `docs/efficiency_evaluation.md`
-- M: `docs/ethics_security.md`
-- M: `docs/genai_evaluation.md`
-- M: `docs/genai_model_selection.md`
-- M: `docs/mlops_production.md`
-- M: `docs/model_card.md`
-- M: `docs/playground.md`
-- A: `docs/references.md`
-- M: `docs/rubric_matrix.md`
-- M: `docs/training.md`
-- R087: `frontend/dist/assets/index-CeTPLuFN.js` → `frontend/dist/assets/index-B6GKq6_o.js`
-- M: `frontend/dist/index.html`
-- M: `frontend/src/App.test.jsx`
-- M: `frontend/src/components/AnalysisPanels.jsx`
-- M: `frontend/src/components/TechnicalDrawer.jsx`
-- A: `reports/closure/backend_tests.txt`
-- A: `reports/closure/definitive/api_smoke.json`
-- A: `reports/closure/definitive/backend_tests.txt`
-- A: `reports/closure/definitive/changed_files.json`
-- A: `reports/closure/definitive/frontend_build.txt`
-- A: `reports/closure/definitive/frontend_tests.txt`
-- A: `reports/closure/definitive/npm_ci.txt`
-- A: `reports/closure/definitive/preflight_demo.txt`
-- A: `reports/closure/definitive/preflight_genai.txt`
-- A: `reports/closure/definitive/validation.json`
-- A: `reports/closure/frontend_build.txt`
-- A: `reports/closure/frontend_tests.txt`
-- A: `reports/closure/preflight_demo.txt`
-- A: `reports/closure/preflight_genai.txt`
-- A: `reports/closure/validation.json`
-- A: `reports/genai/efficiency.json`
-- M: `scripts/preflight_demo.py`
-- M: `src/prunin_ai/api/model_runtime.py`
-- M: `src/prunin_ai/data/demo.py`
-- A: `tests/test_delay_presentation.py`
+## Veredicto
 
-## Evidencia GitHub Actions de main
-
-El run 38177951135 terminó completed/success sobre d3b0a9fdc5023841d7411102998c03bf1211b6ba: npm ci, build/tests frontend, fixtures demo, compileall y pytest. Sin descarga Mendeley ni ejecución Ollama/benchmark pesado. Este documento registra el resultado ya observado y no lo atribuye a otro SHA. La verificación del HEAD final se informa en el reporte de entrega después de verlo completado; no se requiere reentrenar ni repetir benchmarks.
+Los gates locales del repositorio pasan y el proyecto está **preparado para entrega académica**, sujeto a que GitHub Actions `quality` termine `success` en el commit final publicado de `main` y a completar los pendientes humanos. No está listo para producción ni validado con empresas. El veredicto “Listo para entrega académica” solo se usa tras comprobar ese CI exacto; el resultado y SHA se verifican en el historial del repositorio, no se copian de runs anteriores.

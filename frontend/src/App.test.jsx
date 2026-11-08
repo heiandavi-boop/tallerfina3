@@ -75,12 +75,23 @@ describe('Playground ejecutivo', () => {
 
     const { rerender } = render(<ResultHero result={healthyResult} schema={schema} />);
     expect(screen.getByText('Costo estimado')).toBeTruthy();
-    expect(screen.getByText('5,7 %')).toBeTruthy();
-    expect(screen.getByText(/Por debajo del presupuesto planificado/)).toBeTruthy();
+    expect(screen.getByText('5,7 % por debajo del presupuesto')).toBeTruthy();
+    expect(screen.getByText(/El resultado negativo representa ahorro estimado/)).toBeTruthy();
 
     rerender(<DriversPanel drivers={healthyResult.drivers} fields={fields} />);
     expect(screen.getByRole('heading', { name: '¿Qué señales influyeron en la lectura del modelo?' })).toBeTruthy();
     expect(screen.getByText(/No significa que un presupuesto menor cause un proyecto más saludable/)).toBeTruthy();
+  });
+  it('muestra la advertencia OOD solo si el backend la devuelve', () => {
+    const result = prediction();
+    result.prediction.input_quality = { complete: true, coverage: 1, missing_count: 0, ood_warning: true, ood_features: ['spi'] };
+    const { rerender } = render(<ResultHero result={result} schema={schema} />);
+    expect(screen.getByText(/fuera del perfil de referencia TRAIN para spi/)).toBeTruthy();
+
+    const withoutWarning = prediction();
+    withoutWarning.prediction.input_quality.ood_warning = false;
+    rerender(<ResultHero result={withoutWarning} schema={schema} />);
+    expect(screen.queryByText(/fuera del perfil de referencia TRAIN/)).toBeNull();
   });
   it('conserva Delay negativo en evidencia técnica y muestra cero operacional', () => {
     const result = prediction();

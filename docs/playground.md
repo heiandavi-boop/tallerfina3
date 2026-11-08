@@ -90,6 +90,8 @@ El panel técnico genera un QR con la URL actual mediante `/api/qr`. Cuando la a
 
 La vista de resultados distingue `Health ML` de `Riesgo combinado`. Team Health y la fusión 0.85/0.15 son heurísticas operativas no calibradas con outcomes reales. Los drivers muestran sensibilidad local, no causalidad. Para Mendeley v2, Final Status se devuelve como estado de negocio derivado, sin probabilidades propias.
 
+La calidad de entrada expone cobertura y señales faltantes. Si el perfil TRAIN está disponible, `ood_warning` y `ood_features` advierten sobre valores numéricos fuera de fences IQR o categorías no observadas en TRAIN. OOD es una advertencia y no cambia la predicción. Ver `docs/drift_monitoring.md` para límites y comparación batch; no se afirma monitorización productiva.
+
 ## Cierre: presentación operacional
 
 La predicción de regresión cruda puede ser ligeramente negativa. La interfaz aplica una restricción operacional de cero días para presentación, conservando el valor crudo en la trazabilidad técnica.

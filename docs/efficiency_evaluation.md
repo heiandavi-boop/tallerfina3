@@ -59,6 +59,19 @@ El JSON contiene para cada N/modo media, mediana, p50, p90, p95, mínimo, máxim
 
 Los controles se ejecutaron fuera de las repeticiones normales: una fila con metodología faltante fue aceptada con coverage 85.71 % y esa feature registrada para imputación según training policy; una entrada con coverage 14.29 % fue bloqueada con HTTP 422; categoría inválida y `true_progress=1.2` también fueron rechazados; CSV respondió HTTP 200 con error controlado por fila para la categoría inválida. Resultado: 5/5 checks correctos, cero timeouts/HTTP failures observados; el coverage block esperado no se contó como error del benchmark normal. Detalle: `reports/efficiency/robustness_checks.json`.
 
+## Concurrencia GenAI local
+
+Corrida exploratoria independiente: Qwen3 8B, 30 casos por nivel, warm-up excluido y timeout 30 s. Se compartieron los mismos casos y evidencia; el benchmark del API ML anterior no forma parte de esta medición.
+
+| Concurrencia | Solicitudes | Éxito | Fallos/fallback | Timeout | p50 ms | p95 ms | Throughput req/s |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 30 | 96.67 % | 1 | 0 % | 6256.955 | 15337.88 | 0.1335 |
+| 2 | 30 | 93.33 % | 2 | 0 % | 12305.81 | 23252.48 | 0.1402 |
+| 4 | 30 | 73.33 % | 8 | 26.67 % | 28567.37 | 30003.31 | 0.1475 |
+| 8 | 30 | 36.67 % | 19 | 63.33 % | 30002.805 | 30005.73 | 0.2499 |
+
+El aumento de concurrencia elevó throughput medido, pero degradó éxito y latencia; en 8 concurrentes casi dos tercios de las solicitudes cayeron en timeout. Es una observación de una máquina/modelo/corrida pequeña, no dimensionamiento, garantía, carga sostenida ni prueba productiva. La evidencia cruda, el summary y hardware están en `reports/genai/concurrency/`.
+
 Qwen se mantuvo fuera del benchmark principal. La muestra complementaria de cinco casos TEST devolvió 5/5 recomendaciones Qwen, mediana GenAI 1136.04 ms y p95 7314.038 ms. Está separada en `reports/efficiency/genai_operational_sample.json`. Como referencia independiente, el benchmark oficial versionado de 30 casos está en `reports/genai/qwen3-8b-evaluation.json`; no se sobrescribió.
 
 Gráficos generados con los datos medidos:
