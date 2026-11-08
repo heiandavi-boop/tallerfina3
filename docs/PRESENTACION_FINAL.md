@@ -356,4 +356,4 @@ Total planificado: 600 s. Reservar más tiempo para baseline y resultado; no ext
 | 11 · 35 s | Límites visibles | Representatividad, utilidad humana, concurrencia local y seguridad | Matriz riesgos | Concluyo solo lo respaldado | Productividad humana medida |
 | 12 · 35 s | Resultado experimental | 75.90 %, cobertura 96 %, 82.45 % final, Critical 56.82 % | Cifra principal y caveat | Abrir preguntas | Validación empresarial |
 
-Total planificado: 720 s. Ensayar navegación y fallback sin improvisar cifras; registrar tiempos reales en `ENSAYO_SUSTENTACION.md`.
+Total planificado: 720 s. Ensayar navegación y fallback sin improvisar cifras; registrar tiempos reales en un registro de ensayo local; no se presupone que exista un archivo de ensayo versionado.
