@@ -68,7 +68,7 @@ export function RecommendationCard({ data, fields = [] }) {
     if (!data) return null;
     const genaiUsed = data.genai_used === true;
     const genaiFailed = data.genai_attempted === true && !genaiUsed;
-    const groundingFailures = new Set(['unknown_evidence_feature', 'unsupported_numeric_claim', 'empty_recommendations_with_risk_drivers', 'grounding_validation_failed']);
+    const groundingFailures = new Set(['unknown_evidence_feature', 'unsupported_numeric_claim', 'empty_recommendations_with_risk_drivers', 'grounding_validation_failed', 'non_actionable_recommendation']);
     const formatFailures = new Set(['invalid_json', 'invalid_schema']);
     const legacyTimeout = /timeout|timed out/i.test(data.genai_failure_reason || '');
     const title = genaiUsed ? 'IA generativa local activa' : genaiFailed
@@ -78,9 +78,25 @@ export function RecommendationCard({ data, fields = [] }) {
                     : 'La IA generativa no está disponible; se utilizó una recomendación de respaldo'
         : 'IA generativa desactivada · Recomendación de respaldo';
     const fieldMap = new Map(fields.map(field => [field.name, field.label]));
+    const priorityOrder = { alta: 0, media: 1, baja: 2 };
+    const actions = (Array.isArray(data.recommendations) ? data.recommendations : [])
+        .slice(0, 4)
+        .map((recommendation, index) => ({ ...recommendation, index }))
+        .sort((left, right) => (priorityOrder[left.priority] ?? 3) - (priorityOrder[right.priority] ?? 3) || left.index - right.index);
     return <section className="surface content-section recommendations" id="recommendations" aria-labelledby="recommendations-title"><div className="section-heading"><div><span className="step-number">4</span><div><p className="eyebrow">ACCIÓN</p><h2 id="recommendations-title">¿Qué podría hacer el responsable del proyecto?</h2></div></div></div>
         <div className={`recommendation-status ${genaiUsed ? 'genai-active' : 'fallback'}`}><span aria-hidden="true">{genaiUsed ? '✦' : '↻'}</span><div><strong>{title}</strong>{genaiFailed && <small>La predicción se completó correctamente.</small>}</div></div>
-        {data.actions?.length ? <ol className="action-list">{data.actions.slice(0, 5).map((action, index) => <li key={`${index}-${action}`}>{action}</li>)}</ol> : data.summary ? <p className="recommendation-summary">{data.summary}</p> : <p className="empty-inline">No hay acciones sugeridas para este análisis.</p>}
-        {data.evidence_features?.length > 0 && <p className="evidence-line"><span>Evidencia utilizada:</span> {data.evidence_features.map(key => fieldMap.get(key) || key).join(' · ')}</p>}
-        <details className="disclosure recommendation-evidence"><summary>Ver evidencia y razones</summary>{data.reasons?.length > 0 && <ul>{data.reasons.map((reason, index) => <li key={`${index}-${reason}`}>{reason}</li>)}</ul>}{data.summary && <p>{data.summary}</p>}{data.disclaimer && <p className="science-note">{data.disclaimer}</p>}</details></section>;
+        {data.summary && <p className="recommendation-summary">{data.summary}</p>}
+        {actions.length ? <div className="recommendation-list" aria-label="Acciones priorizadas">{actions.map(({ index, ...recommendation }) => {
+            const priority = priorityOrder[recommendation.priority] === undefined ? 'media' : recommendation.priority;
+            return <article className={`recommendation-action priority-${priority}`} key={`${recommendation.evidence_feature}-${index}`}>
+                <div className="recommendation-action-heading"><span className={`recommendation-priority priority-${priority}`}>{priority[0].toUpperCase() + priority.slice(1)}</span><h3>{recommendation.title}</h3></div>
+                <dl className="recommendation-action-details">
+                    <div><dt>Señal que la origina</dt><dd>{fieldMap.get(recommendation.evidence_feature) || recommendation.evidence_feature}</dd></div>
+                    <div><dt>Qué hacer</dt><dd>{recommendation.action}</dd></div>
+                    <div><dt>Por qué</dt><dd>{recommendation.reason}</dd></div>
+                    <div><dt>Qué revisar después</dt><dd>{recommendation.follow_up}</dd></div>
+                </dl>
+            </article>;
+        })}</div> : <p className="empty-inline">{data.summary || 'No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico.'}</p>}
+        <p className="science-note">Estas acciones son sugerencias generadas a partir de las señales disponibles. Deben validarse con el contexto real del proyecto antes de tomar una decisión. Las señales muestran asociaciones y sensibilidad local, no causalidad.</p></section>;
 }

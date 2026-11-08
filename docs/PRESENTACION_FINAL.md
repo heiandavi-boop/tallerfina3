@@ -69,13 +69,13 @@ El problema, método y resultados ocupan el centro; infraestructura es secundari
 
 - React/Vite → FastAPI → LightGBM
 - Team Health y fusión: reglas heurísticas separadas
-- Drivers → Qwen/Ollama → validador o fallback
+- Drivers → Qwen/Ollama → acciones estructuradas → validador o fallback
 
 **Visual/gráfico:** Diagrama de flujo con predicción y explicación separadas..
 
 **Evidencia:** src/prunin_ai/api/model_runtime.py; recommendations.py; inference/brain.py`.
 
-**Speech:** La interfaz envía variables a FastAPI, que carga los pipelines LightGBM y produce las predicciones. Team Health se calcula con reglas observables; no es un modelo entrenado. Los drivers representan sensibilidad local. Qwen recibe evidencia estructurada y redacta una explicación; su respuesta debe superar un validador. Si falla, usamos respaldo determinístico y conservamos las predicciones. Esta separación facilita trazabilidad y evita confundir texto convincente con calidad predictiva.
+**Speech:** La interfaz envía variables a FastAPI, que carga los pipelines LightGBM y produce las predicciones. Team Health se calcula con reglas observables; no es un modelo entrenado. Los drivers representan sensibilidad local. Qwen recibe evidencia estructurada y propone acciones con señal, justificación y seguimiento; cada salida debe superar un validador. Si falla, usamos respaldo determinístico y conservamos las predicciones. Esta separación facilita trazabilidad y evita confundir texto convincente con calidad predictiva.
 
 **Detalle secundario:** rutas de código, parámetros y JSON solo si el jurado los pide.
 
@@ -168,18 +168,19 @@ El problema, método y resultados ocupan el centro; infraestructura es secundari
 
 ## Slide 8. Qwen3 y evaluación GenAI
 
-**Mensaje central:** Generación medida y guardrails, sin verdad semántica garantizada.
+**Mensaje central:** La IA transforma señales permitidas en acciones priorizadas y revisables.
 
-- Qwen3 8B/Ollama: explica; no predice outcomes
-- Elección técnico-operativa, sin benchmark de tres modelos
-- 30 casos: 29/30 aceptados/grounded; una cifra no soportada
-- Mediana 3092.645 ms; p95 6634.72 ms; proxies
+- Qwen3 8B/Ollama: propone acciones; no predice outcomes
+- JSON Schema limita prioridad, evidencia y seguimiento
+- Evaluación nueva de acciones: 20/20 estructuras válidas; cero claims numéricos no soportados
+- Mediana 7054.585 ms; p95 17741.41 ms, en esta muestra local
+- El benchmark Qwen oficial de 30 casos sigue congelado y separado
 
 **Visual/gráfico:** Flujo GenAI y tarjeta con aceptadas/rechazada.
 
 **Evidencia:** reports/genai/qwen3-8b-evaluation.json; docs/genai_evaluation.md
 
-**Speech:** Qwen interpreta evidencia y redacta recomendaciones, mientras LightGBM mantiene la predicción. Se eligió por requisitos locales; no afirmamos que venció a Gemma o Ministral. En treinta casos, veintinueve respuestas fueron aceptadas y una fue rechazada por cifra no soportada. El rechazo muestra el guardrail funcionando. Schema y acciones no vacías no prueban verdad semántica ni utilidad profesional. La latencia es local y la revisión humana sigue siendo necesaria.
+**Speech:** Qwen no predice los resultados: convierte señales permitidas en acciones con prioridad, título, qué hacer, por qué y qué revisar después; LightGBM conserva las predicciones. La nueva evaluación de veinte casos verificó el contrato de acciones y grounding proxy. El benchmark histórico de Qwen usa su schema previo y permanece congelado, no se sustituye. Los resultados nuevos son locales y no demuestran utilidad profesional; cada sugerencia requiere contexto y revisión humana.
 
 **Detalle secundario:** rutas de código, parámetros y JSON solo si el jurado los pide.
 
@@ -189,20 +190,20 @@ El problema, método y resultados ocupan el centro; infraestructura es secundari
 
 ## Slide 9. Demo: de la señal a la decisión
 
-**Mensaje central:** La demo muestra una alerta operacional y después explica la evidencia.
+**Mensaje central:** La demo convierte señales de riesgo en acciones priorizadas y verificables.
 
 - Ingresar snapshot del proyecto
 - Mostrar **Risk Alert: requiere atención / sin alerta**
 - Mantener Health ML: Healthy / At Risk / Critical
 - Mostrar Delay y Cost como estimaciones complementarias
-- Explicar drivers y recomendación Qwen/fallback
+- Mostrar acciones priorizadas: qué hacer, por qué, señal de origen y qué revisar después
 - Ejecutar What-if y CSV sin confundirlos con causalidad
 
 **Visual/gráfico:** Playground en vivo.
 
 **Evidencia:** frontend/src/components/AnalysisPanels.jsx; DEMO_PRESENTACION.md
 
-**Speech:** La alerta no sustituye Health ni añade un cuarto modelo. Es una traducción operacional de la predicción existente: At Risk o Critical requiere atención. Después mostramos la severidad, las estimaciones y la explicación. Esto conecta directamente el sistema con la promesa original sin alterar el modelo.
+**Speech:** Hasta este punto PRUNIN detectó el riesgo y explicó las señales. Ahora la IA generativa transforma esa evidencia en acciones de gestión: qué revisar, por qué y qué indicador seguir posteriormente. La alerta no sustituye Health ni añade un cuarto modelo: At Risk o Critical indica que requiere atención. Si Qwen falla, el fallback determinístico conserva la estructura de acción. Las sugerencias se validan con el contexto real; no prueban causalidad ni delegan la decisión.
 
 **Error que evitar:** Presentar el banner de Risk Alert como probabilidad calibrada o modelo nuevo.
 
@@ -311,7 +312,7 @@ La documentación prepara RA2 F1/F2/F3/F5/F7; no acredita su ejecución oral. Vo
 | 6 · 55 s | Alerta no es severidad | 82.45 % Risk Alert final; Critical Recall 56.82 %; Delay marginal | Métricas TEST y baseline | La pregunta clave es cuándo | 82.45 % de Critical |
 | 7 · 40 s | Meta al 60 % | 359/473 = 75.90 %, cobertura 96 % | Figura temporal | La explicación tiene evaluación propia | 79.95 % al 40 % como meta cumplida |
 | 8 · 50 s | GenAI evaluada con límites | Qwen 29/30 oficial; comparativa parcial; proxy, no utilidad | Métricas y estado candidatos | Pasemos a la experiencia | Qwen es el mejor |
-| 9 · 60 s | Uso de la alerta | Mostrar una predicción y nombrar señales como sensibilidad local | Playground individual | El diseño requiere controles | Driver como causa |
+| 9 · 60 s | Acciones de gestión | Leer una tarjeta: señal, qué hacer, por qué y qué revisar | Playground: acción prioritaria y seguimiento | La salida requiere controles | Driver como causa o recomendación como decisión |
 | 10 · 25 s | Diseño no es producción | CI y trazabilidad; Kubernetes validado estáticamente | Estado implementado/diseñado | Resumamos lo demostrado | Clúster desplegado |
 | 11 · 25 s | Límites visibles | Sintético, Critical limitado, Delay débil, sin estudio humano | Demostrado/pendiente | La conclusión se restringe al experimento | Validación empresarial |
 | 12 · 20 s | Resultado experimental | Meta alcanzada al 60 % en TEST sintético | 75.90 %, 96 %, 56.82 % | Abrir preguntas | Listo para producción |
@@ -330,7 +331,7 @@ Total planificado: 420 s. Una interacción individual; no leer JSON ni terminal.
 | 6 · 80 s | Alerta no es severidad | Macro F1 0.627576; Risk Alert 82.45 %; Critical 56.82 %; caveats | Resumen TEST y confusión | La meta requiere tiempo de detección | Ocultar falsos negativos |
 | 7 · 60 s | Meta al 60 % | Denominador fijo 473; 359 detectados; cobertura 576/600 | Figura y tabla | GenAI se evalúa aparte | Recall elegible al 40 % |
 | 8 · 80 s | GenAI evaluada con límites | Evaluación oficial congelada y comparativa parcial | Qwen y `not_available` | La app refleja separación | Ranking completo |
-| 9 · 90 s | Uso de la alerta | Predicción, drivers, una recomendación y What-if; no causalidad | Playground + simulación | Operación con controles | What-if como causa |
+| 9 · 90 s | Acciones de gestión | Predicción, tarjeta completa y What-if; distinguir escenario de acción real | Playground + simulación | Operación con controles | What-if como efecto causal |
 | 10 · 35 s | Diseño no es producción | Versiones, manifests, CI, endpoints, drift offline y K8s estático | Estado MLOps | Revisemos límites | Retraining continuo o cluster activo |
 | 11 · 30 s | Límites visibles | Sin empresa/usuario; benchmark operacional local | Demo/tests/alcance | Conclusión experimental | Ahorro humano |
 | 12 · 30 s | Resultado experimental | 75.90 % al 60 %, 82.45 % final, 56.82 % Critical | KPI temporal | Preguntas | Producción validada |
@@ -349,7 +350,7 @@ Total planificado: 600 s. Reservar más tiempo para baseline y resultado; no ext
 | 6 · 100 s | Alerta no es severidad | Leer matriz; comparar Macro F1/baseline; interpretar Delay y Cost | Confusión y tabla TEST | La promesa también es temporal | Critical Recall igual a alerta |
 | 7 · 75 s | Meta al 60 % | Denominador fijo; no elegibles cuentan no detectados; 359/473 | Curva temporal y cortes | GenAI tiene evaluación separada | 79.95 % al 40 % como cumplimiento |
 | 8 · 90 s | GenAI evaluada con límites | Separar evaluación congelada de benchmark parcial nuevo | JSON y comparación | La interfaz mantiene esos roles | Qwen es mejor o grounding es verdad |
-| 9 · 110 s | Uso de alerta y evidencia | Análisis, probabilidades, drivers, recomendación, What-if/CSV | Playground; plan de fallback | Guardrails no eliminan todo riesgo | Driver causal; CSV llama Qwen |
+| 9 · 110 s | Acciones desde evidencia | Análisis, probabilidades, acción completa, What-if/CSV | Playground; fallback con la misma estructura | Guardrails no eliminan todo riesgo | Driver causal; CSV llama Qwen |
 | 10 · 45 s | Diseño no es producción | Versionado, fingerprints, readiness, métricas, drift offline y YAML | Endpoints y manifiesto | Los límites delimitan conclusión | Producción/retraining activo |
 | 11 · 35 s | Límites visibles | Representatividad, utilidad humana, concurrencia local y seguridad | Matriz riesgos | Concluyo solo lo respaldado | Productividad humana medida |
 | 12 · 35 s | Resultado experimental | 75.90 %, cobertura 96 %, 82.45 % final, Critical 56.82 % | Cifra principal y caveat | Abrir preguntas | Validación empresarial |

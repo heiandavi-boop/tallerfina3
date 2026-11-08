@@ -11,23 +11,114 @@ from typing import Any
 import requests
 
 
-ACTION_CATALOG = {
-    "planned_duration_weeks": "Revisar si la duración planificada sigue siendo consistente con el trabajo restante.",
-    "planned_budget": "Revisar la suficiencia del presupuesto frente al trabajo pendiente y las proyecciones actuales.",
-    "true_progress": "Revisar trabajo pendiente y compromisos restantes frente al nivel actual de avance.",
-    "project_type": "Revisar si la estrategia de ejecución es adecuada para las condiciones actuales del proyecto.",
-    "methodology": "Revisar si la estrategia de ejecución es adecuada para las condiciones actuales del proyecto.",
-    "spi": "Revisar las actividades atrasadas y acordar un plan de recuperación del cronograma.",
-    "cpi": "Revisar consumo de presupuesto, estimación a la conclusión y fuentes de sobrecosto.",
-    "team_utilization": "Redistribuir carga y proteger capacidad del equipo antes de aumentar compromisos.",
-    "team_capacity_ratio": "Ajustar demanda, prioridades o capacidad para recuperar un ratio sostenible.",
-    "average_productivity": "Identificar bloqueos operativos y concentrar el equipo en trabajo de mayor valor.",
-    "defect_rate": "Priorizar causas raíz de defectos y fortalecer controles de calidad tempranos.",
-    "rework_ratio": "Reducir retrabajo mediante criterios de aceptación y revisiones antes del cierre de tareas.",
-    "scope_growth_ratio": "Controlar cambios de alcance y exigir trazabilidad de impacto antes de aprobarlos.",
-    "dependency_delay_days": "Escalar dependencias críticas con responsable y fecha de resolución verificable.",
-    "normalized_risk_exposure": "Priorizar mitigaciones de los riesgos de mayor exposición y revisar contingencias.",
-    "governance_health_score": "Cerrar decisiones pendientes y reforzar cadencia de gobierno y seguimiento.",
+ACTION_GUIDANCE: dict[str, dict[str, str]] = {
+    "spi": {
+        "priority": "alta",
+        "title": "Recuperar el cronograma",
+        "action": "Revisar las actividades con mayor desviación frente al plan y definir un plan de recuperación para el siguiente seguimiento.",
+        "follow_up": "Revisar SPI y cumplimiento del cronograma en el siguiente corte.",
+    },
+    "cpi": {
+        "priority": "alta",
+        "title": "Revisar la proyección de costos",
+        "action": "Analizar el consumo presupuestal y actualizar la estimación al cierre antes de asumir nuevos compromisos de gasto.",
+        "follow_up": "Comparar CPI y proyección de costo en el siguiente seguimiento.",
+    },
+    "team_capacity_ratio": {
+        "priority": "alta",
+        "title": "Alinear carga y capacidad",
+        "action": "Contrastar los compromisos de trabajo con la capacidad disponible y acordar una priorización para el siguiente ciclo.",
+        "follow_up": "Revisar capacidad disponible y trabajo comprometido en el siguiente corte.",
+    },
+    "team_utilization": {
+        "priority": "alta",
+        "title": "Redistribuir la carga del equipo",
+        "action": "Revisar la carga asignada y acordar ajustes de prioridades antes de aceptar nuevos compromisos.",
+        "follow_up": "Volver a revisar utilización y capacidad del equipo en el próximo seguimiento.",
+    },
+    "rework_ratio": {
+        "priority": "media",
+        "title": "Reducir el retrabajo",
+        "action": "Identificar tareas con retrabajo y aclarar los criterios de aceptación antes del próximo ciclo.",
+        "follow_up": "Revisar la evolución del retrabajo en el siguiente ciclo.",
+    },
+    "defect_rate": {
+        "priority": "media",
+        "title": "Controlar defectos recurrentes",
+        "action": "Revisar los defectos recurrentes y definir controles de calidad para las siguientes entregas.",
+        "follow_up": "Comparar la tasa de defectos en la siguiente revisión de calidad.",
+    },
+    "average_productivity": {
+        "priority": "media",
+        "title": "Revisar bloqueos operativos",
+        "action": "Identificar bloqueos del proceso con el equipo y acordar una acción para removerlos antes del siguiente ciclo.",
+        "follow_up": "Revisar productividad y bloqueos pendientes en el siguiente ciclo.",
+    },
+    "team_stability": {
+        "priority": "media",
+        "title": "Revisar continuidad operativa",
+        "action": "Revisar la cobertura de funciones del equipo y documentar dependencias operativas que requieran respaldo.",
+        "follow_up": "Verificar continuidad de funciones en el siguiente seguimiento.",
+    },
+    "collaboration_level": {
+        "priority": "media",
+        "title": "Mejorar la coordinación",
+        "action": "Acordar un espacio breve de coordinación entre las áreas involucradas y registrar dependencias pendientes.",
+        "follow_up": "Revisar dependencias y acuerdos de coordinación en el siguiente corte.",
+    },
+    "scope_growth_ratio": {
+        "priority": "media",
+        "title": "Controlar cambios de alcance",
+        "action": "Contrastar las solicitudes de cambio con la línea base y registrar su impacto antes de aprobarlas.",
+        "follow_up": "Revisar cambios pendientes y su registro frente a la línea base.",
+    },
+    "dependency_delay_days": {
+        "priority": "media",
+        "title": "Dar seguimiento a dependencias",
+        "action": "Revisar las dependencias abiertas que afectan el trabajo y acordar un próximo punto de seguimiento.",
+        "follow_up": "Verificar el estado de dependencias en el siguiente corte.",
+    },
+    "normalized_risk_exposure": {
+        "priority": "media",
+        "title": "Revisar riesgos prioritarios",
+        "action": "Revisar los riesgos de mayor exposición en el registro del proyecto y confirmar si requieren actualizar su tratamiento.",
+        "follow_up": "Comprobar el estado de los riesgos y sus tratamientos en el próximo seguimiento.",
+    },
+    "governance_health_score": {
+        "priority": "media",
+        "title": "Cerrar decisiones de gobierno",
+        "action": "Revisar decisiones abiertas y acordar la próxima instancia de seguimiento del proyecto.",
+        "follow_up": "Confirmar el estado de decisiones abiertas en la siguiente revisión de gobierno.",
+    },
+    "planned_duration_weeks": {
+        "priority": "baja",
+        "title": "Contrastar la duración planificada",
+        "action": "Revisar el trabajo pendiente frente a la duración planificada y documentar cualquier ajuste propuesto.",
+        "follow_up": "Comparar duración y avance pendiente en el siguiente corte.",
+    },
+    "planned_budget": {
+        "priority": "baja",
+        "title": "Revisar el presupuesto disponible",
+        "action": "Contrastar los compromisos vigentes y el trabajo pendiente con el presupuesto aprobado antes de asumir nuevos gastos.",
+        "follow_up": "Revisar presupuesto disponible y compromisos en el próximo seguimiento.",
+    },
+    "true_progress": {
+        "priority": "baja",
+        "title": "Validar el avance reportado",
+        "action": "Contrastar el avance con el trabajo completado y actualizar las tareas pendientes antes del siguiente corte.",
+        "follow_up": "Revisar avance y trabajo pendiente en la siguiente actualización.",
+    },
+}
+
+VALID_PRIORITIES = {"alta", "media", "baja"}
+PRIORITY_ORDER = {"alta": 0, "media": 1, "baja": 2}
+ACTION_VERBS = {
+    "acordar", "actualizar", "alinear", "analizar", "comparar", "confirmar", "contrastar",
+    "controlar", "definir", "documentar", "establecer", "evaluar", "identificar", "organizar",
+    "priorizar", "redistribuir", "registrar", "revisar", "verificar",
+    "acuerda", "actualiza", "alinea", "analiza", "compara", "confirma", "contrasta",
+    "controla", "define", "documenta", "establece", "evalua", "identifica", "organiza",
+    "prioriza", "redistribuye", "registra", "revisa", "verifica",
 }
 
 DEFAULT_OLLAMA_TIMEOUT_SECONDS = 30.0
@@ -184,6 +275,49 @@ def _has_unsupported_number(text: str, allowed_values: list[float], allowed_perc
     return False
 
 
+def _recommendation_sort_key(recommendation: dict[str, Any]) -> int:
+    return PRIORITY_ORDER.get(str(recommendation.get("priority", "baja")), len(PRIORITY_ORDER))
+
+
+def _is_concrete_action(action: str) -> bool:
+    words = action.strip().lower().split()
+    if not words or len(action.strip()) < 36:
+        return False
+    verb = words[0].strip("¿¡.,:;()")
+    return verb in ACTION_VERBS
+
+
+def action_response_schema(allowed_features: set[str]) -> dict[str, Any]:
+    has_risk_drivers = bool(allowed_features)
+    recommendation_schema = {
+        "type": "object",
+        "properties": {
+            "priority": {"type": "string", "enum": ["alta", "media", "baja"]},
+            "title": {"type": "string", "minLength": 4, "maxLength": 80},
+            "evidence_feature": {"type": "string", "enum": sorted(allowed_features)},
+            "reason": {"type": "string", "minLength": 12},
+            "action": {"type": "string", "minLength": 36},
+            "follow_up": {"type": "string", "minLength": 12},
+        },
+        "required": ["priority", "title", "evidence_feature", "reason", "action", "follow_up"],
+        "additionalProperties": False,
+    }
+    return {
+        "type": "object",
+        "properties": {
+            "summary": {"type": "string", "minLength": 1, "maxLength": 180},
+            "recommendations": {
+                "type": "array",
+                "minItems": 1 if has_risk_drivers else 0,
+                "maxItems": 4 if has_risk_drivers else 0,
+                "items": recommendation_schema,
+            },
+        },
+        "required": ["summary", "recommendations"],
+        "additionalProperties": False,
+    }
+
+
 def validate_generated_payload(
     payload: Any,
     allowed_features: set[str],
@@ -193,31 +327,55 @@ def validate_generated_payload(
 ) -> dict[str, Any]:
     recommendations = payload.get("recommendations") if isinstance(payload, dict) else None
     summary = payload.get("summary") if isinstance(payload, dict) else None
-    schema_valid = isinstance(recommendations, list) and len(recommendations) <= 4 and isinstance(summary, str)
+    schema_valid = (
+        isinstance(recommendations, list)
+        and len(recommendations) <= 4
+        and isinstance(summary, str)
+        and bool(summary.strip())
+        and len(summary.strip()) <= 180
+        and "\n" not in summary
+    )
     referenced: list[str] = []
-    narratives: list[str] = []
-    if schema_valid:
+    narratives: list[str] = [summary] if isinstance(summary, str) else []
+    if isinstance(recommendations, list):
         for item in recommendations:
             if not isinstance(item, dict):
                 schema_valid = False
-                break
+                continue
+            priority = item.get("priority")
+            title = item.get("title")
             feature = item.get("evidence_feature")
             reason = item.get("reason")
             action = item.get("action")
-            if not isinstance(feature, str) or not isinstance(reason, str) or not reason.strip() or not isinstance(action, str) or len(action.strip()) < 8:
+            follow_up = item.get("follow_up")
+            narratives.extend(
+                value for value in (title, reason, action, follow_up)
+                if isinstance(value, str)
+            )
+            if (
+                not isinstance(priority, str)
+                or priority not in VALID_PRIORITIES
+                or not isinstance(title, str)
+                or not 4 <= len(title.strip()) <= 80
+                or not isinstance(feature, str)
+                or not isinstance(reason, str)
+                or len(reason.strip()) < 12
+                or not isinstance(action, str)
+                or not isinstance(follow_up, str)
+                or len(follow_up.strip()) < 12
+            ):
                 schema_valid = False
-                break
-            referenced.append(feature)
-            narratives.extend([reason, action])
-    if isinstance(summary, str):
-        narratives.append(summary)
+            if isinstance(feature, str):
+                referenced.append(feature)
     risk_drivers_exist = bool(allowed_features)
     empty_with_risk = schema_valid and risk_drivers_exist and not recommendations
     evidence_features_valid = empty_with_risk or (not allowed_features and not referenced) or (bool(referenced) and set(referenced) <= allowed_features)
     allowed_numbers, allowed_percentages = _evidence_numeric_values(prediction, drivers)
     unsupported_numeric_claim = any(_has_unsupported_number(text, allowed_numbers, allowed_percentages) for text in narratives)
-    actionability = schema_valid and all(len(item["action"].strip()) >= 8 for item in recommendations or [])
-    grounded = schema_valid and evidence_features_valid and not unsupported_numeric_claim and not empty_with_risk
+    actionability = schema_valid and all(_is_concrete_action(item["action"]) for item in recommendations or [])
+    action_structure_valid = schema_valid and actionability
+    follow_up_present = schema_valid and all(bool(item["follow_up"].strip()) for item in recommendations or [])
+    grounded = schema_valid and evidence_features_valid and not unsupported_numeric_claim and not empty_with_risk and actionability
     if not schema_valid:
         failure_code = "invalid_schema"
         failure_detail = "Se esperaba summary textual y hasta cuatro recomendaciones con evidencia, razón y acción válidas."
@@ -231,8 +389,8 @@ def validate_generated_payload(
         failure_code = "unsupported_numeric_claim"
         failure_detail = "La respuesta incluyó cifras que no aparecen en la evidencia estructurada."
     elif not actionability:
-        failure_code = "grounding_validation_failed"
-        failure_detail = "La respuesta no contiene acciones concretas suficientemente claras."
+        failure_code = "non_actionable_recommendation"
+        failure_detail = "Cada acción debe comenzar con un verbo y describir una tarea ejecutable y concreta."
     else:
         failure_code = None
         failure_detail = None
@@ -245,6 +403,8 @@ def validate_generated_payload(
         "allowed_numeric_percentages": allowed_percentages,
         "unsupported_numeric_claim": unsupported_numeric_claim,
         "actionability": actionability,
+        "action_structure_valid": action_structure_valid,
+        "follow_up_present": follow_up_present,
         "grounded": grounded,
         "failure_code": failure_code,
         "failure_detail": failure_detail,
@@ -254,6 +414,11 @@ def validate_generated_payload(
 def build_grounded_prompt(prediction: dict[str, Any], drivers: list[dict[str, Any]]) -> tuple[str, set[str]]:
     relevant_drivers = [item for item in drivers if item.get("direction") == "increases_risk"][:6]
     allowed_features = _allowed_features(relevant_drivers)
+    action_guidance = {
+        feature: ACTION_GUIDANCE[feature]
+        for feature in sorted(allowed_features)
+        if feature in ACTION_GUIDANCE
+    }
     compact = {
         "prediction": {
             key: prediction.get(key)
@@ -261,18 +426,47 @@ def build_grounded_prompt(prediction: dict[str, Any], drivers: list[dict[str, An
         },
         "risk_drivers": relevant_drivers,
         "allowed_evidence_features": sorted(allowed_features),
+        "action_guidance": action_guidance,
     }
+    if allowed_features:
+        example_feature = next(
+            str(item["feature"])
+            for item in relevant_drivers
+            if str(item.get("feature")) in allowed_features
+        )
+        example_guidance = ACTION_GUIDANCE.get(example_feature)
+        if example_guidance:
+            example_recommendations = [{
+                **example_guidance,
+                "evidence_feature": example_feature,
+                "reason": f"{example_feature} aparece entre las señales que incrementan el riesgo en esta inferencia.",
+            }]
+            example_summary = "Priorizar la revisión de la señal disponible."
+        else:
+            example_recommendations = []
+            example_summary = "Priorizar la revisión de la señal disponible."
+        response_example = {"summary": example_summary, "recommendations": example_recommendations}
+        conditional_rule = (
+            "La evidencia incluye al menos un driver de riesgo. Es obligatorio devolver al menos una acción y está prohibido devolver recommendations vacías. "
+            "Usa una o más de las señales exactas de allowed_evidence_features y no excedas cuatro acciones."
+        )
+    else:
+        response_example = {
+            "summary": "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico.",
+            "recommendations": [],
+        }
+        conditional_rule = "No hay drivers que incrementen riesgo; devuelve recommendations vacías y conserva un summary prudente."
     prompt = (
         "/no_think\n"
-        "Eres la capa de explicación de PRUNIN AI Core. Tu única fuente es EVIDENCIA. "
-        "No inventes hechos, causas, variables, cifras, personas ni eventos. No escribas cifras ni porcentajes en reason, action o summary; describe cualitativamente. "
-        "Solo puedes citar evidence_feature incluida en allowed_evidence_features. "
-        "Evita cifras nuevas; si mencionas una, debe provenir literalmente de EVIDENCIA. "
-        "Devuelve exclusivamente JSON válido, sin markdown ni texto adicional, con esta estructura: "
-        '{"recommendations":[{"evidence_feature":"cpi","reason":"explicación breve",'
-        '"action":"acción concreta"}],"summary":"resumen breve"}. '
-        "Máximo cuatro recomendaciones y una evidencia por recomendación. "
-        "Si allowed_evidence_features está vacío, recommendations debe ser [].\n"
+        "Eres la capa de acciones de gestión de PRUNIN AI Core. Tu tarea NO es resumir el diagnóstico: convierte las señales permitidas en pasos concretos para el responsable del proyecto. "
+        "No repitas nivel de riesgo, retraso o costo salvo que sea imprescindible para justificar una acción. Prioriza qué debería hacer ahora el responsable. "
+        "No inventes causas, actividades observadas, hitos, ruta crítica, fechas, montos, porcentajes, personas, responsables nominales, contratos ni stakeholders. No afirmes causalidad. "
+        "Cada acción empieza con un verbo, es ejecutable, se vincula a una señal, explica por qué y especifica qué revisar después. Usa action_guidance como referencia operativa, no como hechos adicionales. "
+        "Solo puedes usar evidence_feature incluida en allowed_evidence_features. Evita números; si alguno fuera imprescindible, debe aparecer literalmente en EVIDENCIA. "
+        "Prioridad permitida: alta, media o baja; ordena alta, media, baja y prioriza SPI/CPI/capacidad cuando estén entre las señales más relevantes, sin inventar umbrales. "
+        "Devuelve exclusivamente JSON válido, sin markdown ni texto adicional, con el mismo schema y nivel de concreción de este ejemplo: "
+        + json.dumps(response_example, ensure_ascii=False, separators=(",", ":"))
+        + ". " + conditional_rule + "\n"
         "EVIDENCIA:\n" + json.dumps(compact, ensure_ascii=False, separators=(",", ":"))
     )
     return prompt, allowed_features
@@ -299,7 +493,7 @@ def generate_ollama_grounded(
                 "model": model,
                 "messages": [{"role": "user", "content": prompt}],
                 "stream": False,
-                "format": "json",
+                "format": action_response_schema(allowed_features),
                 "think": False,
                 "options": {"temperature": 0.1, "num_predict": 400},
             },
@@ -366,6 +560,8 @@ def _generation_failure(
         "allowed_numeric_percentages": [],
         "unsupported_numeric_claim": False,
         "actionability": False,
+        "action_structure_valid": False,
+        "follow_up_present": False,
         "grounded": False,
         "failure_code": failure_code,
         "failure_detail": failure_detail,
@@ -396,24 +592,29 @@ def grounded_fallback(
     validation: dict[str, Any] | None = None,
     debug: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    actions: list[str] = []
-    reasons: list[str] = []
-    evidence_features: list[str] = []
     risk_drivers = [driver for driver in drivers if driver.get("direction") == "increases_risk"]
-    for driver in risk_drivers[:5]:
+    recommendations: list[dict[str, str]] = []
+    for driver in risk_drivers:
         name = str(driver.get("feature"))
-        evidence_features.append(name)
-        reasons.append(f"{driver.get('label', name)} muestra una señal asociada con mayor riesgo en esta inferencia.")
-        if name in ACTION_CATALOG:
-            actions.append(ACTION_CATALOG[name])
+        guidance = ACTION_GUIDANCE.get(name)
+        if guidance is None:
+            continue
+        recommendations.append({
+            **guidance,
+            "evidence_feature": name,
+            "reason": f"{driver.get('label', name)} aparece entre las señales que incrementan el riesgo en esta inferencia; esto muestra asociación, no causalidad.",
+        })
+    recommendations = sorted(recommendations, key=_recommendation_sort_key)[:4]
+    actions = [item["action"] for item in recommendations]
+    reasons = [item["reason"] for item in recommendations]
+    evidence_features = [item["evidence_feature"] for item in recommendations]
     allowed_features = sorted(_allowed_features(drivers))
     if not risk_drivers:
-        summary = "No se identificaron drivers locales que aumenten riesgo y requieran una acción específica."
-        actions = []
-    elif not actions:
-        summary = "Se observan señales de riesgo sin una acción de respaldo catalogada; revisar la evidencia con el equipo del proyecto."
+        summary = "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico."
+    elif not recommendations:
+        summary = "No hay una acción de respaldo catalogada para estas señales; validar la evidencia con el equipo del proyecto."
     else:
-        summary = "Recomendaciones de respaldo asociadas con señales observadas del modelo."
+        summary = "Estas acciones responden a las señales de mayor riesgo detectadas."
     result = {
         "engine": "grounded_fallback",
         "genai_attempted": genai_attempted,
@@ -425,8 +626,9 @@ def grounded_fallback(
         "evidence_features": list(dict.fromkeys(evidence_features))[:5],
         "allowed_evidence_features": validation.get("allowed_evidence_features", allowed_features) if validation else allowed_features,
         "referenced_evidence_features": validation.get("referenced_evidence_features", []) if validation else [],
+        "recommendations": recommendations,
         "reasons": reasons[:5],
-        "actions": list(dict.fromkeys(actions))[:5],
+        "actions": list(dict.fromkeys(actions))[:4],
         "summary": summary,
         "grounding": validation or {
             "source": "local_model_sensitivity",
@@ -464,7 +666,7 @@ def ollama_recommendations(
             validation=generated.get("validation"),
             debug={"raw_response": generated.get("raw_response"), "parsed_json": generated.get("payload"), "validation": generated.get("validation")},
         )
-    recs = generated["payload"]["recommendations"]
+    recs = sorted(generated["payload"]["recommendations"], key=_recommendation_sort_key)
     recommendation = {
         "engine": f"ollama:{generated['model']}",
         "genai_attempted": True,
@@ -476,6 +678,7 @@ def ollama_recommendations(
         "evidence_features": generated["validation"]["referenced_evidence_features"],
         "allowed_evidence_features": generated["validation"]["allowed_evidence_features"],
         "referenced_evidence_features": generated["validation"]["referenced_evidence_features"],
+        "recommendations": recs,
         "reasons": [item["reason"] for item in recs],
         "actions": [item["action"] for item in recs],
         "summary": generated["payload"].get("summary", ""),
@@ -510,6 +713,7 @@ def recommendations_not_requested() -> dict[str, Any]:
         "evidence_features": [],
         "allowed_evidence_features": [],
         "referenced_evidence_features": [],
+        "recommendations": [],
         "reasons": [],
         "actions": [],
         "summary": "No se solicitó una recomendación para esta inferencia.",

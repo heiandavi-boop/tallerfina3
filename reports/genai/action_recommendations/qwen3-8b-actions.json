@@ -1,0 +1,515 @@
+{
+  "status": "complete",
+  "model": "qwen3:8b",
+  "artifact_version": "0.9.0-academic",
+  "dataset_source": "Mendeley Data 2p5sz57wh2 version 2",
+  "evaluation_unit": "latest TEST project snapshot with at least one increasing-risk local driver",
+  "cases_requested": 20,
+  "cases_evaluated": 20,
+  "timeout_seconds": 30.0,
+  "metrics": {
+    "generation_success_rate": 0.0,
+    "schema_valid_rate": 1.0,
+    "evidence_feature_valid_rate": 1.0,
+    "grounded_response_rate": 0.0,
+    "action_structure_valid_rate": 1.0,
+    "follow_up_present_rate": 1.0,
+    "actionability_rate": 1.0,
+    "unsupported_numeric_claim_rate": 0.0,
+    "timeout_rate": 0.0,
+    "invalid_json_rate": 0.0,
+    "latency_ms_median": 1943.27,
+    "latency_ms_p95": 2353.13
+  },
+  "metric_definition_note": "Groundedness is a deterministic proxy: valid JSON schema, all cited evidence features are allow-listed drivers, and no new numeric claims appear. It does not prove semantic causality.",
+  "cases": [
+    {
+      "project_id": "mendeley::PROJ_0760",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": false,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 1811.49,
+      "failure_code": "empty_recommendations_with_risk_drivers",
+      "failure_detail": "Hay drivers que aumentan riesgo, pero la respuesta no propuso recomendaciones.",
+      "referenced_evidence_features": [],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "summary": "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico",
+        "recommendations": []
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_2717",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": false,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 2096.8,
+      "failure_code": "empty_recommendations_with_risk_drivers",
+      "failure_detail": "Hay drivers que aumentan riesgo, pero la respuesta no propuso recomendaciones.",
+      "referenced_evidence_features": [],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "summary": "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico",
+        "recommendations": []
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_0062",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": false,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 1963.59,
+      "failure_code": "empty_recommendations_with_risk_drivers",
+      "failure_detail": "Hay drivers que aumentan riesgo, pero la respuesta no propuso recomendaciones.",
+      "referenced_evidence_features": [],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "summary": "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico",
+        "recommendations": []
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_0539",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": false,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 1889.65,
+      "failure_code": "empty_recommendations_with_risk_drivers",
+      "failure_detail": "Hay drivers que aumentan riesgo, pero la respuesta no propuso recomendaciones.",
+      "referenced_evidence_features": [],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "summary": "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico",
+        "recommendations": []
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_2331",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": false,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 1886.73,
+      "failure_code": "empty_recommendations_with_risk_drivers",
+      "failure_detail": "Hay drivers que aumentan riesgo, pero la respuesta no propuso recomendaciones.",
+      "referenced_evidence_features": [],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "summary": "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico",
+        "recommendations": []
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_0840",
+      "health": "critical",
+      "driver_count": 3,
+      "generation_ok": false,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 2353.13,
+      "failure_code": "empty_recommendations_with_risk_drivers",
+      "failure_detail": "Hay drivers que aumentan riesgo, pero la respuesta no propuso recomendaciones.",
+      "referenced_evidence_features": [],
+      "allowed_evidence_features": [
+        "cpi",
+        "planned_budget",
+        "planned_duration_weeks"
+      ],
+      "payload": {
+        "summary": "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico.",
+        "recommendations": []
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_0757",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": false,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 1922.79,
+      "failure_code": "empty_recommendations_with_risk_drivers",
+      "failure_detail": "Hay drivers que aumentan riesgo, pero la respuesta no propuso recomendaciones.",
+      "referenced_evidence_features": [],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "summary": "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico",
+        "recommendations": []
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_3943",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": false,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 1895.45,
+      "failure_code": "empty_recommendations_with_risk_drivers",
+      "failure_detail": "Hay drivers que aumentan riesgo, pero la respuesta no propuso recomendaciones.",
+      "referenced_evidence_features": [],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "summary": "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico",
+        "recommendations": []
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_0223",
+      "health": "critical",
+      "driver_count": 1,
+      "generation_ok": false,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 2116.24,
+      "failure_code": "empty_recommendations_with_risk_drivers",
+      "failure_detail": "Hay drivers que aumentan riesgo, pero la respuesta no propuso recomendaciones.",
+      "referenced_evidence_features": [],
+      "allowed_evidence_features": [
+        "planned_duration_weeks"
+      ],
+      "payload": {
+        "summary": "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico",
+        "recommendations": []
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_1423",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": false,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 2018.1,
+      "failure_code": "empty_recommendations_with_risk_drivers",
+      "failure_detail": "Hay drivers que aumentan riesgo, pero la respuesta no propuso recomendaciones.",
+      "referenced_evidence_features": [],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "summary": "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico",
+        "recommendations": []
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_1238",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": false,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 1897.64,
+      "failure_code": "empty_recommendations_with_risk_drivers",
+      "failure_detail": "Hay drivers que aumentan riesgo, pero la respuesta no propuso recomendaciones.",
+      "referenced_evidence_features": [],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "summary": "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico",
+        "recommendations": []
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_3932",
+      "health": "at_risk",
+      "driver_count": 2,
+      "generation_ok": false,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 2090.77,
+      "failure_code": "empty_recommendations_with_risk_drivers",
+      "failure_detail": "Hay drivers que aumentan riesgo, pero la respuesta no propuso recomendaciones.",
+      "referenced_evidence_features": [],
+      "allowed_evidence_features": [
+        "cpi",
+        "true_progress"
+      ],
+      "payload": {
+        "summary": "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico",
+        "recommendations": []
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_3573",
+      "health": "at_risk",
+      "driver_count": 2,
+      "generation_ok": false,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 2194.77,
+      "failure_code": "empty_recommendations_with_risk_drivers",
+      "failure_detail": "Hay drivers que aumentan riesgo, pero la respuesta no propuso recomendaciones.",
+      "referenced_evidence_features": [],
+      "allowed_evidence_features": [
+        "cpi",
+        "true_progress"
+      ],
+      "payload": {
+        "summary": "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico",
+        "recommendations": []
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_3973",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": false,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 1903.25,
+      "failure_code": "empty_recommendations_with_risk_drivers",
+      "failure_detail": "Hay drivers que aumentan riesgo, pero la respuesta no propuso recomendaciones.",
+      "referenced_evidence_features": [],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "summary": "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico",
+        "recommendations": []
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_2414",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": false,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 1917.9,
+      "failure_code": "empty_recommendations_with_risk_drivers",
+      "failure_detail": "Hay drivers que aumentan riesgo, pero la respuesta no propuso recomendaciones.",
+      "referenced_evidence_features": [],
+      "allowed_evidence_features": [
+        "planned_duration_weeks"
+      ],
+      "payload": {
+        "summary": "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico",
+        "recommendations": []
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_3604",
+      "health": "critical",
+      "driver_count": 2,
+      "generation_ok": false,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 2109.2,
+      "failure_code": "empty_recommendations_with_risk_drivers",
+      "failure_detail": "Hay drivers que aumentan riesgo, pero la respuesta no propuso recomendaciones.",
+      "referenced_evidence_features": [],
+      "allowed_evidence_features": [
+        "planned_budget",
+        "planned_duration_weeks"
+      ],
+      "payload": {
+        "summary": "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico",
+        "recommendations": []
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_0953",
+      "health": "critical",
+      "driver_count": 3,
+      "generation_ok": false,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 2385.3,
+      "failure_code": "empty_recommendations_with_risk_drivers",
+      "failure_detail": "Hay drivers que aumentan riesgo, pero la respuesta no propuso recomendaciones.",
+      "referenced_evidence_features": [],
+      "allowed_evidence_features": [
+        "cpi",
+        "planned_duration_weeks",
+        "true_progress"
+      ],
+      "payload": {
+        "summary": "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico.",
+        "recommendations": []
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_3737",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": false,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 1885.46,
+      "failure_code": "empty_recommendations_with_risk_drivers",
+      "failure_detail": "Hay drivers que aumentan riesgo, pero la respuesta no propuso recomendaciones.",
+      "referenced_evidence_features": [],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "summary": "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico",
+        "recommendations": []
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_2856",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": false,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 1922.95,
+      "failure_code": "empty_recommendations_with_risk_drivers",
+      "failure_detail": "Hay drivers que aumentan riesgo, pero la respuesta no propuso recomendaciones.",
+      "referenced_evidence_features": [],
+      "allowed_evidence_features": [
+        "planned_budget"
+      ],
+      "payload": {
+        "summary": "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico.",
+        "recommendations": []
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_3967",
+      "health": "at_risk",
+      "driver_count": 2,
+      "generation_ok": false,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 2094.3,
+      "failure_code": "empty_recommendations_with_risk_drivers",
+      "failure_detail": "Hay drivers que aumentan riesgo, pero la respuesta no propuso recomendaciones.",
+      "referenced_evidence_features": [],
+      "allowed_evidence_features": [
+        "cpi",
+        "true_progress"
+      ],
+      "payload": {
+        "summary": "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico",
+        "recommendations": []
+      }
+    }
+  ]
+}

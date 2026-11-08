@@ -1,0 +1,21 @@
+project_id,health,driver_count,generation_ok,schema_valid,evidence_features_valid,grounded,action_structure_valid,follow_up_present,actionability,unsupported_numeric_claim,latency_ms,failure_code,failure_detail
+mendeley::PROJ_0760,at_risk,1,True,True,True,True,True,True,True,False,6919.01,,
+mendeley::PROJ_2717,at_risk,1,True,True,True,True,True,True,True,False,7860.57,,
+mendeley::PROJ_0062,at_risk,1,True,True,True,True,True,True,True,False,6839.03,,
+mendeley::PROJ_0539,at_risk,1,True,True,True,True,True,True,True,False,6337.82,,
+mendeley::PROJ_2331,at_risk,1,True,True,True,True,True,True,True,False,6610.04,,
+mendeley::PROJ_0840,critical,3,False,False,True,False,False,False,False,False,17365.19,invalid_schema,"Se esperaba summary textual y hasta cuatro recomendaciones con evidencia, razón y acción válidas."
+mendeley::PROJ_0757,at_risk,1,True,True,True,True,True,True,True,False,6422.9,,
+mendeley::PROJ_3943,at_risk,1,True,True,True,True,True,True,True,False,6467.82,,
+mendeley::PROJ_0223,critical,1,True,True,True,True,True,True,True,False,6986.04,,
+mendeley::PROJ_1423,at_risk,1,True,True,True,True,True,True,True,False,6587.81,,
+mendeley::PROJ_1238,at_risk,1,True,True,True,True,True,True,True,False,6892.19,,
+mendeley::PROJ_3932,at_risk,2,False,False,True,False,False,False,False,False,15269.9,invalid_schema,"Se esperaba summary textual y hasta cuatro recomendaciones con evidencia, razón y acción válidas."
+mendeley::PROJ_3573,at_risk,2,False,False,True,False,False,False,False,False,14363.15,invalid_schema,"Se esperaba summary textual y hasta cuatro recomendaciones con evidencia, razón y acción válidas."
+mendeley::PROJ_3973,at_risk,1,True,True,True,True,True,True,True,False,7686.66,,
+mendeley::PROJ_2414,at_risk,1,True,True,True,True,True,True,True,False,8099.02,,
+mendeley::PROJ_3604,critical,2,True,True,True,True,True,True,True,False,14595.56,,
+mendeley::PROJ_0953,critical,3,True,True,True,True,True,True,True,False,18495.4,,
+mendeley::PROJ_3737,at_risk,1,True,True,True,True,True,True,True,False,7480.35,,
+mendeley::PROJ_2856,at_risk,1,True,True,True,True,True,True,True,False,7543.78,,
+mendeley::PROJ_3967,at_risk,2,False,False,True,False,False,False,False,False,12491.1,invalid_schema,"Se esperaba summary textual y hasta cuatro recomendaciones con evidencia, razón y acción válidas."

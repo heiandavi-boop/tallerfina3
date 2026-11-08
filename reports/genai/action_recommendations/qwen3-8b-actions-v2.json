@@ -1,0 +1,807 @@
+{
+  "status": "complete",
+  "model": "qwen3:8b",
+  "artifact_version": "0.9.0-academic",
+  "dataset_source": "Mendeley Data 2p5sz57wh2 version 2",
+  "evaluation_unit": "latest TEST project snapshot with at least one increasing-risk local driver",
+  "cases_requested": 20,
+  "cases_evaluated": 20,
+  "timeout_seconds": 30.0,
+  "metrics": {
+    "generation_success_rate": 0.8,
+    "schema_valid_rate": 0.8,
+    "evidence_feature_valid_rate": 1.0,
+    "grounded_response_rate": 0.8,
+    "action_structure_valid_rate": 0.8,
+    "follow_up_present_rate": 0.8,
+    "actionability_rate": 0.8,
+    "unsupported_numeric_claim_rate": 0.0,
+    "timeout_rate": 0.0,
+    "invalid_json_rate": 0.0,
+    "latency_ms_median": 7512.0650000000005,
+    "latency_ms_p95": 17365.19
+  },
+  "metric_definition_note": "Groundedness is a deterministic proxy: valid JSON schema, all cited evidence features are allow-listed drivers, and no new numeric claims appear. It does not prove semantic causality.",
+  "cases": [
+    {
+      "project_id": "mendeley::PROJ_0760",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 6919.01,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "summary": "Priorizar la revisión de la señal disponible.",
+        "recommendations": [
+          {
+            "priority": "alta",
+            "title": "Revisar la proyección de costos",
+            "action": "Analizar el consumo presupuestal y actualizar la estimación al cierre antes de asumir nuevos compromisos de gasto.",
+            "follow_up": "Comparar CPI y proyección de costo en el siguiente seguimiento.",
+            "evidence_feature": "cpi",
+            "reason": "cpi aparece entre las señales que incrementan el riesgo en esta inferencia."
+          }
+        ]
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_2717",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 7860.57,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "summary": "Priorizar la revisión de la señal disponible.",
+        "recommendations": [
+          {
+            "priority": "alta",
+            "title": "Revisar la proyección de costos",
+            "action": "Analizar el consumo presupuestal y actualizar la estimación al cierre antes de asumir nuevos compromisos de gasto.",
+            "follow_up": "Comparar CPI y proyección de costo en el siguiente seguimiento.",
+            "evidence_feature": "cpi",
+            "reason": "cpi aparece entre las señales que incrementan el riesgo en esta inferencia."
+          }
+        ]
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_0062",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 6839.03,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "summary": "Priorizar la revisión de la señal disponible.",
+        "recommendations": [
+          {
+            "priority": "alta",
+            "title": "Revisar la proyección de costos",
+            "action": "Analizar el consumo presupuestal y actualizar la estimación al cierre antes de asumir nuevos compromisos de gasto.",
+            "follow_up": "Comparar CPI y proyección de costo en el siguiente seguimiento.",
+            "evidence_feature": "cpi",
+            "reason": "cpi aparece entre las señales que incrementan el riesgo en esta inferencia."
+          }
+        ]
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_0539",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 6337.82,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "summary": "Priorizar la revisión de la señal disponible.",
+        "recommendations": [
+          {
+            "priority": "alta",
+            "title": "Revisar la proyección de costos",
+            "action": "Analizar el consumo presupuestal y actualizar la estimación al cierre antes de asumir nuevos compromisos de gasto.",
+            "follow_up": "Comparar CPI y proyección de costo en el siguiente seguimiento.",
+            "evidence_feature": "cpi",
+            "reason": "cpi aparece entre las señales que incrementan el riesgo en esta inferencia."
+          }
+        ]
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_2331",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 6610.04,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "summary": "Priorizar la revisión de la señal disponible.",
+        "recommendations": [
+          {
+            "priority": "alta",
+            "title": "Revisar la proyección de costos",
+            "action": "Analizar el consumo presupuestal y actualizar la estimación al cierre antes de asumir nuevos compromisos de gasto.",
+            "follow_up": "Comparar CPI y proyección de costo en el siguiente seguimiento.",
+            "evidence_feature": "cpi",
+            "reason": "cpi aparece entre las señales que incrementan el riesgo en esta inferencia."
+          }
+        ]
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_0840",
+      "health": "critical",
+      "driver_count": 3,
+      "generation_ok": false,
+      "schema_valid": false,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": false,
+      "follow_up_present": false,
+      "actionability": false,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 17365.19,
+      "failure_code": "invalid_schema",
+      "failure_detail": "Se esperaba summary textual y hasta cuatro recomendaciones con evidencia, razón y acción válidas.",
+      "referenced_evidence_features": [
+        "cpi",
+        "planned_budget",
+        "planned_duration_weeks"
+      ],
+      "allowed_evidence_features": [
+        "cpi",
+        "planned_budget",
+        "planned_duration_weeks"
+      ],
+      "payload": {
+        "summary": "Priorizar la revisión de la señal disponible.",
+        "recommendations": [
+          {
+            "priority": "alta",
+            "title": "Revisar la proyección de costos",
+            "action": "Analizar el consumo presupuestal y actualizar la estimación al cierre antes de asumir nuevos compromisos de gasto.",
+            "follow_up": "Comparar CPI y proyección de costo en el siguiente seguimiento.",
+            "evidence_feature": "cpi",
+            "reason": "cpi aparece entre las señales que incrementan el riesgo en esta inferencia."
+          },
+          {
+            "priority": "baja",
+            "title": "Revisar el presupuesto disponible",
+            "action": "Contrastar los compromisos vigentes y el trabajo pendiente con el presupuesto aprobado antes de asumir nuevos gastos.",
+            "follow,up": "Revisar presupuesto disponible y compromisos en el próximo seguimiento.",
+            "evidence_feature": "planned_budget",
+            "reason": "planned_budget aparece entre las señales que incrementan el riesgo en esta inferencia."
+          },
+          {
+            "priority": "baja",
+            "title": "Contrastar la duración planificada",
+            "action": "Revisar el trabajo pendiente frente a la duración planificada y documentar cualquier ajuste propuesto.",
+            "follow_up": "Comparar duración y avance pendiente en el siguiente corte.",
+            "evidence_feature": "planned_duration_weeks",
+            "reason": "planned_duration_weeks aparece entre las señales que incrementan el riesgo en esta inferencia."
+          }
+        ]
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_0757",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 6422.9,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "summary": "Priorizar la revisión de la señal disponible.",
+        "recommendations": [
+          {
+            "priority": "alta",
+            "title": "Revisar la proyección de costos",
+            "action": "Analizar el consumo presupuestal y actualizar la estimación al cierre antes de asumir nuevos compromisos de gasto.",
+            "follow_up": "Comparar CPI y proyección de costo en el siguiente seguimiento.",
+            "evidence_feature": "cpi",
+            "reason": "cpi aparece entre las señales que incrementan el riesgo en esta inferencia."
+          }
+        ]
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_3943",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 6467.82,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "summary": "Priorizar la revisión de la señal disponible.",
+        "recommendations": [
+          {
+            "priority": "alta",
+            "title": "Revisar la proyección de costos",
+            "action": "Analizar el consumo presupuestal y actualizar la estimación al cierre antes de asumir nuevos compromisos de gasto.",
+            "follow_up": "Comparar CPI y proyección de costo en el siguiente seguimiento.",
+            "evidence_feature": "cpi",
+            "reason": "cpi aparece entre las señales que incrementan el riesgo en esta inferencia."
+          }
+        ]
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_0223",
+      "health": "critical",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 6986.04,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "planned_duration_weeks"
+      ],
+      "allowed_evidence_features": [
+        "planned_duration_weeks"
+      ],
+      "payload": {
+        "summary": "Priorizar la revisión de la señal disponible.",
+        "recommendations": [
+          {
+            "priority": "baja",
+            "title": "Contrastar la duración planificada",
+            "action": "Revisar el trabajo pendiente frente a la duración planificada y documentar cualquier ajuste propuesto.",
+            "follow_up": "Comparar duración y avance pendiente en el siguiente corte.",
+            "evidence_feature": "planned_duration_weeks",
+            "reason": "planned_duration_weeks aparece entre las señales que incrementan el riesgo en esta inferencia."
+          }
+        ]
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_1423",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 6587.81,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "summary": "Priorizar la revisión de la señal disponible.",
+        "recommendations": [
+          {
+            "priority": "alta",
+            "title": "Revisar la proyección de costos",
+            "action": "Analizar el consumo presupuestal y actualizar la estimación al cierre antes de asumir nuevos compromisos de gasto.",
+            "follow_up": "Comparar CPI y proyección de costo en el siguiente seguimiento.",
+            "evidence_feature": "cpi",
+            "reason": "cpi aparece entre las señales que incrementan el riesgo en esta inferencia."
+          }
+        ]
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_1238",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 6892.19,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "summary": "Priorizar la revisión de la señal disponible.",
+        "recommendations": [
+          {
+            "priority": "alta",
+            "title": "Revisar la proyección de costos",
+            "action": "Analizar el consumo presupuestal y actualizar la estimación al cierre antes de asumir nuevos compromisos de gasto.",
+            "follow_up": "Comparar CPI y proyección de costo en el siguiente seguimiento.",
+            "evidence_feature": "cpi",
+            "reason": "cpi aparece entre las señales que incrementan el riesgo en esta inferencia."
+          }
+        ]
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_3932",
+      "health": "at_risk",
+      "driver_count": 2,
+      "generation_ok": false,
+      "schema_valid": false,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": false,
+      "follow_up_present": false,
+      "actionability": false,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 15269.9,
+      "failure_code": "invalid_schema",
+      "failure_detail": "Se esperaba summary textual y hasta cuatro recomendaciones con evidencia, razón y acción válidas.",
+      "referenced_evidence_features": [
+        "cpi",
+        "true_progress"
+      ],
+      "allowed_evidence_features": [
+        "cpi",
+        "true_progress"
+      ],
+      "payload": {
+        "summary": "Priorizar la revisión de las señales de riesgo identificadas.",
+        "recommendations": [
+          {
+            "priority": "alta",
+            "title": "Revisar la proyección de costos",
+            "action": "Analizar el consumo presupuestal y actualizar la estimación al cierre antes de asumir nuevos compromisos de gasto.",
+            "follow_up": "Comparar CPI y proyección de costo en el siguiente seguimiento.",
+            "evidence_feature": "cpi",
+            "reason": "CPI aparece entre las señales que incrementan el riesgo en esta inferencia."
+          },
+          {
+            "priority": "baja",
+            "title": "Validar el avance reportado",
+            "action": "Contrastar el avance con el trabajo completado y actualizar las tareas pendientes antes del siguiente corte.",
+            "follow,up": "Revisar avance y trabajo pendiente en la siguiente actualización.",
+            "evidence_feature": "true_progress",
+            "reason": "true_progress aparece entre las señales que incrementan el riesgo en esta inferencia."
+          }
+        ]
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_3573",
+      "health": "at_risk",
+      "driver_count": 2,
+      "generation_ok": false,
+      "schema_valid": false,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": false,
+      "follow_up_present": false,
+      "actionability": false,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 14363.15,
+      "failure_code": "invalid_schema",
+      "failure_detail": "Se esperaba summary textual y hasta cuatro recomendaciones con evidencia, razón y acción válidas.",
+      "referenced_evidence_features": [
+        "cpi",
+        "true_progress"
+      ],
+      "allowed_evidence_features": [
+        "cpi",
+        "true_progress"
+      ],
+      "payload": {
+        "summary": "Priorizar la revisión de la señal de CPI y avance real.",
+        "recommendations": [
+          {
+            "priority": "alta",
+            "title": "Revisar la proyección de costos",
+            "action": "Analizar el consumo presupuestal y actualizar la estimación al cierre antes de asumir nuevos compromisos de gasto.",
+            "follow_up": "Comparar CPI y proyección de costo en el siguiente seguimiento.",
+            "evidence_feature": "cpi",
+            "reason": "CPI aparece entre las señales que incrementan el riesgo en esta inferencia."
+          },
+          {
+            "priority": "baja",
+            "title": "Validar el avance reportado",
+            "action": "Contrastar el avance con el trabajo completado y actualizar las tareas pendientes antes del siguiente corte.",
+            "follow,up": "Revisar avance y trabajo pendiente en la siguiente actualización.",
+            "evidence_feature": "true_progress",
+            "reason": "true_progress aparece entre las señales que incrementan el riesgo en esta inferencia."
+          }
+        ]
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_3973",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 7686.66,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "summary": "Priorizar la revisión de la señal disponible.",
+        "recommendations": [
+          {
+            "priority": "alta",
+            "title": "Revisar la proyección de costos",
+            "action": "Analizar el consumo presupuestal y actualizar la estimación al cierre antes de asumir nuevos compromisos de gasto.",
+            "follow_up": "Comparar CPI y proyección de costo en el siguiente seguimiento.",
+            "evidence_feature": "cpi",
+            "reason": "cpi aparece entre las señales que incrementan el riesgo en esta inferencia."
+          }
+        ]
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_2414",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 8099.02,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "planned_duration_weeks"
+      ],
+      "allowed_evidence_features": [
+        "planned_duration_weeks"
+      ],
+      "payload": {
+        "summary": "Priorizar la revisión de la señal de duración planificada.",
+        "recommendations": [
+          {
+            "priority": "baja",
+            "title": "Contrastar la duración planificada",
+            "action": "Revisar el trabajo pendiente frente a la duración planificada y documentar cualquier ajuste propuesto.",
+            "follow_up": "Comparar duración y avance pendiente en el siguiente corte.",
+            "evidence_feature": "planned_duration_weeks",
+            "reason": "planned_duration_weeks aparece entre las señales que incrementan el riesgo en esta inferencia."
+          }
+        ]
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_3604",
+      "health": "critical",
+      "driver_count": 2,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 14595.56,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "planned_budget",
+        "planned_duration_weeks"
+      ],
+      "allowed_evidence_features": [
+        "planned_budget",
+        "planned_duration_weeks"
+      ],
+      "payload": {
+        "summary": "Priorizar la revisión de las señales de riesgo identificadas.",
+        "recommendations": [
+          {
+            "priority": "alta",
+            "title": "Revisar la duración planificada",
+            "action": "Revisar el trabajo pendiente frente a la duración planificada y documentar cualquier ajuste propuesto.",
+            "follow_up": "Comparar duración y avance pendiente en el siguiente corte.",
+            "evidence_feature": "planned_duration_weeks",
+            "reason": "planned_duration_weeks aparece entre las señales que incrementan el riesgo en esta inferencia."
+          },
+          {
+            "priority": "media",
+            "title": "Revisar el presupuesto planificado",
+            "action": "Contrastar los compromisos vigentes y el trabajo pendiente con el presupuesto aprobado antes de asumir nuevos gastos.",
+            "follow_up": "Revisar presupuesto disponible y compromisos en el próximo seguimiento.",
+            "evidence_feature": "planned_budget",
+            "reason": "planned_budget aparece entre las señales que incrementan el riesgo en esta inferencia."
+          }
+        ]
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_0953",
+      "health": "critical",
+      "driver_count": 3,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 18495.4,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi",
+        "planned_duration_weeks",
+        "true_progress"
+      ],
+      "allowed_evidence_features": [
+        "cpi",
+        "planned_duration_weeks",
+        "true_progress"
+      ],
+      "payload": {
+        "summary": "Priorizar la revisión de la señal disponible.",
+        "recommendations": [
+          {
+            "priority": "alta",
+            "title": "Revisar la proyección de costos",
+            "action": "Analizar el consumo presupuestal y actualizar la estimación al cierre antes de asumir nuevos compromisos de gasto.",
+            "follow_up": "Comparar CPI y proyección de costo en el siguiente seguimiento.",
+            "evidence_feature": "cpi",
+            "reason": "cpi aparece entre las señales que incrementan el riesgo en esta inferencia."
+          },
+          {
+            "priority": "baja",
+            "title": "Contrastar la duración planificada",
+            "action": "Revisar el trabajo pendiente frente a la duración planificada y documentar cualquier ajuste propuesto.",
+            "follow_up": "Comparar duración y avance pendiente en el siguiente corte.",
+            "evidence_feature": "planned_duration_weeks",
+            "reason": "planned_duration_weeks aparece entre las señales que incrementan el riesgo en esta inferencia."
+          },
+          {
+            "priority": "baja",
+            "title": "Validar el avance reportado",
+            "action": "Contrastar el avance con el trabajo completado y actualizar las tareas pendientes antes del siguiente corte.",
+            "follow_up": "Revisar avance y trabajo pendiente en la siguiente actualización.",
+            "evidence_feature": "true_progress",
+            "reason": "true_progress aparece entre las señales que incrementan el riesgo en esta inferencia."
+          }
+        ]
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_3737",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 7480.35,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "cpi"
+      ],
+      "allowed_evidence_features": [
+        "cpi"
+      ],
+      "payload": {
+        "summary": "Priorizar la revisión de la señal disponible.",
+        "recommendations": [
+          {
+            "priority": "alta",
+            "title": "Revisar la proyección de costos",
+            "action": "Analizar el consumo presupuestal y actualizar la estimación al cierre antes de asumir nuevos compromisos de gasto.",
+            "follow_up": "Comparar CPI y proyección de costo en el siguiente seguimiento.",
+            "evidence_feature": "cpi",
+            "reason": "cpi aparece entre las señales que incrementan el riesgo en esta inferencia."
+          }
+        ]
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_2856",
+      "health": "at_risk",
+      "driver_count": 1,
+      "generation_ok": true,
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "grounded": true,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "actionability": true,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 7543.78,
+      "failure_code": null,
+      "failure_detail": null,
+      "referenced_evidence_features": [
+        "planned_budget"
+      ],
+      "allowed_evidence_features": [
+        "planned_budget"
+      ],
+      "payload": {
+        "summary": "Priorizar la revisión del presupuesto planificado.",
+        "recommendations": [
+          {
+            "priority": "baja",
+            "title": "Revisar el presupuesto disponible",
+            "action": "Contrastar los compromisos vigentes y el trabajo pendiente con el presupuesto aprobado antes de asumir nuevos gastos.",
+            "follow_up": "Revisar presupuesto disponible y compromisos en el próximo seguimiento.",
+            "evidence_feature": "planned_budget",
+            "reason": "planned_budget aparece entre las señales que incrementan el riesgo en esta inferencia."
+          }
+        ]
+      }
+    },
+    {
+      "project_id": "mendeley::PROJ_3967",
+      "health": "at_risk",
+      "driver_count": 2,
+      "generation_ok": false,
+      "schema_valid": false,
+      "evidence_features_valid": true,
+      "grounded": false,
+      "action_structure_valid": false,
+      "follow_up_present": false,
+      "actionability": false,
+      "unsupported_numeric_claim": false,
+      "latency_ms": 12491.1,
+      "failure_code": "invalid_schema",
+      "failure_detail": "Se esperaba summary textual y hasta cuatro recomendaciones con evidencia, razón y acción válidas.",
+      "referenced_evidence_features": [
+        "cpi",
+        "true_progress"
+      ],
+      "allowed_evidence_features": [
+        "cpi",
+        "true_progress"
+      ],
+      "payload": {
+        "summary": "Priorizar la revisión de las señales de riesgo identificadas.",
+        "recommendations": [
+          {
+            "priority": "alta",
+            "title": "Revisar la proyección de costos",
+            "action": "Analizar el consumo presupuestal y actualizar la estimación al cierre antes de asumir nuevos compromisos de gasto.",
+            "follow_up": "Comparar CPI y proyección de costo en el siguiente seguimiento.",
+            "evidence_feature": "cpi",
+            "reason": "CPI aparece entre las señales que incrementan el riesgo en esta inferencia."
+          },
+          {
+            "priority": "baja",
+            "title": "Validar el avance reportado",
+            "action": "Contrastar el avance con el trabajo completado y actualizar las tareas pendientes antes del siguiente corte.",
+            "follow,up": "Revisar avance y trabajo pendiente en la siguiente actualización.",
+            "evidence_feature": "true_progress",
+            "reason": "true_progress aparece entre las señales que incrementan el riesgo en esta inferencia."
+          }
+        ]
+      }
+    }
+  ]
+}

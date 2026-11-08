@@ -18,7 +18,7 @@ flowchart LR
   D --> E
   E --> Q[Qwen3 8B / Ollama opcional]
   Q --> V[Validación de esquema y grounding]
-  V --> X[Explicación y recomendación revisables]
+  V --> X[Acciones priorizadas: evidencia, acción, razón y seguimiento]
   V --> B[Fallback determinístico ante rechazo o fallo]
   B --> X
   O --> R
@@ -36,14 +36,14 @@ flowchart TD
   D --> E[Evidencia permitida estructurada]
   E --> Q[Prompt grounded: Qwen3 / Ollama]
   Q --> V{JSON, evidence_feature y cifras válidas}
-  V -->|Sí| R[Recomendación generativa]
+  V -->|Sí| R[Acciones estructuradas priorizadas]
   V -->|No / timeout| F[Fallback determinístico]
   R --> H[Revisión humana]
   F --> H
   M --> P[Predicción ML siempre conservada]
 ```
 
-Fuente: `recommendations.py`, `tests/test_genai_grounding.py`. El prompt solicita JSON y limita evidence_feature a drivers permitidos; se validan cifras. Timeout configurable (30 s por defecto), códigos de error, `/api/genai-status` y flags genai_attempted/genai_used preservan trazabilidad. Un rechazo activa respaldo; no elimina la predicción ML. El grounding es proxy de ingeniería, no demostración de verdad semántica ni causalidad. La llamada local síncrona añade latencia al análisis individual; no se probó escalamiento de Qwen bajo concurrencia.
+Fuente: `recommendations.py`, `tests/test_genai_grounding.py`. Ollama recibe un JSON Schema estricto con prioridades cerradas y `evidence_feature` restringida a drivers allow-listed del caso. Cada acción requiere título, razón, acción ejecutable y follow-up; se validan claims numéricos en todos los campos. Timeout configurable (30 s por defecto), códigos de error, `/api/genai-status` y flags genai_attempted/genai_used preservan trazabilidad. Una respuesta inválida activa fallback con la misma estructura; no elimina la predicción ML. El grounding es proxy de ingeniería, no demostración de utilidad humana, verdad semántica ni causalidad. La llamada local síncrona añade latencia al análisis individual; no se probó escalamiento de Qwen bajo concurrencia.
 
 ## Figura A3. Pipeline académico reproducible
 

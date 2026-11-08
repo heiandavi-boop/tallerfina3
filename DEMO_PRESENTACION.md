@@ -37,7 +37,7 @@ No empezar la demo hablando de LightGBM, FastAPI, Qwen o Kubernetes. Primero deb
 5. Health probabilities: leer probabilidades y clase; no confundir con fusión calibrada.
 6. Delay/Cost: Delay operacional ≥0 y raw técnico; Cost negativo válido; limitaciones oficiales explícitas.
 7. Drivers: sensibilidad local; no decir que son causas.
-8. Qwen: mostrar explicación individual y flags genai_used/engine. Si fallback, llamarlo determinístico. Benchmark oficial complete: 30 casos, 29/30 aceptados/grounded, mediana 3092.645 ms, p95 6634.72 ms; schema/features/acción no vacía 1.0 como proxies.
+8. Acciones GenAI: mostrar máximo cuatro tarjetas priorizadas y leer una completa: señal/evidencia, qué hacer, por qué y qué revisar después. Qwen transforma drivers allow-listed en acciones revisables; no repite el diagnóstico ni decide. Mostrar flags genai_used/engine. Si fallback, llamarlo determinístico y comprobar que conserva la misma estructura. El benchmark Qwen oficial congelado sigue siendo evidencia de grounding histórica; la nueva evaluación de estructura se guarda por separado en `reports/genai/action_recommendations/`.
 9. What-if: modificar SPI/CPI y distinguir señales de equipo; no prometer intervenciones causales. No llama al LLM.
 10. CSV: plantilla hasta 100 filas; ML completa sin imputación, Team Health opcional sin inventar señales. Columna oculta si ningún score calculable; visible si alguno. No llama Qwen. Tipos: construction, healthcare, it, manufacturing, marketing, r&d; metodologías: agile, hybrid, kanban, scrum, waterfall.
 11. Trazabilidad: prediction_id, versión, timing y raw; mostrar solo el fragmento JSON necesario o descargar evidencia.

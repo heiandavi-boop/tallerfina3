@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import Experience from './Experience.jsx';
 import { CsvAnalyzer } from './components/CsvAnalyzer.jsx';
 import { TechnicalDrawer } from './components/TechnicalDrawer.jsx';
-import { ResultHero, DriversPanel } from './components/AnalysisPanels.jsx';
+import { ResultHero, DriversPanel, RecommendationCard } from './components/AnalysisPanels.jsx';
 
 const fields = [
   { name: 'planned_duration_weeks', label: 'Duración planificada', group: 'Proyecto', type: 'number', usage: 'ml_feature', min: 1, max: 520, step: 1, reference: 52, description: 'Duración base.' },
@@ -21,7 +21,7 @@ const fields = [
 const preset = { planned_duration_weeks: 52, planned_budget: 2500000000, project_type: 'healthcare', methodology: 'hybrid', true_progress: .47, spi: .82, cpi: .91, team_utilization: .96, future_feature: 5 };
 const model = { version: '0.9.0-academic', mode: 'academic', dataset_source: 'Mendeley Data 2p5sz57wh2 v2', dataset_type: 'synthetic_external', model_type: 'LightGBM', final_status_mode: 'derived_from_health', minimum_feature_coverage: .6, trained_features: fields.filter(field => field.usage === 'ml_feature').map(field => field.name), fusion: { core_weight: .85, team_health_weight: .15, calibrated: false } };
 const schema = { fields, ml_features: model.trained_features, team_health_features: ['team_utilization'], not_used_features: ['future_feature'], what_if_fields: [...model.trained_features, 'team_utilization'], model, presets: { healthy: { ...preset, spi: 1.04, cpi: 1.02 }, at_risk: preset, critical: { ...preset, spi: .61, cpi: .72 } } };
-const fallback = { engine: 'grounded_fallback', genai_attempted: false, genai_used: false, evidence_features: ['cpi', 'true_progress'], reasons: ['CPI muestra una señal de mayor riesgo.'], actions: ['Revisar la proyección de costos y la estimación a la conclusión.'], disclaimer: 'Validar con criterio profesional.' };
+const fallback = { engine: 'grounded_fallback', genai_attempted: false, genai_used: false, evidence_features: ['cpi'], reasons: ['CPI aparece entre las señales asociadas con mayor riesgo.'], actions: ['Revisar la proyección de costos y analizar el consumo presupuestal antes de asumir nuevos compromisos.'], recommendations: [{ priority: 'alta', title: 'Revisar la proyección de costos', evidence_feature: 'cpi', reason: 'CPI aparece entre las señales que incrementan el riesgo en esta inferencia; esto muestra asociación, no causalidad.', action: 'Revisar la proyección de costos y analizar el consumo presupuestal antes de asumir nuevos compromisos.', follow_up: 'Comparar CPI y proyección de costo en el siguiente seguimiento.' }], summary: 'Priorizar la revisión de costos.', disclaimer: 'Validar con criterio profesional.' };
 
 function prediction(recommendations = fallback, complete = true, input = preset) {
   return { prediction_id: 'test-prediction', input: { ...input }, model: { ...model, execution: 'LIVE' }, inference_ms: 64.2, driver_source: 'local_model_sensitivity', drivers: [{ feature: 'cpi', label: 'CPI', value: .38, reference: 1, risk_impact: .231, direction: 'increases_risk' }, { feature: 'spi', label: 'SPI', value: .54, reference: 1, risk_impact: -.132, direction: 'reduces_risk' }], recommendations, prediction: { health: 'critical', fused_health: 'critical', fused_risk_score: .702, delay_days: 68.3, cost_overrun_ratio: .234, final_status: 'critical', final_status_source: 'derived_from_health', health_probabilities: { healthy: .005, at_risk: .455, critical: .54 }, input_quality: { complete, coverage: complete ? 1 : .86, missing_count: complete ? 0 : 1 }, team_health: { score: .667, level: 'attention', component_count: 7, weight_coverage: 1, components: { team_utilization: .667, team_capacity_ratio: .72 } } } };
@@ -177,7 +177,7 @@ describe('Playground ejecutivo', () => {
     await openProject();
     await user.click(screen.getByRole('button', { name: 'Evaluar riesgo del proyecto' }));
     expect(await screen.findByText(/IA generativa desactivada · Recomendación de respaldo/)).toBeTruthy();
-    expect(screen.getByText(/Revisar la proyección de costos/)).toBeTruthy();
+    expect(screen.getAllByText(/Revisar la proyección de costos/).length).toBeGreaterThan(0);
     await user.click(screen.getAllByRole('button', { name: /Ver evidencia técnica/ })[0]);
     const drawer = await screen.findByRole('dialog', { name: 'Trazabilidad de inferencia' });
     expect(within(drawer).getByText('Mendeley Data 2p5sz57wh2 v2')).toBeTruthy();
@@ -186,6 +186,29 @@ describe('Playground ejecutivo', () => {
     expect(within(drawer).queryByText(/"prediction_id"/)).toBeNull();
     await user.click(within(drawer).getByRole('button', { name: 'Ver JSON completo' }));
     expect(within(drawer).getByText(/"prediction_id": "test-prediction"/)).toBeTruthy();
+  });
+
+  it('presenta acciones priorizadas con evidencia, justificación y seguimiento', () => {
+    const data = {
+      ...fallback,
+      summary: 'Estas son las acciones prioritarias para revisar.',
+      recommendations: [
+        { priority: 'media', title: 'Reducir el retrabajo', evidence_feature: 'rework_ratio', reason: 'La señal de retrabajo requiere revisión.', action: 'Identificar tareas con retrabajo y aclarar los criterios de aceptación antes del próximo ciclo.', follow_up: 'Revisar la evolución del retrabajo en el siguiente ciclo.' },
+        { priority: 'alta', title: 'Recuperar el cronograma', evidence_feature: 'spi', reason: 'SPI aparece entre las señales que incrementan el riesgo.', action: 'Identificar actividades con mayor desviación frente al plan y definir un plan de recuperación para el siguiente seguimiento.', follow_up: 'Revisar SPI y cumplimiento del cronograma en el siguiente corte.' },
+      ],
+    };
+
+    render(<RecommendationCard data={data} fields={fields} />);
+
+    const cards = Array.from(document.querySelectorAll('.recommendation-action'));
+    expect(cards).toHaveLength(2);
+    expect(cards[0].classList.contains('priority-alta')).toBe(true);
+    expect(within(cards[0]).getByRole('heading', { name: 'Recuperar el cronograma' })).toBeTruthy();
+    expect(within(cards[0]).getByText('Qué hacer')).toBeTruthy();
+    expect(within(cards[0]).getByText('Por qué')).toBeTruthy();
+    expect(within(cards[0]).getByText('Qué revisar después')).toBeTruthy();
+    expect(screen.getByText(/Deben validarse con el contexto real del proyecto/)).toBeTruthy();
+    expect(document.querySelectorAll('.recommendation-action').length).toBeGreaterThan(0);
   });
 
   it('identifica Qwen3 cuando el backend confirma que GenAI fue utilizada', async () => {

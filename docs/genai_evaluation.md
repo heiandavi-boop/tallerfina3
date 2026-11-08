@@ -33,11 +33,15 @@ export PRUNIN_OLLAMA_TIMEOUT_SECONDS=30
 - **schema_valid_rate**: salida con el contrato JSON requerido.
 - **evidence_feature_valid_rate**: todas las variables citadas pertenecen a los drivers permitidos.
 - **grounded_response_rate**: proxy determinístico que exige esquema válido, evidencia allow-listed y ausencia de nuevas afirmaciones numéricas.
-- **actionability_rate**: cada recomendación contiene una acción no vacía.
+- **actionability_rate**: cada acción comienza con un verbo permitido y describe una tarea ejecutable con detalle mínimo.
+- **action_structure_valid_rate**: prioridad enum válida, título, evidencia allow-listed, razón, acción concreta y follow-up completos, hasta cuatro elementos.
+- **follow_up_present_rate**: todas las acciones incluyen qué señal revisar después.
 - **unsupported_numeric_claim_rate**: frecuencia de cifras nuevas en texto generado.
 - **timeout_rate**: frecuencia de solicitudes que exceden el timeout configurado.
 - **invalid_json_rate**: frecuencia de respuestas vacías o que no pueden parsearse estrictamente como JSON.
 - **latency_ms_median / p95**: costo temporal local.
+
+La evaluación Qwen oficial congelada definió `actionability_rate` como una acción no vacía. La evaluación nueva de acciones usa una definición más estricta: la acción empieza con verbo permitido, expresa una tarea concreta y cada recomendación tiene un `follow_up`; por eso las dos tasas no deben compararse como una única métrica homogénea.
 
 ### Límite metodológico
 
@@ -82,6 +86,20 @@ El benchmark API en `efficiency_evaluation.md` mide eficiencia operacional autom
 python scripts/benchmark_efficiency.py \
   --manual-seconds-per-case <MEDIANA_REAL>
 ```
+
+## Evaluación nueva de acciones
+
+La evaluación de acciones usa el validador nuevo y se guarda en una ruta independiente; no sobrescribe `reports/genai/qwen3-8b-evaluation.json`:
+
+```bash
+PRUNIN_ENABLE_OLLAMA=1 PRUNIN_OLLAMA_MODEL=qwen3:8b \
+PYTHONPATH=src python scripts/evaluate_genai.py --cases 20 \
+  --output reports/genai/action_recommendations/qwen3-8b-actions-v3.json
+```
+
+Reporte V3 ejecutado: 20/20 casos; `generation_success_rate`, `schema_valid_rate`, `evidence_feature_valid_rate`, `grounded_response_rate`, `action_structure_valid_rate`, `follow_up_present_rate` y `actionability_rate` = 1.0; claims numéricos no soportados, timeout y JSON inválido = 0. Mediana 7054.585 ms, p95 17741.41 ms. El JSON y CSV están en `reports/genai/action_recommendations/`; V1/V2 se conservan para trazabilidad de la iteración.
+
+Estas son métricas estructurales de una muestra sintética condicionada a drivers TEST; no equivalen a utilidad humana, calidad profesional o causalidad. Ejemplo Qwen y fallback determinístico se documentan en `reports/genai/action_recommendations/README.md`.
 
 La latencia GenAI no es tiempo completo de la tarea ni evidencia de ahorro humano. Sin medición, Cr6 permanece pendiente.
 

@@ -6,7 +6,7 @@ Prototipo académico reproducible para apoyar a directores de proyecto y oficina
 
 ## Arquitectura
 
-React/Vite → FastAPI → LightGBM (Health, Delay y Cost) → drivers de sensibilidad local → evidencia estructurada → Qwen3 8B/Ollama opcional → validación de grounding → explicación/recomendación o fallback determinístico. [Diagramas y pipeline](docs/architecture.md).
+React/Vite → FastAPI → LightGBM (Health, Delay y Cost) → drivers de sensibilidad local → evidencia estructurada → Qwen3 8B/Ollama opcional → validación de grounding → acciones priorizadas con justificación/seguimiento o fallback determinístico. [Diagramas y pipeline](docs/architecture.md).
 
 Final Status deriva de Health. Team Health es una **heurística operacional determinística**, no psicológica; la fusión 0.85/0.15 no está calibrada con outcomes reales. Qwen no predice Health/Delay/Cost; grounded_fallback no es GenAI. CSV y What-if no llaman al LLM.
 
@@ -48,6 +48,8 @@ Delay MAE 27.710468 frente a 27.850313 días: mejora marginal y componente predi
 Benchmark Qwen3 8B oficial congelado: complete, 30 casos, éxito/grounding 29/30, esquema/features válidas 30/30, acciones no vacías 30/30, una cifra no soportada; timeout/JSON inválido cero. Mediana 3092.645 ms y p95 6634.72 ms. Benchmark comparativo nuevo, independiente y no sustitutivo: 30 casos, estado `partial`; solo Qwen está instalado (29/30 aceptadas, 0.9667 schema/grounded/actionability, 0 cifras no soportadas, 0 timeouts, 1 JSON inválido, mediana 6336.35 ms y p95 13340.74 ms); Gemma 3 4B y Ministral 3 8B quedan `not_available`. Ambas corridas son locales, condicionadas a drivers, no evidencia de utilidad empresarial. [Comparación](reports/genai/comparison/benchmark_report.md), [selección](docs/genai_model_selection.md) y [evaluación](docs/genai_evaluation.md).
 
 Concurrencia local, 30 casos por nivel: éxito 96.67/93.33/73.33/36.67 % en 1/2/4/8; timeout 0/0/26.67/63.33 %; throughput 0.1335/0.1402/0.1475/0.2499 req/s. El mayor throughput viene con una caída marcada del éxito. No es prueba productiva ni demuestra escalabilidad. [Reporte](reports/genai/concurrency/report.md).
+
+La sección de acciones convierte señales permitidas en tarjetas con prioridad, acción, justificación y seguimiento. Evaluación nueva Qwen: 20 casos, `action_structure_valid_rate` y `follow_up_present_rate` 100 %, sin claims numéricos no soportados, timeouts o JSON inválido; mediana 7054.585 ms, p95 17741.41 ms. No mide utilidad humana. [Reporte y ejemplos](reports/genai/action_recommendations/README.md). La evaluación oficial Qwen anterior permanece intacta.
 
 ## Ejecutar y demostrar
 

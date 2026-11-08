@@ -298,3 +298,16 @@ def test_final_rubric_report_has_27_auditable_criteria_and_allowed_states():
     assert all(required <= set(item) for item in criteria)
     assert all(item["target_level"] == 4 and item["status"] in allowed for item in criteria)
     assert all(item["status"] == "PREPARED_HUMAN" for item in criteria if item["code"].startswith("RA2-"))
+
+
+def test_action_recommendation_report_contains_new_structure_metrics():
+    report = json.loads(
+        (ROOT / "reports/genai/action_recommendations/qwen3-8b-actions-v3.json").read_text(encoding="utf-8")
+    )
+    metrics = report["metrics"]
+
+    assert report["cases_evaluated"] == 20
+    assert metrics["action_structure_valid_rate"] == 1.0
+    assert metrics["follow_up_present_rate"] == 1.0
+    assert metrics["unsupported_numeric_claim_rate"] == 0.0
+    assert metrics["timeout_rate"] == 0.0
