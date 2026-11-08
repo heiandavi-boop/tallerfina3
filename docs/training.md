@@ -1,5 +1,9 @@
 # Entrenamiento
 
+## Alcance: trayectoria de PRUNIN frente al entrenamiento académico
+
+PRUNIN tuvo experimentos previos con datasets propios, modelos PyTorch y exploración temporal Long Horizon, descritos como antecedentes del proyecto. La versión académica `0.9.0-academic` es un entrenamiento independiente y reproducible con Mendeley v2. No atribuir a estos tres LightGBM los datasets de modelos anteriores ni las fuentes externas complementarias. Ver [historia y grado de verificación](project_evolution.md).
+
 ## Demo
 
 ```bash
