@@ -12,6 +12,10 @@ La evidencia de recomendaciones distingue `model_driver`, `observed_operational_
 
 Final Status deriva de Health. Team Health es una **heurística operacional determinística**, no psicológica; la fusión 0.85/0.15 no está calibrada con outcomes reales. Qwen no predice Health/Delay/Cost; grounded_fallback no es GenAI. CSV y What-if no llaman al LLM.
 
+## Historia del proyecto y fuentes
+
+PRUNIN evolucionó mediante experimentos anteriores con datos sintéticos propios, enfoques PyTorch y entrenamiento temporal Long Horizon, según registros históricos del desarrollo. La documentación y los artefactos de esas versiones requieren recuperación para auditoría independiente; **no se presentan como entrenamiento de los LightGBM actuales**. Las fuentes externas Itemlet, Collaboration y SQuaD también se exploraron como complementarias, pero no se mezclaron con el conjunto académico. Ver [cronología, procedencia y niveles de evidencia](docs/project_evolution.md).
+
 ## Datos y features
 
 Modelo: **0.9.0-academic**. Mendeley v2, DOI [10.17632/2p5sz57wh2.2](https://doi.org/10.17632/2p5sz57wh2.2): **dataset sintético externo publicado en Mendeley Data**. Resumen procesado: 4000 proyectos, 72549 snapshots. Split por project_id: 2800 TRAIN / 600 VALIDATION / 600 TEST, disjuntos.
@@ -97,7 +101,7 @@ Reproducción del entrenamiento: [docs/training.md](docs/training.md) y scripts/
 
 ## Limitaciones
 
-Dataset sintético, severidad Critical todavía limitada, Delay débil, caveat EVM de Cost, cobertura temprana desigual, fusión no calibrada y drivers no causales. No hay baseline humano medido ni validación prospectiva empresarial. Grounding es proxy y requiere revisión humana. La eficiencia del API no demuestra productividad humana; el [protocolo humano](docs/human_efficiency_validation.md) y el [ensayo RA2](docs/ENSAYO_SUSTENTACION.md) quedan preparados, no ejecutados. [Ética](docs/ethics_security.md). No está listo para producción.
+Dataset sintético, severidad Critical todavía limitada, Delay débil, caveat EVM de Cost, cobertura temprana desigual, fusión no calibrada y drivers no causales. No hay baseline humano medido ni validación prospectiva empresarial. Grounding es proxy y requiere revisión humana. La eficiencia del API no demuestra productividad humana; el [protocolo humano](docs/human_efficiency_validation.md) y la [preparación oral](docs/PRESENTACION_FINAL.md) quedan preparados; la medición humana no se ha ejecutado. [Ética](docs/ethics_security.md). No está listo para producción.
 
 ## Estado de evaluación
 
