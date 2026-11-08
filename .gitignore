@@ -32,7 +32,10 @@ frontend/node_modules/
 reports/closure/
 
 # Data
+data/raw/*
+!data/raw/**/
 data/raw/**/*
+!data/raw/**/
 !data/raw/**/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
