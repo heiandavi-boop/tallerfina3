@@ -76,3 +76,19 @@ Diseñado/pendiente: Prometheus centralizado, alertas reales, drift automático 
 La integración de scripts, CI, logging y métricas locales es evidencia académica. Kubernetes cubre orquestación de despliegue a nivel de diseño, no ejecución probada; no existe Airflow/Kubeflow. Escalado, balanceo y recuperación automática solo están especificados en YAML, sin prueba de fallos/carga. El fallback GenAI y timeout sí están implementados localmente.
 
 R7.2 Cr6 no alcanza retraining continuo real: la política documentada no equivale a un servicio de reentrenamiento. Requiere outcomes suficientes/aprobados y drift/degradación o cambio de dataset revisado; comparar el candidato en VALIDATION y preservar TEST congelado. No se reentrena por mejorar una cifra ni por calendario sin causa. Ver rubric_matrix.md para gaps de cada criterio.
+
+## Promoción y rollback manuales
+
+Procedimiento diseñado, no ejecutado como operación productiva en esta auditoría:
+
+1. Abrir una revisión con causa verificable: datos/outcomes nuevos aprobados, drift investigado o degradación medida. Confirmar consentimiento, licencia, unidades y ausencia de leakage.
+2. Crear versión y carpeta nuevas; nunca reutilizar `0.9.0-academic`, su dataset o TEST. Registrar fingerprint, manifiesto de split, código, dependencias, seed y configuración antes de entrenar.
+3. Ajustar candidatos solo en TRAIN y seleccionar con VALIDATION según métricas y tolerancias definidas antes. Evaluar sesgos, OOD, rendimiento, seguridad y regresión del contrato. No inspeccionar TEST para elegir hiperparámetros o reglas.
+4. Congelar el candidato y evaluar una sola vez en el holdout aprobado para ese estudio. Si falla, no ajustar repetidamente sobre ese holdout: revisar el diseño y obtener nueva evaluación independiente. Conservar también resultados desfavorables.
+5. Una persona responsable aprueba explícitamente la promoción y sus límites. Desplegar primero en entorno aislado con fixtures, `/api/ready`, `/api/health`, predicción, CSV, What-if y fallback sin Ollama. Identificar imagen por digest y artefacto por hash, no solo por tag mutable.
+6. Cambiar `PRUNIN_ARTIFACT_DIR` a la versión aprobada mediante configuración revisada; no sobrescribir modelos. Registrar aprobación, hashes, configuración y fecha. Antes de tráfico real, disponer de métricas centralizadas y criterios de rollback.
+7. Ante fallo, restaurar la referencia de configuración a la versión previa aprobada, verificar readiness y smoke tests, registrar incidente y conservar ambos artefactos. No eliminar datos ni resultados para hacer rollback.
+
+Los logs actuales registran identificador, versión, tiempos, motor y código de fallo, no el texto libre del proyecto. Los contadores son por proceso; no hay trazabilidad persistente empresarial ni coordinación multiworker. El escaneo de patrones de secretos es limitado y no sustituye revisión de seguridad. Las nuevas causas de rechazo de procedencia, contradicción y seguimiento se contabilizan como validación fallida, no como éxito GenAI.
+
+El Dockerfile ahora declara usuario 10001 y healthcheck HTTP de readiness; `.dockerignore` excluye `.git`, documentos y reportes del contexto. Las pruebas estáticas pasaron, pero el daemon Docker no estuvo disponible: estos cambios aún requieren build y smoke reales. Kubernetes permanece sin operar.

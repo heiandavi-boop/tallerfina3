@@ -35,11 +35,11 @@ const csvResult = { filename: 'projects.csv', count: 1, rows: [{ row_number: 1, 
 const jsonResponse = (body, ok = true) => Promise.resolve({ ok, json: () => Promise.resolve(body) });
 
 function installFetch({ recommendation = fallback, complete = true, csv = csvResult, genaiStatus = { enabled: false, provider: 'ollama', model: 'qwen3:8b', available: false, last_error: null } } = {}) {
-  global.fetch = vi.fn((url) => {
+  global.fetch = vi.fn((url, options) => {
     if (url.endsWith('/api/schema')) return jsonResponse(schema);
     if (url.endsWith('/api/ready')) return Promise.resolve({ ok: true });
     if (url.endsWith('/api/genai-status')) return jsonResponse(genaiStatus);
-    if (url.endsWith('/api/predict')) return jsonResponse(prediction(recommendation, complete));
+    if (url.endsWith('/api/predict')) return jsonResponse(prediction(recommendation, complete, options?.body ? JSON.parse(options.body) : preset));
     if (url.endsWith('/api/what-if')) return jsonResponse(whatIfResult);
     if (url.endsWith('/api/predict-csv')) return jsonResponse(csv);
     return jsonResponse({ detail: 'Not found' }, false);
@@ -51,7 +51,7 @@ beforeEach(() => {
   Element.prototype.scrollIntoView = vi.fn();
   window.requestAnimationFrame = callback => window.setTimeout(callback, 0);
 });
-afterEach(() => { cleanup(); vi.restoreAllMocks(); });
+afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 async function openProject() {
   render(<Experience />);
@@ -59,6 +59,14 @@ async function openProject() {
 }
 
 describe('Playground ejecutivo', () => {
+  it('muestra una sola vez el resumen sin acciones y conserva la procedencia de las acciones', () => {
+    const summary = 'Evidencia insuficiente; completar indicadores y líneas base.';
+    const { rerender } = render(<RecommendationCard data={{ ...fallback, summary, recommendations: [], evidence_status: 'insufficient_evidence' }} fields={fields} />);
+    expect(screen.getAllByText(summary)).toHaveLength(1);
+    rerender(<RecommendationCard data={{ ...fallback, recommendations: [{ ...fallback.recommendations[0], evidence_source: 'observed_operational_signal' }] }} fields={fields} />);
+    expect(screen.getByText('Señal operativa observada · regla heurística')).toBeTruthy();
+    expect(screen.queryByText('IA generativa local activa')).toBeNull();
+  });
   it('presenta costos negativos como valor por debajo del presupuesto y aclara causalidad', () => {
     const healthyResult = prediction();
     healthyResult.prediction.health = 'healthy';
@@ -321,6 +329,7 @@ describe('Playground ejecutivo', () => {
     await user.click(screen.getByRole('button', { name: 'Analizar archivo' }));
     await screen.findByRole('heading', { name: '1 de 1 proyectos analizados' });
 
+    expect(global.fetch.mock.calls.filter(([url]) => url.endsWith('/api/predict'))).toHaveLength(0);
     await user.click(screen.getByRole('button', { name: 'Ver análisis completo de fila 1' }));
 
     expect(await screen.findByRole('heading', { name: '¿Qué está pasando en el proyecto?' })).toBeTruthy();
@@ -337,6 +346,45 @@ describe('Playground ejecutivo', () => {
       .at(-1);
     const body = JSON.parse(detailedRequest[1].body);
     expect(body).toEqual(csvInput);
+    expect(global.fetch.mock.calls.filter(([url]) => url.endsWith('/api/predict'))).toHaveLength(1);
+  });
+
+  it('descarga el JSON de la fila bancaria seleccionada con evidencia y procedencia', async () => {
+    const bankInput = { planned_duration_weeks: 52, planned_budget: 2500000000, project_type: 'it', methodology: 'hybrid', true_progress: .47, spi: .72, cpi: .81, team_utilization: 1.12, team_capacity_ratio: .72, average_productivity: .68, rework_ratio: .19, defect_rate: .11, dependency_delay_days: 15, normalized_risk_exposure: .49 };
+    const bankRecommendation = { ...fallback, evidence_context: { contract_version: 'evidence-v2', actionable_evidence: [{ feature: 'cpi', value: .81, source: 'observed_operational_signal' }] }, recommendations: [{ ...fallback.recommendations[0], evidence_source: 'observed_operational_signal', reason: 'El CPI observado es inferior al criterio heurístico de revisión.' }] };
+    const batchRecommendation = { engine: 'not_requested', genai_attempted: false, genai_used: false, recommendations: [] };
+    installFetch({ recommendation: bankRecommendation, csv: { filename: 'banking_recommendations.csv', count: 1, rows: [{ row_number: 1, input: bankInput, error: null, prediction: prediction(batchRecommendation, true, bankInput) }] } });
+    let exportedBlob;
+    let filename;
+    const urlApi = class extends URL { };
+    urlApi.createObjectURL = vi.fn(blob => { exportedBlob = blob; return 'blob:banking-result'; });
+    urlApi.revokeObjectURL = vi.fn();
+    vi.stubGlobal('URL', urlApi);
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function () { filename = this.download; });
+    const user = userEvent.setup();
+    await openProject();
+    await user.click(screen.getByRole('tab', { name: 'Analizar varios proyectos' }));
+    await user.upload(screen.getByLabelText('Seleccionar archivo de proyectos'), new File(['spi,cpi\n0.72,0.81'], 'banking_recommendations.csv', { type: 'text/csv' }));
+    await user.click(screen.getByRole('button', { name: 'Analizar archivo' }));
+    await screen.findByRole('heading', { name: '1 de 1 proyectos analizados' });
+    expect(global.fetch.mock.calls.filter(([url]) => url.endsWith('/api/predict'))).toHaveLength(0);
+    await user.click(screen.getByRole('button', { name: 'Ver análisis completo de fila 1' }));
+    await screen.findByRole('heading', { name: '¿Este proyecto requiere atención?' });
+    await user.click(screen.getAllByRole('button', { name: /Ver evidencia técnica/ })[0]);
+    await user.click(screen.getByRole('button', { name: 'Descargar resultados' }));
+    const payload = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(JSON.parse(reader.result));
+      reader.onerror = () => reject(reader.error);
+      reader.readAsText(exportedBlob);
+    });
+    expect(filename).toBe('prunin-test-prediction.json');
+    expect(payload.input).toEqual(bankInput);
+    expect(payload.recommendations.engine).toBe('grounded_fallback');
+    expect(payload.recommendations.recommendations[0].evidence_source).toBe('observed_operational_signal');
+    expect(payload.recommendations.evidence_context.actionable_evidence[0].value).toBe(.81);
+    expect(urlApi.revokeObjectURL).toHaveBeenCalledWith('blob:banking-result');
+    expect(global.fetch.mock.calls.filter(([url]) => url.endsWith('/api/predict'))).toHaveLength(1);
   });
 
   it('traduce una fila CSV por debajo de cobertura a un mensaje claro', async () => {

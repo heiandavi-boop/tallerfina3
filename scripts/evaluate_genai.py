@@ -39,6 +39,8 @@ def _ollama_available(url: str) -> tuple[bool, str | None]:
 
 
 def evaluate(artifact: Path, input_path: Path, model: str, cases: int, output: Path, timeout: float | None = None) -> dict:
+    if output.exists() or output.with_suffix(".csv").exists():
+        raise FileExistsError("Evaluation outputs already exist; select a new versioned path.")
     os.environ["PRUNIN_ARTIFACT_DIR"] = str(artifact)
     runtime = ModelRuntime()
     split = json.loads((artifact / "split_manifest.json").read_text(encoding="utf-8"))
@@ -79,7 +81,7 @@ def evaluate(artifact: Path, input_path: Path, model: str, cases: int, output: P
         risk_drivers = [item for item in drivers if item.get("direction") == "increases_risk"]
         if not risk_drivers:
             continue
-        result = generate_ollama_grounded(prediction, risk_drivers, model=model, url=url, timeout=effective_timeout)
+        result = generate_ollama_grounded(prediction, drivers, row=row, model=model, url=url, timeout=effective_timeout)
         validation = result["validation"]
         rows.append({
             "project_id": str(source["project_id"]),
@@ -110,6 +112,7 @@ def evaluate(artifact: Path, input_path: Path, model: str, cases: int, output: P
     latencies = [row["latency_ms"] for row in rows]
     summary = {
         "status": "complete",
+        "contract_version": "evidence-v2",
         "model": model,
         "artifact_version": runtime.version,
         "dataset_source": runtime.manifest.get("dataset_source"),
@@ -131,7 +134,7 @@ def evaluate(artifact: Path, input_path: Path, model: str, cases: int, output: P
             "latency_ms_median": float(statistics.median(latencies)),
             "latency_ms_p95": float(sorted(latencies)[min(len(latencies) - 1, round((len(latencies) - 1) * 0.95))]),
         },
-        "metric_definition_note": "Groundedness is a deterministic proxy: valid JSON schema, all cited evidence features are allow-listed drivers, and no new numeric claims appear. It does not prove semantic causality.",
+        "metric_definition_note": "Groundedness is a deterministic proxy: valid JSON schema, allowed feature/source pairs from verified model sensitivity, observed signals or heuristics, and no unsupported numeric claims. It does not establish semantic truth or human utility.",
         "cases": rows,
     }
     output.write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -147,7 +150,7 @@ if __name__ == "__main__":
     parser.add_argument("--model", default=os.getenv("PRUNIN_OLLAMA_MODEL", "qwen3:8b"))
     parser.add_argument("--cases", type=int, default=30)
     parser.add_argument("--timeout", type=float, default=None, help="Override PRUNIN_OLLAMA_TIMEOUT_SECONDS for this run")
-    parser.add_argument("--output", default="reports/genai/qwen3-8b-evaluation.json")
+    parser.add_argument("--output", default="reports/genai/evidence-v2-evaluation.json")
     args = parser.parse_args()
     report = evaluate(ROOT / args.artifact, ROOT / args.input, args.model, args.cases, ROOT / args.output, args.timeout)
     print(json.dumps({k: v for k, v in report.items() if k != "cases"}, indent=2, ensure_ascii=False))

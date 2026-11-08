@@ -28,7 +28,7 @@ async function responseJson(response) {
 function StatusBar({ model, apiReady, result, genaiStatus }) {
     const demo = model?.mode === 'synthetic_demo';
     const genai = result?.recommendations;
-    const evidenceFailures = new Set(['unknown_evidence_feature', 'unsupported_numeric_claim', 'empty_recommendations_with_risk_drivers', 'grounding_validation_failed']);
+    const evidenceFailures = new Set(['unknown_evidence_feature', 'unsupported_numeric_claim', 'empty_recommendations_with_risk_drivers', 'grounding_validation_failed', 'invalid_evidence_provenance', 'contradictory_claim', 'non_actionable_recommendation', 'non_verifiable_follow_up']);
     const formatFailures = new Set(['invalid_json', 'invalid_schema']);
     const genaiText = genai
         ? genai.genai_used ? 'IA generativa local activa'

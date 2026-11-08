@@ -21,6 +21,7 @@ from genai_benchmark_common import (
     ollama_models,
     percentile,
     prepare_cases,
+    require_new_outputs,
     summarize_rows,
 )
 
@@ -58,10 +59,11 @@ def main() -> int:
     parser.add_argument("--cases", type=int, default=30)
     parser.add_argument("--timeout", type=float, default=float(os.getenv("PRUNIN_OLLAMA_TIMEOUT_SECONDS", "30")))
     parser.add_argument("--ollama-url", default=os.getenv("PRUNIN_OLLAMA_URL", "http://localhost:11434/api/chat"))
-    parser.add_argument("--output-dir", type=Path, default=ROOT / "reports/genai/concurrency")
+    parser.add_argument("--output-dir", type=Path, default=ROOT / "reports/genai/evidence-v2/concurrency")
     args = parser.parse_args()
     if args.cases != 30:
         parser.error("La prueba PAIII usa exactamente 30 casos; --cases se conserva en 30.")
+    require_new_outputs(args.output_dir, ["summary.json", "raw.csv", "report.md"])
     installed, error = ollama_models(args.ollama_url)
     summary = {
         "status": "not_executed",
@@ -71,6 +73,8 @@ def main() -> int:
         "concurrency_levels": list(CONCURRENCY_LEVELS),
         "timeout_seconds": args.timeout,
         "temperature": TEMPERATURE,
+        "contract_version": "evidence-v2",
+        "num_predict": 1200,
         "hardware": hardware_metadata(),
         "ollama_error": error,
         "levels": [],

@@ -18,6 +18,7 @@ from genai_benchmark_common import (
     model_is_installed,
     ollama_models,
     prepare_cases,
+    require_new_outputs,
     summarize_rows,
 )
 
@@ -66,14 +67,15 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Comparación local reproducible de modelos Ollama ya instalados.")
     parser.add_argument("--artifact", type=Path, default=ROOT / "artifacts/0.9.0-academic")
     parser.add_argument("--input", type=Path, default=ROOT / "data/processed/mendeley_core.csv")
-    parser.add_argument("--models", nargs="+", default=["qwen3:8b", "gemma3:4b", "ministral:8b"])
+    parser.add_argument("--models", nargs="+", default=["qwen3:8b", "gemma3:4b", "ministral-3:8b"])
     parser.add_argument("--cases", type=int, default=30)
     parser.add_argument("--timeout", type=float, default=float(os.getenv("PRUNIN_OLLAMA_TIMEOUT_SECONDS", "30")))
     parser.add_argument("--ollama-url", default=os.getenv("PRUNIN_OLLAMA_URL", "http://localhost:11434/api/chat"))
-    parser.add_argument("--output-dir", type=Path, default=ROOT / "reports/genai/comparison")
+    parser.add_argument("--output-dir", type=Path, default=ROOT / "reports/genai/evidence-v2/comparison")
     args = parser.parse_args()
     if args.cases != 30:
         parser.error("La comparación PAIII usa exactamente 30 casos; --cases se conserva en 30.")
+    require_new_outputs(args.output_dir, ["benchmark_summary.json", "benchmark_raw.csv", "benchmark_report.md"])
     models = list(dict.fromkeys(args.models))
     installed, error = ollama_models(args.ollama_url)
     summary = {
@@ -83,6 +85,8 @@ def main() -> int:
         "timeout_seconds": args.timeout,
         "temperature": TEMPERATURE,
         "format": "json",
+        "contract_version": "evidence-v2",
+        "num_predict": 1200,
         "prompt_builder": "build_grounded_prompt",
         "validator": "validate_generated_payload",
         "hardware": hardware_metadata(),

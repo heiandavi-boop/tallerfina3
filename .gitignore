@@ -31,6 +31,9 @@ frontend/node_modules/
 # Internal validation
 reports/closure/
 
+# Optional local hand-in checklist
+/docs/ENTREGA_FINAL_CHECKLIST.md
+
 # Data
 data/raw/*
 !data/raw/**/

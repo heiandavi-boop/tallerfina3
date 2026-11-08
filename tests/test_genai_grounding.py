@@ -1,7 +1,11 @@
 import json
+import pytest
 import requests
 
 from prunin_ai.api import recommendations
+from prunin_ai.api.catalog import PRESETS
+from prunin_ai.api.operational_signals import build_evidence_context, evaluate_operational_signals
+from prunin_ai.api.monitoring import MonitoringRegistry
 from prunin_ai.api.recommendations import build_grounded_prompt, grounded_fallback, validate_generated_payload
 
 
@@ -9,11 +13,187 @@ PREDICTION = {"health": "at_risk", "delay_days": 27.3, "cost_overrun_ratio": 0.0
 DRIVERS = [{"feature": "cpi", "value": 0.82, "reference": 1.0, "direction": "increases_risk"}]
 
 
+def test_observed_deviations_require_actions_without_positive_model_drivers():
+    row = {"spi": 0.72, "cpi": 0.81, "team_utilization": 1.12,
+           "team_capacity_ratio": 0.72, "rework_ratio": 0.19, "defect_rate": 0.11}
+    drivers = [{"feature": "spi", "value": 0.72, "reference": 1.0, "direction": "reduces_risk"}]
+    result = grounded_fallback(row, PREDICTION, drivers)
+    assert result["recommendations"]
+    assert result["evidence_status"] == "priority_signals"
+    assert result["recommendations"][0]["evidence_source"] == "observed_operational_signal"
+    assert result["fallback_validation"]["grounded"]
+    assert {item["feature"] for item in result["evidence_context"]["operational_signals"]} >= {"spi", "cpi", "team_utilization", "team_capacity_ratio", "rework_ratio", "defect_rate"}
+
+
+def test_healthy_observations_do_not_fabricate_corrective_actions():
+    drivers = [{"feature": "planned_budget", "value": 1000000, "direction": "increases_risk", "risk_impact": 0.01}]
+    result = grounded_fallback(PRESETS["healthy"], {"health": "healthy"}, drivers)
+    assert result["evidence_status"] == "no_priority_signals"
+    assert result["recommendations"] == []
+    assert "seguimiento periódico" in result["summary"]
+    assert result["evidence_context"]["model_drivers"]
+
+
+@pytest.mark.parametrize("row,features", [
+    ({"spi": 0.72}, {"spi"}),
+    ({"cpi": 0.81}, {"cpi"}),
+        ({"team_utilization": 1.12}, {"team_utilization"}),
+        ({"team_capacity_ratio": 0.72}, {"team_capacity_ratio"}),
+    ({"rework_ratio": 0.19, "defect_rate": 0.11}, {"rework_ratio", "defect_rate"}),
+])
+def test_operational_deviations_produce_traceable_actions(row, features):
+    result = grounded_fallback(row, PREDICTION, [])
+    assert {item["evidence_feature"] for item in result["recommendations"]} == features
+    assert all(item["evidence_source"] == "observed_operational_signal" for item in result["recommendations"])
+    assert all(item["follow_up"] for item in result["recommendations"])
+    assert all(signal["rule"]["heuristic"] for signal in result["evidence_context"]["operational_signals"])
+
+
+def test_missing_nonfinite_and_small_deviations_are_not_adverse_observations():
+    assessment = evaluate_operational_signals({"spi": 0.99, "cpi": 1.0, "team_utilization": float("nan"), "rework_ratio": None, "defect_rate": True})
+    assert assessment["signals"] == []
+    assert {"team_utilization", "rework_ratio", "defect_rate"} <= set(assessment["missing"])
+    assert grounded_fallback({}, {}, [])["evidence_status"] == "insufficient_evidence"
+
+
+def test_rules_are_configurable_without_using_training_or_test_data():
+    policy = {"version": "test-policy", "rules": {"spi": {"operator": "below", "threshold": 0.7, "unit": "index", "priority": "media", "basis": "test"}}}
+    assert evaluate_operational_signals({"spi": 0.72}, policy)["signals"] == []
+    signal = evaluate_operational_signals({"spi": 0.6}, policy)["signals"][0]
+    assert signal["rule"]["version"] == "test-policy"
+
+
+def test_evidence_rejections_are_counted_in_monitoring():
+    registry = MonitoringRegistry()
+    for code in ("invalid_evidence_provenance", "contradictory_claim", "non_actionable_recommendation"):
+        registry.record_prediction(10, {"genai_attempted": True, "genai_used": False, "failure_code": code})
+    result = registry.snapshot(model_version="test", model_mode="test")
+    assert result["genai_validation_failures"] == 3
+    assert result["genai_fallbacks"] == 3
+
+
+def test_heuristic_indicator_is_actionable_only_with_sufficient_components():
+    prediction = {"team_health": {"score": 0.4, "level": "critical", "component_count": 5, "weight_coverage": 0.85}}
+    result = grounded_fallback({}, prediction, [])
+    assert result["recommendations"][0]["evidence_source"] == "heuristic_indicator"
+    assert result["recommendations"][0]["evidence_feature"] == "team_health"
+    prediction["team_health"]["component_count"] = 1
+    assert grounded_fallback({}, prediction, [])["recommendations"] == []
+
+
+def test_observed_context_rejects_empty_actions_wrong_provenance_and_contradictions():
+    context = build_evidence_context({"spi": 0.72}, PREDICTION, [])
+    payload = {"summary": "Revisar el cronograma.", "recommendations": [_action()]}
+    invalid = validate_generated_payload(payload, {"spi"}, prediction=PREDICTION, context=context)
+    assert invalid["failure_code"] == "invalid_evidence_provenance"
+    payload["recommendations"][0]["evidence_source"] = "observed_operational_signal"
+    assert validate_generated_payload(payload, {"spi"}, prediction=PREDICTION, context=context)["grounded"]
+    payload["summary"] = "El modelo clasifica el proyecto como saludable."
+    assert validate_generated_payload(payload, {"spi"}, prediction=PREDICTION, context=context)["failure_code"] == "contradictory_claim"
+    empty = validate_generated_payload({"summary": "Seguimiento.", "recommendations": []}, {"spi"}, context=context)
+    assert not empty["grounded"]
+
+
+def test_operational_prompt_preserves_reducing_driver_and_observed_provenance():
+    driver = {"feature": "spi", "direction": "reduces_risk", "value": 0.72, "reference": 1.0}
+    prompt, allowed = build_grounded_prompt(PREDICTION, [driver], row={"spi": 0.72})
+    context = json.loads(prompt.split("EVIDENCIA:\n")[1])
+    assert allowed == {"spi"}
+    assert context["model_drivers"][0]["direction"] == "reduces_risk"
+    assert context["operational_signals"][0]["source"] == "observed_operational_signal"
+    assert "evidence_source" in prompt
+
+
+def test_observed_numbers_cannot_be_borrowed_from_prediction_and_follow_up_must_be_verifiable():
+    context = build_evidence_context({"spi": 0.72}, PREDICTION, [])
+    action = {**_action(reason="SPI observado equivale a 27.3 según los datos."), "evidence_source": "observed_operational_signal"}
+    payload = {"summary": "Revisar el cronograma.", "recommendations": [action]}
+    assert validate_generated_payload(payload, {"spi"}, prediction=PREDICTION, context=context)["failure_code"] == "unsupported_numeric_claim"
+    action["reason"] = "SPI observado es desfavorable respecto al plan."
+    action["follow_up"] = "Todo mejorará en el siguiente corte."
+    assert validate_generated_payload(payload, {"spi"}, prediction=PREDICTION, context=context)["failure_code"] == "non_verifiable_follow_up"
+
+
+def test_observed_nearby_invented_value_is_rejected_without_rejecting_rounding():
+    context = build_evidence_context({"spi": 0.72}, PREDICTION, [])
+    action = {**_action(reason="El SPI observado es 0.74 y requiere revisar el cronograma."), "evidence_source": "observed_operational_signal"}
+    payload = {"summary": "Revisar el cronograma.", "recommendations": [action]}
+    assert validate_generated_payload(payload, {"spi"}, prediction=PREDICTION, context=context)["failure_code"] == "unsupported_numeric_claim"
+    action["reason"] = "El SPI observado es 0.72 y requiere revisar el cronograma."
+    assert validate_generated_payload(payload, {"spi"}, prediction=PREDICTION, context=context)["grounded"]
+    action["reason"] = "El SPI observado es aproximadamente 0.7 y requiere revisar el cronograma."
+    assert validate_generated_payload(payload, {"spi"}, prediction=PREDICTION, context=context)["grounded"]
+
+
+def test_observed_adverse_spi_cannot_be_described_as_favorable():
+    context = build_evidence_context({"spi": 0.72}, PREDICTION, [])
+    action = {**_action(reason="El SPI observado es favorable frente al cronograma."), "evidence_source": "observed_operational_signal"}
+    payload = {"summary": "Revisar el cronograma.", "recommendations": [action]}
+    assert validate_generated_payload(payload, {"spi"}, prediction=PREDICTION, context=context)["failure_code"] == "contradictory_claim"
+    action["reason"] = "El SPI observado es desfavorable frente al cronograma."
+    assert validate_generated_payload(payload, {"spi"}, prediction=PREDICTION, context=context)["grounded"]
+
+
+def test_summary_cannot_attribute_cpi_value_to_spi():
+    context = build_evidence_context({"spi": 0.72, "cpi": 0.81}, PREDICTION, [])
+    action = {**_action(reason="El SPI observado es 0.72 y requiere revisar el cronograma."), "evidence_source": "observed_operational_signal"}
+    payload = {"summary": "El SPI observado es 0.81.", "recommendations": [action]}
+    result = validate_generated_payload(payload, {"spi", "cpi"}, prediction=PREDICTION, context=context)
+    assert result["failure_code"] == "unsupported_numeric_claim"
+
+
+def test_contextual_percentage_rounding_preserves_units():
+    context = build_evidence_context({"rework_ratio": 0.1934}, PREDICTION, [])
+    action = {**_action("rework_ratio", reason="Retrabajo observado es 19.3 % y requiere revisar las entregas."), "evidence_source": "observed_operational_signal"}
+    payload = {"summary": "Revisar el retrabajo.", "recommendations": [action]}
+    assert validate_generated_payload(payload, {"rework_ratio"}, prediction=PREDICTION, context=context)["grounded"]
+    action["reason"] = "Retrabajo observado es 19.8 % y requiere revisar las entregas."
+    assert validate_generated_payload(payload, {"rework_ratio"}, prediction=PREDICTION, context=context)["failure_code"] == "unsupported_numeric_claim"
+
+
+def test_mixed_evidence_preserves_sources_without_duplicate_fallback_actions():
+    drivers = DRIVERS + [{"feature": "planned_duration_weeks", "value": 52, "reference": 40, "direction": "increases_risk"}]
+    result = grounded_fallback({"spi": 0.72, "cpi": 0.81}, PREDICTION, drivers)
+    actions = result["recommendations"]
+    assert len({item["evidence_feature"] for item in actions}) == len(actions)
+    pairs = {(item["feature"], item["source"]) for item in result["evidence_context"]["actionable_evidence"]}
+    assert all((item["evidence_feature"], item["evidence_source"]) in pairs for item in actions)
+    assert {item["evidence_source"] for item in actions} == {"model_driver", "observed_operational_signal"}
+    assert sum(item["evidence_feature"] == "cpi" for item in actions) == 1
+    assert result["fallback_validation"]["grounded"]
+
+
+@pytest.mark.parametrize("row", [{"spi": 0.01}, {"cpi": 3.0}, {"team_utilization": -1}, {"defect_rate": 0.6}])
+def test_out_of_range_operational_values_cannot_support_actions(row):
+    assessment = evaluate_operational_signals(row)
+    assert assessment["signals"] == []
+    assert set(row) <= set(assessment["missing"])
+
+
+def test_invented_operational_evidence_falls_back_and_recovers(monkeypatch):
+    monkeypatch.setenv("PRUNIN_ENABLE_OLLAMA", "1")
+    row = {"spi": 0.72}
+    content = json.dumps({"summary": "Revisar el proyecto.", "recommendations": [_action("cpi")]})
+    monkeypatch.setattr(recommendations.requests, "post", lambda *args, **kwargs: _ollama_response(content))
+    result = recommendations.build_recommendations(row, PREDICTION, [])
+    assert not result["genai_used"]
+    assert result["failure_code"] == "unknown_evidence_feature"
+    assert result["recommendations"][0]["evidence_feature"] == "spi"
+    valid_action = {**_action(), "evidence_source": "observed_operational_signal"}
+    valid = json.dumps({"summary": "Revisar el cronograma.", "recommendations": [valid_action]})
+    monkeypatch.setattr(recommendations.requests, "post", lambda *args, **kwargs: _ollama_response(valid))
+    recovered = recommendations.build_recommendations(row, PREDICTION, [])
+    assert recovered["genai_used"]
+    assert recovered["failure_code"] is None
+    assert recommendations._LAST_GENAI_ERROR is None
+
+
 def _action(feature="spi", *, priority="alta", reason="El SPI es una señal asociada con presión en el cronograma.", action="Identificar las actividades con mayor desviación frente al plan y definir un plan de recuperación para el siguiente seguimiento.", follow_up="Revisar SPI y cumplimiento del cronograma en el siguiente corte.", title="Recuperar el cronograma"):
     return {
         "priority": priority,
         "title": title,
         "evidence_feature": feature,
+        "evidence_source": "model_driver",
         "reason": reason,
         "action": action,
         "follow_up": follow_up,
@@ -273,7 +453,7 @@ def test_successful_ollama_payload_is_marked_as_genai(monkeypatch):
         assert item_properties["priority"]["enum"] == ["alta", "media", "baja"]
         assert item_properties["evidence_feature"]["enum"] == ["cpi"]
         assert kwargs["json"]["options"]["temperature"] == 0.1
-        assert kwargs["json"]["options"]["num_predict"] == 400
+        assert kwargs["json"]["options"]["num_predict"] == 1200
         assert kwargs["timeout"] == 30
         return _ollama_response(content)
     monkeypatch.setattr(recommendations.requests, "post", post)
@@ -396,7 +576,8 @@ def test_fallback_does_not_force_an_action_without_risk_drivers():
     assert result["actions"] == []
     assert result["recommendations"] == []
     assert result["evidence_features"] == []
-    assert "No se identifican acciones correctivas prioritarias" in result["summary"]
+    assert result["evidence_status"] == "insufficient_evidence"
+    assert "insuficiente" in result["summary"]
 
 
 def test_grounded_prompt_requests_actions_follow_up_and_non_causal_language():
@@ -416,7 +597,7 @@ def test_grounded_prompt_allows_empty_actions_only_without_risk_drivers():
     prompt, allowed = build_grounded_prompt(PREDICTION, [])
 
     assert allowed == set()
-    assert "No hay drivers que incrementen riesgo" in prompt
+    assert "No hay señales verificadas de intervención" in prompt
     assert '"recommendations":[]' in prompt
 
 

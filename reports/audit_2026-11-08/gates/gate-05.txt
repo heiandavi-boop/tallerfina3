@@ -1,0 +1,12 @@
+
+> prunin-ai-core-playground@1.0.0 test
+> vitest run --run
+
+
+ RUN  v5.0.3 ./frontend
+
+
+ Test Files  1 passed (1)
+      Tests  20 passed (20)
+   Start at  10:40:49
+   Duration  1.28s (tests 66%, environment 21%, transform 7%, import 6%)

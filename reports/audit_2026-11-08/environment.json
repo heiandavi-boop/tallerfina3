@@ -1,0 +1,205 @@
+{
+  "environment": {
+    "created_at_utc": "2026-11-08T15:29:52.814343+00:00",
+    "python": "3.12.15",
+    "platform": "macOS-27.2-arm64-arm-64bit",
+    "cpu_count": 15,
+    "head": "bdc6f61c44e040c3c8ef694970c7252d8ec625bf",
+    "node": "v26.7.0"
+  },
+  "commands": [
+    {
+      "command": [
+        "docker",
+        "version",
+        "--format",
+        "{{json .}}"
+      ],
+      "returncode": 1,
+      "output": "{\"Client\":{\"Version\":\"29.7.2\",\"ApiVersion\":\"1.55\",\"DefaultAPIVersion\":\"1.55\",\"GitCommit\":\"a7dcaa6\",\"GoVersion\":\"go1.26.5\",\"Os\":\"darwin\",\"Arch\":\"arm64\",\"BuildTime\":\"Wed Aug  5 18:27:50 2026\",\"Context\":\"desktop-linux\"},\"Server\":null}\nfailed to connect to the docker API at unix://~/.docker/run/docker.sock; check if the path is correct and if the daemon is running: dial unix ~/.docker/run/docker.sock: connect: no such file or directory\n"
+    },
+    {
+      "command": [
+        "sysctl",
+        "-n",
+        "hw.memsize"
+      ],
+      "returncode": 0,
+      "output": "25769803776\n"
+    },
+    {
+      "command": [
+        "df",
+        "-h",
+        "."
+      ],
+      "returncode": 0,
+      "output": "Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on\n/dev/disk3s5   926Gi   378Gi   519Gi    43%    1.9M  5.4G    0%   /System/Volumes/Data\n"
+    },
+    {
+      "command": [
+        "git",
+        "status",
+        "--short",
+        "--branch"
+      ],
+      "returncode": 0,
+      "output": "## main...origin/main\n M .dockerignore\nM  .gitignore\n M Dockerfile.playground\nM  README.md\nD  docs/ENTREGA_FINAL_CHECKLIST.md\n M frontend/src/App.test.jsx\n M frontend/src/Experience.jsx\n M frontend/src/components/AnalysisPanels.jsx\n M scripts/benchmark_genai_candidates.py\n M scripts/benchmark_genai_concurrency.py\n M scripts/evaluate_genai.py\n M scripts/genai_benchmark_common.py\n M src/prunin_ai/api/monitoring.py\n M src/prunin_ai/api/recommendations.py\n M tests/test_deployment_manifests.py\n M tests/test_genai_benchmarking.py\n M tests/test_genai_grounding.py\n?? configs/operational_signals.yaml\n?? reports/audit_2026-11-08/\n?? scripts/audit_closure.py\n?? src/prunin_ai/api/operational_signals.py\n"
+    }
+  ],
+  "model_distribution_metadata": [
+    {
+      "tag": "gemma3:4b",
+      "url": "https://registry.ollama.ai/v2/library/gemma3/manifests/4b",
+      "status": 200,
+      "layer_bytes": 3350272259,
+      "manifest_sha256": "68ceab7e468a31c988b44d5a4984a0e21f58c4f7158c6ce29c1804babac38df7",
+      "note": "Only manifest metadata fetched; no model blobs downloaded. Disk size is not a certified RAM requirement."
+    },
+    {
+      "tag": "ministral-3:8b",
+      "url": "https://registry.ollama.ai/v2/library/ministral-3/manifests/8b",
+      "status": 200,
+      "layer_bytes": 6022236102,
+      "manifest_sha256": "1922accd5827ebe6829e536369195db25eaf664528dc66206d646ea3bb386b71",
+      "note": "Only manifest metadata fetched; no model blobs downloaded. Disk size is not a certified RAM requirement."
+    },
+    {
+      "tag": "ministral:8b",
+      "url": "https://registry.ollama.ai/v2/library/ministral/manifests/8b",
+      "status": 404,
+      "layer_bytes": 0,
+      "manifest_sha256": null,
+      "note": "Only manifest metadata fetched; no model blobs downloaded. Disk size is not a certified RAM requirement."
+    }
+  ],
+  "ollama_tags": {
+    "models": [
+      {
+        "name": "qwen3:8b",
+        "model": "qwen3:8b",
+        "modified_at": "2026-10-08T20:21:11.251055496-05:00",
+        "size": 5225388164,
+        "digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+        "details": {
+          "parent_model": "",
+          "format": "gguf",
+          "family": "qwen3",
+          "families": [
+            "qwen3"
+          ],
+          "parameter_size": "8.2B",
+          "quantization_level": "Q4_K_M",
+          "context_length": 40960,
+          "embedding_length": 4096
+        },
+        "capabilities": [
+          "completion",
+          "tools",
+          "thinking"
+        ]
+      },
+      {
+        "name": "gpt-oss:20b",
+        "model": "gpt-oss:20b",
+        "modified_at": "2026-08-23T14:10:37.769923299-05:00",
+        "size": 13793441244,
+        "digest": "17052f91a42e97930aa6e28a6c6c06a983e6a58dbb00434885a0cf5313e376f7",
+        "details": {
+          "parent_model": "",
+          "format": "gguf",
+          "family": "gptoss",
+          "families": [
+            "gptoss"
+          ],
+          "parameter_size": "20.9B",
+          "quantization_level": "MXFP4",
+          "context_length": 131072,
+          "embedding_length": 2880
+        },
+        "capabilities": [
+          "completion",
+          "tools",
+          "thinking"
+        ]
+      }
+    ]
+  },
+  "ollama_version": {
+    "version": "0.33.2"
+  },
+  "ollama_ps": {
+    "models": [
+      {
+        "name": "qwen3:8b",
+        "model": "qwen3:8b",
+        "size": 5919872122,
+        "digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+        "details": {
+          "parent_model": "",
+          "format": "gguf",
+          "family": "qwen3",
+          "families": [
+            "qwen3"
+          ],
+          "parameter_size": "8.2B",
+          "quantization_level": "Q4_K_M"
+        },
+        "expires_at": "2026-11-08T10:32:32.738348-05:00",
+        "size_vram": 5919872122,
+        "context_length": 4096
+      }
+    ]
+  },
+  "remote_ci": [
+    {
+      "id": 42492682508,
+      "head_sha": "bdc6f61c44e040c3c8ef694970c7252d8ec625bf",
+      "name": "quality",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/heiandavi-boop/tallerfina3/actions/runs/42492682508"
+    }
+  ],
+  "ci_limitation": "Remote runs refer to committed HEAD only, never to the local uncommitted diff. No push performed.",
+  "limited_secret_scan": {
+    "matches_files_only": [],
+    "limitation": "Known private-key/AWS/GitHub patterns only; not a comprehensive security audit. No secret values recorded."
+  },
+  "local_documents": [
+    {
+      "path": "docs/PREGUNTAS_DEFENSA.md",
+      "exists": true,
+      "tracked": true,
+      "ignored": false
+    },
+    {
+      "path": "docs/GLOSARIO_DEFENSA.md",
+      "exists": true,
+      "tracked": true,
+      "ignored": false
+    },
+    {
+      "path": "docs/PRESENTACION_FINAL.md",
+      "exists": true,
+      "tracked": true,
+      "ignored": false
+    },
+    {
+      "path": "docs/ENTREGA_FINAL_CHECKLIST.md",
+      "exists": true,
+      "tracked": false,
+      "ignored": true
+    },
+    {
+      "path": "docs/FINAL_READINESS.md",
+      "exists": true,
+      "tracked": true,
+      "ignored": false
+    }
+  ],
+  "official_rubric": {
+    "available_in_workspace": false,
+    "limitation": "Only the internal 27-item matrix is present; exact official wording, weights and maximum-level descriptors cannot be certified."
+  }
+}

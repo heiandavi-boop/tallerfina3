@@ -45,6 +45,14 @@ El groundedness es proxy; schema válido no basta para semántica. Esta corrida 
 
 Para Nivel 4 de elección, esta tabla mejora la cobertura documental, pero no acredita exhaustividad experimental ni hardware/latencia comparables. No se atribuye una victoria empírica a Qwen.
 
+## Verificación local adicional: 8 de noviembre de 2026
+
+[environment.json](../reports/audit_2026-11-08/environment.json) registra Ollama, digest, cuantización y tamaño de los modelos instalados, memoria física y espacio libre. Qwen3 8B Q4_K_M está disponible; Gemma y Ministral no. El tag futuro correcto es `ministral-3:8b`: su manifiesto público respondió 200, mientras `ministral:8b` respondió 404. Esto corrige el comando futuro, no los reportes históricos.
+
+Los manifiestos públicos, consultados sin descargar blobs, sumaron 3,350,272,259 bytes para Gemma 3 4B y 6,022,236,102 para Ministral 3 8B. Son necesidades de almacenamiento de esas distribuciones, no mínimos RAM/VRAM certificados. El equipo tiene 24 GiB de memoria unificada y aproximadamente 519 GiB libres; pesos, caché KV, contexto, procesos y concurrencia requieren margen adicional. La memoria libre efectiva y el pico de inferencia de candidatos ausentes no se midieron. No se autorizaron ni realizaron descargas.
+
+Para completar la comparación, obtener autorización, fijar los digests/cuantizaciones, contexto, seed si aplica y presupuesto de tokens, registrar hardware/estado de procesos y ejecutar `benchmark_genai_candidates.py --output-dir <DIRECTORIO_NUEVO>` con los mismos 30 casos para todos los candidatos. El contrato nuevo usa evidence-v2 y 1200 tokens: debe repetirse Qwen en esa misma corrida, no combinar sus métricas con el contrato histórico. Medir memoria con un instrumento validado o conservarla como no medida. Evaluar semántica y utilidad humana por separado con revisión ciega. Sin esa comparación, R6.1-Cr2 permanece PARCIAL y no existe ganador empírico.
+
 ## Fuentes primarias
 
 - Qwen. (s. f.). [Qwen3-8B model card](https://huggingface.co/Qwen/Qwen3-8B).

@@ -34,7 +34,7 @@ class MonitoringRegistry:
                     code = recommendations.get("failure_code")
                     if code == "ollama_timeout":
                         self.genai_timeouts += 1
-                    if code in {"invalid_schema", "unknown_evidence_feature", "unsupported_numeric_claim", "empty_recommendations_with_risk_drivers", "grounding_validation_failed"}:
+                    if code in {"invalid_schema", "unknown_evidence_feature", "unsupported_numeric_claim", "empty_recommendations_with_risk_drivers", "grounding_validation_failed", "non_actionable_recommendation", "non_verifiable_follow_up", "invalid_evidence_provenance", "contradictory_claim"}:
                         self.genai_validation_failures += 1
                     if code == "invalid_json":
                         self.genai_invalid_json += 1

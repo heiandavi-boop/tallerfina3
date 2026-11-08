@@ -14,6 +14,11 @@ import requests
 TEMPERATURE = 0.1
 
 
+def require_new_outputs(directory: Path, names: list[str]) -> None:
+    if any((directory / name).exists() for name in names):
+        raise FileExistsError("Evaluation outputs already exist; select a new versioned directory.")
+
+
 def ollama_models(url: str, *, timeout: float = 3.0) -> tuple[set[str] | None, str | None]:
     tags_url = url.rsplit("/api/", 1)[0] + "/api/tags" if "/api/" in url else url.rstrip("/") + "/api/tags"
     try:
@@ -71,6 +76,8 @@ def prepare_cases(artifact: Path, input_path: Path, cases: int) -> tuple[Any, li
             continue
         prepared.append({
             "case_id": str(source["project_id"]),
+            "input": row,
+            "drivers": drivers,
             "prediction": prediction,
             "risk_drivers": risk_drivers,
             "health": prediction.get("health"),
@@ -129,7 +136,7 @@ def evaluate_case(case: dict[str, Any], model: str, url: str, timeout: float) ->
     from prunin_ai.api.recommendations import generate_ollama_grounded
 
     result = generate_ollama_grounded(
-        case["prediction"], case["risk_drivers"], model=model, url=url, timeout=timeout
+        case["prediction"], case.get("drivers", case["risk_drivers"]), row=case.get("input"), model=model, url=url, timeout=timeout
     )
     validation = result["validation"]
     return {

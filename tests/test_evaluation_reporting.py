@@ -300,6 +300,22 @@ def test_final_rubric_report_has_27_auditable_criteria_and_allowed_states():
     assert all(item["status"] == "PREPARED_HUMAN" for item in criteria if item["code"].startswith("RA2-"))
 
 
+def test_current_audit_distinguishes_internal_rubric_and_unmeasured_requirements():
+    from collections import Counter
+
+    report = json.loads((ROOT / "reports/audit_2026-11-08/rubric_review.json").read_text())
+    rows = report["criteria"]
+    required = {"code", "requirement", "initial_state", "final_state", "implementation", "evidence", "limitation", "risk", "correction", "required_check", "verified_result"}
+    assert len(rows) == len({row["code"] for row in rows}) == 27
+    assert all(required <= row.keys() for row in rows)
+    assert report["official_rubric"]["available"] is False
+    assert report["official_rubric"]["official_maximum_level_per_criterion"] is None
+    counts = Counter(row["final_state"] for row in rows)
+    assert all(counts[state] == number for state, number in report["state_counts"].items())
+    assert all(row["final_state"] == "REQUIERE EVALUACION HUMANA" for row in rows if row["code"].startswith("RA2-"))
+    assert all((ROOT / path).exists() for row in rows for path in row["evidence"])
+
+
 def test_action_recommendation_report_contains_new_structure_metrics():
     report = json.loads(
         (ROOT / "reports/genai/action_recommendations/qwen3-8b-actions-v3.json").read_text(encoding="utf-8")

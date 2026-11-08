@@ -1,0 +1,2 @@
+PROMISE VALIDATION: OK
+60% full-cohort detection=0.758985

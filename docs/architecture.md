@@ -16,6 +16,9 @@ flowchart LR
   L --> F
   O --> E[Evidencia estructurada]
   D --> E
+  A --> S[Señales operativas con reglas configuradas]
+  S --> E
+  T --> E
   E --> Q[Qwen3 8B / Ollama opcional]
   Q --> V[Validación de esquema y grounding]
   V --> X[Acciones priorizadas: evidencia, acción, razón y seguimiento]
@@ -34,8 +37,11 @@ Fuente: `src/prunin_ai/api/app.py`, `model_runtime.py`, `recommendations.py`, `i
 flowchart TD
   M[Predicciones LightGBM] --> D[Drivers de sensibilidad local]
   D --> E[Evidencia permitida estructurada]
+  U[Entrada validada] --> S[Reglas operativas heurísticas]
+  S --> E
+  T[Team Health heurístico con cobertura suficiente] --> E
   E --> Q[Prompt grounded: Qwen3 / Ollama]
-  Q --> V{JSON, evidence_feature y cifras válidas}
+  Q --> V{JSON, feature/source, cifras y seguimiento válidos}
   V -->|Sí| R[Acciones estructuradas priorizadas]
   V -->|No / timeout| F[Fallback determinístico]
   R --> H[Revisión humana]
@@ -43,7 +49,11 @@ flowchart TD
   M --> P[Predicción ML siempre conservada]
 ```
 
-Fuente: `recommendations.py`, `tests/test_genai_grounding.py`. Ollama recibe un JSON Schema estricto con prioridades cerradas y `evidence_feature` restringida a drivers allow-listed del caso. Cada acción requiere título, razón, acción ejecutable y follow-up; se validan claims numéricos en todos los campos. Timeout configurable (30 s por defecto), códigos de error, `/api/genai-status` y flags genai_attempted/genai_used preservan trazabilidad. Una respuesta inválida activa fallback con la misma estructura; no elimina la predicción ML. El grounding es proxy de ingeniería, no demostración de utilidad humana, verdad semántica ni causalidad. La llamada local síncrona añade latencia al análisis individual; no se probó escalamiento de Qwen bajo concurrencia.
+Fuente: `recommendations.py`, `operational_signals.py`, `tests/test_genai_grounding.py`. El contrato `evidence-v2` distingue `model_driver` (sensibilidad local), `observed_operational_signal` (entrada observada evaluada con una regla heurística) y `heuristic_indicator` (Team Health determinístico). Se conservan también los drivers reductores como contexto, sin convertirlos en señales adversas. Cada recomendación requiere prioridad, título, `evidence_feature`, `evidence_source`, razón, acción ejecutable y seguimiento verificable. El esquema restringe campos y enums; Python comprueba la pareja feature/source del caso y cifras en todos los textos. No se usa `anyOf` para las parejas en la gramática Ollama: una prueba real mostró que omitía los campos comunes; esa restricción se verifica después de generar.
+
+`configs/operational_signals.yaml` contiene criterios de revisión versionados, no aprendidos ni calibrados contra TEST. SPI/CPI <1 son desfavorables en EVM; el trigger <0.95 incorpora una tolerancia heurística explícita. Los demás umbrales son heurísticos y requieren denominadores y líneas base comparables. Los faltantes no se imputan para generar señales; las prioridades no son probabilidades. Una sensibilidad positiva aislada no fuerza corrección cuando Health es healthy y no hay desviaciones observadas. Se distinguen `priority_signals`, `no_priority_signals` e `insufficient_evidence`, separados del estado del servicio generativo.
+
+Timeout configurable (30 s por defecto), máximo cuatro acciones y presupuesto de 1200 tokens; `/api/genai-status`, genai_attempted/genai_used y códigos de error preservan trazabilidad. El presupuesto anterior de 400 tokens truncaba cuatro acciones con procedencia. Una salida inválida activa fallback sobre las mismas señales verificadas y añade `fallback_validation`; no cambia ML. Las comprobaciones de contradicción son patrones explícitos, no un detector semántico completo. Grounding es proxy, no utilidad humana, verdad ni causalidad. La concurrencia histórica es local y anterior a este contrato; no demuestra escalabilidad del contrato nuevo.
 
 ## Figura A3. Pipeline académico reproducible
 

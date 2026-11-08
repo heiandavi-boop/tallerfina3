@@ -8,6 +8,8 @@ Prototipo académico reproducible para apoyar a directores de proyecto y oficina
 
 React/Vite → FastAPI → LightGBM (Health, Delay y Cost) → drivers de sensibilidad local → evidencia estructurada → Qwen3 8B/Ollama opcional → validación de grounding → acciones priorizadas con justificación/seguimiento o fallback determinístico. [Diagramas y pipeline](docs/architecture.md).
 
+La evidencia de recomendaciones distingue `model_driver`, `observed_operational_signal` y `heuristic_indicator`. Las reglas operativas [configuradas](configs/operational_signals.yaml) son heurísticas de revisión, no aprendidas por LightGBM. La ausencia de drivers positivos no descarta desviaciones de la entrada; una lista sin acciones exige ausencia de señales accionables y no equivale a ausencia de riesgo. Evidencia insuficiente y fallo generativo tienen estados separados. CSV solo genera recomendaciones al abrir una fila individual.
+
 Final Status deriva de Health. Team Health es una **heurística operacional determinística**, no psicológica; la fusión 0.85/0.15 no está calibrada con outcomes reales. Qwen no predice Health/Delay/Cost; grounded_fallback no es GenAI. CSV y What-if no llaman al LLM.
 
 ## Datos y features
@@ -49,7 +51,11 @@ Benchmark Qwen3 8B oficial congelado: complete, 30 casos, éxito/grounding 29/30
 
 Concurrencia local, 30 casos por nivel: éxito 96.67/93.33/73.33/36.67 % en 1/2/4/8; timeout 0/0/26.67/63.33 %; throughput 0.1335/0.1402/0.1475/0.2499 req/s. El mayor throughput viene con una caída marcada del éxito. No es prueba productiva ni demuestra escalabilidad. [Reporte](reports/genai/concurrency/report.md).
 
-La sección de acciones convierte señales permitidas en tarjetas con prioridad, acción, justificación y seguimiento. Evaluación nueva Qwen: 20 casos, `action_structure_valid_rate` y `follow_up_present_rate` 100 %, sin claims numéricos no soportados, timeouts o JSON inválido; mediana 7054.585 ms, p95 17741.41 ms. No mide utilidad humana. [Reporte y ejemplos](reports/genai/action_recommendations/README.md). La evaluación oficial Qwen anterior permanece intacta.
+La sección de acciones convierte señales permitidas en tarjetas con prioridad, acción, justificación y seguimiento. Evaluación previa de acciones V3: 20 casos, `action_structure_valid_rate` y `follow_up_present_rate` 100 %, sin claims numéricos no soportados, timeouts o JSON inválido; mediana 7054.585 ms, p95 17741.41 ms. No mide utilidad humana. [Reporte y ejemplos](reports/genai/action_recommendations/README.md). La evaluación oficial Qwen anterior permanece intacta.
+
+Revisión posterior `evidence-v2`: [ocho casos diagnósticos reales](reports/audit_2026-11-08/recommendations-evidence-v2-r2.json), 8/8 aceptados con procedencia; no es una muestra held-out ni reemplaza los benchmarks anteriores. La primera corrida fallida se conserva para trazabilidad. Los scripts de evaluación rechazan destinos existentes. Gemma/Ministral siguen ausentes; el tag futuro correcto es `ministral-3:8b`. No hay comparación empírica completa ni ganador demostrado.
+
+[Cierre de cuatro brechas](reports/recommendations_closure_2026-11-08/README.md): CSV bancario → análisis individual → Qwen real → JSON descargado y comparado en Chrome; también fallback real por conexión fallida. Grounding contextual reforzado y 174 tests backend/21 frontend aprobados. Modelos y resultados científicos intactos. La descarga del navegador integrado de VS Code conserva una limitación documentada.
 
 ## Ejecutar y demostrar
 
@@ -96,9 +102,11 @@ Dataset sintético, severidad Critical todavía limitada, Delay débil, caveat E
 ## Estado de evaluación
 
 - [Informe final](docs/INFORME_FINAL.md)
+- [Auditoría local actual: informe A–F, pruebas e integridad](reports/audit_2026-11-08/README.md)
+- [Revisión actual de 27 criterios y limitación de rúbrica oficial](reports/audit_2026-11-08/rubric_review.json)
 - [Matriz completa PAIII: técnica, RA1 y RA2](docs/rubric_matrix.md)
 - [Cierre, evidencias y pendientes](docs/FINAL_READINESS.md)
-- [Matriz final de 27 criterios](reports/rubric_final/rubric_final.md) y [checklist de entrega](docs/ENTREGA_FINAL_CHECKLIST.md)
+- [Matriz histórica previa de 27 criterios](reports/rubric_final/rubric_final.md)
 - [Resultados predictivos congelados](reports/0.9.0-academic/)
 - [Resultados GenAI](reports/genai/)
 - [Presentación de 7/10/12 minutos](docs/PRESENTACION_FINAL.md)

@@ -11,7 +11,7 @@ python scripts/evaluate_genai.py \
   --artifact artifacts/0.9.0-academic \
   --input data/processed/mendeley_core.csv \
   --model qwen3:8b \
-  --cases 30
+  --cases 30 --output reports/genai/evidence-v2-evaluation-run1.json
 ```
 
 Requiere Ollama y el modelo solicitado disponibles. El timeout viene de `PRUNIN_OLLAMA_TIMEOUT_SECONDS` (default 30 s), o puede reemplazarse con `--timeout`. Si Ollama no está activo, el script genera `status=unavailable` y termina sin inventar métricas. Una evaluación completa escribe JSON y CSV bajo `reports/genai/`.
@@ -49,7 +49,7 @@ El indicador de groundedness es un **proxy de ingeniería**, no una prueba de ve
 
 ## Seguridad por diseño
 
-Si la salida generativa no cumple el contrato, PRUNIN la descarta y activa `grounded_fallback`. Códigos como `ollama_timeout`, `invalid_json`, `unknown_evidence_feature` y `unsupported_numeric_claim` quedan en trazabilidad; la raw response no se expone salvo debug. Sin drivers de riesgo, `recommendations: []` con resumen prudente es válido; con drivers, una lista vacía falla validación. La predicción ML permanece disponible aunque Ollama esté apagado o falle.
+Si la salida generativa no cumple el contrato, PRUNIN la descarta y activa `grounded_fallback`. Además de errores de servicio, formato y cifras, `evidence-v2` comprueba procedencia, duplicados, contradicciones explícitas y seguimiento verificable. `recommendations: []` solo es válido sin evidencia accionable; las desviaciones operativas pueden exigir acciones incluso sin drivers positivos. Los datos insuficientes se distinguen del seguimiento normal. Raw response solo se expone en debug. ML permanece disponible aunque Ollama falle.
 
 What-if y CSV no llaman al LLM. `inference_ms` se conserva como total y `timing.ml_and_drivers_ms`, `timing.genai_ms`, `timing.total_ms` separan sus componentes en `/api/predict`.
 
@@ -94,7 +94,7 @@ La evaluación de acciones usa el validador nuevo y se guarda en una ruta indepe
 ```bash
 PRUNIN_ENABLE_OLLAMA=1 PRUNIN_OLLAMA_MODEL=qwen3:8b \
 PYTHONPATH=src python scripts/evaluate_genai.py --cases 20 \
-  --output reports/genai/action_recommendations/qwen3-8b-actions-v3.json
+  --output reports/genai/evidence-v2-actions-run1.json
 ```
 
 Reporte V3 ejecutado: 20/20 casos; `generation_success_rate`, `schema_valid_rate`, `evidence_feature_valid_rate`, `grounded_response_rate`, `action_structure_valid_rate`, `follow_up_present_rate` y `actionability_rate` = 1.0; claims numéricos no soportados, timeout y JSON inválido = 0. Mediana 7054.585 ms, p95 17741.41 ms. El JSON y CSV están en `reports/genai/action_recommendations/`; V1/V2 se conservan para trazabilidad de la iteración.
@@ -108,3 +108,13 @@ La latencia GenAI no es tiempo completo de la tarea ni evidencia de ahorro human
 El caso `mendeley::PROJ_0840` (critical) conservó esquema y evidence_features válidos pero falló por `unsupported_numeric_claim`. El validador impidió aceptar una respuesta con cifras no soportadas. Ese rechazo es evidencia útil del guardrail, no prueba de ausencia de otros errores semánticos. Medir actionability como acción no vacía no demuestra que la acción sea pertinente, viable o efectiva. El apoyo a síntesis/interpretación está implementado; su valor profesional y productividad requieren revisión humana y el protocolo de eficiencia.
 
 No se selecciona un modelo predictivo ni se modifica TEST utilizando este benchmark de explicaciones. No se reejecutó ni sobrescribió el reporte en el cierre.
+
+## Contrato de evidencia v2: diagnóstico independiente
+
+Refuerzo posterior del mismo schema: [cierre bancario CSV y descarga real](../reports/recommendations_closure_2026-11-08/README.md). Con contexto, los números deben coincidir con valores o redondeos a la precisión escrita, sin tolerancia arbitraria del 3 %; también se comprueba atribución de SPI/CPI y contradicciones favorables explícitas. Se mantiene la compatibilidad del validador histórico sin contexto y no se sobrescriben sus métricas. Hay evidencia nueva de Qwen y de fallback reales, no inferida a partir de mocks. Estos guardrails siguen siendo proxies, no verificación semántica universal.
+
+La corrida [evidence-v2-r2](../reports/audit_2026-11-08/recommendations-evidence-v2-r2.json) contiene ocho casos diagnósticos de desarrollo y las respuestas reales de Qwen3 8B Q4_K_M: 8/8 aceptadas, cero cifras no soportadas, JSON inválidos o timeouts; p50 8286.095 ms y p95 16866.36 ms. No son ocho observaciones de un benchmark held-out ni medición semántica/humana. El preset de indicadores favorables fue clasificado at_risk por el modelo: su nombre no es una etiqueta real.
+
+El caso bancario IT/híbrido reprodujo con el código de HEAD y Qwen real el resumen sin acciones: solo SPI apareció como driver reductor. El contexto nuevo conserva ese driver y añade nueve señales operativas adversas y Team Health heurístico. La corrida inicial fallida se preserva en [diagnóstico r1](../reports/audit_2026-11-08/recommendations-evidence-v2.json): la gramática con anyOf omitió campos; después se detectó truncamiento a 400 tokens. La gramática simple, el validador de parejas en Python y 1200 tokens resolvieron esos defectos sin relajar grounding.
+
+Reproducir con `PYTHONPATH=src python scripts/audit_closure.py recommendations --output <RUTA_NUEVA.json>`. El script rechaza destinos existentes y registra entrada, predicción, drivers completos/positivos, contexto, prompt, raw response, JSON, validación, motor y acciones. Los campos bancarios no suministrados no se adivinan: se separa el caso con campos aportados de la variante IT/híbrida explícita. Los reportes oficiales y V1/V2/V3 históricos permanecen intactos. Las cifras históricas de concurrencia no se trasladan al presupuesto nuevo de tokens.

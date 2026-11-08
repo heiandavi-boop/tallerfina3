@@ -1,0 +1,492 @@
+{
+    "audit_date": "2026-11-08",
+    "scope": "27 criterios de la matriz interna; no es una calificacion institucional",
+    "official_rubric": {
+        "available": false,
+        "search_scope": "Workspace local, archivos PDF y nombres rubric/rubrica; no se inspeccionaron carpetas personales externas",
+        "source_used": "reports/rubric_final/rubric_final.json",
+        "exact_official_requirements": null,
+        "official_maximum_level_per_criterion": null,
+        "internal_target_level": 4,
+        "limitation": "No se recibio ni encontro la rubrica oficial. Los requisitos siguientes proceden de la matriz interna; no se certifican literalidad, pesos ni descriptores de maximo nivel. Obtener la fuente institucional y contrastar cada fila antes de calificar."
+    },
+    "state_counts": {
+        "DEMOSTRADO": 0,
+        "DEMOSTRADO CON LIMITACIONES": 15,
+        "PARCIAL": 5,
+        "PENDIENTE": 0,
+        "REQUIERE EVALUACION HUMANA": 7
+    },
+    "criteria": [
+        {
+            "code": "R6.1-Cr1",
+            "requirement": "Problema y contexto",
+            "initial_state": "DEMOSTRADO CON LIMITACIONES",
+            "final_state": "DEMOSTRADO CON LIMITACIONES",
+            "implementation": "Problema, usuario PMO, pregunta, objetivo y KPI temporal documentados.",
+            "evidence": [
+                "docs/INFORME_FINAL.md",
+                "reports/promise_validation/risk_alert_metrics.json",
+                "scripts/validate_original_promise.py"
+            ],
+            "limitation": "Sin diagnostico empresarial de frecuencia/costo del problema ni impacto real.",
+            "risk": "medio",
+            "correction": "Mantener KPI 359/473 y alcance sintetico; no transformar una necesidad de diseno en observacion empresarial.",
+            "required_check": "validate_original_promise.py --check; revision del autor contra propuesta original.",
+            "verified_result": "KPI congelado disponible y separado de Critical Recall; confirmacion institucional pendiente."
+        },
+        {
+            "code": "R6.1-Cr2",
+            "requirement": "Eleccion de IA generativa",
+            "initial_state": "DEMOSTRADO CON LIMITACIONES",
+            "final_state": "PARCIAL",
+            "implementation": "Qwen local integrado; comparacion documental y benchmark comun implementados.",
+            "evidence": [
+                "docs/genai_model_selection.md",
+                "reports/genai/comparison/benchmark_summary.json",
+                "reports/audit_2026-11-08/environment.json",
+                "scripts/benchmark_genai_candidates.py"
+            ],
+            "limitation": "Gemma y Ministral no instalados; no existe ranking experimental de tres candidatos.",
+            "risk": "alto",
+            "correction": "Corregido tag ministral-3:8b; registrados manifiestos/tamanos y ausencia de autorizacion de descarga; salidas futuras versionadas.",
+            "required_check": "Con autorizacion, fijar digests y ejecutar los mismos 30 casos/prompt/configuracion para los tres modelos, con memoria medida o declarada no medida.",
+            "verified_result": "Ollama solo dispone de Qwen entre los candidatos; seleccion tecnico-operativa justificada, superioridad no demostrada."
+        },
+        {
+            "code": "R6.1-Cr3",
+            "requirement": "Integracion de IA generativa",
+            "initial_state": "DEMOSTRADO CON LIMITACIONES",
+            "final_state": "DEMOSTRADO CON LIMITACIONES",
+            "implementation": "Ollama/Qwen, schema, grounding, timeout, fallback y UI con procedencia.",
+            "evidence": [
+                "src/prunin_ai/api/recommendations.py",
+                "src/prunin_ai/api/operational_signals.py",
+                "tests/test_genai_grounding.py",
+                "reports/audit_2026-11-08/recommendations-evidence-v2-r2.json"
+            ],
+            "limitation": "Validacion deterministica no acredita verdad semantica ni utilidad del texto.",
+            "risk": "medio",
+            "correction": "Reproducida lista vacia con Qwen real; agregadas fuentes separadas, acciones obligatorias con evidencia y resumen unico; corregidos anyOf y truncamiento.",
+            "required_check": "Pruebas grounding/API/frontend y generacion real con Ollama.",
+            "verified_result": "Ocho casos reales aceptados en r2; fallback mantiene acciones verificadas ante rechazo/fallo."
+        },
+        {
+            "code": "R6.1-Cr4",
+            "requirement": "Evaluacion e interpretacion GenAI",
+            "initial_state": "DEMOSTRADO CON LIMITACIONES",
+            "final_state": "DEMOSTRADO CON LIMITACIONES",
+            "implementation": "Benchmark oficial congelado, comparacion parcial y diagnostico nuevo con respuestas y validaciones.",
+            "evidence": [
+                "docs/genai_evaluation.md",
+                "reports/genai/qwen3-8b-evaluation.json",
+                "reports/audit_2026-11-08/recommendations-evidence-v2.json",
+                "reports/audit_2026-11-08/recommendations-evidence-v2-r2.json"
+            ],
+            "limitation": "Muestras condicionadas/pequenas; ocho casos de desarrollo no son validacion held-out; calidad semantica y utilidad humana no medidas.",
+            "risk": "medio",
+            "correction": "Preservadas corridas fallidas y oficiales; versionado del contrato y prohibicion de sobrescritura; proxies separados de utilidad.",
+            "required_check": "Revalidar JSON, procedencia, cifras, acciones y seguimiento; revision semantica ciega futura.",
+            "verified_result": "Oficial 29/30 permanece historico; r2 8/8 estructurales no se presenta como mejora de calidad ni como benchmark equivalente."
+        },
+        {
+            "code": "R6.2-Cr5",
+            "requirement": "Tareas automatizables",
+            "initial_state": "DEMOSTRADO CON LIMITACIONES",
+            "final_state": "DEMOSTRADO CON LIMITACIONES",
+            "implementation": "Inferencia individual/CSV, What-if y recomendaciones revisables; CSV masivo sin LLM.",
+            "evidence": [
+                "src/prunin_ai/api/app.py",
+                "frontend/src/Experience.jsx",
+                "frontend/src/App.test.jsx",
+                "tests/test_playground_api.py"
+            ],
+            "limitation": "No se automatiza la decision profesional ni se demuestra impacto empresarial.",
+            "risk": "medio",
+            "correction": "Conservado flujo CSV: generacion solo al abrir analisis individual; reforzada prueba de cero solicitudes individuales durante carga.",
+            "required_check": "Tests de CSV, What-if y apertura de fila; verificar payload de fila seleccionada.",
+            "verified_result": "Pruebas verifican una llamada individual al abrir la fila y ninguna para todo el lote."
+        },
+        {
+            "code": "R6.2-Cr6",
+            "requirement": "Eficiencia, escala y productividad",
+            "initial_state": "DEMOSTRADO CON LIMITACIONES",
+            "final_state": "PARCIAL",
+            "implementation": "Benchmark individual/batch y concurrencia local historica; protocolo humano preparado.",
+            "evidence": [
+                "reports/audit_2026-11-08/efficiency/operational_benchmark_summary.json",
+                "reports/audit_2026-11-08/efficiency/robustness_checks.json",
+                "reports/genai/concurrency/summary.json",
+                "docs/human_efficiency_validation.md",
+                "reports/human_validation/TEMPLATE_results.csv"
+            ],
+            "limitation": "Productividad humana NO MEDIDA; concurrencia historica no caracteriza el nuevo presupuesto de tokens ni produccion.",
+            "risk": "alto",
+            "correction": "Repetido benchmark sin LLM con mismos casos y 80 runs; protocolo humano ampliado con consentimiento, contrabalanceo, rubrica ciega y analisis pareado.",
+            "required_check": "Benchmark operacional; ejecutar estudio aprobado con participantes reales antes de afirmar productividad.",
+            "verified_result": "N=100: 3029.484 ms individual vs 2863.875 ms batch; mejora local 5.4666%; no equivale a ahorro humano."
+        },
+        {
+            "code": "R6.2-Cr7",
+            "requirement": "Etica y mitigacion de riesgos",
+            "initial_state": "DEMOSTRADO CON LIMITACIONES",
+            "final_state": "DEMOSTRADO CON LIMITACIONES",
+            "implementation": "Validacion, cobertura minima, OOD, grounding, procedencia, fallback y supervision humana.",
+            "evidence": [
+                "docs/ethics_security.md",
+                "docs/human_efficiency_validation.md",
+                "tests/test_genai_grounding.py",
+                "reports/audit_2026-11-08/environment.json"
+            ],
+            "limitation": "Persisten sesgo sintetico, automation bias y errores semanticos; sin autenticacion empresarial ni auditoria de seguridad integral.",
+            "risk": "alto",
+            "correction": "Aisladas heuristicas; sin nombres/textos libres enviados al LLM; contexto Docker reducido; escaneo limitado sin exponer valores.",
+            "required_check": "Tests de evidencia inventada, falsos positivos, valores faltantes y rechazo; revision de seguridad/consentimiento antes de datos reales.",
+            "verified_result": "No coincidencias en patrones privados conocidos; esto no certifica ausencia universal de secretos ni mitigacion completa."
+        },
+        {
+            "code": "R6.2-Cr8",
+            "requirement": "Documentacion",
+            "initial_state": "DEMOSTRADO CON LIMITACIONES",
+            "final_state": "DEMOSTRADO CON LIMITACIONES",
+            "implementation": "Informe, arquitectura, evaluacion, protocolos y auditoria trazable.",
+            "evidence": [
+                "docs/INFORME_FINAL.md",
+                "docs/architecture.md",
+                "docs/genai_evaluation.md",
+                "docs/rubric_matrix.md"
+            ],
+            "limitation": "Rubrica oficial y datos institucionales no confirmados; render final requiere revision del autor.",
+            "risk": "medio",
+            "correction": "Documentado contrato nuevo sin cambiar cifras historicas; identificadas afirmaciones obsoletas de ausencia de drivers.",
+            "required_check": "Validar enlaces locales, evidencia por criterio y coherencia de cifras; completar portada institucional.",
+            "verified_result": "Enlaces de documentos modificados comprobados; portada mantiene marcador explicito, no identidad inventada."
+        },
+        {
+            "code": "RA1-F1",
+            "requirement": "Estructura y cohesion escrita",
+            "initial_state": "DEMOSTRADO CON LIMITACIONES",
+            "final_state": "DEMOSTRADO CON LIMITACIONES",
+            "implementation": "Informe con problema, metodo, resultados, discusion, limites y conclusiones.",
+            "evidence": [
+                "docs/INFORME_FINAL.md"
+            ],
+            "limitation": "Formato institucional, autor y portada por completar.",
+            "risk": "medio",
+            "correction": "Integrada revision como adicion identificada, sin reescribir resultados oficiales.",
+            "required_check": "Revision editorial y contraste con formato institucional real.",
+            "verified_result": "Estructura presente y separacion metodo/resultados verificable; no se certifica Nivel 4 oficial."
+        },
+        {
+            "code": "RA1-F2",
+            "requirement": "Intencion comunicativa",
+            "initial_state": "DEMOSTRADO CON LIMITACIONES",
+            "final_state": "DEMOSTRADO CON LIMITACIONES",
+            "implementation": "Audiencia, pregunta, objetivo y alcance explicitos.",
+            "evidence": [
+                "README.md",
+                "docs/INFORME_FINAL.md"
+            ],
+            "limitation": "Comprension externa de lectores no evaluada.",
+            "risk": "medio",
+            "correction": "Separadas afirmaciones demostradas, hipotesis de utilidad y pendientes humanos.",
+            "required_check": "Lectura por autor/mentor y feedback de audiencia.",
+            "verified_result": "Objetivo de apoyo humano identificado sin atribuir decisiones autonomas."
+        },
+        {
+            "code": "RA1-F3",
+            "requirement": "Canales y medios",
+            "initial_state": "DEMOSTRADO CON LIMITACIONES",
+            "final_state": "DEMOSTRADO CON LIMITACIONES",
+            "implementation": "Playground, informe, reportes JSON/CSV, figuras y guiones existentes.",
+            "evidence": [
+                "frontend/src/Experience.jsx",
+                "DEMO_PRESENTACION.md",
+                "reports/0.9.0-academic/figures",
+                "docs/PRESENTACION_FINAL.md"
+            ],
+            "limitation": "Funcionamiento con proyector/red del salon y render institucional no observado.",
+            "risk": "medio",
+            "correction": "Conservados materiales locales y flujo de analisis; preparada verificacion visual desktop/movil.",
+            "required_check": "Build, navegador y prueba humana de proyeccion/offline.",
+            "verified_result": "Medios complementarios existentes; no garantizan uso efectivo durante sustentacion."
+        },
+        {
+            "code": "RA1-F4",
+            "requirement": "Conclusiones",
+            "initial_state": "DEMOSTRADO CON LIMITACIONES",
+            "final_state": "DEMOSTRADO CON LIMITACIONES",
+            "implementation": "Conclusiones enlazadas a resultados sinteticos congelados y limitaciones.",
+            "evidence": [
+                "docs/INFORME_FINAL.md",
+                "reports/promise_validation/risk_alert_metrics.json",
+                "reports/0.9.0-academic/baselines.json"
+            ],
+            "limitation": "No validacion prospectiva ni empresarial.",
+            "risk": "medio",
+            "correction": "Mantenidos denominadores Risk Alert y recall Critical separados; Delay marginal y Cost condicionado por EVM.",
+            "required_check": "KPI --check y cotejo de tablas con reportes originales.",
+            "verified_result": "359/473=75.90% al 60%; Critical=25/44=56.82%; sin nueva afirmacion causal."
+        },
+        {
+            "code": "RA1-F5",
+            "requirement": "Gramatica, tablas y figuras",
+            "initial_state": "DEMOSTRADO CON LIMITACIONES",
+            "final_state": "DEMOSTRADO CON LIMITACIONES",
+            "implementation": "Tablas con unidades, fuentes y figuras versionadas.",
+            "evidence": [
+                "docs/INFORME_FINAL.md",
+                "reports/0.9.0-academic/figures",
+                "reports/promise_validation/figures"
+            ],
+            "limitation": "Revision ortotipografica y legibilidad del documento final requieren autor; no se inspeccionaron todos los formatos de exportacion.",
+            "risk": "medio",
+            "correction": "Conservadas figuras originales; no se regeneran para alterar resultados.",
+            "required_check": "Comprobar fuentes/unidades y revisar PDF/slides institucionales finales.",
+            "verified_result": "Assets cientificos preservados y tablas trazables; no certificacion editorial completa."
+        },
+        {
+            "code": "RA1-Referencias",
+            "requirement": "Referencias",
+            "initial_state": "DEMOSTRADO CON LIMITACIONES",
+            "final_state": "DEMOSTRADO CON LIMITACIONES",
+            "implementation": "Referencias APA consolidadas, DOI Mendeley y fuentes primarias.",
+            "evidence": [
+                "docs/references.md",
+                "docs/INFORME_FINAL.md",
+                "docs/genai_model_selection.md",
+                "reports/audit_2026-11-08/environment.json"
+            ],
+            "limitation": "No se recertifico cada pagina externa ni el estilo institucional completo; documentacion web viva.",
+            "risk": "medio",
+            "correction": "Verificados manifiestos oficiales de distribucion para tags/tamanos; claims de fabricante separados de mediciones PRUNIN.",
+            "required_check": "Autor verifica APA, acceso a cada referencia y requisitos institucionales.",
+            "verified_result": "No DOI ni resultados bibliograficos inventados; verificaciones de red adicionales identificadas por URL/fecha."
+        },
+        {
+            "code": "RA2-F1",
+            "requirement": "Estructura oral",
+            "initial_state": "REQUIERE EVALUACION HUMANA",
+            "final_state": "REQUIERE EVALUACION HUMANA",
+            "implementation": "Guion de apertura, problema, metodo, resultados, limites y cierre preparado.",
+            "evidence": [
+                "docs/PRESENTACION_FINAL.md",
+                "docs/ENSAYO_SUSTENTACION.md"
+            ],
+            "limitation": "No hay sustentacion observada.",
+            "risk": "alto",
+            "correction": "Verificados materiales existentes sin alterar seguimiento ni declarar desempeno.",
+            "required_check": "Ensayo observado con transiciones y secuencia argumentativa.",
+            "verified_result": "Preparacion documental, no acreditacion oral."
+        },
+        {
+            "code": "RA2-F2",
+            "requirement": "Intencion oral",
+            "initial_state": "REQUIERE EVALUACION HUMANA",
+            "final_state": "REQUIERE EVALUACION HUMANA",
+            "implementation": "Alternativas planificadas de 7/10/12 minutos.",
+            "evidence": [
+                "docs/PRESENTACION_FINAL.md",
+                "docs/ENSAYO_SUSTENTACION.md"
+            ],
+            "limitation": "Tiempo oficial y tiempos reales no confirmados.",
+            "risk": "alto",
+            "correction": "Conservados totales 420/600/720 segundos como planes, no resultados.",
+            "required_check": "Confirmar duracion institucional, cronometrar y registrar comprension del mensaje.",
+            "verified_result": "Tiempos planificados suman 7/10/12 minutos; no equivalen a exposicion realizada."
+        },
+        {
+            "code": "RA2-F3",
+            "requirement": "Lenguaje profesional",
+            "initial_state": "REQUIERE EVALUACION HUMANA",
+            "final_state": "REQUIERE EVALUACION HUMANA",
+            "implementation": "Glosario y preguntas tecnicas disponibles localmente.",
+            "evidence": [
+                "docs/GLOSARIO_DEFENSA.md",
+                "docs/PREGUNTAS_DEFENSA.md"
+            ],
+            "limitation": "Fluidez y precision oral no observadas.",
+            "risk": "alto",
+            "correction": "Preservados archivos; evidencia cientifica actualizada en documentos publicos, sin copiar material personal innecesario.",
+            "required_check": "Explicar KPI, unidades, ML/heuristica/GenAI y limites sin leer.",
+            "verified_result": "Recursos de practica, no desempeno acreditado."
+        },
+        {
+            "code": "RA2-F4",
+            "requirement": "Tecnicas vocales",
+            "initial_state": "REQUIERE EVALUACION HUMANA",
+            "final_state": "REQUIERE EVALUACION HUMANA",
+            "implementation": "Plantilla de volumen, pausas, respiracion y muletillas.",
+            "evidence": [
+                "docs/ENSAYO_SUSTENTACION.md"
+            ],
+            "limitation": "No existe evidencia vocal evaluada.",
+            "risk": "alto",
+            "correction": "Mantenida plantilla vacia sin inventar ensayo.",
+            "required_check": "Grabar ensayo con consentimiento y recibir evaluacion humana.",
+            "verified_result": "Pendiente de ejecucion humana."
+        },
+        {
+            "code": "RA2-F5",
+            "requirement": "Recursos de apoyo",
+            "initial_state": "REQUIERE EVALUACION HUMANA",
+            "final_state": "REQUIERE EVALUACION HUMANA",
+            "implementation": "Demo, figuras, CSV y alternativas de respaldo preparadas.",
+            "evidence": [
+                "DEMO_PRESENTACION.md",
+                "docs/PRESENTACION_FINAL.md",
+                "docs/ENSAYO_SUSTENTACION.md",
+                "frontend/src/components/AnalysisPanels.jsx"
+            ],
+            "limitation": "Uso en salon, hardware, red y proyeccion no observados.",
+            "risk": "alto",
+            "correction": "Corregida UI de recomendaciones; conserva resumen unico, fuentes y estado real de motor.",
+            "required_check": "Probar proyector/red, navegacion, fallback y copia offline; demostrar uso oportuno.",
+            "verified_result": "Preparacion funcional no sustituye evaluacion durante sustentacion."
+        },
+        {
+            "code": "RA2-F6",
+            "requirement": "Lenguaje no verbal",
+            "initial_state": "REQUIERE EVALUACION HUMANA",
+            "final_state": "REQUIERE EVALUACION HUMANA",
+            "implementation": "Checklist de postura, gestos y contacto visual.",
+            "evidence": [
+                "docs/ENSAYO_SUSTENTACION.md"
+            ],
+            "limitation": "No evaluable con codigo o documentos.",
+            "risk": "alto",
+            "correction": "Sin observaciones humanas fabricadas.",
+            "required_check": "Ensayo observado y feedback sobre conducta no verbal.",
+            "verified_result": "Pendiente de ejecucion humana."
+        },
+        {
+            "code": "RA2-F7",
+            "requirement": "Defensa y argumentacion",
+            "initial_state": "REQUIERE EVALUACION HUMANA",
+            "final_state": "REQUIERE EVALUACION HUMANA",
+            "implementation": "Banco local de preguntas y referencias de evidencia.",
+            "evidence": [
+                "docs/PREGUNTAS_DEFENSA.md",
+                "docs/GLOSARIO_DEFENSA.md",
+                "docs/INFORME_FINAL.md"
+            ],
+            "limitation": "Respuestas espontaneas no observadas.",
+            "risk": "alto",
+            "correction": "Documentado caso bancario reproducible para defender diferencia entre sensibilidad, observacion y heuristica.",
+            "required_check": "Simulacion con preguntas no conocidas; respuesta breve, evidencia y limite.",
+            "verified_result": "No se declara demostrada la defensa."
+        },
+        {
+            "code": "R7.1-Cr1",
+            "requirement": "Preprocesamiento",
+            "initial_state": "DEMOSTRADO CON LIMITACIONES",
+            "final_state": "DEMOSTRADO CON LIMITACIONES",
+            "implementation": "Adaptacion semantica, imputacion TRAIN, encoding, split por proyecto, coverage y OOD.",
+            "evidence": [
+                "src/prunin_ai/data/audit.py",
+                "src/prunin_ai/training/core.py",
+                "src/prunin_ai/monitoring/drift.py",
+                "tests/test_split_no_leakage.py",
+                "tests/test_drift_monitoring.py"
+            ],
+            "limitation": "OOD univariado/PSI no detectan todo shift; datos sinteticos no validan generalizacion empresarial.",
+            "risk": "medio",
+            "correction": "No se modificaron pipelines; reglas de recomendaciones no imputan valores ni se mezclan con entrenamiento.",
+            "required_check": "Pruebas pipeline/split/OOD/drift; verificar fingerprints y conjuntos disjuntos.",
+            "verified_result": "Separacion de splits y politica TRAIN verificables; se conserva ausencia de normalizacion innecesaria para arboles."
+        },
+        {
+            "code": "R7.1-Cr2",
+            "requirement": "Herramientas y dominio",
+            "initial_state": "DEMOSTRADO CON LIMITACIONES",
+            "final_state": "DEMOSTRADO CON LIMITACIONES",
+            "implementation": "pandas, sklearn, LightGBM, FastAPI, Pydantic, React y Ollama con responsabilidades definidas.",
+            "evidence": [
+                "docs/training.md",
+                "requirements.txt",
+                "frontend/package-lock.json",
+                "src/prunin_ai/api/app.py"
+            ],
+            "limitation": "Dominio profesional oral requiere defensa; entorno local Node 26 difiere de Node 22 en CI.",
+            "risk": "medio",
+            "correction": "Roles conservados; nuevo evaluador operacional no modifica el predictor ni sus dependencias.",
+            "required_check": "pip check, instalacion reproducible npm, compilacion, tests y explicacion de decisiones tecnicas.",
+            "verified_result": "Integracion visible y pruebas ejecutables; no se equipara una lista de librerias a dominio humano."
+        },
+        {
+            "code": "R7.1-Cr3",
+            "requirement": "Pipeline",
+            "initial_state": "DEMOSTRADO CON LIMITACIONES",
+            "final_state": "DEMOSTRADO CON LIMITACIONES",
+            "implementation": "train_all.sh fail-fast, gates de datos, entrenamiento/evaluacion separados y fixtures demo CI.",
+            "evidence": [
+                "scripts/train_all.sh",
+                "scripts/train_core.py",
+                "docs/training.md",
+                "tests/test_dataset_pipeline.py",
+                ".github/workflows/quality.yml"
+            ],
+            "limitation": "No se reejecuto entrenamiento academico para proteger artefactos congelados.",
+            "risk": "medio",
+            "correction": "Auditoria no destructiva, salidas nuevas y prohibicion de sobrescribir reportes GenAI existentes.",
+            "required_check": "Tests fail-fast/dataset pipeline y reproducir entrenamiento solo en entorno/version separados.",
+            "verified_result": "Pipeline existente verificable; no se declara reentrenamiento oficial repetido."
+        },
+        {
+            "code": "R7.2-Cr4",
+            "requirement": "Automatizacion de despliegue",
+            "initial_state": "DEMOSTRADO CON LIMITACIONES",
+            "final_state": "PARCIAL",
+            "implementation": "Dockerfile multi-stage, CI Python 3.12/Node 22 y manifiesto Deployment/Service/HPA/PDB.",
+            "evidence": [
+                "Dockerfile.playground",
+                ".dockerignore",
+                "deploy/k8s/prunin-ai-core.yaml",
+                "tests/test_deployment_manifests.py",
+                "reports/audit_2026-11-08/environment.json"
+            ],
+            "limitation": "Cliente Docker instalado pero daemon no disponible; no build/smoke de contenedor ni cluster/kubectl ejecutados.",
+            "risk": "alto",
+            "correction": "Agregados usuario no privilegiado, healthcheck, exclusion de docs/reports/.git del contexto y pruebas de coherencia de puertos/probes.",
+            "required_check": "Con daemon autorizado, docker build -f Dockerfile.playground -t prunin-ai-core:0.9.0-academic .; smoke local sin Ollama; cluster solo con autorizacion.",
+            "verified_result": "Tests estaticos: 2 passed, 1 skipped. CI success de HEAD base no acredita cambios locales."
+        },
+        {
+            "code": "R7.2-Cr5",
+            "requirement": "Escalabilidad y robustez",
+            "initial_state": "DEMOSTRADO CON LIMITACIONES",
+            "final_state": "PARCIAL",
+            "implementation": "Timeout, fallo/JSON/evidencia invalida, fallback, errores de entrada y recuperacion local probados.",
+            "evidence": [
+                "tests/test_genai_grounding.py",
+                "tests/test_playground_api.py",
+                "reports/genai/concurrency/summary.json",
+                "reports/audit_2026-11-08/efficiency/robustness_checks.json"
+            ],
+            "limitation": "No carga sostenida/distribuida, recuperacion de pods, balanceo o escalado real; HPA es diseno.",
+            "risk": "alto",
+            "correction": "Prueba de recuperacion de rechazo a respuesta valida; estados y contadores de nuevos rechazos coherentes; diagnosticos reales conservados.",
+            "required_check": "Tests locales y prueba concurrente acotada; antes de produccion, carga/fallos sostenidos sobre infraestructura aprobada.",
+            "verified_result": "Robustez local comprobable; concurrencia historica degrada exito y no demuestra capacidad productiva del contrato actual."
+        },
+        {
+            "code": "R7.2-Cr6",
+            "requirement": "MLOps",
+            "initial_state": "DEMOSTRADO CON LIMITACIONES",
+            "final_state": "PARCIAL",
+            "implementation": "Artefactos versionados, fingerprints, split, config, prediction_id, logs, readiness, metricas y drift offline.",
+            "evidence": [
+                "docs/mlops_production.md",
+                "src/prunin_ai/api/monitoring.py",
+                "src/prunin_ai/monitoring/drift.py",
+                "scripts/check_drift.py",
+                "reports/audit_2026-11-08/integrity_before.json"
+            ],
+            "limitation": "Sin observabilidad central, alertas operadas, registro/promocion productivos o reentrenamiento continuo.",
+            "risk": "alto",
+            "correction": "Capturadas huellas y predicciones; verificacion reproducible contra manifests; contadores nuevos y procedimiento manual de promocion/rollback documentados.",
+            "required_check": "Comparar huellas/predicciones antes-despues y fingerprints originales; tests OOD/drift/monitoring; promocion solo con datos aprobados y VALIDATION.",
+            "verified_result": "Capacidades academicas implementadas; diseno productivo y operacion no se declaran demostrados."
+        }
+    ]
+}

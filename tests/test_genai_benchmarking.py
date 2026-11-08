@@ -1,12 +1,13 @@
 import importlib.util
 import json
+import pytest
 from pathlib import Path
 import sys
 from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from genai_benchmark_common import model_is_installed, percentile, summarize_rows
+from genai_benchmark_common import model_is_installed, percentile, require_new_outputs, summarize_rows
 
 def _load_script(name):
     spec = importlib.util.spec_from_file_location(name, ROOT / "scripts" / f"{name}.py")
@@ -19,6 +20,14 @@ def test_model_availability_does_not_match_other_tags():
     assert model_is_installed("qwen3:8b", {"qwen3:8b"})
     assert model_is_installed("qwen3:8b", {"qwen3:14b"}) is False
     assert model_is_installed("qwen3:8b", {"qwen3:8b:latest"})
+
+
+def test_frozen_outputs_are_never_overwritten(tmp_path):
+    report = tmp_path / "summary.json"
+    report.write_text("frozen", encoding="utf-8")
+    with pytest.raises(FileExistsError):
+        require_new_outputs(tmp_path, ["summary.json"])
+    assert report.read_text() == "frozen"
 
 
 def test_benchmark_metrics_are_calculated_from_raw_rows():

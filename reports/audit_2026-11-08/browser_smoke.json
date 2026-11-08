@@ -1,0 +1,55 @@
+{
+    "date": "2026-11-08",
+    "url": "http://127.0.0.1:8001/",
+    "method": "Playwright en navegador integrado, solicitud HTTP real, sin mock de Qwen",
+    "desktop": {
+        "viewport_width": 1440,
+        "viewport_height": 1000,
+        "http_status": 200,
+        "summary_count": 1,
+        "action_cards": 4,
+        "screenshot_reviewed": true
+    },
+    "mobile": {
+        "viewport_width": 390,
+        "viewport_height": 844,
+        "document_scroll_width": 375,
+        "horizontal_overflow": false,
+        "summary_count": 1,
+        "action_cards": 4,
+        "each_card_width": 319,
+        "card_overflow": false,
+        "screenshot_reviewed": true
+    },
+    "engine": "ollama:qwen3:8b",
+    "failure_code": null,
+    "health": "at_risk",
+    "observed_actions": [
+        {
+            "feature": "cpi",
+            "source": "observed_operational_signal",
+            "priority": "alta"
+        },
+        {
+            "feature": "spi",
+            "source": "observed_operational_signal",
+            "priority": "alta"
+        },
+        {
+            "feature": "team_capacity_ratio",
+            "source": "observed_operational_signal",
+            "priority": "alta"
+        },
+        {
+            "feature": "team_utilization",
+            "source": "observed_operational_signal",
+            "priority": "alta"
+        }
+    ],
+    "input_note": "Formulario con IT/hybrid, SPI=.72, CPI=.81, utilizacion=1.12, capacidad=.72, productividad=.68, retrabajo=.19 y defectos=.11. Conserva otros campos del preset, entre ellos dependencias=8 y exposicion=.31; no es la entrada bancaria exacta del reporte r2.",
+    "screenshot_location": "Capturas en el historial de esta sesion; no se afirma que exista un PNG versionado en el workspace.",
+    "limitations": [
+        "Smoke visual e interaccion local, no estudio de usabilidad ni auditoria completa de accesibilidad.",
+        "El caso de resumen sin acciones y el flujo CSV estan cubiertos adicionalmente por Vitest."
+    ]
+}

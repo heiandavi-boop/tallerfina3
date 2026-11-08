@@ -1,0 +1,43 @@
+{
+  "started_at": "2026-11-08T16:32:59.583Z",
+  "base_url": "http://127.0.0.1:8002/",
+  "node": "v26.7.0",
+  "playwright": "1.65.0",
+  "fixture": "tests/fixtures/banking_recommendations.csv",
+  "fixture_sha256": "1e532fc0a72f0026e46a99e255ec03f8e81b2349d154f1cef8e3dfb4d5bd44dc",
+  "recommender_sha256": "7ff3563c924fee576128202edd5b9bdc142b679c047a3dcf32d028a1c2c2bc0f",
+  "mocked_llm": false,
+  "checks": {
+    "csv_validated_without_llm": true,
+    "individual_preserves_input_and_ml": true,
+    "action_evidence_and_provenance_valid": true,
+    "unique_summary_and_priority_order": true,
+    "mobile_layout": true,
+    "download_matches_individual_response": true,
+    "no_browser_errors": true
+  },
+  "page_errors": [],
+  "browser_version": "157.0.8103.38",
+  "ollama": {
+    "enabled": true,
+    "provider": "ollama",
+    "model": "qwen3:8b",
+    "available": false,
+    "last_error": {
+      "failure_code": "ollama_unavailable",
+      "failure_detail": "HTTPConnectionPool(host='127.0.0.1', port=1): Max retries exceeded with url: /api/tags (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=1): Failed to establish a new connection: [Errno 61] Connection refused\"))"
+    }
+  },
+  "engine": "grounded_fallback",
+  "genai_used": false,
+  "genai_failure_code": "ollama_unavailable",
+  "mobile": {
+    "viewport_width": 390,
+    "document_width": 390,
+    "card_overflow": false
+  },
+  "download_name": "prunin-b83f8dd6-b9ee-477b-be6f-03015819e6a6.json",
+  "download_sha256": "d8c88120625be63df8f79c33803dc07c58fe203fee328e03caf97fa9bd55ebf6",
+  "status": "passed",
+  "finished_at": "2026-11-08T16:33:02.270Z"
+}

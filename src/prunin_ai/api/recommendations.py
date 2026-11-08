@@ -10,8 +10,16 @@ from typing import Any
 
 import requests
 
+from .operational_signals import build_evidence_context
+
 
 ACTION_GUIDANCE: dict[str, dict[str, str]] = {
+    "team_health": {
+        "priority": "media",
+        "title": "Revisar la condición operativa del equipo",
+        "action": "Revisar los componentes disponibles del indicador del equipo y contrastar las cargas con la capacidad antes del siguiente ciclo.",
+        "follow_up": "Comparar los componentes del indicador y los acuerdos de carga en el próximo corte.",
+    },
     "spi": {
         "priority": "alta",
         "title": "Recuperar el cronograma",
@@ -259,20 +267,49 @@ def _evidence_numeric_values(
     return sorted(values), sorted(percentage_values)
 
 
-def _has_unsupported_number(text: str, allowed_values: list[float], allowed_percentages: list[float]) -> bool:
+def _has_unsupported_number(text: str, allowed_values: list[float], allowed_percentages: list[float], *, exact_rounding: bool = False) -> bool:
     for match in _NUMERIC_CLAIM.finditer(text):
+        literal = match.group(0).replace("%", "").replace(",", ".").strip()
         try:
-            number = float(match.group(0).replace("%", "").replace(",", ".").strip())
+            number = float(literal)
         except ValueError:
             return True
+        if not math.isfinite(number):
+            return True
+        scale = 100 if match.group(1) else 1
         if match.group(1):
             number /= 100
             candidates = allowed_percentages
         else:
             candidates = allowed_values
-        if not any(math.isclose(number, allowed, rel_tol=0.03, abs_tol=0.005) for allowed in candidates):
+        if exact_rounding:
+            decimals = len(literal.split(".", 1)[1]) if "." in literal else 0
+            supported = any(
+                (number != 0 or allowed == 0)
+                and math.isclose(number, round(allowed * scale, decimals) / scale, rel_tol=1e-9, abs_tol=1e-12)
+                for allowed in candidates
+            )
+        else:
+            supported = any(math.isclose(number, allowed, rel_tol=0.03, abs_tol=0.005) for allowed in candidates)
+        if not supported:
             return True
     return False
+
+
+def _observed_claim_checks(text: str, context: dict[str, Any]) -> tuple[bool, bool]:
+    unsupported_value = False
+    contrary_interpretation = False
+    for signal in context["operational_signals"]:
+        subject = "(?:" + "|".join(re.escape(name) for name in (signal["feature"], signal["label"])) + ")"
+        prefix = rf"\b{subject}(?:\s+observad[oa])?"
+        for claim in re.finditer(prefix + r"\s*(?:(?:es|de|=|:)\s*)?([+-]?(?:\d+(?:[.,]\d+)?|[.,]\d+)\s*%?)", text, re.IGNORECASE):
+            values, percentages = _evidence_numeric_values(None, [signal])
+            unsupported_value |= _has_unsupported_number(claim.group(1), values, percentages, exact_rounding=True)
+        contrary_interpretation |= bool(re.search(
+            prefix + r"\s+(?:es|resulta|muestra un desempeño|presenta un desempeño)\s+(?:un desempeño\s+)?favorable\b",
+            text, re.IGNORECASE,
+        ))
+    return unsupported_value, contrary_interpretation
 
 
 def _recommendation_sort_key(recommendation: dict[str, Any]) -> int:
@@ -287,7 +324,7 @@ def _is_concrete_action(action: str) -> bool:
     return verb in ACTION_VERBS
 
 
-def action_response_schema(allowed_features: set[str]) -> dict[str, Any]:
+def action_response_schema(allowed_features: set[str], context: dict[str, Any] | None = None) -> dict[str, Any]:
     has_risk_drivers = bool(allowed_features)
     recommendation_schema = {
         "type": "object",
@@ -302,6 +339,11 @@ def action_response_schema(allowed_features: set[str]) -> dict[str, Any]:
         "required": ["priority", "title", "evidence_feature", "reason", "action", "follow_up"],
         "additionalProperties": False,
     }
+    if context is not None:
+        recommendation_schema["properties"]["evidence_source"] = {
+            "type": "string", "enum": ["model_driver", "observed_operational_signal", "heuristic_indicator"],
+        }
+        recommendation_schema["required"].append("evidence_source")
     return {
         "type": "object",
         "properties": {
@@ -324,6 +366,7 @@ def validate_generated_payload(
     *,
     prediction: dict[str, Any] | None = None,
     drivers: list[dict[str, Any]] | None = None,
+    context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     recommendations = payload.get("recommendations") if isinstance(payload, dict) else None
     summary = payload.get("summary") if isinstance(payload, dict) else None
@@ -336,6 +379,8 @@ def validate_generated_payload(
         and "\n" not in summary
     )
     referenced: list[str] = []
+    provenance_valid = True
+    allowed_pairs = {(item["feature"], item["source"]) for item in context["actionable_evidence"]} if context else set()
     narratives: list[str] = [summary] if isinstance(summary, str) else []
     if isinstance(recommendations, list):
         for item in recommendations:
@@ -367,15 +412,45 @@ def validate_generated_payload(
                 schema_valid = False
             if isinstance(feature, str):
                 referenced.append(feature)
+            if context is not None:
+                source = item.get("evidence_source")
+                if not isinstance(source, str) or not isinstance(feature, str) or (feature, source) not in allowed_pairs:
+                    provenance_valid = False
+                if set(item) != {"priority", "title", "evidence_feature", "evidence_source", "reason", "action", "follow_up"}:
+                    schema_valid = False
+    if context is not None and isinstance(payload, dict) and set(payload) != {"summary", "recommendations"}:
+        schema_valid = False
     risk_drivers_exist = bool(allowed_features)
     empty_with_risk = schema_valid and risk_drivers_exist and not recommendations
     evidence_features_valid = empty_with_risk or (not allowed_features and not referenced) or (bool(referenced) and set(referenced) <= allowed_features)
-    allowed_numbers, allowed_percentages = _evidence_numeric_values(prediction, drivers)
-    unsupported_numeric_claim = any(_has_unsupported_number(text, allowed_numbers, allowed_percentages) for text in narratives)
+    numeric_evidence = context["actionable_evidence"] if context is not None else drivers
+    allowed_numbers, allowed_percentages = _evidence_numeric_values(prediction, numeric_evidence)
+    unsupported_numeric_claim = any(_has_unsupported_number(text, allowed_numbers, allowed_percentages, exact_rounding=context is not None) for text in narratives)
+    if context is not None and isinstance(recommendations, list):
+        for item in recommendations:
+            if not isinstance(item, dict):
+                continue
+            matched = [signal for signal in context["actionable_evidence"] if signal["feature"] == item.get("evidence_feature") and signal["source"] == item.get("evidence_source")]
+            item_numbers, item_percentages = _evidence_numeric_values(prediction if item.get("evidence_source") == "model_driver" else None, matched)
+            unsupported_numeric_claim |= any(_has_unsupported_number(item[key], item_numbers, item_percentages, exact_rounding=True) for key in ("title", "reason", "action", "follow_up") if isinstance(item.get(key), str))
+        provenance_valid &= len(referenced) == len(set(referenced))
+    contradiction = False
+    if context is not None:
+        text = " ".join(narratives).lower()
+        misattributed_value, contrary_observation = _observed_claim_checks(text, context)
+        unsupported_numeric_claim |= misattributed_value
+        contradiction = bool(
+            (prediction and prediction.get("health") in {"at_risk", "critical"} and re.search(r"(?:modelo clasifica|predicción indica|prediccion indica).{0,30}(?:saludable|sin riesgo)", text))
+            or (allowed_features and re.search(r"(?:no (?:hay|existen|se identifican) (?:señales|desviaciones|acciones)|sin señales prioritarias)", text))
+            or re.search(r"(?:garantiza|garantizar|causado por|es la causa de)", text)
+            or (context["status"] == "insufficient_evidence" and isinstance(summary, str) and not re.search(r"insuficien|completar|faltan|limitad", summary.lower()))
+            or contrary_observation
+        )
     actionability = schema_valid and all(_is_concrete_action(item["action"]) for item in recommendations or [])
     action_structure_valid = schema_valid and actionability
     follow_up_present = schema_valid and all(bool(item["follow_up"].strip()) for item in recommendations or [])
-    grounded = schema_valid and evidence_features_valid and not unsupported_numeric_claim and not empty_with_risk and actionability
+    follow_up_verifiable = follow_up_present and all(item["follow_up"].strip().lower().split()[0] in ACTION_VERBS | {"comprobar", "volver"} for item in recommendations or [])
+    grounded = schema_valid and evidence_features_valid and provenance_valid and not contradiction and not unsupported_numeric_claim and not empty_with_risk and actionability and follow_up_verifiable
     if not schema_valid:
         failure_code = "invalid_schema"
         failure_detail = "Se esperaba summary textual y hasta cuatro recomendaciones con evidencia, razón y acción válidas."
@@ -385,18 +460,29 @@ def validate_generated_payload(
     elif not evidence_features_valid:
         failure_code = "unknown_evidence_feature"
         failure_detail = "Una recomendación citó evidencia fuera de la lista permitida."
+    elif not provenance_valid:
+        failure_code = "invalid_evidence_provenance"
+        failure_detail = "La procedencia no corresponde a la señal verificada o la evidencia está duplicada."
+    elif contradiction:
+        failure_code = "contradictory_claim"
+        failure_detail = "La respuesta contradice la evidencia o afirma causalidad o garantías no demostradas."
     elif unsupported_numeric_claim:
         failure_code = "unsupported_numeric_claim"
         failure_detail = "La respuesta incluyó cifras que no aparecen en la evidencia estructurada."
     elif not actionability:
         failure_code = "non_actionable_recommendation"
         failure_detail = "Cada acción debe comenzar con un verbo y describir una tarea ejecutable y concreta."
+    elif not follow_up_verifiable:
+        failure_code = "non_verifiable_follow_up"
+        failure_detail = "El seguimiento debe indicar una comprobación ejecutable, no solo una intención genérica."
     else:
         failure_code = None
         failure_detail = None
     return {
         "schema_valid": schema_valid,
         "evidence_features_valid": evidence_features_valid,
+        "evidence_provenance_valid": provenance_valid,
+        "contradictory_claim": contradiction,
         "referenced_evidence_features": sorted(set(referenced)),
         "allowed_evidence_features": sorted(allowed_features),
         "allowed_numeric_values": allowed_numbers,
@@ -405,41 +491,37 @@ def validate_generated_payload(
         "actionability": actionability,
         "action_structure_valid": action_structure_valid,
         "follow_up_present": follow_up_present,
+        "follow_up_verifiable": follow_up_verifiable,
         "grounded": grounded,
         "failure_code": failure_code,
         "failure_detail": failure_detail,
     }
 
 
-def build_grounded_prompt(prediction: dict[str, Any], drivers: list[dict[str, Any]]) -> tuple[str, set[str]]:
-    relevant_drivers = [item for item in drivers if item.get("direction") == "increases_risk"][:6]
-    allowed_features = _allowed_features(relevant_drivers)
+def build_grounded_prompt(prediction: dict[str, Any], drivers: list[dict[str, Any]], *, row: dict[str, Any] | None = None) -> tuple[str, set[str]]:
+    context = build_evidence_context(row or {}, prediction, drivers)
+    allowed_features = {str(item["feature"]) for item in context["actionable_evidence"]}
     action_guidance = {
         feature: ACTION_GUIDANCE[feature]
         for feature in sorted(allowed_features)
         if feature in ACTION_GUIDANCE
     }
     compact = {
-        "prediction": {
-            key: prediction.get(key)
-            for key in ["health", "fused_health", "delay_days", "cost_overrun_ratio", "final_status", "team_health"]
-        },
-        "risk_drivers": relevant_drivers,
+        **context,
+        "risk_drivers": [item for item in context["model_drivers"] if item.get("direction") == "increases_risk"],
         "allowed_evidence_features": sorted(allowed_features),
         "action_guidance": action_guidance,
     }
     if allowed_features:
-        example_feature = next(
-            str(item["feature"])
-            for item in relevant_drivers
-            if str(item.get("feature")) in allowed_features
-        )
+        example_signal = context["actionable_evidence"][0]
+        example_feature = str(example_signal["feature"])
         example_guidance = ACTION_GUIDANCE.get(example_feature)
         if example_guidance:
             example_recommendations = [{
                 **example_guidance,
                 "evidence_feature": example_feature,
-                "reason": f"{example_feature} aparece entre las señales que incrementan el riesgo en esta inferencia.",
+                "evidence_source": example_signal["source"],
+                "reason": example_signal.get("reason") or f"{example_feature} aparece entre los drivers predictivos de riesgo; no demuestra causalidad.",
             }]
             example_summary = "Priorizar la revisión de la señal disponible."
         else:
@@ -447,15 +529,15 @@ def build_grounded_prompt(prediction: dict[str, Any], drivers: list[dict[str, An
             example_summary = "Priorizar la revisión de la señal disponible."
         response_example = {"summary": example_summary, "recommendations": example_recommendations}
         conditional_rule = (
-            "La evidencia incluye al menos un driver de riesgo. Es obligatorio devolver al menos una acción y está prohibido devolver recommendations vacías. "
+            "La evidencia incluye señales verificadas de intervención. Es obligatorio devolver al menos una acción y está prohibido devolver recommendations vacías. "
             "Usa una o más de las señales exactas de allowed_evidence_features y no excedas cuatro acciones."
         )
     else:
         response_example = {
-            "summary": "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico.",
+            "summary": "La evidencia es insuficiente; completar indicadores y líneas base." if context["status"] == "insufficient_evidence" else "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico.",
             "recommendations": [],
         }
-        conditional_rule = "No hay drivers que incrementen riesgo; devuelve recommendations vacías y conserva un summary prudente."
+        conditional_rule = "No hay señales verificadas de intervención; devuelve recommendations vacías. Si status es insufficient_evidence, informa insuficiencia, no ausencia de riesgo."
     prompt = (
         "/no_think\n"
         "Eres la capa de acciones de gestión de PRUNIN AI Core. Tu tarea NO es resumir el diagnóstico: convierte las señales permitidas en pasos concretos para el responsable del proyecto. "
@@ -463,6 +545,8 @@ def build_grounded_prompt(prediction: dict[str, Any], drivers: list[dict[str, An
         "No inventes causas, actividades observadas, hitos, ruta crítica, fechas, montos, porcentajes, personas, responsables nominales, contratos ni stakeholders. No afirmes causalidad. "
         "Cada acción empieza con un verbo, es ejecutable, se vincula a una señal, explica por qué y especifica qué revisar después. Usa action_guidance como referencia operativa, no como hechos adicionales. "
         "Solo puedes usar evidence_feature incluida en allowed_evidence_features. Evita números; si alguno fuera imprescindible, debe aparecer literalmente en EVIDENCIA. "
+        "Conserva la pareja feature/source de actionable_evidence como evidence_feature/evidence_source. No confundas model_driver (sensibilidad local), observed_operational_signal (dato observado con regla heurística) ni heuristic_indicator (cálculo determinístico). "
+        "Los drivers reduces_risk son contexto predictivo, no invalidan desviaciones operativas. Las acciones operativas no reclasifican Health ni afirman que el modelo utiliza esas variables. No dupliques una feature. "
         "Prioridad permitida: alta, media o baja; ordena alta, media, baja y prioriza SPI/CPI/capacidad cuando estén entre las señales más relevantes, sin inventar umbrales. "
         "Devuelve exclusivamente JSON válido, sin markdown ni texto adicional, con el mismo schema y nivel de concreción de este ejemplo: "
         + json.dumps(response_example, ensure_ascii=False, separators=(",", ":"))
@@ -479,11 +563,13 @@ def generate_ollama_grounded(
     model: str | None = None,
     url: str | None = None,
     timeout: float | None = None,
+    row: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     model = model or os.getenv("PRUNIN_OLLAMA_MODEL", "qwen3:8b")
     url = url or os.getenv("PRUNIN_OLLAMA_URL", "http://localhost:11434/api/chat")
     timeout = ollama_timeout_seconds(timeout)
-    prompt, allowed_features = build_grounded_prompt(prediction, drivers)
+    context = build_evidence_context(row or {}, prediction, drivers)
+    prompt, allowed_features = build_grounded_prompt(prediction, drivers, row=row)
     started = time.perf_counter()
     raw_response = ""
     try:
@@ -493,9 +579,9 @@ def generate_ollama_grounded(
                 "model": model,
                 "messages": [{"role": "user", "content": prompt}],
                 "stream": False,
-                "format": action_response_schema(allowed_features),
+                "format": action_response_schema(allowed_features, context),
                 "think": False,
-                "options": {"temperature": 0.1, "num_predict": 400},
+                "options": {"temperature": 0.1, "num_predict": 1200},
             },
             timeout=timeout,
         )
@@ -510,7 +596,7 @@ def generate_ollama_grounded(
             )
         raw_response = content
         parsed = json.loads(content)
-        validation = validate_generated_payload(parsed, allowed_features, prediction=prediction, drivers=drivers)
+        validation = validate_generated_payload(parsed, allowed_features, prediction=prediction, drivers=drivers, context=context)
         latency_ms = (time.perf_counter() - started) * 1000
         failure_code = validation.get("failure_code")
         failure_detail = validation.get("failure_detail")
@@ -592,31 +678,38 @@ def grounded_fallback(
     validation: dict[str, Any] | None = None,
     debug: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    risk_drivers = [driver for driver in drivers if driver.get("direction") == "increases_risk"]
+    context = build_evidence_context(row, prediction, drivers)
+    risk_drivers = context["actionable_evidence"]
     recommendations: list[dict[str, str]] = []
     for driver in risk_drivers:
         name = str(driver.get("feature"))
         guidance = ACTION_GUIDANCE.get(name)
         if guidance is None:
             continue
+        if any(item["evidence_feature"] == name for item in recommendations):
+            continue
         recommendations.append({
             **guidance,
+            "priority": driver.get("priority", guidance["priority"]),
             "evidence_feature": name,
-            "reason": f"{driver.get('label', name)} aparece entre las señales que incrementan el riesgo en esta inferencia; esto muestra asociación, no causalidad.",
+            "evidence_source": driver["source"],
+            "reason": driver.get("reason") or f"{driver.get('label', name)} aparece entre las señales que incrementan el riesgo en esta inferencia; esto muestra asociación, no causalidad.",
         })
     recommendations = sorted(recommendations, key=_recommendation_sort_key)[:4]
     actions = [item["action"] for item in recommendations]
     reasons = [item["reason"] for item in recommendations]
     evidence_features = [item["evidence_feature"] for item in recommendations]
-    allowed_features = sorted(_allowed_features(drivers))
+    allowed_features = sorted({str(item["feature"]) for item in risk_drivers})
     if not risk_drivers:
-        summary = "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico."
+        summary = "La evidencia disponible es insuficiente para descartar desviaciones; completar los indicadores y sus líneas base." if context["status"] == "insufficient_evidence" else "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico."
     elif not recommendations:
         summary = "No hay una acción de respaldo catalogada para estas señales; validar la evidencia con el equipo del proyecto."
     else:
         summary = "Estas acciones responden a las señales de mayor riesgo detectadas."
     result = {
         "engine": "grounded_fallback",
+        "evidence_context": context,
+        "evidence_status": context["status"],
         "genai_attempted": genai_attempted,
         "genai_used": False,
         "genai_failure_reason": genai_failure_reason or failure_detail or failure_code,
@@ -627,6 +720,7 @@ def grounded_fallback(
         "allowed_evidence_features": validation.get("allowed_evidence_features", allowed_features) if validation else allowed_features,
         "referenced_evidence_features": validation.get("referenced_evidence_features", []) if validation else [],
         "recommendations": recommendations,
+        "fallback_validation": validate_generated_payload({"summary": summary, "recommendations": recommendations}, set(allowed_features), prediction=prediction, drivers=drivers, context=context),
         "reasons": reasons[:5],
         "actions": list(dict.fromkeys(actions))[:4],
         "summary": summary,
@@ -652,7 +746,8 @@ def ollama_recommendations(
 ) -> dict[str, Any] | None:
     if os.getenv("PRUNIN_ENABLE_OLLAMA", "0") != "1":
         return None
-    generated = generate_ollama_grounded(prediction, drivers)
+    context = build_evidence_context(row, prediction, drivers)
+    generated = generate_ollama_grounded(prediction, drivers, row=row)
     if not generated["ok"]:
         return grounded_fallback(
             row,
@@ -669,6 +764,8 @@ def ollama_recommendations(
     recs = sorted(generated["payload"]["recommendations"], key=_recommendation_sort_key)
     recommendation = {
         "engine": f"ollama:{generated['model']}",
+        "evidence_context": context,
+        "evidence_status": context["status"],
         "genai_attempted": True,
         "genai_used": True,
         "genai_failure_reason": None,
@@ -684,7 +781,7 @@ def ollama_recommendations(
         "summary": generated["payload"].get("summary", ""),
         "latency_ms": generated["latency_ms"],
         "grounding": generated["validation"],
-        "disclaimer": "Texto generado por IA sobre evidencia estructurada del modelo; validar antes de tomar decisiones.",
+        "disclaimer": "Texto generado por IA sobre predicciones, datos observados y heurísticas identificados por su procedencia; validar antes de tomar decisiones.",
     }
     if os.getenv("PRUNIN_GENAI_DEBUG", "0") == "1":
         recommendation["genai_debug"] = {"raw_response": generated.get("raw_response"), "parsed_json": generated.get("payload"), "validation": generated.get("validation")}

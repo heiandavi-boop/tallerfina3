@@ -1,0 +1,192 @@
+{
+  "environment": {
+    "created_at_utc": "2026-11-08T15:41:13.863978+00:00",
+    "python": "3.12.15",
+    "platform": "macOS-27.2-arm64-arm-64bit",
+    "cpu_count": 15,
+    "head": "bdc6f61c44e040c3c8ef694970c7252d8ec625bf",
+    "node": "v26.7.0"
+  },
+  "checks": [
+    {
+      "command": [
+        "./.venv/bin/python",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "started_at_utc": "2026-11-08T15:39:51.087168+00:00",
+      "returncode": 0,
+      "evidence": "reports/audit_2026-11-08/gates/gate-01.txt",
+      "last_lines": [
+        "No broken requirements found."
+      ]
+    },
+    {
+      "command": [
+        "./.venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "src",
+        "scripts",
+        "tests"
+      ],
+      "started_at_utc": "2026-11-08T15:39:51.211276+00:00",
+      "returncode": 0,
+      "evidence": "reports/audit_2026-11-08/gates/gate-02.txt",
+      "last_lines": []
+    },
+    {
+      "command": [
+        "./.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "started_at_utc": "2026-11-08T15:39:51.257152+00:00",
+      "returncode": 0,
+      "evidence": "reports/audit_2026-11-08/gates/gate-03.txt",
+      "last_lines": [
+        "............................s........................................... [ 44%]",
+        "........................................................................ [ 88%]",
+        "...................                                                      [100%]",
+        "162 passed, 1 skipped in 54.69s"
+      ]
+    },
+    {
+      "command": [
+        "npm",
+        "ci",
+        "--prefix",
+        "frontend"
+      ],
+      "started_at_utc": "2026-11-08T15:40:46.386252+00:00",
+      "returncode": 0,
+      "evidence": "reports/audit_2026-11-08/gates/gate-04.txt",
+      "last_lines": [
+        "21 packages are looking for funding",
+        "  run `npm fund` for details",
+        "",
+        "found 0 vulnerabilities",
+        "npm warn install-scripts 1 package has install scripts not yet covered by allowScripts:",
+        "npm warn install-scripts   fsevents@2.3.3 (install: (install scripts present))",
+        "npm warn install-scripts",
+        "npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow."
+      ]
+    },
+    {
+      "command": [
+        "npm",
+        "test",
+        "--prefix",
+        "frontend",
+        "--",
+        "--run"
+      ],
+      "started_at_utc": "2026-11-08T15:40:48.417362+00:00",
+      "returncode": 0,
+      "evidence": "reports/audit_2026-11-08/gates/gate-05.txt",
+      "last_lines": [
+        " RUN  v5.0.3 ./frontend",
+        "",
+        "",
+        " Test Files  1 passed (1)",
+        "      Tests  20 passed (20)",
+        "   Start at  10:40:49",
+        "   Duration  1.28s (tests 66%, environment 21%, transform 7%, import 6%)",
+        ""
+      ]
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--prefix",
+        "frontend"
+      ],
+      "started_at_utc": "2026-11-08T15:40:50.645875+00:00",
+      "returncode": 0,
+      "evidence": "reports/audit_2026-11-08/gates/gate-06.txt",
+      "last_lines": [
+        "✓ 22 modules transformed.",
+        "rendering chunks...",
+        "computing gzip size...",
+        "dist/index.html                   0.54 kB │ gzip:  0.35 kB",
+        "dist/assets/index-D8wI28pC.css   30.79 kB │ gzip:  7.70 kB",
+        "dist/assets/index-BEZ9mCx3.js   275.44 kB │ gzip: 83.23 kB",
+        "",
+        "✓ built in 237ms"
+      ]
+    },
+    {
+      "command": [
+        "npm",
+        "audit",
+        "--prefix",
+        "frontend"
+      ],
+      "started_at_utc": "2026-11-08T15:40:51.151818+00:00",
+      "returncode": 0,
+      "evidence": "reports/audit_2026-11-08/gates/gate-07.txt",
+      "last_lines": [
+        "found 0 vulnerabilities"
+      ]
+    },
+    {
+      "command": [
+        "./.venv/bin/python",
+        "scripts/validate_original_promise.py",
+        "--check"
+      ],
+      "started_at_utc": "2026-11-08T15:40:51.670971+00:00",
+      "returncode": 0,
+      "evidence": "reports/audit_2026-11-08/gates/gate-08.txt",
+      "last_lines": [
+        "PROMISE VALIDATION: OK",
+        "60% full-cohort detection=0.758985"
+      ]
+    },
+    {
+      "command": [
+        "./scripts/preflight_demo.sh"
+      ],
+      "started_at_utc": "2026-11-08T15:40:51.712453+00:00",
+      "returncode": 0,
+      "evidence": "reports/audit_2026-11-08/gates/gate-09.txt",
+      "last_lines": [
+        "OK   GET /api/csv-template        200",
+        "OK   Plantilla CSV ML + Team Health ",
+        "OK   ML features en plantilla     ",
+        "OK   Team Health opcional en plantilla ",
+        "OK   Plantilla CSV sin not_used   ",
+        "======================================================",
+        "Modelo: 0.9.0-academic (academic)",
+        "RESULTADO: LISTO PARA DEMO"
+      ]
+    },
+    {
+      "command": [
+        "./scripts/preflight_genai.sh"
+      ],
+      "started_at_utc": "2026-11-08T15:41:09.757232+00:00",
+      "returncode": 0,
+      "evidence": "reports/audit_2026-11-08/gates/gate-10.txt",
+      "last_lines": [
+        "Ollama available........... PASS",
+        "Model qwen3:8b............. PASS",
+        "GenAI API status........... PASS",
+        "Generation................. PASS",
+        "JSON schema................ PASS",
+        "Evidence grounding......... PASS",
+        "Latency ................. 3.90 s",
+        "RESULTADO: OLLAMA READY"
+      ]
+    }
+  ],
+  "limitations": [
+    "Local Node version differs from Node 22 pinned in CI.",
+    "A local pass is not CI for an unpublished change."
+  ]
+}

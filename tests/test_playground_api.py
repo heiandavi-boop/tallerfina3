@@ -1,5 +1,6 @@
 import io
 import importlib
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -191,6 +192,53 @@ def test_csv_template_and_csv_prediction():
     future_template = client.get('/api/csv-template?profile=full_future')
     assert future_template.status_code == 200
     assert len(pd.read_csv(io.BytesIO(future_template.content)).columns) == len(schema['fields'])
+
+
+@pytest.mark.parametrize('empty_drivers', [False, True])
+def test_banking_csv_then_individual_analysis_preserves_input_and_evidence(monkeypatch, empty_drivers):
+    fixture = Path(__file__).parent / 'fixtures' / 'banking_recommendations.csv'
+    row = pd.read_csv(fixture).to_dict('records')[0]
+    calls = []
+    original = app_module.build_recommendations
+
+    def track_recommendations(*args, **kwargs):
+        calls.append(args[0])
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(app_module, 'build_recommendations', track_recommendations)
+    monkeypatch.setenv('PRUNIN_ENABLE_OLLAMA', '1')
+    if empty_drivers:
+        monkeypatch.setattr(runtime, 'local_drivers', lambda *args: [])
+    batch = client.post('/api/predict-csv', files={'file': (fixture.name, fixture.read_bytes(), 'text/csv')})
+    assert batch.status_code == 200
+    csv_row = batch.json()['rows'][0]
+    assert csv_row['error'] is None
+    assert calls == []
+    assert csv_row['input'] == row
+    assert csv_row['prediction']['recommendations']['engine'] == 'not_requested'
+    assert csv_row['prediction']['recommendations']['genai_attempted'] is False
+
+    monkeypatch.setenv('PRUNIN_ENABLE_OLLAMA', '0')
+    individual = client.post('/api/predict', json=csv_row['input'])
+    assert individual.status_code == 200
+    body = individual.json()
+    assert len(calls) == 1
+    assert body['input'] == row
+    assert body['prediction'] == csv_row['prediction']['prediction']
+    result = body['recommendations']
+    assert result['engine'] == 'grounded_fallback'
+    assert result['evidence_status'] == 'priority_signals'
+    assert result['fallback_validation']['grounded']
+    pairs = {(item['feature'], item['source']) for item in result['evidence_context']['actionable_evidence']}
+    assert 1 <= len(result['recommendations']) <= 4
+    assert all((item['evidence_feature'], item['evidence_source']) in pairs for item in result['recommendations'])
+    assert all(item['reason'] and item['action'] and item['follow_up'] for item in result['recommendations'])
+    assert len({item['evidence_feature'] for item in result['recommendations']}) == len(result['recommendations'])
+    signals = {item['feature']: item for item in result['evidence_context']['operational_signals']}
+    for feature in ('spi', 'cpi', 'team_utilization', 'team_capacity_ratio', 'average_productivity', 'rework_ratio', 'defect_rate', 'dependency_delay_days', 'normalized_risk_exposure'):
+        assert signals[feature]['value'] == row[feature]
+        assert signals[feature]['source'] == 'observed_operational_signal'
+
 
 def test_empty_and_header_only_csv_are_rejected():
     for payload in (b'', b'planned_budget,spi\n'):

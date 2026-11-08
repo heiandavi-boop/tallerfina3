@@ -1,0 +1,80 @@
+{
+    "date": "2026-11-08",
+    "source": "Control diagnostico de VALIDATION, no usado para seleccionar ni ajustar modelos",
+    "project_id": "mendeley::PROJ_0009",
+    "selection": "Snapshot mas reciente por proyecto VALIDATION, SPI/CPI >=0.95 y prediccion healthy; primer control encontrado. No es muestra aleatoria ni evaluacion de exactitud.",
+    "augmentation": "Las siete features ML proceden del snapshot; las senales operativas adicionales proceden del preset favorable. No se modifico el dataset ni se afirman observaciones reales de equipo.",
+    "endpoint": "http://127.0.0.1:8001/api/predict",
+    "http_status": 200,
+    "prediction_id": "121e7f38-d7be-4038-97b8-7819cf6cf15e",
+    "input": {
+        "planned_duration_weeks": 152.075,
+        "planned_budget": 1833354.63,
+        "baseline_scope_units": 900,
+        "sector": "technology",
+        "project_type": "construction",
+        "methodology": "waterfall",
+        "complexity": "medium",
+        "criticality": "medium",
+        "true_progress": 1.0,
+        "spi": 0.9999999999999998,
+        "cpi": 0.9611971792837388,
+        "team_utilization": 0.8,
+        "team_capacity_ratio": 1.08,
+        "average_productivity": 1.02,
+        "defect_rate": 0.025,
+        "rework_ratio": 0.035,
+        "scope_growth_ratio": 0.015,
+        "dependency_delay_days": 0.5,
+        "normalized_risk_exposure": 0.07,
+        "governance_health_score": 0.88,
+        "team_stability": 0.94,
+        "collaboration_level": 0.92
+    },
+    "prediction": {
+        "health": "healthy",
+        "delay_days": 61.51785175994073,
+        "cost_overrun_ratio": 0.03804819873159599,
+        "final_status": "successful",
+        "fused_risk_score": 0.08101382736476946,
+        "team_health_score": 0.952333,
+        "ood_warning": false
+    },
+    "drivers": [
+        {
+            "feature": "planned_budget",
+            "risk_impact": -0.1071,
+            "direction": "reduces_risk"
+        },
+        {
+            "feature": "planned_duration_weeks",
+            "risk_impact": 0.0474,
+            "direction": "increases_risk"
+        },
+        {
+            "feature": "cpi",
+            "risk_impact": 0.0254,
+            "direction": "increases_risk"
+        },
+        {
+            "feature": "true_progress",
+            "risk_impact": -0.0189,
+            "direction": "reduces_risk"
+        }
+    ],
+    "recommendations": {
+        "engine": "ollama:qwen3:8b",
+        "genai_attempted": true,
+        "genai_used": true,
+        "failure_code": null,
+        "evidence_status": "no_priority_signals",
+        "operational_signals": [],
+        "allowed_evidence_features": [],
+        "recommendations": [],
+        "summary": "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico.",
+        "schema_valid": true,
+        "grounded": true,
+        "latency_ms": 2099.68
+    },
+    "limitation": "Healthy es la clasificacion ML observada, no una verdad empresarial validada. CPI<1 tiene una desviacion leve tolerada por la politica heuristica; seguimiento normal no significa ausencia universal de riesgo."
+}

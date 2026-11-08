@@ -1,0 +1,40 @@
+{
+  "started_at": "2026-11-08T16:11:08.441Z",
+  "base_url": "http://127.0.0.1:8001/",
+  "node": "v26.7.0",
+  "playwright": "1.65.0",
+  "fixture": "tests/fixtures/banking_recommendations.csv",
+  "fixture_sha256": "1e532fc0a72f0026e46a99e255ec03f8e81b2349d154f1cef8e3dfb4d5bd44dc",
+  "recommender_sha256": "7ff3563c924fee576128202edd5b9bdc142b679c047a3dcf32d028a1c2c2bc0f",
+  "mocked_llm": false,
+  "checks": {
+    "csv_validated_without_llm": true,
+    "individual_preserves_input_and_ml": true,
+    "action_evidence_and_provenance_valid": true,
+    "unique_summary_and_priority_order": true,
+    "mobile_layout": true,
+    "download_matches_individual_response": true,
+    "no_browser_errors": true
+  },
+  "page_errors": [],
+  "browser_version": "157.0.8103.38",
+  "ollama": {
+    "enabled": true,
+    "provider": "ollama",
+    "model": "qwen3:8b",
+    "available": true,
+    "last_error": null
+  },
+  "engine": "ollama:qwen3:8b",
+  "genai_used": true,
+  "genai_failure_code": null,
+  "mobile": {
+    "viewport_width": 390,
+    "document_width": 390,
+    "card_overflow": false
+  },
+  "download_name": "prunin-5dc4c7f2-de51-4bee-a1a8-b346565f3d5f.json",
+  "download_sha256": "953d1488a5c6a3f5ae30409f7b26c9e4d2284feafaa554bf09003076474cc620",
+  "status": "passed",
+  "finished_at": "2026-11-08T16:11:24.727Z"
+}

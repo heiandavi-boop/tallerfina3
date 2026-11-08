@@ -1,0 +1,14 @@
+version: operational-v1
+description: Heuristic review triggers, not learned thresholds or calibrated risk estimates. Never tuned on TEST.
+rules:
+  spi: {operator: below, threshold: 0.95, unit: index, priority: alta, basis: 'EVM: below 1 is unfavorable; 0.95 is a heuristic review tolerance.'}
+  cpi: {operator: below, threshold: 0.95, unit: index, priority: alta, basis: 'EVM: below 1 is unfavorable; 0.95 is a heuristic review tolerance.'}
+  team_utilization: {operator: above, threshold: 1.05, unit: ratio, priority: alta, basis: 'Heuristic tolerance above assigned capacity.'}
+  team_capacity_ratio: {operator: below, threshold: 0.90, unit: ratio, priority: alta, basis: 'Heuristic tolerance below capacity covering demand.'}
+  average_productivity: {operator: below, threshold: 0.85, unit: ratio, priority: media, basis: 'Heuristic review trigger relative to the project reference.'}
+  rework_ratio: {operator: above, threshold: 0.10, unit: ratio, priority: media, basis: 'Uncalibrated heuristic; requires a comparable effort denominator.'}
+  defect_rate: {operator: above, threshold: 0.08, unit: ratio, priority: media, basis: 'Uncalibrated heuristic; requires a comparable observed-work denominator.'}
+  scope_growth_ratio: {operator: above, threshold: 0.10, unit: ratio, priority: media, basis: 'Uncalibrated heuristic relative to the approved scope baseline.'}
+  dependency_delay_days: {operator: above, threshold: 7, unit: days, priority: media, basis: 'Uncalibrated review trigger for reported dependency delays.'}
+  normalized_risk_exposure: {operator: above, threshold: 0.30, unit: normalized_index, priority: media, basis: 'Uncalibrated trigger; assumes the supplied normalized index is comparable.'}
+  governance_health_score: {operator: below, threshold: 0.60, unit: normalized_index, priority: media, basis: 'Uncalibrated trigger; assumes the supplied normalized index is comparable.'}

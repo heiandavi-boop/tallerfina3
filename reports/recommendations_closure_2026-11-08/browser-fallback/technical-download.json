@@ -1,0 +1,753 @@
+{
+  "prediction_id": "b83f8dd6-b9ee-477b-be6f-03015819e6a6",
+  "model": {
+    "version": "0.9.0-academic",
+    "mode": "configured",
+    "execution": "LIVE",
+    "dataset_source": "Mendeley Data 2p5sz57wh2 version 2",
+    "dataset_type": "synthetic external data",
+    "model_type": "LightGBM",
+    "final_status_mode": "derived_from_health",
+    "fusion": {
+      "type": "operational_heuristic",
+      "core_weight": 0.85,
+      "team_health_weight": 0.15,
+      "calibrated": false
+    },
+    "trained_features": [
+      "planned_duration_weeks",
+      "planned_budget",
+      "true_progress",
+      "spi",
+      "cpi",
+      "project_type",
+      "methodology"
+    ]
+  },
+  "prediction": {
+    "health": "at_risk",
+    "health_probabilities": {
+      "at_risk": 0.9430974624131782,
+      "critical": 0.055258418058727526,
+      "healthy": 0.0016441195280943158
+    },
+    "health_confidence": 0.9430974624131782,
+    "delay_days": 69.66174897542331,
+    "cost_overrun_ratio": 0.13276946819337526,
+    "final_status": "challenged",
+    "final_status_source": "derived_from_health",
+    "team_health": {
+      "score": 0.522667,
+      "level": "attention",
+      "weight_coverage": 1,
+      "component_count": 7,
+      "components": {
+        "team_utilization": 0.34999999999999987,
+        "team_capacity_ratio": 0.72,
+        "average_productivity": 0.68,
+        "rework_ratio": 0.24,
+        "defect_rate": 0.2666666666666666,
+        "team_stability": 0.76,
+        "collaboration_level": 0.68
+      }
+    },
+    "health_core_probabilities": {
+      "at_risk": 0.9430974624131782,
+      "critical": 0.055258418058727526,
+      "healthy": 0.0016441195280943158
+    },
+    "fused_risk_score": 0.519386026875519,
+    "fused_health": "at_risk",
+    "delay_days_raw": 69.66174897542331,
+    "input_quality": {
+      "trained_feature_count": 7,
+      "coverage": 1,
+      "minimum_coverage": 0.6,
+      "imputation_policy": "numeric=training_median; categorical=training_mode",
+      "missing_trained_features": [],
+      "missing_features": [],
+      "missing_count": 0,
+      "complete": true,
+      "ood_available": true,
+      "ood_warning": true,
+      "ood_features": [
+        "planned_budget",
+        "spi"
+      ],
+      "ood_details": {
+        "planned_budget": {
+          "kind": "outside_training_iqr_fence",
+          "value": 2500000000,
+          "lower_bound": -521785.1250000001,
+          "upper_bound": 3133100.755
+        },
+        "spi": {
+          "kind": "outside_training_iqr_fence",
+          "value": 0.72,
+          "lower_bound": 0.8681013397529194,
+          "upper_bound": 1.1329713385400848
+        }
+      }
+    }
+  },
+  "drivers": [
+    {
+      "feature": "spi",
+      "label": "SPI",
+      "value": 0.72,
+      "reference": 1,
+      "risk_impact": -0.0183,
+      "direction": "reduces_risk"
+    }
+  ],
+  "driver_source": "local_model_sensitivity",
+  "drivers_disclaimer": "La importancia o el impacto local muestra sensibilidad del modelo; no demuestra causalidad.",
+  "recommendations": {
+    "engine": "grounded_fallback",
+    "evidence_context": {
+      "contract_version": "evidence-v2",
+      "status": "priority_signals",
+      "prediction": {
+        "health": "at_risk",
+        "delay_days": 69.66174897542331,
+        "cost_overrun_ratio": 0.13276946819337526,
+        "health_probabilities": {
+          "at_risk": 0.9430974624131782,
+          "critical": 0.055258418058727526,
+          "healthy": 0.0016441195280943158
+        },
+        "fused_risk_score": 0.519386026875519,
+        "fused_health": "at_risk",
+        "final_status": "challenged"
+      },
+      "model_drivers": [
+        {
+          "feature": "spi",
+          "label": "SPI",
+          "value": 0.72,
+          "reference": 1,
+          "risk_impact": -0.0183,
+          "direction": "reduces_risk",
+          "source": "model_driver",
+          "unit": "index"
+        }
+      ],
+      "operational_signals": [
+        {
+          "feature": "spi",
+          "source": "observed_operational_signal",
+          "label": "SPI",
+          "value": 0.72,
+          "unit": "index",
+          "priority": "alta",
+          "rule": {
+            "operator": "below",
+            "threshold": 0.95,
+            "unit": "index",
+            "priority": "alta",
+            "basis": "EVM: below 1 is unfavorable; 0.95 is a heuristic review tolerance.",
+            "version": "operational-v1",
+            "heuristic": true
+          },
+          "reason": "SPI observado es inferior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+        },
+        {
+          "feature": "cpi",
+          "source": "observed_operational_signal",
+          "label": "CPI",
+          "value": 0.81,
+          "unit": "index",
+          "priority": "alta",
+          "rule": {
+            "operator": "below",
+            "threshold": 0.95,
+            "unit": "index",
+            "priority": "alta",
+            "basis": "EVM: below 1 is unfavorable; 0.95 is a heuristic review tolerance.",
+            "version": "operational-v1",
+            "heuristic": true
+          },
+          "reason": "CPI observado es inferior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+        },
+        {
+          "feature": "team_utilization",
+          "source": "observed_operational_signal",
+          "label": "Utilización del equipo",
+          "value": 1.12,
+          "unit": "ratio",
+          "priority": "alta",
+          "rule": {
+            "operator": "above",
+            "threshold": 1.05,
+            "unit": "ratio",
+            "priority": "alta",
+            "basis": "Heuristic tolerance above assigned capacity.",
+            "version": "operational-v1",
+            "heuristic": true
+          },
+          "reason": "Utilización del equipo observado es superior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+        },
+        {
+          "feature": "team_capacity_ratio",
+          "source": "observed_operational_signal",
+          "label": "Capacidad / demanda",
+          "value": 0.72,
+          "unit": "ratio",
+          "priority": "alta",
+          "rule": {
+            "operator": "below",
+            "threshold": 0.9,
+            "unit": "ratio",
+            "priority": "alta",
+            "basis": "Heuristic tolerance below capacity covering demand.",
+            "version": "operational-v1",
+            "heuristic": true
+          },
+          "reason": "Capacidad / demanda observado es inferior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+        },
+        {
+          "feature": "average_productivity",
+          "source": "observed_operational_signal",
+          "label": "Productividad relativa",
+          "value": 0.68,
+          "unit": "ratio",
+          "priority": "media",
+          "rule": {
+            "operator": "below",
+            "threshold": 0.85,
+            "unit": "ratio",
+            "priority": "media",
+            "basis": "Heuristic review trigger relative to the project reference.",
+            "version": "operational-v1",
+            "heuristic": true
+          },
+          "reason": "Productividad relativa observado es inferior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+        },
+        {
+          "feature": "rework_ratio",
+          "source": "observed_operational_signal",
+          "label": "Retrabajo",
+          "value": 0.19,
+          "unit": "ratio",
+          "priority": "media",
+          "rule": {
+            "operator": "above",
+            "threshold": 0.1,
+            "unit": "ratio",
+            "priority": "media",
+            "basis": "Uncalibrated heuristic; requires a comparable effort denominator.",
+            "version": "operational-v1",
+            "heuristic": true
+          },
+          "reason": "Retrabajo observado es superior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+        },
+        {
+          "feature": "defect_rate",
+          "source": "observed_operational_signal",
+          "label": "Tasa de defectos",
+          "value": 0.11,
+          "unit": "ratio",
+          "priority": "media",
+          "rule": {
+            "operator": "above",
+            "threshold": 0.08,
+            "unit": "ratio",
+            "priority": "media",
+            "basis": "Uncalibrated heuristic; requires a comparable observed-work denominator.",
+            "version": "operational-v1",
+            "heuristic": true
+          },
+          "reason": "Tasa de defectos observado es superior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+        },
+        {
+          "feature": "dependency_delay_days",
+          "source": "observed_operational_signal",
+          "label": "Retraso por dependencias",
+          "value": 15,
+          "unit": "days",
+          "priority": "media",
+          "rule": {
+            "operator": "above",
+            "threshold": 7,
+            "unit": "days",
+            "priority": "media",
+            "basis": "Uncalibrated review trigger for reported dependency delays.",
+            "version": "operational-v1",
+            "heuristic": true
+          },
+          "reason": "Retraso por dependencias observado es superior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+        },
+        {
+          "feature": "normalized_risk_exposure",
+          "source": "observed_operational_signal",
+          "label": "Exposición al riesgo",
+          "value": 0.49,
+          "unit": "normalized_index",
+          "priority": "media",
+          "rule": {
+            "operator": "above",
+            "threshold": 0.3,
+            "unit": "normalized_index",
+            "priority": "media",
+            "basis": "Uncalibrated trigger; assumes the supplied normalized index is comparable.",
+            "version": "operational-v1",
+            "heuristic": true
+          },
+          "reason": "Exposición al riesgo observado es superior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+        },
+        {
+          "feature": "governance_health_score",
+          "source": "observed_operational_signal",
+          "label": "Salud de gobierno",
+          "value": 0.56,
+          "unit": "normalized_index",
+          "priority": "media",
+          "rule": {
+            "operator": "below",
+            "threshold": 0.6,
+            "unit": "normalized_index",
+            "priority": "media",
+            "basis": "Uncalibrated trigger; assumes the supplied normalized index is comparable.",
+            "version": "operational-v1",
+            "heuristic": true
+          },
+          "reason": "Salud de gobierno observado es inferior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+        }
+      ],
+      "heuristic_indicators": [
+        {
+          "feature": "team_health",
+          "source": "heuristic_indicator",
+          "label": "Condición operativa del equipo",
+          "value": 0.522667,
+          "unit": "normalized_index",
+          "level": "attention",
+          "priority": "media",
+          "actionable": true,
+          "reason": "El indicador heurístico del equipo requiere revisar sus componentes; no es un modelo supervisado ni mide salud psicológica."
+        }
+      ],
+      "operational_assessment": {
+        "policy_version": "operational-v1",
+        "available": [
+          "spi",
+          "cpi",
+          "team_utilization",
+          "team_capacity_ratio",
+          "average_productivity",
+          "rework_ratio",
+          "defect_rate",
+          "scope_growth_ratio",
+          "dependency_delay_days",
+          "normalized_risk_exposure",
+          "governance_health_score"
+        ],
+        "missing": []
+      },
+      "actionable_evidence": [
+        {
+          "feature": "spi",
+          "source": "observed_operational_signal",
+          "label": "SPI",
+          "value": 0.72,
+          "unit": "index",
+          "priority": "alta",
+          "rule": {
+            "operator": "below",
+            "threshold": 0.95,
+            "unit": "index",
+            "priority": "alta",
+            "basis": "EVM: below 1 is unfavorable; 0.95 is a heuristic review tolerance.",
+            "version": "operational-v1",
+            "heuristic": true
+          },
+          "reason": "SPI observado es inferior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+        },
+        {
+          "feature": "cpi",
+          "source": "observed_operational_signal",
+          "label": "CPI",
+          "value": 0.81,
+          "unit": "index",
+          "priority": "alta",
+          "rule": {
+            "operator": "below",
+            "threshold": 0.95,
+            "unit": "index",
+            "priority": "alta",
+            "basis": "EVM: below 1 is unfavorable; 0.95 is a heuristic review tolerance.",
+            "version": "operational-v1",
+            "heuristic": true
+          },
+          "reason": "CPI observado es inferior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+        },
+        {
+          "feature": "team_utilization",
+          "source": "observed_operational_signal",
+          "label": "Utilización del equipo",
+          "value": 1.12,
+          "unit": "ratio",
+          "priority": "alta",
+          "rule": {
+            "operator": "above",
+            "threshold": 1.05,
+            "unit": "ratio",
+            "priority": "alta",
+            "basis": "Heuristic tolerance above assigned capacity.",
+            "version": "operational-v1",
+            "heuristic": true
+          },
+          "reason": "Utilización del equipo observado es superior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+        },
+        {
+          "feature": "team_capacity_ratio",
+          "source": "observed_operational_signal",
+          "label": "Capacidad / demanda",
+          "value": 0.72,
+          "unit": "ratio",
+          "priority": "alta",
+          "rule": {
+            "operator": "below",
+            "threshold": 0.9,
+            "unit": "ratio",
+            "priority": "alta",
+            "basis": "Heuristic tolerance below capacity covering demand.",
+            "version": "operational-v1",
+            "heuristic": true
+          },
+          "reason": "Capacidad / demanda observado es inferior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+        },
+        {
+          "feature": "average_productivity",
+          "source": "observed_operational_signal",
+          "label": "Productividad relativa",
+          "value": 0.68,
+          "unit": "ratio",
+          "priority": "media",
+          "rule": {
+            "operator": "below",
+            "threshold": 0.85,
+            "unit": "ratio",
+            "priority": "media",
+            "basis": "Heuristic review trigger relative to the project reference.",
+            "version": "operational-v1",
+            "heuristic": true
+          },
+          "reason": "Productividad relativa observado es inferior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+        },
+        {
+          "feature": "rework_ratio",
+          "source": "observed_operational_signal",
+          "label": "Retrabajo",
+          "value": 0.19,
+          "unit": "ratio",
+          "priority": "media",
+          "rule": {
+            "operator": "above",
+            "threshold": 0.1,
+            "unit": "ratio",
+            "priority": "media",
+            "basis": "Uncalibrated heuristic; requires a comparable effort denominator.",
+            "version": "operational-v1",
+            "heuristic": true
+          },
+          "reason": "Retrabajo observado es superior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+        },
+        {
+          "feature": "defect_rate",
+          "source": "observed_operational_signal",
+          "label": "Tasa de defectos",
+          "value": 0.11,
+          "unit": "ratio",
+          "priority": "media",
+          "rule": {
+            "operator": "above",
+            "threshold": 0.08,
+            "unit": "ratio",
+            "priority": "media",
+            "basis": "Uncalibrated heuristic; requires a comparable observed-work denominator.",
+            "version": "operational-v1",
+            "heuristic": true
+          },
+          "reason": "Tasa de defectos observado es superior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+        },
+        {
+          "feature": "dependency_delay_days",
+          "source": "observed_operational_signal",
+          "label": "Retraso por dependencias",
+          "value": 15,
+          "unit": "days",
+          "priority": "media",
+          "rule": {
+            "operator": "above",
+            "threshold": 7,
+            "unit": "days",
+            "priority": "media",
+            "basis": "Uncalibrated review trigger for reported dependency delays.",
+            "version": "operational-v1",
+            "heuristic": true
+          },
+          "reason": "Retraso por dependencias observado es superior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+        },
+        {
+          "feature": "normalized_risk_exposure",
+          "source": "observed_operational_signal",
+          "label": "Exposición al riesgo",
+          "value": 0.49,
+          "unit": "normalized_index",
+          "priority": "media",
+          "rule": {
+            "operator": "above",
+            "threshold": 0.3,
+            "unit": "normalized_index",
+            "priority": "media",
+            "basis": "Uncalibrated trigger; assumes the supplied normalized index is comparable.",
+            "version": "operational-v1",
+            "heuristic": true
+          },
+          "reason": "Exposición al riesgo observado es superior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+        },
+        {
+          "feature": "governance_health_score",
+          "source": "observed_operational_signal",
+          "label": "Salud de gobierno",
+          "value": 0.56,
+          "unit": "normalized_index",
+          "priority": "media",
+          "rule": {
+            "operator": "below",
+            "threshold": 0.6,
+            "unit": "normalized_index",
+            "priority": "media",
+            "basis": "Uncalibrated trigger; assumes the supplied normalized index is comparable.",
+            "version": "operational-v1",
+            "heuristic": true
+          },
+          "reason": "Salud de gobierno observado es inferior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+        },
+        {
+          "feature": "team_health",
+          "source": "heuristic_indicator",
+          "label": "Condición operativa del equipo",
+          "value": 0.522667,
+          "unit": "normalized_index",
+          "level": "attention",
+          "priority": "media",
+          "actionable": true,
+          "reason": "El indicador heurístico del equipo requiere revisar sus componentes; no es un modelo supervisado ni mide salud psicológica."
+        }
+      ],
+      "limitations": [
+        "Sensibilidad local no causal; ausencia de drivers positivos no descarta desviaciones.",
+        "Reglas operativas heurísticas no calibradas; requieren indicadores y líneas base comparables.",
+        "La lectura operativa puede diferir de Health sin modificar la predicción ML.",
+        "Health healthy sin desviaciones no exige corrección por sensibilidad aislada; los drivers se conservan como contexto.",
+        "Los valores faltantes no se imputan para generar señales operativas."
+      ]
+    },
+    "evidence_status": "priority_signals",
+    "genai_attempted": true,
+    "genai_used": false,
+    "genai_failure_reason": "ollama_unavailable",
+    "failure_code": "ollama_unavailable",
+    "failure_detail": "HTTPConnectionPool(host='127.0.0.1', port=1): Max retries exceeded with url: /api/chat (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=1): Failed to establish a new connection: [Errno 61] Connection refused\"))",
+    "genai_latency_ms": 0.81,
+    "evidence_features": [
+      "spi",
+      "cpi",
+      "team_utilization",
+      "team_capacity_ratio"
+    ],
+    "allowed_evidence_features": [
+      "average_productivity",
+      "cpi",
+      "defect_rate",
+      "dependency_delay_days",
+      "governance_health_score",
+      "normalized_risk_exposure",
+      "rework_ratio",
+      "spi",
+      "team_capacity_ratio",
+      "team_health",
+      "team_utilization"
+    ],
+    "referenced_evidence_features": [],
+    "recommendations": [
+      {
+        "priority": "alta",
+        "title": "Recuperar el cronograma",
+        "action": "Revisar las actividades con mayor desviación frente al plan y definir un plan de recuperación para el siguiente seguimiento.",
+        "follow_up": "Revisar SPI y cumplimiento del cronograma en el siguiente corte.",
+        "evidence_feature": "spi",
+        "evidence_source": "observed_operational_signal",
+        "reason": "SPI observado es inferior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+      },
+      {
+        "priority": "alta",
+        "title": "Revisar la proyección de costos",
+        "action": "Analizar el consumo presupuestal y actualizar la estimación al cierre antes de asumir nuevos compromisos de gasto.",
+        "follow_up": "Comparar CPI y proyección de costo en el siguiente seguimiento.",
+        "evidence_feature": "cpi",
+        "evidence_source": "observed_operational_signal",
+        "reason": "CPI observado es inferior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+      },
+      {
+        "priority": "alta",
+        "title": "Redistribuir la carga del equipo",
+        "action": "Revisar la carga asignada y acordar ajustes de prioridades antes de aceptar nuevos compromisos.",
+        "follow_up": "Volver a revisar utilización y capacidad del equipo en el próximo seguimiento.",
+        "evidence_feature": "team_utilization",
+        "evidence_source": "observed_operational_signal",
+        "reason": "Utilización del equipo observado es superior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+      },
+      {
+        "priority": "alta",
+        "title": "Alinear carga y capacidad",
+        "action": "Contrastar los compromisos de trabajo con la capacidad disponible y acordar una priorización para el siguiente ciclo.",
+        "follow_up": "Revisar capacidad disponible y trabajo comprometido en el siguiente corte.",
+        "evidence_feature": "team_capacity_ratio",
+        "evidence_source": "observed_operational_signal",
+        "reason": "Capacidad / demanda observado es inferior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+      }
+    ],
+    "fallback_validation": {
+      "schema_valid": true,
+      "evidence_features_valid": true,
+      "evidence_provenance_valid": true,
+      "contradictory_claim": false,
+      "referenced_evidence_features": [
+        "cpi",
+        "spi",
+        "team_capacity_ratio",
+        "team_utilization"
+      ],
+      "allowed_evidence_features": [
+        "average_productivity",
+        "cpi",
+        "defect_rate",
+        "dependency_delay_days",
+        "governance_health_score",
+        "normalized_risk_exposure",
+        "rework_ratio",
+        "spi",
+        "team_capacity_ratio",
+        "team_health",
+        "team_utilization"
+      ],
+      "allowed_numeric_values": [
+        0.0016441195280943158,
+        0.055258418058727526,
+        0.11,
+        0.13276946819337526,
+        0.19,
+        0.49,
+        0.519386026875519,
+        0.522667,
+        0.56,
+        0.68,
+        0.72,
+        0.81,
+        0.9430974624131782,
+        1.12,
+        15,
+        69.66174897542331
+      ],
+      "allowed_numeric_percentages": [
+        0.0016441195280943158,
+        0.055258418058727526,
+        0.11,
+        0.13276946819337526,
+        0.19,
+        0.49,
+        0.519386026875519,
+        0.522667,
+        0.56,
+        0.68,
+        0.72,
+        0.9430974624131782,
+        1.12
+      ],
+      "unsupported_numeric_claim": false,
+      "actionability": true,
+      "action_structure_valid": true,
+      "follow_up_present": true,
+      "follow_up_verifiable": true,
+      "grounded": true,
+      "failure_code": null,
+      "failure_detail": null
+    },
+    "reasons": [
+      "SPI observado es inferior al criterio heurístico de revisión; no es una predicción ni demuestra una causa.",
+      "CPI observado es inferior al criterio heurístico de revisión; no es una predicción ni demuestra una causa.",
+      "Utilización del equipo observado es superior al criterio heurístico de revisión; no es una predicción ni demuestra una causa.",
+      "Capacidad / demanda observado es inferior al criterio heurístico de revisión; no es una predicción ni demuestra una causa."
+    ],
+    "actions": [
+      "Revisar las actividades con mayor desviación frente al plan y definir un plan de recuperación para el siguiente seguimiento.",
+      "Analizar el consumo presupuestal y actualizar la estimación al cierre antes de asumir nuevos compromisos de gasto.",
+      "Revisar la carga asignada y acordar ajustes de prioridades antes de aceptar nuevos compromisos.",
+      "Contrastar los compromisos de trabajo con la capacidad disponible y acordar una priorización para el siguiente ciclo."
+    ],
+    "summary": "Estas acciones responden a las señales de mayor riesgo detectadas.",
+    "grounding": {
+      "schema_valid": false,
+      "evidence_features_valid": false,
+      "referenced_evidence_features": [],
+      "allowed_evidence_features": [
+        "average_productivity",
+        "cpi",
+        "defect_rate",
+        "dependency_delay_days",
+        "governance_health_score",
+        "normalized_risk_exposure",
+        "rework_ratio",
+        "spi",
+        "team_capacity_ratio",
+        "team_health",
+        "team_utilization"
+      ],
+      "allowed_numeric_values": [],
+      "allowed_numeric_percentages": [],
+      "unsupported_numeric_claim": false,
+      "actionability": false,
+      "action_structure_valid": false,
+      "follow_up_present": false,
+      "grounded": false,
+      "failure_code": "ollama_unavailable",
+      "failure_detail": "HTTPConnectionPool(host='127.0.0.1', port=1): Max retries exceeded with url: /api/chat (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=1): Failed to establish a new connection: [Errno 61] Connection refused\"))"
+    },
+    "disclaimer": "Recomendaciones generadas únicamente a partir de señales observadas y sensibilidad local del modelo; no reemplazan el criterio del director del proyecto."
+  },
+  "inference_ms": 38.32,
+  "ml_inference_ms": 33.42,
+  "genai_latency_ms": 0.81,
+  "timing": {
+    "ml_and_drivers_ms": 33.42,
+    "genai_ms": 0.81,
+    "total_ms": 38.32
+  },
+  "input": {
+    "planned_duration_weeks": 52,
+    "planned_budget": 2500000000,
+    "baseline_scope_units": 1500,
+    "sector": "banking",
+    "project_type": "it",
+    "methodology": "hybrid",
+    "complexity": "high",
+    "criticality": "high",
+    "true_progress": 0.47,
+    "spi": 0.72,
+    "cpi": 0.81,
+    "team_utilization": 1.12,
+    "team_capacity_ratio": 0.72,
+    "average_productivity": 0.68,
+    "defect_rate": 0.11,
+    "rework_ratio": 0.19,
+    "scope_growth_ratio": 0.09,
+    "dependency_delay_days": 15,
+    "normalized_risk_exposure": 0.49,
+    "governance_health_score": 0.56,
+    "team_stability": 0.76,
+    "collaboration_level": 0.68
+  }
+}
