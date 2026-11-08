@@ -1,5 +1,7 @@
 # Arquitectura académica implementada
 
+Este documento describe **el sistema desplegado actualmente**, no todas las arquitecturas históricas de PRUNIN. Para antecedentes sobre experimentos con PyTorch y datos propios, y para separar fuentes exploradas de fuentes realmente utilizadas en los tres LightGBM, consultar [evolución del proyecto](project_evolution.md).
+
 El modelo congelado `0.9.0-academic` usa exclusivamente Mendeley v2, un dataset sintético externo publicado en Mendeley Data. Itemlet, Collaboration y SQuaD son fuentes independientes para trabajo futuro; no alimentan ni se unen al predictor académico actual.
 
 ## Figura A1. Flujo del Playground
