@@ -87,7 +87,8 @@ El problema, método y resultados ocupan el centro; infraestructura es secundari
 
 **Mensaje central:** Datos sintéticos y split disjunto delimitan la validez.
 
-- Mendeley Data v2: sintético externo; DOI 10.17632/2p5sz57wh2.2
+- Antecedentes de PRUNIN: simulaciones propias y modelos anteriores; distinguirlos de la versión mostrada (ver [evolución](project_evolution.md))
+- Mendeley Data v2: fuente del entrenamiento LightGBM actual; DOI 10.17632/2p5sz57wh2.2
 - 4000 proyectos; 72549 snapshots
 - Split por proyecto: 2800 / 600 / 600
 - Whitelist e imputación aprendida en TRAIN
