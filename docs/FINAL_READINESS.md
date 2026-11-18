@@ -1,14 +1,14 @@
 # Cierre final PRUNIN AI Core
 
-Estado de evidencia para la entrega académica. No asigna calificación oficial ni afirma validación empresarial/producción. El SHA exacto de publicación y el run `quality` deben corresponder al `main` publicado; el identificador de workflow se comunica en la entrega final y no se reutiliza ningún run histórico.
+Estado de evidencia para la entrega académica. No asigna calificación oficial ni afirma validación empresarial/producción. La integración posterior OpenAI/Ollama se añadió sin alterar los artefactos ML; sus resultados reales aún no han sido evaluados en una cohorte comparativa. El SHA exacto de publicación y el run `quality` deben corresponder al `main` publicado; el identificador de workflow se comunica en la entrega final y no se reutiliza ningún run histórico.
 
 ## Verificaciones ejecutadas
 
 | Gate | Resultado observado |
 |---|---|
 | Dependencias Python | `pip install -r requirements.txt` completó; `pip check`: `No broken requirements found.` |
-| Frontend | `npm ci` desde lockfile final; `npm audit`: 0 vulnerabilidades; Vitest: 18 passed; `npm run build`: success. |
-| Backend | `PYTHONPATH=src python -m pytest -q`: 137 passed, 1 skipped, 0 failed. El skip es `kubectl` opcional no instalado. |
+| Frontend | El último CI verificado de `main` (`d7f2cb7846`) completó la compilación React y pruebas Vitest. Los conteos anteriores corresponden a un cierre previo, no a la publicación nueva. |
+| Backend | Auditoría anterior: 137 passed, 1 skipped. Integración dual-proveedor, CI de `main` en commit `d7f2cb7846`: 176 passed, 3 skipped; los casos OpenAI emplean respuesta simulada, no una clave real. |
 | Sintaxis Python | `python -m compileall -q src scripts tests`: success. |
 | KPI original | `python scripts/validate_original_promise.py --check`: `PROMISE VALIDATION: OK`; detección de cohorte completa al 60 %: 0.758985. |
 | Preflight demo | `RESULTADO: LISTO PARA DEMO`, artifact `0.9.0-academic`. |
@@ -54,6 +54,8 @@ La tabla completa machine-readable, con evidencia, claims seguros/no seguros y g
 ## Pendientes humanos antes de entregar
 
 - Completar autor, institución y portada.
+- Alinear la entrega pública con [manifiesto](DELIVERY_MANIFEST.md), [presentación](PRESENTACION_FINAL.md) y [protocolo de demo](DEMO_PROTOCOL.md); apuntes de ensayo y guiones privados se distribuyen fuera de Git.
+- Ejecutar prueba **real** de OpenAI y comparación equivalente con Qwen si se presentan resultados de ese proveedor.
 - Revisar renders, referencias y slides en el formato de entrega.
 - Ensayar y registrar una versión de 7/10/12 minutos.
 - Practicar voz, pausas, volumen, postura, contacto visual y defensa espontánea.

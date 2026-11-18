@@ -49,3 +49,19 @@ artifacts/*
 !artifacts/0.9.0-academic/
 artifacts/0.9.0-academic/*
 !artifacts/0.9.0-academic/input_profile.json
+
+# Personal study and presentation practice (not submission artifacts)
+/DEMO_PRESENTACION.md
+/docs/ENSAYO_SUSTENTACION.md
+/docs/GLOSARIO_DEFENSA.md
+/docs/PREGUNTAS_DEFENSA.md
+/material_privado/
+/private/
+/private_material/
+/PRUNIN_Material_Privado_*.zip
+
+# Additional local secrets / identity files
+*.pem
+*.p12
+*.pfx
+*.key

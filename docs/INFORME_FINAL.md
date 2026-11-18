@@ -41,15 +41,15 @@ Desarrollar y evaluar un prototipo reproducible de apoyo a la gestión capaz de 
 
 ## 9. Alcance
 
-La entrega comprende un prototipo local: Health/Delay/Cost, Final Status derivado, Team Health heurístico, CSV, What-if y explicación Qwen opcional. Se conservan arquitectura, modelos, pesos, reglas y resultados del experimento 0.9.0-academic. No incluye nuevos modelos, infraestructura cloud, clúster activo ni validación empresarial. La documentación no equipara completitud del repositorio con acreditación automática de Nivel 4.
+La entrega comprende un prototipo académico: Health/Delay/Cost, Final Status derivado, Team Health heurístico, CSV, What-if y generación opcional de recomendaciones mediante Ollama/Qwen3 8B u OpenAI API, según selección del usuario. Se conservan arquitectura, modelos, pesos, reglas y resultados del experimento 0.9.0-academic. No incluye nuevos modelos, infraestructura cloud, clúster activo ni validación empresarial. La documentación no equipara completitud del repositorio con acreditación automática de Nivel 4.
 
 ### Canales y medios para la audiencia
 
-El informe se dirige al profesor/mentor y evaluador técnico, con una lectura empresarial centrada en decisiones de gestión. GitHub permite revisar código, versiones y CI; el informe desarrolla problema, metodología e interpretación; la presentación resume mensajes centrales; el Playground muestra comportamiento observable; JSON/CSV conservan evidencia exacta; figuras facilitan comparar resultados. La combinación sirve a reproducibilidad, profundidad académica y síntesis ejecutiva. No se sustituye el argumento por terminales ni JSON completo. La defensa usa glosario y preguntas documentadas, mientras voz y lenguaje no verbal requieren ensayo humano.
+El informe se dirige al profesor/mentor y evaluador técnico, con una lectura empresarial centrada en decisiones de gestión. GitHub permite revisar código, versiones y CI; el informe desarrolla problema, metodología e interpretación; la presentación resume mensajes centrales; el Playground muestra comportamiento observable; JSON/CSV conservan evidencia exacta; figuras facilitan comparar resultados. La combinación sirve a reproducibilidad, profundidad académica y síntesis ejecutiva. No se sustituye el argumento por terminales ni JSON completo. La presentación pública y el protocolo reproducible respaldan los recursos de exposición; voz, lenguaje no verbal y defensa espontánea requieren observación humana y preparación fuera del repositorio.
 
 ## 10. Arquitectura
 
-React/Vite envía entradas validadas a FastAPI (FastAPI, s. f.). `ModelRuntime` carga manifest, configuración y pipelines LightGBM. `PruninAcademicBrain` devuelve predicciones crudas y calcula reglas operativas independientes. El runtime añade la política de presentación de Delay. Los drivers se calculan mediante perturbaciones hacia referencias. Qwen3 8B, vía Ollama, recibe evidencia estructurada y explica; un validador acepta o rechaza su salida. El fallback determinístico conserva disponibilidad. `/api/ready`, `/api/monitoring` y `/metrics` aportan observabilidad local. Evidencia: `src/prunin_ai/api/`, `inference/brain.py` y `frontend/src/`.
+React/Vite envía entradas validadas a FastAPI (FastAPI, s. f.). `ModelRuntime` carga manifest, configuración y pipelines LightGBM. `PruninAcademicBrain` devuelve predicciones crudas y calcula reglas operativas independientes. El runtime añade la política de presentación de Delay. Los drivers se calculan mediante perturbaciones hacia referencias. El usuario puede seleccionar Ollama/Qwen3 8B u OpenAI API para procesar evidencia estructurada; un validador acepta o rechaza las acciones generadas. El fallback determinístico conserva disponibilidad. `/api/ready`, `/api/monitoring` y `/metrics` aportan observabilidad local. Evidencia: `src/prunin_ai/api/`, `inference/brain.py` y `frontend/src/`.
 
 **Figura 1. Arquitectura híbrida implementada.**
 
@@ -65,7 +65,10 @@ flowchart LR
   L --> F
   O --> E[Evidencia estructurada]
   D --> E
-  E --> Q[Qwen3 8B / Ollama opcional]
+  E --> S{Proveedor de IA}
+  S -->|Local| Q[Ollama / Qwen3 8B]
+  S -->|API| G[OpenAI API]
+  G --> V[Validación de esquema y grounding]
   Q --> V[Validación de esquema y grounding]
   V --> X[Explicación y recomendación revisables]
   V --> B[Fallback determinístico ante rechazo o fallo]
@@ -75,7 +78,7 @@ flowchart LR
   X --> R
 ```
 
-Fuente: implementación API/ML/GenAI actual. Los flujos de batch y What-if omiten Qwen. Ver diagramas de generación y pipeline en [arquitectura](architecture.md).
+Fuente: implementación API/ML/GenAI actual. Los flujos de batch y What-if omiten la generación con ambos proveedores. Ver diagramas de generación y pipeline en [arquitectura](architecture.md).
 
 ## 11. Datos
 
@@ -101,15 +104,15 @@ La elección de LightGBM responde al problema tabular y a la integración con pi
 
 ## 14. IA generativa
 
-Qwen3 8B corre localmente mediante Ollama (Ollama, s. f.) y convierte predicciones y drivers en explicación y recomendaciones. No predice Health, Delay ni Cost. CSV y What-if ejecutan ML sin generación; la generación opcional pertenece al análisis individual. El fallback `grounded_fallback` es determinístico y no se etiqueta como IA generativa.
+La capa generativa acepta **Ollama/Qwen3 8B** (ejecución local) u **OpenAI API** (servicio externo), ambos a partir de evidencia estructurada. No predice Health, Delay ni Cost; estos modelos LightGBM permanecen congelados. CSV y What-if ejecutan ML sin generación; la generación opcional pertenece al análisis individual. El fallback `grounded_fallback` es determinístico y no se etiqueta como IA generativa.
 
-La revisión local del 8 de noviembre añade el contrato `evidence-v2`: separa drivers predictivos, señales operativas observadas e indicadores heurísticos, con procedencia explícita. La ausencia de drivers positivos no descarta desviaciones observadas. Las reglas configuradas son triggers heurísticos de revisión, no aprendidos de TEST; no alteran las predicciones congeladas. La corrida diagnóstica independiente de ocho casos con Qwen real y el caso bancario antes/después se conservan en `reports/audit_2026-11-08/`; no sustituyen los resultados oficiales de la Tabla 2 ni demuestran utilidad humana. Véase [arquitectura](architecture.md) y [evaluación actual](genai_evaluation.md).
+La evaluación histórica con Qwen se realizó antes de integrar OpenAI; la nueva ruta OpenAI está cubierta por pruebas simuladas de API, no por un benchmark real. Los límites de calidad, latencia, costo y utilidad de OpenAI continúan pendientes de medición. La revisión local del 8 de noviembre añade el contrato `evidence-v2`: separa drivers predictivos, señales operativas observadas e indicadores heurísticos, con procedencia explícita. La ausencia de drivers positivos no descarta desviaciones observadas. Las reglas configuradas son triggers heurísticos de revisión, no aprendidos de TEST; no alteran las predicciones congeladas. La corrida diagnóstica independiente de ocho casos con Qwen real y el caso bancario antes/después se conservan en `reports/audit_2026-11-08/`; no sustituyen los resultados oficiales de la Tabla 2 ni demuestran utilidad humana. Véase [arquitectura](architecture.md) y [evaluación actual](genai_evaluation.md).
 
 Se conservó Qwen por ejecución local, soporte de español, tamaño y compatibilidad operativa (Qwen Team, 2025). El benchmark comparativo nuevo usó 30 casos comunes con el mismo prompt/validador; quedó `partial` porque solo Qwen estaba instalado. La nueva corrida de Qwen obtuvo éxito/schema/grounding proxy/actionability 29/30, cero claims numéricos no soportados, un JSON inválido, cero timeouts, mediana 6336.35 ms y p95 13340.74 ms. Gemma 3 4B y Ministral 3 8B constan `not_available`; no se descargaron. Estas cifras no sustituyen la evaluación Qwen oficial congelada ni establecen ranking entre modelos.
 
 El prompt restringe la respuesta a evidencia estructurada; el validador exige esquema JSON, features permitidas y ausencia de cifras nuevas no soportadas. Timeout, JSON inválido o evidencia no admitida activan fallback sin retirar la predicción ML. La trazabilidad distingue intento y uso GenAI, motor, error y tiempos. Groundedness es un proxy determinístico de ingeniería, no prueba de verdad semántica; una frase aceptada todavía puede ser incorrecta o poco útil. Se requiere revisión humana.
 
-Comparación ampliada de idioma, licencia, hardware, contexto y compatibilidad: `docs/genai_model_selection.md`. Las fichas de Google DeepMind (s. f.-a, s. f.-b) y Mistral AI (s. f.-a, s. f.-b) permiten comparar alternativas documentalmente; no se instalaron ni evaluaron otros modelos en este cierre.
+Comparación ampliada de idioma, licencia, hardware, contexto y compatibilidad: `docs/genai_model_selection.md`. La selección operacional entre proveedores se describe en [ai_providers.md](ai_providers.md). Las credenciales y los datos enviados a la API deben cumplir las restricciones de acceso y tratamiento expuestas en [ethics_security.md](ethics_security.md). Las fichas de Google DeepMind (s. f.-a, s. f.-b) y Mistral AI (s. f.-a, s. f.-b) permiten comparar alternativas documentalmente; no se instalaron ni evaluaron otros modelos en este cierre.
 
 ## 15. Automatización
 

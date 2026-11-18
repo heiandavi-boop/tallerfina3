@@ -1,359 +1,115 @@
-# Presentación final — 12 diapositivas
+# Presentación académica — PRUNIN AI Core
+
+**Proyecto Aplicado III · Versión académica 0.9.0-academic**
 
-Audiencia: profesor/mentor, jurado técnico y responsables de proyectos. Mensaje central: prototipo reproducible con evidencia y límites claros. Los bullets son contenido de slide; el speech es apoyo para ensayo, no texto para leer en pantalla. Las citas completas están en references.md y las respuestas en PREGUNTAS_DEFENSA.md.
+Esta presentación organiza los resultados y el recorrido demostrable. Los tiempos de intervención, comentarios personales y material de ensayo se gestionan aparte. Adaptar la duración y el formato a las instrucciones de la institución.
+
+## Diapositiva 1 — Problema
+**¿Podemos anticipar riesgos de retraso y sobrecosto antes del cierre de un proyecto?**
+
+- La dirección de proyectos necesita interpretar señales de avance, cronograma y costos antes de intervenir.
+- PRUNIN organiza datos, estima riesgos y ofrece acciones sujetas a revisión profesional.
+- Alcance: prototipo académico reproducible, no sistema validado en operación empresarial.
 
-## Versiones de 7, 10 y 12 minutos
+**Evidencia:** [Informe final](INFORME_FINAL.md).
 
-| Slide | 7 min (s) | 10 min (s) | 12 min (s) |
-|---|---:|---:|---:|
-| 1 | 25 | 35 | 40 |
-| 2 | 25 | 35 | 40 |
-| 3 | 30 | 40 | 45 |
-| 4 | 35 | 45 | 55 |
-| 5 | 30 | 40 | 50 |
-| 6 | 55 | 80 | 100 |
-| 7 | 40 | 60 | 75 |
-| 8 | 50 | 80 | 90 |
-| 9 | 60 | 90 | 110 |
-| 10 | 25 | 35 | 45 |
-| 11 | 25 | 30 | 35 |
-| 12 | 20 | 30 | 35 |
-| Total | 420 | 600 | 720 |
+## Diapositiva 2 — Pregunta de investigación y objetivo
+- Pregunta: ¿en qué medida la combinación de modelos predictivos e IA generativa permite detectar temprano condiciones de riesgo y traducir evidencias en recomendaciones?
+- Meta original: detectar al menos el 75 % de proyectos **At Risk o Critical** antes de su cierre.
+- KPI explícito: `Risk Alert` agrupa At Risk + Critical; mantiene separada la clasificación exacta Critical.
 
-Son tiempos **planificados**, no tiempos humanos medidos ni evidencia de eficiencia. 7 minutos: decir idea central y cifras indispensables, una interacción demo. 10 minutos: añadir comparación con baseline y cobertura temporal, más un ejemplo generativo. 12 minutos: ampliar interpretación/guardrail y CSV/What-if, sin alargar infraestructura. Los discursos base son aproximadamente 30–60 s; recortar para 7 min y usar tiempos de interacción en 10/12. Ensayar con cronómetro y ajustar a instrucciones del profesor. Preguntas del jurado se gestionan fuera de estos totales si se permite.
+**Evidencia:** [Validación de la promesa](../reports/promise_validation/promise_validation_report.md).
 
-El problema, método y resultados ocupan el centro; infraestructura es secundaria. Presentar primero interpretación y después mostrar fuente si se solicita.
+## Diapositiva 3 — Arquitectura híbrida
+- React/Vite captura información estructurada; FastAPI valida solicitudes.
+- Tres modelos LightGBM predicen Health, Delay y Cost.
+- Drivers locales y señales operativas generan evidencia etiquetada.
+- La generación de recomendaciones puede utilizar **Ollama/Qwen3 8B** u **OpenAI API**, a elección del usuario.
+- Validador de evidencia y fallback determinístico antes de presentar acciones.
+- Team Health es heurístico; Final Status deriva de Health.
 
-## Slide 1. Problema y contexto
+**Evidencia:** [Arquitectura](architecture.md), [proveedores](ai_providers.md).
 
-**Mensaje central:** Apoyar la decisión humana con evidencia trazable.
+## Diapositiva 4 — Datos y procedencia
+- Fuente del entrenamiento académico: **Mendeley Data v2**, DOI `10.17632/2p5sz57wh2.2`.
+- Datos simulados externos: 4.000 proyectos y 72.549 snapshots.
+- Separación disjunta por proyecto: 2.800 TRAIN / 600 VALIDATION / 600 TEST.
+- Itemlet, Collaboration y SQuaD fueron explorados; **no entrenaron los tres LightGBM de la versión académica**.
+- Los experimentos históricos de PRUNIN se documentan por separado del artefacto evaluado.
 
-- Director de proyecto/PMO: interpretar avance, plazo y costo
-- Priorizar atención y preguntas antes del cierre
-- Predicción como apoyo; decisión humana
+**Evidencia:** [Datos](datasets.md), [evolución](project_evolution.md).
 
-**Visual/gráfico:** Problema → usuario → decisión.
+## Diapositiva 5 — Modelos y variables
+- Health: clasificación multiclase (healthy / at_risk / critical).
+- Delay: estimación de días de retraso.
+- Cost: estimación relativa de desviación presupuestal.
+- Variables supervisadas: duración y presupuesto previstos, avance real, SPI, CPI, tipo y metodología.
+- Los datos de equipo ayudan a la evaluación heurística, pero no se inyectan de forma oculta al modelo supervisado.
 
-**Evidencia:** docs/INFORME_FINAL.md §§3–5
+**Evidencia:** [Ficha de modelo](model_card.md), [entrenamiento](training.md).
 
-**Speech:** El proyecto parte de una necesidad de gestión: interpretar señales de avance, cronograma y costo para decidir dónde investigar riesgo. El usuario previsto es el director de proyecto o una PMO. PRUNIN propone un apoyo trazable antes del cierre, no sustituye la decisión humana. No tenemos una medición empresarial del costo del problema ni del retorno. La contribución se evalúa como prototipo académico con alcance explícito.
+## Diapositiva 6 — Evaluación del aprendizaje
+- Health Macro F1 = **0,627576**.
+- Delay MAE = **27,710468 días**, frente a baseline de **27,850313**; mejora marginal.
+- Cost: R² = **0,991816** en el entorno simulado; requiere cautela por la estructura CPI/EVM.
+- Las métricas son de la versión congelada y no se recalculan por cambiar de proveedor generativo.
 
-**Detalle secundario:** rutas de código, parámetros y JSON solo si el jurado los pide.
+**Evidencia:** [Métricas académicas](../reports/0.9.0-academic/metrics.json).
 
-**Transición:** La siguiente pregunta organiza cómo evaluaremos ese apoyo.
+## Diapositiva 7 — Detección temprana
+- `Risk Alert`: 359/473 proyectos finalmente en riesgo detectados al 60 % de avance.
+- Recall **75,90 %**, con **96 %** de cobertura del conjunto TEST en ese corte.
+- Recall del nivel Critical exacto: **56,82 %**, distinto de Risk Alert.
+- La cobertura a etapas muy tempranas es menor; no ocultar limitaciones del indicador.
 
-**Error que evitar:** Inventar impacto empresarial medido.
+**Evidencia:** [Reporte temporal](../reports/promise_validation/promise_validation_report.md).
 
-## Slide 2. Pregunta, promesa y criterio de éxito
+## Diapositiva 8 — Recomendaciones fundamentadas
+- La generación utiliza evidencia estructurada, procedencia de cada señal, prioridad y seguimiento.
+- **Ollama/Qwen3 8B**: evaluación histórica oficial de 30 casos con 29 respuestas aceptadas; no es una evaluación de OpenAI.
+- **OpenAI API**: integración implementada y probada mediante mocks; faltan pruebas reales y comparación de costos/latencia con una cuenta autorizada.
+- El usuario puede alternar proveedores sin cambiar las predicciones.
+- Una respuesta inválida activa acciones de respaldo determinístico.
 
-**Mensaje central:** La defensa se evalúa contra la promesa original.
+**Evidencia:** [Evaluación GenAI](genai_evaluation.md), [proveedores](ai_providers.md).
 
-- Anticipar riesgos de retraso y sobrecosto antes del cierre
-- Apoyar la toma de decisiones del director/PMO
-- Meta original: detectar ≥75 % de proyectos **Critical o At Risk**
-- Separar alerta de riesgo de clasificación exacta de severidad
+## Diapositiva 9 — Demostración funcional
+1. Elegir un caso de prueba y ejecutar la predicción.
+2. Examinar nivel de riesgo, probabilidades, retraso, costo y señales.
+3. Seleccionar Ollama u OpenAI, si el proveedor está disponible.
+4. Revisar recomendaciones y referencias de evidencia.
+5. Simular un escenario What-if y probar una fila de CSV.
+6. Consultar versión, resultado JSON y trazabilidad de los controles.
 
-**Visual/gráfico:** Promesa → KPI → evidencia temporal.
+**Evidencia:** [Protocolo de demo](DEMO_PROTOCOL.md).
 
-**Evidencia:** docs/INFORME_FINAL.md §§6–8 y reports/promise_validation/
+## Diapositiva 10 — Ética, privacidad y control operativo
+- No usar datos empresariales sensibles sin autorización.
+- En modo OpenAI se transmiten al proveedor externo las señales estructuradas.
+- Claves solamente en memoria de sesión o entorno del servidor; nunca en repositorio.
+- El acceso público requiere autenticación, HTTPS, límites de consumo y política de seguridad.
+- Los indicadores del modelo no prueban causalidad ni reemplazan decisiones profesionales.
 
-**Speech:** La promesa original no era clasificar exactamente el 75 % de los Critical. Era detectar tempranamente al menos el 75 % de los proyectos críticos o en alto riesgo. Por eso formalizamos un KPI operacional sin cambiar el modelo: Healthy es No Alert y At Risk o Critical es Risk Alert. Conservamos las métricas multiclase, incluido el Critical Recall, como evidencia complementaria.
+**Evidencia:** [Ética y seguridad](ethics_security.md).
 
-**Transición:** Ahora mostramos cómo la arquitectura produce esa alerta sin cambiar sus modelos.
+## Diapositiva 11 — Limitaciones y trabajo futuro
+- Fuente principal sintética externa; falta validación prospectiva con proyectos reales.
+- Delay ofrece mejora limitada frente al baseline.
+- Algunas señales son heurísticas y no provienen de variables supervisadas.
+- Falta medir utilidad humana, comparación real OpenAI/Ollama y carga productiva.
+- MLOps, Docker y Kubernetes requieren pruebas operativas adicionales.
 
-**Error que evitar:** Presentar Risk Alert como un modelo nuevo o esconder Critical Recall.
+**Evidencia:** [Matriz interna](rubric_matrix.md), [cierre](FINAL_READINESS.md).
 
-## Slide 3. Arquitectura híbrida
+## Diapositiva 12 — Conclusiones
+- PRUNIN permite obtener predicciones replicables e información accionable documentada.
+- La meta operacional de detección temprana se cumple en el corte y denominador especificados, no en cualquier punto del proyecto.
+- Separar predicción, heurísticas, IA generativa y revisión humana mejora la trazabilidad.
+- Los proveedores generativos son intercambiables; los resultados científicos congelados permanecen intactos.
 
-**Mensaje central:** Separar ML, heurística y explicación.
+**Fuentes:** [Referencias](references.md).
 
-- React/Vite → FastAPI → LightGBM
-- Team Health y fusión: reglas heurísticas separadas
-- Drivers → Qwen/Ollama → acciones estructuradas → validador o fallback
+---
 
-**Visual/gráfico:** Diagrama de flujo con predicción y explicación separadas..
-
-**Evidencia:** src/prunin_ai/api/model_runtime.py; recommendations.py; inference/brain.py`.
-
-**Speech:** La interfaz envía variables a FastAPI, que carga los pipelines LightGBM y produce las predicciones. Team Health se calcula con reglas observables; no es un modelo entrenado. Los drivers representan sensibilidad local. Qwen recibe evidencia estructurada y propone acciones con señal, justificación y seguimiento; cada salida debe superar un validador. Si falla, usamos respaldo determinístico y conservamos las predicciones. Esta separación facilita trazabilidad y evita confundir texto convincente con calidad predictiva.
-
-**Detalle secundario:** rutas de código, parámetros y JSON solo si el jurado los pide.
-
-**Transición:** Ese flujo depende de datos cuya procedencia debemos entender.
-
-**Error que evitar:** Decir que Qwen predice riesgo o que el fallback es GenAI.
-
-## Slide 4. Dataset y metodología
-
-**Mensaje central:** Datos sintéticos y split disjunto delimitan la validez.
-
-- Antecedentes de PRUNIN: simulaciones propias y modelos anteriores; distinguirlos de la versión mostrada (ver [evolución](project_evolution.md))
-- Mendeley Data v2: fuente del entrenamiento LightGBM actual; DOI 10.17632/2p5sz57wh2.2
-- 4000 proyectos; 72549 snapshots
-- Split por proyecto: 2800 / 600 / 600
-- Whitelist e imputación aprendida en TRAIN
-
-**Visual/gráfico:** Tres bloques disjuntos de proyectos..
-
-**Evidencia:** reports/0.9.0-academic/dataset_summary.json; feature_manifest.json; split_summary.json`.
-
-**Speech:** Utilizamos un dataset sintético externo publicado en Mendeley Data. El resumen preparado registra cuatro mil proyectos y setenta y dos mil quinientos cuarenta y nueve snapshots. La división se hace por identificador de proyecto: todos sus snapshots quedan en un único conjunto. El preprocesamiento aprende en entrenamiento y excluye outcomes finales. Esto evita contaminación directa entre splits, aunque la naturaleza sintética y la proximidad temporal de EVM siguen siendo limitaciones.
-
-**Detalle secundario:** rutas de código, parámetros y JSON solo si el jurado los pide.
-
-**Transición:** Con esos datos definimos qué aprende cada modelo.
-
-**Error que evitar:** Llamar a Mendeley proyectos empresariales reales o decir que no queda ningún riesgo de leakage.
-
-## Slide 5. Modelos y reglas operacionales
-
-**Mensaje central:** Tres modelos; Final Status y Team Health son reglas.
-
-- Health: clasificación supervisada LightGBM
-- Delay y Cost: regresiones LightGBM
-- 7 features; Final Status deriva de Health
-- Team Health: heurística operacional determinística
-
-**Visual/gráfico:** Tabla entradas → targets y reglas..
-
-**Evidencia:** reports/0.9.0-academic/feature_manifest.json; src/prunin_ai/inference/brain.py`.
-
-**Speech:** Health es clasificación supervisada. Delay estima días y Cost estima un ratio de sobrecosto, ambos por regresión. Usamos cinco variables numéricas y dos categóricas, registradas en el manifest. Final Status traduce Health a un estado de negocio; no entrenamos un clasificador redundante. Team Health necesita señales operacionales observadas y suficientes. El cierre conserva modelos, etiquetas y configuración del experimento, y diferencia el Delay crudo de su presentación operacional.
-
-**Detalle secundario:** rutas de código, parámetros y JSON solo si el jurado los pide.
-
-**Transición:** Veamos los resultados y su comparación con referencias simples.
-
-**Error que evitar:** Presentar Final Status o Team Health como modelos supervisados independientes.
-
-## Slide 6. Resultados ML y KPI de riesgo
-
-**Mensaje central:** PRUNIN detecta proyectos que requieren atención, pero la severidad exacta sigue siendo más difícil.
-
-- TEST project-level: 600 proyectos
-- Risk Alert Recall final: **82.45 %**
-- Risk Alert Precision final: **92.20 %**
-- Risk Alert F1 final: **87.05 %**
-- Critical Recall exacto: **56.82 %**
-- Health Macro F1: 0.627576 vs baseline 0.277940
-- Delay MAE: 27.71 vs 27.85 días → mejora marginal
-- Cost MAE: 0.147 pp; R² 0.992 → interpretar con caveat EVM
-
-**Visual/gráfico:** Matriz binaria Risk Alert y una nota con Critical Recall.
-
-**Evidencia:** reports/promise_validation/; reports/0.9.0-academic/
-
-**Speech:** La promesa de negocio se responde con Risk Alert: de 473 proyectos que realmente terminan At Risk o Critical, PRUNIN detecta 390, equivalente a 82.45 %. Cuando exigimos distinguir específicamente la severidad Critical, el recall baja a 56.82 %. Son preguntas diferentes y mostramos ambas. Delay es débil; Cost es fuerte internamente pero está condicionado por la estructura sintética.
-
-**Error que evitar:** Decir que 82.45 % es recall de Critical.
-
-## Slide 7. ¿Cuándo alcanzamos la meta del 75 %?
-
-**Mensaje central:** La meta se supera al 60 % de avance bajo una métrica estricta de cohorte completa.
-
-| Avance | Cobertura TEST | Riesgos finales ya detectados |
-|---:|---:|---:|
-| 20 % | 39.33 % | 28.54 % |
-| 40 % | 77.17 % | 64.06 % |
-| 60 % | **96.00 %** | **75.90 %** |
-| 80 % | 99.83 % | 79.92 % |
-| Final | 100 % | 82.45 % |
-
-**Visual/gráfico:** reports/promise_validation/figures/risk_alert_detection_vs_progress.svg con línea objetivo 75 %.
-
-**Evidencia:** scripts/validate_original_promise.py; reports/promise_validation/
-
-**Speech:** Para no favorecer el resultado por cobertura, usamos como denominador fijo los 473 proyectos que finalmente son At Risk o Critical. Si un proyecto todavía no tiene snapshot elegible, cuenta como no detectado. Con esta regla PRUNIN cruza la meta en el 60 % de avance: 359 de 473 proyectos finales en riesgo ya están detectados, con 96 % de cobertura del TEST. Es una demostración experimental de anticipación antes del cierre, no una validación empresarial.
-
-**Error que evitar:** Decir que al 40 % ya cumplimos 75 % usando solo el recall del subconjunto elegible.
-
-## Slide 8. Qwen3 y evaluación GenAI
-
-**Mensaje central:** La IA transforma señales permitidas en acciones priorizadas y revisables.
-
-- Qwen3 8B/Ollama: propone acciones; no predice outcomes
-- JSON Schema limita prioridad, evidencia y seguimiento
-- Evaluación nueva de acciones: 20/20 estructuras válidas; cero claims numéricos no soportados
-- Mediana 7054.585 ms; p95 17741.41 ms, en esta muestra local
-- El benchmark Qwen oficial de 30 casos sigue congelado y separado
-
-**Visual/gráfico:** Flujo GenAI y tarjeta con aceptadas/rechazada.
-
-**Evidencia:** reports/genai/qwen3-8b-evaluation.json; docs/genai_evaluation.md
-
-**Speech:** Qwen no predice los resultados: convierte señales permitidas en acciones con prioridad, título, qué hacer, por qué y qué revisar después; LightGBM conserva las predicciones. La nueva evaluación de veinte casos verificó el contrato de acciones y grounding proxy. El benchmark histórico de Qwen usa su schema previo y permanece congelado, no se sustituye. Los resultados nuevos son locales y no demuestran utilidad profesional; cada sugerencia requiere contexto y revisión humana.
-
-**Detalle secundario:** rutas de código, parámetros y JSON solo si el jurado los pide.
-
-**Transición:** Veamos cómo esa separación aparece en la aplicación.
-
-**Error que evitar:** Confundir grounding con verdad total, o fallback con generación.
-
-## Slide 9. Demo: de la señal a la decisión
-
-**Mensaje central:** La demo convierte señales de riesgo en acciones priorizadas y verificables.
-
-- Ingresar snapshot del proyecto
-- Mostrar **Risk Alert: requiere atención / sin alerta**
-- Mantener Health ML: Healthy / At Risk / Critical
-- Mostrar Delay y Cost como estimaciones complementarias
-- Mostrar acciones priorizadas: qué hacer, por qué, señal de origen y qué revisar después
-- Ejecutar What-if y CSV sin confundirlos con causalidad
-
-**Visual/gráfico:** Playground en vivo.
-
-**Evidencia:** frontend/src/components/AnalysisPanels.jsx; DEMO_PRESENTACION.md
-
-**Speech:** Hasta este punto PRUNIN detectó el riesgo y explicó las señales. Ahora la IA generativa transforma esa evidencia en acciones de gestión: qué revisar, por qué y qué indicador seguir posteriormente. La alerta no sustituye Health ni añade un cuarto modelo: At Risk o Critical indica que requiere atención. Si Qwen falla, el fallback determinístico conserva la estructura de acción. Las sugerencias se validan con el contexto real; no prueban causalidad ni delegan la decisión.
-
-**Error que evitar:** Presentar el banner de Risk Alert como probabilidad calibrada o modelo nuevo.
-
-## Slide 10. Ética y MLOps
-
-**Mensaje central:** Observabilidad académica y diseño no equivalen a producción.
-
-- Human-in-the-loop, privacidad y límites sintéticos
-- Hashes, manifests, CI y prediction_id
-- /api/ready, /api/monitoring, /metrics
-- Docker implementado; Kubernetes es diseño
-
-**Visual/gráfico:** Dos columnas: implementado / diseñado y pendiente..
-
-**Evidencia:** docs/ethics_security.md; mlops_production.md; deploy/k8s/prunin-ai-core.yaml; CI por commit`.
-
-**Speech:** La trazabilidad combina versión, manifest, hashes y logs de predicción. Hay checks de CI y endpoints de observabilidad, con contadores locales por proceso. Docker empaqueta la aplicación y Kubernetes describe réplicas y HPA, pero no hay un clúster activo probado. La supervisión humana responde a errores predictivos y generativos, sesgos y representatividad. Las capacidades productivas pendientes incluyen métricas centralizadas, alertas, drift y validación con proyectos reales.
-
-**Detalle secundario:** rutas de código, parámetros y JSON solo si el jurado los pide.
-
-**Transición:** Antes de concluir, delimitemos lo que la evidencia no demuestra.
-
-**Error que evitar:** Mostrar un workflow anterior como prueba del commit nuevo o afirmar Kubernetes desplegado.
-
-## Slide 11. Qué demostramos y qué no
-
-**Mensaje central:** Cumplimiento experimental no equivale a validación empresarial.
-
-- Meta ≥75 %: demostrada en benchmark sintético al 60 % de avance
-- Critical Recall exacto: 56.82 %
-- Delay: mejora marginal frente a baseline
-- Cost: caveat estructural CPI/EVM
-- Dataset sintético; sin validación prospectiva empresarial
-- Utilidad humana de recomendaciones aún no medida
-
-**Visual/gráfico:** Dos columnas: demostrado / pendiente.
-
-**Speech:** El resultado principal es defendible únicamente dentro del entorno experimental. No afirmamos producción, generalización empresarial ni que la clasificación exacta Critical tenga el mismo desempeño que Risk Alert. La principal etapa futura es validar la misma metodología con datos reales y outcomes observados.
-
-**Error que evitar:** Convertir “cumple experimentalmente” en “funciona en cualquier empresa”.
-
-## Slide 12. Conclusión
-
-**Mensaje central:** PRUNIN cumple la promesa principal dentro del experimento y deja visibles sus límites.
-
-- 473 proyectos TEST terminan At Risk/Critical
-- 359 ya están detectados al 60 % → **75.90 %**
-- Cobertura TEST en ese punto → **96 %**
-- Detección final → **82.45 %**
-- Critical Recall exacto → **56.82 %**
-- Siguiente etapa: validación prospectiva con proyectos reales
-
-**Visual/gráfico:** 75.90 % al 60 % + línea de meta.
-
-**Evidencia:** reports/promise_validation/; docs/INFORME_FINAL.md
-
-**Speech:** Partimos con una meta concreta: detectar tempranamente al menos el 75 % de los proyectos críticos o en alto riesgo. En el entorno experimental, PRUNIN alcanza 75.90 % de detección de toda la cohorte final de riesgo al 60 % de avance, con 96 % de cobertura, y termina en 82.45 %. La severidad Critical exacta sigue siendo una limitación y Delay continúa débil. Por eso concluimos que la promesa principal está demostrada experimentalmente, mientras la generalización empresarial queda como siguiente etapa.
-
-**Transición:** Abrimos preguntas y respondemos siempre distinguiendo KPI de alerta, severidad y alcance.
-
-**Error que evitar:** Decir “75.90 % de Critical” o “validado en producción”.
-
-## Recursos de apoyo y demostración
-
-Mostrar diagramas de architecture.md; matriz de confusión y temporal en reports/0.9.0-academic/figures; Playground con resultado individual, probabilities y drawer; Qwen o fallback rotulado; CSV/What-if; run CI del commit de entrega completado success. Mostrar /metrics o monitoring brevemente, sin convertir contadores locales en operación distribuida.
-
-Las figuras existentes provienen de reportes reales; enseñar cobertura junto a la curva temporal. Feature importance puede quedar en reserva si preguntan: es importancia del modelo, no causalidad. Si Mermaid no se renderiza en el medio elegido, comprobar/exportar el diagrama durante preparación sin cambiar el flujo. Evitar terminales prolongadas, código largo y JSON sin una pregunta concreta.
-
-## RA2 F4. Checklist de técnicas vocales — requiere práctica humana
-
-- [ ] Ensayar velocidad comprensible y pausas entre ideas.
-- [ ] Volumen audible; probar micrófono si corresponde.
-- [ ] Evitar muletillas y leer la pantalla.
-- [ ] Enfatizar Macro F1, limitación Delay y cobertura 20 %.
-- [ ] Respirar antes de cambios de sección.
-- [ ] Medir tiempo por slide y total con cronómetro.
-
-## RA2 F6. Checklist de lenguaje no verbal — pendiente de ensayo humano
-
-- [ ] Mantener contacto visual con el jurado.
-- [ ] Postura estable y gestos al servicio del argumento.
-- [ ] Movimientos moderados; no dar la espalda al explicar.
-- [ ] No leer el informe ni la pantalla continuamente.
-- [ ] Usar puntero solo para una cifra o relación concreta.
-- [ ] Ensayar la interacción con computador sin perder contacto visual.
-
-## Registro humano pendiente
-
-| Ensayo | Duración real | Observaciones de voz/postura/argumentación |
-|---|---|---|
-| 7 minutos | PENDIENTE | |
-| 10 minutos | PENDIENTE | |
-| 12 minutos | PENDIENTE | |
-
-La documentación prepara RA2 F1/F2/F3/F5/F7; no acredita su ejecución oral. Voz y lenguaje no verbal no pueden demostrarse mediante CI. Completar identidad institucional de la portada, verificar legibilidad/proyección y hacer ensayo con preguntas difíciles antes de entregar/sustentar.
-
-## VERSIÓN 7 MIN
-
-| Slide / tiempo | Mensaje central | Qué decir | Qué mostrar | Transición | Qué NO decir |
-|---|---|---|---|---|---|
-| 1 · 25 s | Decisión humana de PMO | Priorizar revisión de señales, no sustituir al director | Pregunta, usuario y decisión | La pregunta fija qué significa éxito | Impacto/ROI empresarial medido |
-| 2 · 25 s | Promesa original | La meta agrupa Critical o At Risk como alerta | Definición KPI | La alerta sale de esta arquitectura | Risk Alert como modelo nuevo |
-| 3 · 30 s | Capas separadas | LightGBM predice; heurísticas y Qwen explican aparte | Diagrama | El flujo depende de datos y split | Qwen predice Health |
-| 4 · 35 s | Alcance sintético | 4000 proyectos; split disjunto por proyecto; imputación TRAIN | Split 2800/600/600 | Veamos qué aprende cada modelo | Dataset empresarial real |
-| 5 · 30 s | Tres modelos y reglas | Health clasifica; Delay/Cost regresan; Team Health es heurística | Tabla features/modelos | Compare métricas y baseline | Team Health como psicología |
-| 6 · 55 s | Alerta no es severidad | 82.45 % Risk Alert final; Critical Recall 56.82 %; Delay marginal | Métricas TEST y baseline | La pregunta clave es cuándo | 82.45 % de Critical |
-| 7 · 40 s | Meta al 60 % | 359/473 = 75.90 %, cobertura 96 % | Figura temporal | La explicación tiene evaluación propia | 79.95 % al 40 % como meta cumplida |
-| 8 · 50 s | GenAI evaluada con límites | Qwen 29/30 oficial; comparativa parcial; proxy, no utilidad | Métricas y estado candidatos | Pasemos a la experiencia | Qwen es el mejor |
-| 9 · 60 s | Acciones de gestión | Leer una tarjeta: señal, qué hacer, por qué y qué revisar | Playground: acción prioritaria y seguimiento | La salida requiere controles | Driver como causa o recomendación como decisión |
-| 10 · 25 s | Diseño no es producción | CI y trazabilidad; Kubernetes validado estáticamente | Estado implementado/diseñado | Resumamos lo demostrado | Clúster desplegado |
-| 11 · 25 s | Límites visibles | Sintético, Critical limitado, Delay débil, sin estudio humano | Demostrado/pendiente | La conclusión se restringe al experimento | Validación empresarial |
-| 12 · 20 s | Resultado experimental | Meta alcanzada al 60 % en TEST sintético | 75.90 %, 96 %, 56.82 % | Abrir preguntas | Listo para producción |
-
-Total planificado: 420 s. Una interacción individual; no leer JSON ni terminal. Ajustar tiempos con ensayo grabado.
-
-## VERSIÓN 10 MIN
-
-| Slide / tiempo | Mensaje central | Qué decir | Qué mostrar | Transición | Qué NO decir |
-|---|---|---|---|---|---|
-| 1 · 35 s | Decisión humana de PMO | Contexto, usuario y falta de impacto empresarial medido | Problema → usuario → decisión | La pregunta define la evaluación | ROI medido |
-| 2 · 35 s | Promesa original | Distinguir detección de severidad | KPI Risk Alert | La arquitectura mantiene roles separados | Cambiamos labels |
-| 3 · 40 s | Capas separadas | Predictor, heurística, explicación y fallback | Diagrama | El split delimita datos | Qwen es predictor |
-| 4 · 45 s | Alcance sintético | Procedencia, conteos, agrupación y TRAIN-only preprocessing | Dataset/split/whitelist | Veamos los modelos | Datos empresariales |
-| 5 · 40 s | Tres modelos y reglas | Health, Delay, Cost; estados derivados; Team Health heurístico | Tabla features→salida | Comparemos baseline | Cuatro modelos predictivos |
-| 6 · 80 s | Alerta no es severidad | Macro F1 0.627576; Risk Alert 82.45 %; Critical 56.82 %; caveats | Resumen TEST y confusión | La meta requiere tiempo de detección | Ocultar falsos negativos |
-| 7 · 60 s | Meta al 60 % | Denominador fijo 473; 359 detectados; cobertura 576/600 | Figura y tabla | GenAI se evalúa aparte | Recall elegible al 40 % |
-| 8 · 80 s | GenAI evaluada con límites | Evaluación oficial congelada y comparativa parcial | Qwen y `not_available` | La app refleja separación | Ranking completo |
-| 9 · 90 s | Acciones de gestión | Predicción, tarjeta completa y What-if; distinguir escenario de acción real | Playground + simulación | Operación con controles | What-if como efecto causal |
-| 10 · 35 s | Diseño no es producción | Versiones, manifests, CI, endpoints, drift offline y K8s estático | Estado MLOps | Revisemos límites | Retraining continuo o cluster activo |
-| 11 · 30 s | Límites visibles | Sin empresa/usuario; benchmark operacional local | Demo/tests/alcance | Conclusión experimental | Ahorro humano |
-| 12 · 30 s | Resultado experimental | 75.90 % al 60 %, 82.45 % final, 56.82 % Critical | KPI temporal | Preguntas | Producción validada |
-
-Total planificado: 600 s. Reservar más tiempo para baseline y resultado; no extender detalles de infraestructura.
-
-## VERSIÓN 12 MIN
-
-| Slide / tiempo | Mensaje central | Qué decir | Qué mostrar | Transición | Qué NO decir |
-|---|---|---|---|---|---|
-| 1 · 40 s | Decisión humana de PMO | Contexto, responsable y ausencia de impacto medido | Problema → usuario → decisión | La pregunta vuelve medible la meta | ROI probado |
-| 2 · 40 s | Promesa original | Definir Risk Alert sin reemplazar Health | KPI y definición | El pipeline separa tareas | KPI seleccionado con TEST |
-| 3 · 45 s | Capas separadas | Predictor, drivers, Qwen, validator y fallback | Arquitectura | El split evita contaminación directa | Qwen altera predicciones |
-| 4 · 55 s | Alcance sintético | DOI, conteos, split, whitelist y riesgo EVM temporal | Split/procedencia | Veamos outputs y baseline | Proyectos reales |
-| 5 · 50 s | Tres modelos y reglas | Health, regresiones, estados derivados y heurísticas | Tabla modelo/feature | El baseline revela desbalance | Team Health calibrado |
-| 6 · 100 s | Alerta no es severidad | Leer matriz; comparar Macro F1/baseline; interpretar Delay y Cost | Confusión y tabla TEST | La promesa también es temporal | Critical Recall igual a alerta |
-| 7 · 75 s | Meta al 60 % | Denominador fijo; no elegibles cuentan no detectados; 359/473 | Curva temporal y cortes | GenAI tiene evaluación separada | 79.95 % al 40 % como cumplimiento |
-| 8 · 90 s | GenAI evaluada con límites | Separar evaluación congelada de benchmark parcial nuevo | JSON y comparación | La interfaz mantiene esos roles | Qwen es mejor o grounding es verdad |
-| 9 · 110 s | Acciones desde evidencia | Análisis, probabilidades, acción completa, What-if/CSV | Playground; fallback con la misma estructura | Guardrails no eliminan todo riesgo | Driver causal; CSV llama Qwen |
-| 10 · 45 s | Diseño no es producción | Versionado, fingerprints, readiness, métricas, drift offline y YAML | Endpoints y manifiesto | Los límites delimitan conclusión | Producción/retraining activo |
-| 11 · 35 s | Límites visibles | Representatividad, utilidad humana, concurrencia local y seguridad | Matriz riesgos | Concluyo solo lo respaldado | Productividad humana medida |
-| 12 · 35 s | Resultado experimental | 75.90 %, cobertura 96 %, 82.45 % final, Critical 56.82 % | Cifra principal y caveat | Abrir preguntas | Validación empresarial |
-
-Total planificado: 720 s. Ensayar navegación y fallback sin improvisar cifras; registrar tiempos reales en un registro de ensayo local; no se presupone que exista un archivo de ensayo versionado.
+## Material gráfico y soporte
+Usar figuras de `reports/0.9.0-academic/figures/`, la gráfica de `reports/promise_validation/figures/` y capturas actuales verificadas del Playground. La sustentación oral y el uso real de los recursos requieren comprobación humana, tal como se especifica en [criterios orales](ORAL_EVIDENCE.md).

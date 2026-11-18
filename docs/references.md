@@ -33,3 +33,8 @@ The Kubernetes Authors. (s. f.). *Deployments*. Recuperado el 8 de noviembre de 
 Fuentes consultadas el 8 de noviembre de 2026. Se verificaron los registros de Mendeley v2, las fichas oficiales de Google/Qwen/Mistral, FastAPI, Ollama, PMI, scikit-learn y Kubernetes. El extractor de la página NeurIPS no pudo obtener el abstract; el registro bibliográfico OpenAlex confirma título, autores, año y venue para LightGBM. Se conserva la URL de proceedings y no se inventa DOI. Las prestaciones del fabricante no son resultados PRUNIN; no hay comparación empírica completa de Gemma/Ministral.
 
 Citas del informe: Hajihoseyni (2026), Ke et al. (2017), Ollama (s. f.), Pedregosa et al. (2011), Project Management Institute (2020), Qwen Team (2025), Google DeepMind (s. f.-a, s. f.-b), Mistral AI (s. f.-a, s. f.-b), FastAPI (s. f.) y The Kubernetes Authors (s. f.). Los reportes propios son evidencia interna versionada; no publicaciones externas.
+
+
+- OpenAI. (s. f.). *API reference: Chat Completions*. https://platform.openai.com/docs/api-reference/chat
+- OpenAI. (s. f.). *Models*. https://platform.openai.com/docs/models
+- OpenAI. (s. f.). *API pricing*. https://platform.openai.com/pricing

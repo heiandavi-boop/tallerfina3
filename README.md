@@ -6,7 +6,7 @@ Prototipo académico reproducible para apoyar a directores de proyecto y oficina
 
 ## Arquitectura
 
-React/Vite → FastAPI → LightGBM (Health, Delay y Cost) → drivers de sensibilidad local → evidencia estructurada → Qwen3 8B/Ollama opcional → validación de grounding → acciones priorizadas con justificación/seguimiento o fallback determinístico. [Diagramas y pipeline](docs/architecture.md).
+React/Vite → FastAPI → LightGBM (Health, Delay y Cost) → drivers de sensibilidad local → evidencia estructurada → proveedor seleccionable (Ollama/Qwen3 8B u OpenAI API) → validación de grounding → acciones priorizadas con justificación/seguimiento o fallback determinístico. [Diagramas y pipeline](docs/architecture.md).
 
 La evidencia de recomendaciones distingue `model_driver`, `observed_operational_signal` y `heuristic_indicator`. Las reglas operativas [configuradas](configs/operational_signals.yaml) son heurísticas de revisión, no aprendidas por LightGBM. La ausencia de drivers positivos no descarta desviaciones de la entrada; una lista sin acciones exige ausencia de señales accionables y no equivale a ausencia de riesgo. Evidencia insuficiente y fallo generativo tienen estados separados. CSV solo genera recomendaciones al abrir una fila individual.
 
@@ -70,7 +70,7 @@ Con entorno, frontend y artefactos preparados:
 ./scripts/run_playground.sh
 ```
 
-Abrir http://localhost:8000. El preflight esperado es `RESULTADO: LISTO PARA DEMO`. [Instalación, LAN/QR y detalle de la demo](docs/playground.md); [guion](DEMO_PRESENTACION.md). `frontend/dist/` se versiona para facilitar la sustentación offline. El repositorio no incluye los `.joblib` académicos ni datasets pesados; un clon requiere copiar artefactos aprobados localmente o reproducirlos según [docs/training.md](docs/training.md). Los reportes científicos sí permanecen versionados; `reports/closure/` contiene salidas internas de proceso y no forma parte de la entrega. La selección usa PRUNIN_ARTIFACT_DIR, luego artifacts/0.9.0-academic y después demo-0.1.0, rotulado como demo sintético.
+Abrir http://localhost:8000. El preflight esperado es `RESULTADO: LISTO PARA DEMO`. [Instalación, LAN/QR y detalle de la demo](docs/playground.md); [protocolo de demo](docs/DEMO_PROTOCOL.md). `frontend/dist/` se versiona para facilitar la sustentación offline. El repositorio no incluye los `.joblib` académicos ni datasets pesados; un clon requiere copiar artefactos aprobados localmente o reproducirlos según [docs/training.md](docs/training.md). Los reportes científicos sí permanecen versionados; `reports/closure/` contiene salidas internas de proceso y no forma parte de la entrega. La selección usa PRUNIN_ARTIFACT_DIR, luego artifacts/0.9.0-academic y después demo-0.1.0, rotulado como demo sintético.
 
 Para activar GenAI local, con Ollama y qwen3:8b instalados:
 
@@ -101,7 +101,7 @@ Reproducción del entrenamiento: [docs/training.md](docs/training.md) y scripts/
 
 ## Limitaciones
 
-Dataset sintético, severidad Critical todavía limitada, Delay débil, caveat EVM de Cost, cobertura temprana desigual, fusión no calibrada y drivers no causales. No hay baseline humano medido ni validación prospectiva empresarial. Grounding es proxy y requiere revisión humana. La eficiencia del API no demuestra productividad humana; el [protocolo humano](docs/human_efficiency_validation.md) y la [preparación oral](docs/PRESENTACION_FINAL.md) quedan preparados; la medición humana no se ha ejecutado. [Ética](docs/ethics_security.md). No está listo para producción.
+Dataset sintético, severidad Critical todavía limitada, Delay débil, caveat EVM de Cost, cobertura temprana desigual, fusión no calibrada y drivers no causales. No hay baseline humano medido ni validación prospectiva empresarial. Grounding es proxy y requiere revisión humana. La eficiencia del API no demuestra productividad humana; el [protocolo humano](docs/human_efficiency_validation.md), la [presentación](docs/PRESENTACION_FINAL.md) y la [matriz de evidencias orales](docs/ORAL_EVIDENCE.md) están documentados; la medición humana no se ha ejecutado. [Ética](docs/ethics_security.md). No está listo para producción.
 
 ## Estado de evaluación
 
@@ -113,8 +113,9 @@ Dataset sintético, severidad Critical todavía limitada, Delay débil, caveat E
 - [Matriz histórica previa de 27 criterios](reports/rubric_final/rubric_final.md)
 - [Resultados predictivos congelados](reports/0.9.0-academic/)
 - [Resultados GenAI](reports/genai/)
-- [Presentación de 7/10/12 minutos](docs/PRESENTACION_FINAL.md)
-- [Preguntas de defensa](docs/PREGUNTAS_DEFENSA.md) y [glosario](docs/GLOSARIO_DEFENSA.md)
+- [Contenido académico de la presentación](docs/PRESENTACION_FINAL.md)
+- [Protocolo demostrable](docs/DEMO_PROTOCOL.md) y [evidencia de criterios orales](docs/ORAL_EVIDENCE.md)
+- [Manifiesto de entrega](docs/DELIVERY_MANIFEST.md)
 - [Referencias APA 7](docs/references.md)
 
 ## Selección de IA generativa: Ollama u OpenAI

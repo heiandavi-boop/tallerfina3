@@ -71,13 +71,13 @@ La primera implementación de gramática `anyOf` omitió campos comunes en Ollam
 | RA1-F4 | Conclusiones | L | KPI, Critical, Delay y Cost diferenciados | [Promesa](../promise_validation/risk_alert_metrics.json) | L | Generalización empresarial |
 | RA1-F5 | Gramática/tablas/figuras | L | Fuentes/unidades y figuras preservadas | [Figuras](../0.9.0-academic/figures/) | L | Revisión final PDF/slides |
 | RA1-Referencias | Referencias | L | Fuentes y manifiestos documentados sin DOI inventados | [Referencias](../../docs/references.md) | L | Revisión APA/institucional y enlaces externos |
-| RA2-F1 | Estructura oral | H | Guion existente preservado | [Ensayo](../../docs/ENSAYO_SUSTENTACION.md) | H | Exposición observada |
+| RA2-F1 | Estructura oral | H | Estructura pública documentada; guion personal fuera del repositorio | [Criterios orales](../../docs/ORAL_EVIDENCE.md) | H | Exposición observada |
 | RA2-F2 | Intención oral | H | Planes 7/10/12 min revisados | [Presentación](../../docs/PRESENTACION_FINAL.md) | H | Tiempo oficial y cronometraje real |
-| RA2-F3 | Lenguaje profesional | H | Glosario/preguntas preservados | [Glosario](../../docs/GLOSARIO_DEFENSA.md) | H | Fluidez oral |
-| RA2-F4 | Voz | H | Plantilla sin datos fabricados | [Ensayo](../../docs/ENSAYO_SUSTENTACION.md) | H | Volumen, pausas, ritmo observados |
-| RA2-F5 | Recursos de apoyo | H | Demo, respaldo y evidencia preparados | [Demo](../../DEMO_PRESENTACION.md) | H | Uso efectivo en sustentación |
-| RA2-F6 | Lenguaje no verbal | H | Checklist preservado | [Ensayo](../../docs/ENSAYO_SUSTENTACION.md) | H | Postura/contacto visual observados |
-| RA2-F7 | Defensa | H | Evidencias y límites para preguntas difíciles | [Preguntas](../../docs/PREGUNTAS_DEFENSA.md) | H | Argumentación espontánea |
+| RA2-F3 | Lenguaje profesional | H | Terminología documentada en el informe; apuntes personales fuera del repositorio | [Evidencia oral pública](../../docs/ORAL_EVIDENCE.md) | H | Fluidez oral |
+| RA2-F4 | Voz | H | Criterio oral pendiente de observación; instrumento personal no publicado | [Criterios orales](../../docs/ORAL_EVIDENCE.md) | H | Volumen, pausas, ritmo observados |
+| RA2-F5 | Recursos de apoyo | H | Demo, respaldo y evidencia preparados | [Protocolo de demostración](../../docs/DEMO_PROTOCOL.md) | H | Uso efectivo en sustentación |
+| RA2-F6 | Lenguaje no verbal | H | Estado oral declarado sin observación inventada | [Criterios orales](../../docs/ORAL_EVIDENCE.md) | H | Postura/contacto visual observados |
+| RA2-F7 | Defensa | H | Evidencias y límites para preguntas difíciles | [Defensa: evidencias disponibles](../../docs/ORAL_EVIDENCE.md) | H | Argumentación espontánea |
 | R7.1-Cr1 | Preprocesamiento | L | Fingerprints, splits y tests revisados | [Integridad](integrity_after.json) | L | OOD univariado y datos sintéticos |
 | R7.1-Cr2 | Herramientas/dominio | L | Roles, dependencias y runtimes verificados | [Gates](gates-r2.json) | L | Defensa humana; Node local distinto |
 | R7.1-Cr3 | Pipeline | L | Fail-fast y fixtures CI verificados | [Entrenamiento](../../docs/training.md) | L | Entrenamiento oficial no repetido |
