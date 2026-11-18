@@ -151,6 +151,7 @@ export default function Experience() {
             setValues({ ...data.presets.at_risk });
             setApiReady(ready);
             setGenaiStatus(genai);
+            setGenaiProvider(genai?.enabled ? 'ollama' : 'none');
         }).catch(() => { if (active) setError('No fue posible conectar con PRUNIN. Verifica que la API esté disponible.'); });
         return () => { active = false; };
     }, []);
