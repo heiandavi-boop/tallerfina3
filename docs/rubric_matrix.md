@@ -1,17 +1,15 @@
-# Matriz PAIII 2026
+# Matriz de evaluación PAIII 2026 — fuente institucional
 
-**Limitación de fuente:** no se encontró la rúbrica oficial en el workspace ni se recibió su texto institucional. La matriz interna contiene 27 criterios, pero no permite certificar requisitos literales, pesos ni descriptores del nivel máximo. El objetivo interno de nivel 4 no es una calificación. La revisión actual está en [rubric_review.json](../reports/audit_2026-11-08/rubric_review.json); las matrices [rubric_final.json](../reports/rubric_final/rubric_final.json) y [rubric_final.md](../reports/rubric_final/rubric_final.md) se conservan como auditoría histórica, no se sobrescriben.
+**Fuente verificada:** hoja `Rubrica` del archivo institucional `Rubrica_PAIII_2026(2).xlsx`, suministrado para la revisión del 18 de noviembre de 2026. El archivo fuente se conserva fuera de Git; sus **27 criterios** y el texto original del descriptor **Nivel 4: Outstanding** están transcritos con sus evidencias en [RUBRICA_OFICIAL_PAIII_2026.md](RUBRICA_OFICIAL_PAIII_2026.md).
 
-## Estado auditado
+El archivo institucional recibido **no incluye una evaluación individual del proyecto** en las columnas de notas del invitado y mentor. Por ello este contraste no concede nivel 4 ni asigna calificación.
 
-| Estado | Criterios | Interpretación |
+| Estado interno de la evidencia | Criterios | Alcance de la afirmación |
 |---|---:|---|
-| DEMOSTRADO | 0 | No se certifica máximo oficial con fuente institucional ausente. |
-| DEMOSTRADO CON LIMITACIONES | 15 | Implementación/evidencia verificable con límites relevantes. |
-| PARCIAL | 5 | Selección comparativa GenAI, productividad, despliegue, escalabilidad y MLOps productivo incompletos. |
-| PENDIENTE | 0 | Ningún ítem carece por completo de preparación; esto no significa cierre completo. |
-| REQUIERE EVALUACIÓN HUMANA | 7 | RA2 requiere actuación real, no se declara demostrado. |
+| Demostrado con limitaciones | 15 | El repositorio aporta evidencia técnica o escrita; el máximo nivel aún debe ser evaluado |
+| Parcial | 5 | Se requieren pruebas adicionales: elección de modelo, productividad, despliegue, robustez o MLOps |
+| Requiere evaluación oral | 7 | La calidad real de voz, estructura, recursos y defensa solo se observa en sustentación |
 
-R6.1-Cr2, R6.2-Cr6 y R7.2-Cr4/Cr5/Cr6 se reclasifican PARCIAL frente a la auditoría histórica para no confundir preparación con cierre. Qwen está disponible; Gemma y Ministral no se descargaron. La concurrencia histórica mostró degradación y no caracteriza automáticamente el contrato nuevo de 1200 tokens. Docker no tuvo daemon disponible; Kubernetes solo se validó estáticamente. Drift/OOD es académico/offline, sin retraining continuo. Productividad humana: NO MEDIDA.
+Las brechas son los códigos `R6.1-Cr2`, `R6.2-Cr6`, `R7.2-Cr4`, `R7.2-Cr5` y `R7.2-Cr6`. En el criterio `R7.2-Cr5`, el descriptor institucional exige **diseñar** mecanismos de tolerancia a fallos, balanceo y recuperación; el manifiesto aporta evidencia de diseño, pero no ejecución productiva. En `R7.2-Cr4` y `R7.2-Cr6` se exigen automatización y prácticas aplicadas, por lo que un diagrama no sustituye la prueba de operación.
 
-Los siete ítems RA2 son F1 estructura, F2 intención, F3 lenguaje profesional, F4 voz, F5 recursos, F6 lenguaje no verbal y F7 defensa. Estado: **“Preparado para Nivel 4; desempeño depende de la sustentación real.”** Consultar [recursos públicos y estado de criterios orales](ORAL_EVIDENCE.md). Los registros personales de ensayo permanecen fuera del repositorio; sin observación real no se declara el criterio cumplido.
+El resto de los criterios, incluso cuando existen elementos documentados, tienen límites de validación que deben declararse. [Criterios de sustentación](ORAL_EVIDENCE.md) y [manifiesto de entrega](DELIVERY_MANIFEST.md). Las referencias y rúbricas internas históricas de `reports/` son registros de evaluaciones anteriores; no se reinterpretan como calificación del instrumento oficial.
