@@ -71,7 +71,7 @@ export function RecommendationCard({ data, fields = [] }) {
     const groundingFailures = new Set(['unknown_evidence_feature', 'unsupported_numeric_claim', 'empty_recommendations_with_risk_drivers', 'grounding_validation_failed', 'non_actionable_recommendation', 'non_verifiable_follow_up', 'invalid_evidence_provenance', 'contradictory_claim']);
     const formatFailures = new Set(['invalid_json', 'invalid_schema']);
     const legacyTimeout = /timeout|timed out/i.test(data.genai_failure_reason || '');
-    const title = genaiUsed ? 'IA generativa local activa' : genaiFailed
+    const title = genaiUsed ? (data.engine?.startsWith('openai:') ? `OpenAI activo · ${data.engine.split(':').slice(1).join(':')}` : 'Ollama local activo') : genaiFailed
         ? data.failure_code === 'ollama_timeout' || (!data.failure_code && legacyTimeout) ? 'La IA generativa no respondió dentro del tiempo esperado; se utilizó una recomendación de respaldo'
             : groundingFailures.has(data.failure_code) ? 'La respuesta de IA no cumplió las reglas de evidencia; se utilizó una recomendación de respaldo'
                 : formatFailures.has(data.failure_code) ? 'La IA generativa no devolvió una respuesta válida; se utilizó una recomendación de respaldo'
