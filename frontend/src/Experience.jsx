@@ -254,6 +254,7 @@ export default function Experience() {
     };
 
     const openCsvProject = async row => {
+        if (insecureRemote) { setError('OpenAI requiere HTTPS cuando PRUNIN se abre desde otro equipo.'); return; }
         const actualInput = row?.prediction?.input || row?.input || null;
         if (!actualInput || row.error) {
             setError('No fue posible abrir esta fila porque sus datos no son válidos.');
