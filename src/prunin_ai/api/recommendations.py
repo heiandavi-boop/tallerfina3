@@ -827,8 +827,10 @@ def ollama_recommendations(
     row: dict[str, Any],
     prediction: dict[str, Any],
     drivers: list[dict[str, Any]],
+    *,
+    force_enabled: bool = False,
 ) -> dict[str, Any] | None:
-    if os.getenv("PRUNIN_ENABLE_OLLAMA", "0") != "1":
+    if not force_enabled and os.getenv("PRUNIN_ENABLE_OLLAMA", "0") != "1":
         return None
     context = build_evidence_context(row, prediction, drivers)
     generated = generate_ollama_grounded(prediction, drivers, row=row)
@@ -920,21 +922,7 @@ def build_recommendations(
             "disclaimer": "Acciones generadas por OpenAI usando evidencia estructurada; validar antes de tomar decisiones.",
         }
     if selected == "ollama":
-        generated = ollama_recommendations(row, prediction, drivers)
-        if generated is not None:
-            generated["selected_provider"] = "ollama"
-            return generated
-        # An explicit Ollama selection enables local inference for this request;
-        # do not mutate process-wide environment variables.
-        original = os.getenv("PRUNIN_ENABLE_OLLAMA")
-        try:
-            os.environ["PRUNIN_ENABLE_OLLAMA"] = "1"
-            generated = ollama_recommendations(row, prediction, drivers)
-        finally:
-            if original is None:
-                os.environ.pop("PRUNIN_ENABLE_OLLAMA", None)
-            else:
-                os.environ["PRUNIN_ENABLE_OLLAMA"] = original
+        generated = ollama_recommendations(row, prediction, drivers, force_enabled=provider == "ollama")
         if generated is not None:
             generated["selected_provider"] = "ollama"
             return generated
