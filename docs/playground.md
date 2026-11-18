@@ -108,7 +108,7 @@ La predicción de regresión cruda puede ser ligeramente negativa. La interfaz a
 
 Para instalar el entorno usar ./scripts/setup_playground.sh y verificar después preflight. No ejecutar entrenamientos sobre artefactos oficiales durante el cierre. Un clon no incluye modelos/datasets pesados; copiar los artefactos aprobados o reproducir en un entorno separado según training.md. La demo de fixtures no acredita resultados académicos.
 
-La URL local es http://localhost:8000; run_playground.sh muestra LAN cuando disponible. PRUNIN_PUBLIC_URL configura QR para URL publicada si existe, sin afirmar hosting real. Verificar red del salón. Guion ejecutivo: PRESENTACION_FINAL.md; secuencia en vivo: ../DEMO_PRESENTACION.md; preguntas y glosario en PREGUNTAS_DEFENSA.md y GLOSARIO_DEFENSA.md. Mostrar resultados/gráficos antes de código y no leer JSON completo sin propósito.
+La URL local es http://localhost:8000; run_playground.sh muestra LAN cuando disponible. PRUNIN_PUBLIC_URL configura QR para URL publicada si existe, sin afirmar hosting real. Verificar red del salón. Contenido de diapositivas: [PRESENTACION_FINAL.md](PRESENTACION_FINAL.md); procedimiento de demo: [DEMO_PROTOCOL.md](DEMO_PROTOCOL.md). Los materiales privados de preparación y ensayo no forman parte del repositorio público. Mostrar resultados/gráficos antes de código y no leer JSON completo sin propósito.
 
 El valor ml_inference_ms incluye ML y drivers, igual a timing.ml_and_drivers_ms; no etiquetarlo como tiempo puro del predictor. Timing.total_ms incluye la generación cuando se intenta. El límite CSV de 100 filas no es throughput bajo carga. La matriz completa distingue evidencia técnica, comunicación escrita y desempeño oral pendiente.
 
