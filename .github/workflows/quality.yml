@@ -34,3 +34,5 @@ jobs:
           PYTHONPATH: src
           PRUNIN_ARTIFACT_DIR: artifacts/demo-0.1.0
         run: python -m pytest -q
+      - name: Build and smoke container with synthetic demo models
+        run: bash scripts/container_smoke.sh

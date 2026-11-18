@@ -45,6 +45,7 @@ def test_kubernetes_objects_probes_resources_and_selectors_are_consistent():
     assert "--timeout-graceful-shutdown 30" in dockerfile
     assert "USER 10001:10001" in dockerfile
     assert "HEALTHCHECK" in dockerfile and "/api/ready" in dockerfile
+    assert "libgomp1" in dockerfile  # native LightGBM runtime dependency on Debian slim
     assert "COPY configs/ ./configs/" in dockerfile
     ignored = (ROOT / ".dockerignore").read_text().splitlines()
     assert {".git", "docs", "reports", ".env", ".env.*"} <= set(ignored)
