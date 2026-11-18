@@ -12,7 +12,7 @@ Este documento registra la preparación técnica verificable para la evaluación
 | RA2-F6 · Lenguaje no verbal | No acreditable mediante documentos de código | Pendiente de observación | Postura, contacto visual, interacción |
 | RA2-F7 · Defensa | [Trazabilidad](training.md), [evaluación](genai_evaluation.md) y [limitaciones](ethics_security.md) | Preparado | Respuestas espontáneas al jurado |
 
-**Limitación:** esta es una correspondencia interna; la ponderación y el texto literal de la rúbrica institucional aún deben cotejarse contra el documento oficial.
+**Fuente cotejada:** los siete descriptores de nivel 4 de RA2 fueron contrastados con la hoja `Rubrica` del archivo institucional `Rubrica_PAIII_2026(2).xlsx`, resumidos en [rúbrica oficial](RUBRICA_OFICIAL_PAIII_2026.md). La evidencia oral continúa pendiente de observación; no se asigna nivel por disponer de documentos.
 
 ## Evidencias que deben mostrarse
 Resultado de inferencia individual, figura de detección temporal, comparación con baseline, selección de proveedor generativo, recomendaciones con procedencia y estados de fallback; siempre usando datos y métricas ya documentados.
