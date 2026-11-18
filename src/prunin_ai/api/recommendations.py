@@ -367,15 +367,17 @@ def validate_generated_payload(
     prediction: dict[str, Any] | None = None,
     drivers: list[dict[str, Any]] | None = None,
     context: dict[str, Any] | None = None,
+    max_actions: int = 4,
+    max_summary_chars: int = 180,
 ) -> dict[str, Any]:
     recommendations = payload.get("recommendations") if isinstance(payload, dict) else None
     summary = payload.get("summary") if isinstance(payload, dict) else None
     schema_valid = (
         isinstance(recommendations, list)
-        and len(recommendations) <= 4
+        and len(recommendations) <= max_actions
         and isinstance(summary, str)
         and bool(summary.strip())
-        and len(summary.strip()) <= 180
+        and len(summary.strip()) <= max_summary_chars
         and "\n" not in summary
     )
     referenced: list[str] = []
@@ -453,7 +455,7 @@ def validate_generated_payload(
     grounded = schema_valid and evidence_features_valid and provenance_valid and not contradiction and not unsupported_numeric_claim and not empty_with_risk and actionability and follow_up_verifiable
     if not schema_valid:
         failure_code = "invalid_schema"
-        failure_detail = "Se esperaba summary textual y hasta cuatro recomendaciones con evidencia, razón y acción válidas."
+        failure_detail = f"Se esperaba summary textual y hasta {max_actions} recomendaciones con evidencia, razón y acción válidas."
     elif empty_with_risk:
         failure_code = "empty_recommendations_with_risk_drivers"
         failure_detail = "Hay drivers que aumentan riesgo, pero la respuesta no propuso recomendaciones."
@@ -498,7 +500,7 @@ def validate_generated_payload(
     }
 
 
-def build_grounded_prompt(prediction: dict[str, Any], drivers: list[dict[str, Any]], *, row: dict[str, Any] | None = None) -> tuple[str, set[str]]:
+def build_grounded_prompt(prediction: dict[str, Any], drivers: list[dict[str, Any]], *, row: dict[str, Any] | None = None, max_actions: int = 4, max_summary_chars: int = 180) -> tuple[str, set[str]]:
     context = build_evidence_context(row or {}, prediction, drivers)
     allowed_features = {str(item["feature"]) for item in context["actionable_evidence"]}
     action_guidance = {
@@ -530,7 +532,7 @@ def build_grounded_prompt(prediction: dict[str, Any], drivers: list[dict[str, An
         response_example = {"summary": example_summary, "recommendations": example_recommendations}
         conditional_rule = (
             "La evidencia incluye señales verificadas de intervención. Es obligatorio devolver al menos una acción y está prohibido devolver recommendations vacías. "
-            "Usa una o más de las señales exactas de allowed_evidence_features y no excedas cuatro acciones."
+            f"Usa una o más de las señales exactas de allowed_evidence_features y no excedas {max_actions} acciones."
         )
     else:
         response_example = {
@@ -548,6 +550,7 @@ def build_grounded_prompt(prediction: dict[str, Any], drivers: list[dict[str, An
         "Conserva la pareja feature/source de actionable_evidence como evidence_feature/evidence_source. No confundas model_driver (sensibilidad local), observed_operational_signal (dato observado con regla heurística) ni heuristic_indicator (cálculo determinístico). "
         "Los drivers reduces_risk son contexto predictivo, no invalidan desviaciones operativas. Las acciones operativas no reclasifican Health ni afirman que el modelo utiliza esas variables. No dupliques una feature. "
         "Prioridad permitida: alta, media o baja; ordena alta, media, baja y prioriza SPI/CPI/capacidad cuando estén entre las señales más relevantes, sin inventar umbrales. "
+        f"El resumen admite hasta {max_summary_chars} caracteres. Aprovecha la profundidad del modelo para priorizar, explicar interdependencias y proponer verificaciones, sin inventar evidencia. "
         "Devuelve exclusivamente JSON válido, sin markdown ni texto adicional, con el mismo schema y nivel de concreción de este ejemplo: "
         + json.dumps(response_example, ensure_ascii=False, separators=(",", ":"))
         + ". " + conditional_rule + "\n"
@@ -624,6 +627,91 @@ def generate_ollama_grounded(
         return _generation_failure(model, allowed_features, started, "http_error", str(exc), raw_response=raw_response)
     except Exception as exc:
         return _generation_failure(model, allowed_features, started, "http_error", f"Fallo inesperado de Ollama: {exc}", raw_response=raw_response)
+
+
+
+def check_openai_status(*, has_session_key: bool = False) -> dict[str, Any]:
+    """Report configuration without exposing or verifying a secret via GET."""
+    return {
+        "provider": "openai",
+        "enabled": True,
+        "available": bool(has_session_key or os.getenv("OPENAI_API_KEY")),
+        "model": os.getenv("PRUNIN_OPENAI_MODEL", "gpt-4.1"),
+        "key_configured_on_server": bool(os.getenv("OPENAI_API_KEY")),
+        "note": "La disponibilidad indica configuración, no confirma créditos, permisos o conectividad.",
+    }
+
+
+def generate_openai_grounded(
+    prediction: dict[str, Any],
+    drivers: list[dict[str, Any]],
+    *,
+    row: dict[str, Any] | None = None,
+    api_key: str | None = None,
+    model: str | None = None,
+) -> dict[str, Any]:
+    """OpenAI is contacted exclusively by the backend; keys are never persisted."""
+    model = model or os.getenv("PRUNIN_OPENAI_MODEL", "gpt-4.1")
+    key = api_key or os.getenv("OPENAI_API_KEY")
+    context = build_evidence_context(row or {}, prediction, drivers)
+    prompt, allowed_features = build_grounded_prompt(prediction, drivers, row=row, max_actions=8, max_summary_chars=1200)
+    prompt = prompt.removeprefix("/no_think\n")  # Ollama-specific directive; never restrict OpenAI reasoning.
+    started = time.perf_counter()
+    if not key:
+        return _generation_failure(model, allowed_features, started, "openai_key_missing", "Configura una clave de OpenAI para esta sesión.")
+    if not re.fullmatch(r"[A-Za-z0-9_.:-]{1,100}", model):
+        return _generation_failure(model, allowed_features, started, "invalid_model", "Identificador de modelo no permitido.")
+    # The output contract limits the displayed actions, not the model's available
+    # reasoning capability. Do not set temperature or a small completion-token cap.
+    try:
+        response = requests.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+            json={
+                "model": model,
+                "messages": [
+                    {"role": "system", "content": "Responde exclusivamente mediante un objeto JSON válido. Analiza con profundidad la evidencia antes de seleccionar las acciones prioritarias, sin inventar hechos."},
+                    {"role": "user", "content": prompt},
+                ],
+                "response_format": {"type": "json_object"},
+            },
+            timeout=float(os.getenv("PRUNIN_OPENAI_TIMEOUT_SECONDS", "120")),
+        )
+        if response.status_code in (401, 403):
+            return _generation_failure(model, allowed_features, started, "openai_auth_error", "Clave inválida o acceso al modelo no autorizado.")
+        if response.status_code == 429:
+            return _generation_failure(model, allowed_features, started, "openai_rate_limit", "Límite de uso o saldo de la cuenta OpenAI.")
+        if response.status_code >= 400:
+            return _generation_failure(model, allowed_features, started, "openai_http_error", f"OpenAI respondió HTTP {response.status_code}. Verifica el modelo y los permisos.")
+        data = response.json()
+        choices = data.get("choices", [])
+        message = choices[0].get("message", {}) if choices else {}
+        raw = message.get("content", "")
+        if not isinstance(raw, str) or not raw.strip():
+            return _generation_failure(model, allowed_features, started, "invalid_json", "OpenAI no devolvió contenido JSON.")
+        parsed = json.loads(raw)
+        validation = validate_generated_payload(parsed, allowed_features, prediction=prediction, drivers=drivers, context=context, max_actions=8, max_summary_chars=1200)
+        failure_code = validation.get("failure_code")
+        failure_detail = validation.get("failure_detail")
+        _set_last_genai_error(failure_code, failure_detail)
+        return {
+            "ok": bool(validation["grounded"]),
+            "model": model,
+            "latency_ms": round((time.perf_counter() - started) * 1000, 2),
+            "payload": parsed,
+            "validation": validation,
+            "failure_code": failure_code,
+            "failure_detail": failure_detail,
+            "error": failure_code,
+            "raw_response": raw,
+            "usage": data.get("usage", {}),
+        }
+    except requests.exceptions.Timeout:
+        return _generation_failure(model, allowed_features, started, "openai_timeout", "OpenAI no respondió dentro del tiempo configurado.")
+    except requests.exceptions.RequestException:
+        return _generation_failure(model, allowed_features, started, "openai_unavailable", "No se pudo conectar con OpenAI.")
+    except (ValueError, KeyError, IndexError):
+        return _generation_failure(model, allowed_features, started, "invalid_json", "La respuesta de OpenAI no es un JSON válido.")
 
 
 def _generation_failure(
@@ -743,8 +831,10 @@ def ollama_recommendations(
     row: dict[str, Any],
     prediction: dict[str, Any],
     drivers: list[dict[str, Any]],
+    *,
+    force_enabled: bool = False,
 ) -> dict[str, Any] | None:
-    if os.getenv("PRUNIN_ENABLE_OLLAMA", "0") != "1":
+    if not force_enabled and os.getenv("PRUNIN_ENABLE_OLLAMA", "0") != "1":
         return None
     context = build_evidence_context(row, prediction, drivers)
     generated = generate_ollama_grounded(prediction, drivers, row=row)
@@ -792,11 +882,57 @@ def build_recommendations(
     row: dict[str, Any],
     prediction: dict[str, Any],
     drivers: list[dict[str, Any]],
+    *,
+    provider: str | None = None,
+    api_key: str | None = None,
+    openai_model: str | None = None,
 ) -> dict[str, Any]:
-    generated = ollama_recommendations(row, prediction, drivers)
-    if generated is not None:
-        return generated
-    return grounded_fallback(row, prediction, drivers)
+    selected = provider or ("ollama" if os.getenv("PRUNIN_ENABLE_OLLAMA", "0") == "1" else "none")
+    if selected == "openai":
+        context = build_evidence_context(row, prediction, drivers)
+        generated = generate_openai_grounded(prediction, drivers, row=row, api_key=api_key, model=openai_model)
+        if not generated["ok"]:
+            fallback = grounded_fallback(
+                row, prediction, drivers, genai_attempted=True,
+                failure_code=generated.get("failure_code"),
+                failure_detail=generated.get("failure_detail"),
+                genai_latency_ms=generated.get("latency_ms"),
+                validation=generated.get("validation"),
+            )
+            fallback["selected_provider"] = "openai"
+            return fallback
+        recs = sorted(generated["payload"]["recommendations"], key=_recommendation_sort_key)
+        return {
+            "engine": f"openai:{generated['model']}",
+            "selected_provider": "openai",
+            "evidence_context": context,
+            "evidence_status": context["status"],
+            "genai_attempted": True,
+            "genai_used": True,
+            "genai_failure_reason": None,
+            "failure_code": None,
+            "failure_detail": None,
+            "genai_latency_ms": generated["latency_ms"],
+            "evidence_features": generated["validation"]["referenced_evidence_features"],
+            "allowed_evidence_features": generated["validation"]["allowed_evidence_features"],
+            "referenced_evidence_features": generated["validation"]["referenced_evidence_features"],
+            "recommendations": recs,
+            "reasons": [item["reason"] for item in recs],
+            "actions": [item["action"] for item in recs],
+            "summary": generated["payload"].get("summary", ""),
+            "latency_ms": generated["latency_ms"],
+            "grounding": generated["validation"],
+            "usage": generated.get("usage", {}),
+            "disclaimer": "Acciones generadas por OpenAI usando evidencia estructurada; validar antes de tomar decisiones.",
+        }
+    if selected == "ollama":
+        generated = ollama_recommendations(row, prediction, drivers, force_enabled=provider == "ollama")
+        if generated is not None:
+            generated["selected_provider"] = "ollama"
+            return generated
+    fallback = grounded_fallback(row, prediction, drivers)
+    fallback["selected_provider"] = selected
+    return fallback
 
 
 def recommendations_not_requested() -> dict[str, Any]:

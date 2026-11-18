@@ -116,3 +116,11 @@ Dataset sintético, severidad Critical todavía limitada, Delay débil, caveat E
 - [Presentación de 7/10/12 minutos](docs/PRESENTACION_FINAL.md)
 - [Preguntas de defensa](docs/PREGUNTAS_DEFENSA.md) y [glosario](docs/GLOSARIO_DEFENSA.md)
 - [Referencias APA 7](docs/references.md)
+
+## Selección de IA generativa: Ollama u OpenAI
+
+La interfaz permite seleccionar **Ollama local**, **OpenAI mediante API** o **solo predicción** antes de cada análisis individual. OpenAI admite ingresar la clave en el formulario de sesión (solo memoria de la pestaña; no localStorage ni respuesta JSON) o configurar `OPENAI_API_KEY` como variable de entorno **del servidor**, sin almacenar el secreto en Git. El backend llama a `https://api.openai.com/v1/chat/completions`. El modelo predeterminado es `gpt-4.1`, pero su identificador se puede cambiar según modelos habilitados en la cuenta. No es necesario reiniciar PRUNIN para cambiar entre motores desde la UI.
+
+La versión OpenAI admite hasta **8 acciones basadas en evidencia** y un resumen de **1.200 caracteres**, en lugar de 4 acciones y 180 caracteres de Ollama. Estos límites corresponden al formato de recomendaciones de PRUNIN, **no a las capacidades de razonamiento, contexto o modelos disponibles en la API OpenAI**. La API no equivale a la suscripción ChatGPT; se factura por consumo. Los guardrails de procedencia, validación y fallback permanecen habilitados. No se envía texto libre del proyecto al modelo generativo; se transmiten señales estructuradas y posibles datos de proyecto que figuren en la evidencia de inferencia. Si son sensibles, verificar la política de tratamiento de datos antes de usar OpenAI.
+
+**Seguridad:** Solo enviar la clave desde `localhost` o una instancia HTTPS; no introducirla en una aplicación PRUNIN hospedada por un tercero no confiable. La clave viaja al backend como cabecera por solicitud y no se guarda en servidor. Para usuarios externos requiere HTTPS, autenticación y configuración CORS restringida antes de despliegue productivo. `GET /api/genai-status` nunca devuelve la clave ni confirma créditos. Véase [guía de proveedores](docs/ai_providers.md).
