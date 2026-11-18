@@ -1,6 +1,6 @@
 # Cierre final PRUNIN AI Core
 
-Estado de evidencia para la entrega académica. No asigna calificación oficial ni afirma validación empresarial/producción. La integración posterior OpenAI/Ollama se añadió sin alterar los artefactos ML; sus resultados reales aún no han sido evaluados en una cohorte comparativa. El SHA exacto de publicación y el run `quality` deben corresponder al `main` publicado; el identificador de workflow se comunica en la entrega final y no se reutiliza ningún run histórico.
+Estado de evidencia para la entrega académica. El archivo oficial [PAIII 2026](RUBRICA_OFICIAL_PAIII_2026.md) fue recibido y sus 27 descriptores máximos se contrastaron. No asigna calificación del mentor/invitado ni afirma validación empresarial/producción. La integración posterior OpenAI/Ollama se añadió sin alterar los artefactos ML; sus resultados reales aún no han sido evaluados en una cohorte comparativa. El SHA exacto de publicación y el run `quality` deben corresponder al `main` publicado; el identificador de workflow se comunica en la entrega final y no se reutiliza ningún run histórico.
 
 ## Verificaciones ejecutadas
 
@@ -49,14 +49,15 @@ El detector de drift/OOD es académico/offline. Kubernetes quedó como diseño v
 
 ## Estado de 27 criterios
 
-La tabla completa machine-readable, con evidencia, claims seguros/no seguros y gaps, está en [reports/rubric_final/rubric_final.json](../reports/rubric_final/rubric_final.json); resumen: [reports/rubric_final/rubric_final.md](../reports/rubric_final/rubric_final.md). La evaluación clasifica 20 criterios como `DEMONSTRATED_WITH_LIMITATION` y 7 como `PREPARED_HUMAN` (RA2 F1–F7). Ningún criterio oral se declara demostrado.
+La correspondencia actual con el documento institucional está en [RUBRICA_OFICIAL_PAIII_2026.md](RUBRICA_OFICIAL_PAIII_2026.md): 15 demostrados con limitaciones, 5 parciales y 7 pendientes de sustentación oral. Los reportes previos de `reports/rubric_final/` son **históricos**, elaborados antes de recibir la rúbrica oficial. Ningún criterio oral se declara demostrado. No se infiere una calificación oficial de esta clasificación.
 
 ## Pendientes humanos antes de entregar
 
 - Completar autor, institución y portada.
 - Alinear la entrega pública con [manifiesto](DELIVERY_MANIFEST.md), [presentación](PRESENTACION_FINAL.md) y [protocolo de demo](DEMO_PROTOCOL.md); apuntes de ensayo y guiones privados se distribuyen fuera de Git.
 - Ejecutar prueba **real** de OpenAI y comparación equivalente con Qwen si se presentan resultados de ese proveedor.
-- Revisar renders, referencias y slides en el formato de entrega.
+- Revisar renders, referencias y slides en el formato de entrega, incluidas las citas de la bibliografía de la rúbrica (RA1-F5 y RA1-Referencias).
+- Ejecutar y conservar el build/smoke del contenedor en el CI exacto del commit entregado; se trata de prueba de demo, no de Kubernetes productivo.
 - Ensayar y registrar una versión de 7/10/12 minutos.
 - Practicar voz, pausas, volumen, postura, contacto visual y defensa espontánea.
 - Probar red/proyector, fallback sin Ollama y copia offline.
