@@ -15,7 +15,7 @@
 Guiones literales, bancos personales de preguntas, notas de ensayo y registros de práctica. Se conservan en el paquete de estudio separado, no en `main`. Tampoco se publican credenciales, datasets pesados, artefactos de modelos con extensión `.joblib`, cachés, ni expedientes empresariales.
 
 ## Estado de aceptación
-El último commit de entrega debe pasar `quality`, enlazarse en el registro final y conservar intactos los resultados científicos congelados. La matriz de 27 criterios es **interna**; no equivale a validación oficial. Los criterios orales requieren observación humana. La evaluación real de OpenAI continúa pendiente hasta que se ejecute con la cuenta API autorizada.
+El último commit de entrega debe pasar `quality`, incluido el build/smoke Docker con artefactos de demostración, y enlazarse en el registro final y conservar intactos los resultados científicos congelados. El archivo oficial de la universidad se recibió y sus 27 criterios están contrastados en [RUBRICA_OFICIAL_PAIII_2026.md](RUBRICA_OFICIAL_PAIII_2026.md). La matriz de estados sigue siendo una **evaluación interna de evidencias**; el mentor e invitado no han asignado nivel ni nota al proyecto. Los criterios orales requieren observación humana. La evaluación real de OpenAI continúa pendiente hasta que se ejecute con la cuenta API autorizada.
 
 ## Ética de autoría
 La documentación describe el sistema y su evidencia verificable. No se incluyen transcripciones de trabajo ni instrucciones privadas de redacción. Debe cumplirse cualquier exigencia institucional de declaración de herramientas empleadas; retirar archivos de trabajo no sustituye una declaración de autoría cuando sea obligatoria.
