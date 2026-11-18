@@ -33,5 +33,5 @@ def test_all_27_official_criteria_have_one_public_evidence_mapping():
 
 def test_no_grade_is_claimed_and_external_rubric_is_not_tracked():
     body = MATRIX.read_text(encoding="utf-8")
-    assert "no concede nivel 4" in body
+    assert "ninguno" in body and "calificación" in body
     assert not (ROOT / "Rubrica_PAIII_2026(2).xlsx").exists()
