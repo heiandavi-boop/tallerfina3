@@ -655,6 +655,7 @@ def generate_openai_grounded(
     key = api_key or os.getenv("OPENAI_API_KEY")
     context = build_evidence_context(row or {}, prediction, drivers)
     prompt, allowed_features = build_grounded_prompt(prediction, drivers, row=row, max_actions=8, max_summary_chars=1200)
+    prompt = prompt.removeprefix("/no_think\n")  # Ollama-specific directive; never restrict OpenAI reasoning.
     started = time.perf_counter()
     if not key:
         return _generation_failure(model, allowed_features, started, "openai_key_missing", "Configura una clave de OpenAI para esta sesión.")
