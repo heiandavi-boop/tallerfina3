@@ -118,3 +118,14 @@ La corrida [evidence-v2-r2](../reports/audit_2026-11-08/recommendations-evidence
 El caso bancario IT/híbrido reprodujo con el código de HEAD y Qwen real el resumen sin acciones: solo SPI apareció como driver reductor. El contexto nuevo conserva ese driver y añade nueve señales operativas adversas y Team Health heurístico. La corrida inicial fallida se preserva en [diagnóstico r1](../reports/audit_2026-11-08/recommendations-evidence-v2.json): la gramática con anyOf omitió campos; después se detectó truncamiento a 400 tokens. La gramática simple, el validador de parejas en Python y 1200 tokens resolvieron esos defectos sin relajar grounding.
 
 Reproducir con `PYTHONPATH=src python scripts/audit_closure.py recommendations --output <RUTA_NUEVA.json>`. El script rechaza destinos existentes y registra entrada, predicción, drivers completos/positivos, contexto, prompt, raw response, JSON, validación, motor y acciones. Los campos bancarios no suministrados no se adivinan: se separa el caso con campos aportados de la variante IT/híbrida explícita. Los reportes oficiales y V1/V2/V3 históricos permanecen intactos. Las cifras históricas de concurrencia no se trasladan al presupuesto nuevo de tokens.
+
+
+## Integración posterior: OpenAI API y Ollama seleccionables
+
+El Playground permite escoger el proveedor para cada análisis individual, manteniendo Health, Delay y Cost inalterados. El componente Ollama conserva el presupuesto y los reportes anteriores. OpenAI utiliza el endpoint Chat Completions de la API, un modelo configurable por el usuario y validación de evidencia similar; admite hasta ocho acciones y un resumen más extenso.
+
+**Estado de evidencia (18 de noviembre de 2026):** las pruebas de integración de OpenAI se ejecutaron con transporte y respuesta simulados; el workflow del commit `d7f2cb7846` pasó. **No existe todavía una corrida experimental real de OpenAI** en el conjunto TEST, ni comparación controlada de calidad, costos, latencia o utilidad humana frente a Qwen. Por tanto, las tasas y tiempos históricos anteriores se atribuyen solo a Qwen.
+
+Protocolo propuesto: seleccionar los mismos casos TEST elegibles, congelar evidencia de entrada, fijar versión de cada proveedor, parámetros disponibles y fecha, ejecutar al menos 30 intentos por alternativa, registrar éxito, formato, groundedness proxy, acciones aceptadas, tiempo extremo a extremo, consumo/costo y errores; incluir una revisión humana ciega de pertinencia. No mezclar métricas de esquemas distintos sin aclarar sus límites.
+
+Ver [proveedores](ai_providers.md) y [ética](ethics_security.md).
