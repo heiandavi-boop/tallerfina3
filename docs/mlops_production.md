@@ -92,3 +92,10 @@ Procedimiento diseñado, no ejecutado como operación productiva en esta auditor
 Los logs actuales registran identificador, versión, tiempos, motor y código de fallo, no el texto libre del proyecto. Los contadores son por proceso; no hay trazabilidad persistente empresarial ni coordinación multiworker. El escaneo de patrones de secretos es limitado y no sustituye revisión de seguridad. Las nuevas causas de rechazo de procedencia, contradicción y seguimiento se contabilizan como validación fallida, no como éxito GenAI.
 
 El Dockerfile ahora declara usuario 10001 y healthcheck HTTP de readiness; `.dockerignore` excluye `.git`, documentos y reportes del contexto. Las pruebas estáticas pasaron, pero el daemon Docker no estuvo disponible: estos cambios aún requieren build y smoke reales. Kubernetes permanece sin operar.
+
+
+## Verificación adicional del empaquetado para el nivel 4 de PAIII
+
+El workflow `quality` contiene el paso `bash scripts/container_smoke.sh`, ejecutado sobre artefactos **demo sintéticos** producidos por `scripts/run_demo.sh`. El script construye la imagen a partir del Dockerfile, inicia un contenedor temporal sin credenciales OpenAI, comprueba `/api/ready`, `/api/genai-providers` y `/metrics` y elimina el contenedor.
+
+El resultado constituye evidencia reproducible de **construcción y arranque de Docker**, solo cuando el job del commit relevante termine en `success`. No es una prueba de balanceo Kubernetes, HPA ni actualización de modelos. La evaluación de nivel 4 para R7.2-Cr4/Cr6 sigue sujeta a ejecución y monitorización completas en un entorno autorizado. No usar expresiones como “clúster operado” ni “retraining continuo” sin evidencias.
