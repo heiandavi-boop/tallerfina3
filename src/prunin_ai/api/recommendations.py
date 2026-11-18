@@ -367,15 +367,17 @@ def validate_generated_payload(
     prediction: dict[str, Any] | None = None,
     drivers: list[dict[str, Any]] | None = None,
     context: dict[str, Any] | None = None,
+    max_actions: int = 4,
+    max_summary_chars: int = 180,
 ) -> dict[str, Any]:
     recommendations = payload.get("recommendations") if isinstance(payload, dict) else None
     summary = payload.get("summary") if isinstance(payload, dict) else None
     schema_valid = (
         isinstance(recommendations, list)
-        and len(recommendations) <= 4
+        and len(recommendations) <= max_actions
         and isinstance(summary, str)
         and bool(summary.strip())
-        and len(summary.strip()) <= 180
+        and len(summary.strip()) <= max_summary_chars
         and "\n" not in summary
     )
     referenced: list[str] = []
@@ -453,7 +455,7 @@ def validate_generated_payload(
     grounded = schema_valid and evidence_features_valid and provenance_valid and not contradiction and not unsupported_numeric_claim and not empty_with_risk and actionability and follow_up_verifiable
     if not schema_valid:
         failure_code = "invalid_schema"
-        failure_detail = "Se esperaba summary textual y hasta cuatro recomendaciones con evidencia, razón y acción válidas."
+        failure_detail = f"Se esperaba summary textual y hasta {max_actions} recomendaciones con evidencia, razón y acción válidas."
     elif empty_with_risk:
         failure_code = "empty_recommendations_with_risk_drivers"
         failure_detail = "Hay drivers que aumentan riesgo, pero la respuesta no propuso recomendaciones."
@@ -498,7 +500,7 @@ def validate_generated_payload(
     }
 
 
-def build_grounded_prompt(prediction: dict[str, Any], drivers: list[dict[str, Any]], *, row: dict[str, Any] | None = None) -> tuple[str, set[str]]:
+def build_grounded_prompt(prediction: dict[str, Any], drivers: list[dict[str, Any]], *, row: dict[str, Any] | None = None, max_actions: int = 4, max_summary_chars: int = 180) -> tuple[str, set[str]]:
     context = build_evidence_context(row or {}, prediction, drivers)
     allowed_features = {str(item["feature"]) for item in context["actionable_evidence"]}
     action_guidance = {
@@ -530,7 +532,7 @@ def build_grounded_prompt(prediction: dict[str, Any], drivers: list[dict[str, An
         response_example = {"summary": example_summary, "recommendations": example_recommendations}
         conditional_rule = (
             "La evidencia incluye señales verificadas de intervención. Es obligatorio devolver al menos una acción y está prohibido devolver recommendations vacías. "
-            "Usa una o más de las señales exactas de allowed_evidence_features y no excedas cuatro acciones."
+            f"Usa una o más de las señales exactas de allowed_evidence_features y no excedas {max_actions} acciones."
         )
     else:
         response_example = {
@@ -548,6 +550,7 @@ def build_grounded_prompt(prediction: dict[str, Any], drivers: list[dict[str, An
         "Conserva la pareja feature/source de actionable_evidence como evidence_feature/evidence_source. No confundas model_driver (sensibilidad local), observed_operational_signal (dato observado con regla heurística) ni heuristic_indicator (cálculo determinístico). "
         "Los drivers reduces_risk son contexto predictivo, no invalidan desviaciones operativas. Las acciones operativas no reclasifican Health ni afirman que el modelo utiliza esas variables. No dupliques una feature. "
         "Prioridad permitida: alta, media o baja; ordena alta, media, baja y prioriza SPI/CPI/capacidad cuando estén entre las señales más relevantes, sin inventar umbrales. "
+        f"El resumen admite hasta {max_summary_chars} caracteres. Aprovecha la profundidad del modelo para priorizar, explicar interdependencias y proponer verificaciones, sin inventar evidencia. "
         "Devuelve exclusivamente JSON válido, sin markdown ni texto adicional, con el mismo schema y nivel de concreción de este ejemplo: "
         + json.dumps(response_example, ensure_ascii=False, separators=(",", ":"))
         + ". " + conditional_rule + "\n"
@@ -651,7 +654,7 @@ def generate_openai_grounded(
     model = model or os.getenv("PRUNIN_OPENAI_MODEL", "gpt-4.1")
     key = api_key or os.getenv("OPENAI_API_KEY")
     context = build_evidence_context(row or {}, prediction, drivers)
-    prompt, allowed_features = build_grounded_prompt(prediction, drivers, row=row)
+    prompt, allowed_features = build_grounded_prompt(prediction, drivers, row=row, max_actions=8, max_summary_chars=1200)
     started = time.perf_counter()
     if not key:
         return _generation_failure(model, allowed_features, started, "openai_key_missing", "Configura una clave de OpenAI para esta sesión.")
@@ -686,7 +689,7 @@ def generate_openai_grounded(
         if not isinstance(raw, str) or not raw.strip():
             return _generation_failure(model, allowed_features, started, "invalid_json", "OpenAI no devolvió contenido JSON.")
         parsed = json.loads(raw)
-        validation = validate_generated_payload(parsed, allowed_features, prediction=prediction, drivers=drivers, context=context)
+        validation = validate_generated_payload(parsed, allowed_features, prediction=prediction, drivers=drivers, context=context, max_actions=8, max_summary_chars=1200)
         failure_code = validation.get("failure_code")
         failure_detail = validation.get("failure_detail")
         _set_last_genai_error(failure_code, failure_detail)
