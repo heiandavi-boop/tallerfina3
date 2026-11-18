@@ -44,7 +44,7 @@ El modelo seleccionado debe estar disponible en la cuenta API del usuario y admi
 
 ### Diagnóstico
 
-`GET /api/genai-status` conserva el estado tradicional de Ollama e incluye `providers.openai` (solo indica configuración, **no** comprueba autenticación ni facturación).
+`GET /api/genai-status` conserva exactamente el estado tradicional de Ollama. El nuevo `GET /api/genai-providers` devuelve ambos estados (`ollama`, `openai`) y únicamente indica configuración; **no** comprueba autenticación ni facturación.
 
 Ante errores de OpenAI, el resultado indica `failure_code` como `openai_key_missing`, `openai_auth_error`, `openai_rate_limit`, `openai_timeout` o `openai_unavailable`. En estos casos la salida predictiva funciona y las acciones provienen del respaldo trazable.
 
