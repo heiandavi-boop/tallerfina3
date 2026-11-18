@@ -152,7 +152,7 @@ def inspect_environment(output: Path) -> None:
     secret_pattern = re.compile(rb"(?:AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----)")
     report["limited_secret_scan"] = {"matches_files_only": [name for name in tracked if name and (ROOT / name).is_file() and secret_pattern.search((ROOT / name).read_bytes())],
                                      "limitation": "Known private-key/AWS/GitHub patterns only; not a comprehensive security audit. No secret values recorded."}
-    protected_docs = ["PREGUNTAS_DEFENSA.md", "GLOSARIO_DEFENSA.md", "PRESENTACION_FINAL.md", "ENTREGA_FINAL_CHECKLIST.md", "FINAL_READINESS.md"]
+    protected_docs = ["PRESENTACION_FINAL.md", "DEMO_PROTOCOL.md", "ORAL_EVIDENCE.md", "DELIVERY_MANIFEST.md", "FINAL_READINESS.md"]
     report["local_documents"] = [{"path": "docs/" + name, "exists": (ROOT / "docs" / name).is_file(), "tracked": "docs/" + name in tracked,
                                  "ignored": subprocess.run(["git", "check-ignore", "-q", "docs/" + name], cwd=ROOT, check=False).returncode == 0}
                                 for name in protected_docs]
