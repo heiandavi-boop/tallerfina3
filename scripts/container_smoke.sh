@@ -8,7 +8,7 @@ command -v curl >/dev/null || { echo "curl is required"; exit 1; }
 image="${PRUNIN_SMOKE_IMAGE:-prunin-ai-core:rubric-smoke}"
 port="${PRUNIN_SMOKE_PORT:-18765}"
 docker build --file Dockerfile.playground --tag "$image" .
-cid="$(docker run --rm -d --publish "127.0.0.1:${port}:8000" --env PRUNIN_ARTIFACT_DIR=artifacts/demo-0.1.0 "$image")"
+cid="$(docker run -d --publish "127.0.0.1:${port}:8000" --env PRUNIN_ARTIFACT_DIR=artifacts/demo-0.1.0 "$image")"
 cleanup() { docker rm -f "$cid" >/dev/null 2>&1 || true; }
 trap cleanup EXIT
 
@@ -18,11 +18,17 @@ for attempt in $(seq 1 50); do
     ready=1
     break
   fi
+  if [ "$(docker inspect -f '{{.State.Running}}' "$cid" 2>/dev/null || echo false)" != "true" ]; then
+    echo "Container exited before readiness; diagnostic logs:"
+    docker logs "$cid" --tail 100 || true
+    docker inspect -f 'Exit code: {{.State.ExitCode}} / status: {{.State.Status}}' "$cid" || true
+    exit 1
+  fi
   sleep 2
 done
 if [ "$ready" != 1 ]; then
   echo "Container did not become ready. Logs:"
-  docker logs "$cid" --tail 80
+  docker logs "$cid" --tail 80 || true
   exit 1
 fi
 python3 - <<'PY'
