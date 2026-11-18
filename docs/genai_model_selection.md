@@ -23,6 +23,28 @@ PRUNIN busca interpretación en español, ejecución local, exposición mínima 
 
 Fuente: fichas oficiales enlazadas abajo; la latencia Qwen proviene exclusivamente de `reports/genai/qwen3-8b-evaluation.json`. Los tamaños y ventanas publicados no son mediciones PRUNIN ni equivalen al contexto de Ollama configurado. La tabla permite valorar alternativas sin inferir cuál es más rápido por tamaño.
 
+## Comparación actual de proveedores — ajuste de arquitectura (noviembre de 2026)
+
+El selector actual no reemplaza la evaluación documental de modelos locales: incorpora una segunda modalidad de despliegue. Para el criterio institucional **R6.1-Cr2** se contrastan las decisiones en función del escenario de uso.
+
+| Dimensión del problema PRUNIN | Ollama + Qwen3 8B | OpenAI API |
+|---|---|---|
+| Ubicación de la inferencia | Runtime local del proyecto | Servicio externo con acceso autorizado |
+| Dependencia de Internet | No para inferencia local una vez instalado | Sí, conectividad con la API |
+| Tratamiento de los indicadores | Puede mantenerse local, sujeto a configuración | Transmite evidencia estructurada al proveedor externo |
+| Costo variable por tokens | Sin facturación externa por tokens; sí hay costo computacional | Uso facturado según modelo y volumen |
+| Modelo usado en la versión | `qwen3:8b` | Identificador configurable; valor por defecto `gpt-4.1` |
+| Formato y validación | Respuesta estructurada y validador, hasta cuatro acciones | JSON validado con el mismo principio de evidencia, hasta ocho acciones |
+| Evaluación empírica del componente PRUNIN | 30 casos reales ejecutados localmente, 29 aceptados en evaluación histórica | **No realizada**; solo pruebas de transporte con respuestas simuladas |
+| Dependencias/riesgos | Recursos de memoria, proceso Ollama, latencia local | Clave, conectividad, costo, permisos del modelo y privacidad externa |
+| Escenario recomendado | Sensibilidad de datos y operación local, bajo restricciones de hardware | Uso autorizado de servicios externos y necesidad de flexibilidad en selección de modelos |
+
+Esta tabla no establece que OpenAI sea de mejor calidad que Qwen. Los conteos de acciones corresponden al **contrato de respuesta de PRUNIN**, no a capacidades intrínsecas comparables de los modelos.
+
+**Decisión técnica:** conservar ambas opciones y mantener una única capa de validación de procedencia; la elección del responsable depende de políticas de datos, infraestructura, presupuesto y necesidad de acceso remoto. La versión académica evalúa predictivamente los mismos tres LightGBM en ambos casos.
+
+**Prueba pendiente para Nivel 4:** ejecutar casos comunes reales con un modelo disponible de OpenAI y Qwen bajo contratos comparables, registrar evidencia, tasas de salida aceptada, pertinencia humana, latencia, errores y costo. Si el formato de acciones difiere, reportar límites y no combinar métricas de modo engañoso.
+
 ## Hardware y latencia: lo que no se midió
 
 La memoria incluye pesos, caché KV y runtime; depende de precisión, cuantización, longitud y concurrencia. No se certificó un mínimo RAM/VRAM para Qwen o Gemma. El despliegue local Qwen es evidencia funcional del equipo usado, no garantía para cualquier portátil. Para una migración futura se necesitaría registrar hardware, cuantización, contexto efectivo y latencia con las mismas entradas; no se instalaron alternativas en el cierre.
