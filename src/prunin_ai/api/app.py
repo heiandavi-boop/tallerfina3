@@ -142,9 +142,13 @@ def ready():
 
 @app.get("/api/genai-status")
 def genai_status():
-    # Preserve the legacy shape consumed by existing UI/tests.
-    ollama = check_ollama_status()
-    return {**ollama, "providers": {"ollama": ollama, "openai": check_openai_status()}}
+    # Historical clients expect exactly the Ollama status payload.
+    return check_ollama_status()
+
+
+@app.get("/api/genai-providers")
+def genai_providers():
+    return {"ollama": check_ollama_status(), "openai": check_openai_status()}
 
 
 @app.get("/api/monitoring")
