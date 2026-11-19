@@ -76,3 +76,29 @@ artifacts/0.9.0-academic/*
 
 # Institutional source rubrics: retain original workbooks outside public Git
 /Rubrica_PAIII_*.xlsx
+
+# Presentation and defense files: local only
+# Keep all defense materials under /material_privado/
+/docs/FINAL_READINESS.md
+/docs/GUIA_SUSTENTACION.md
+/docs/GUION_SUSTENTACION.md
+/docs/PREGUNTAS_JURADO.md
+/docs/NOTAS_PRESENTACION.md
+/docs/*GUION*.md
+/docs/*ENSAYO*.md
+/docs/*JURADO*.md
+/docs/*ORAL*.md
+/docs/*DEFENSA*.md
+/docs/*SUSTENTACION*.md
+/docs/*PRESENTACION*.md
+*.pptx
+*.key
+*.ppsx
+*presentacion*.pdf
+*Presentacion*.pdf
+*PRESENTACION*.pdf
+*defensa*.pdf
+*sustentacion*.pdf
+/material_presentacion/
+/presentacion_local/
+/grabaciones_sustentacion/
