@@ -96,3 +96,9 @@ Arnés: `scripts/benchmark_provider_comparison.py`. Evidencia: [provider_compari
   2. Ejecutar `python scripts/benchmark_provider_comparison.py --output-dir reports/genai/provider_comparison_2026_openai`.
 
 **Recomendación provisional:** Ollama local como proveedor por defecto, por privacidad, costo variable nulo y funcionamiento sin conectividad; OpenAI como opción configurable cuando la latencia o la calidad lo justifiquen y se acepte transferir indicadores. Esta recomendación no se apoya en una comparación homogénea hasta medir OpenAI.
+
+## Integridad de la comparación y cobertura experimental
+
+El programa `scripts/benchmark_provider_comparison.py` comprueba ahora, además de la disponibilidad, que se ejecutaron efectivamente todos los casos en los modos controlado y operativo y la repetibilidad declarada. Un presupuesto agotado o cualquier ejecución incompleta se clasifica `incomplete_execution`, incluso si ambos proveedores están disponibles. La salida incluye `execution_coverage` con conteos esperados y reales. Esta verificación previene interpretar una corrida parcial como comparación homogénea.
+
+No cambia la conclusión histórica: OpenAI API no fue medida en el reporte existente, por falta de clave disponible para el proceso. Las 30 respuestas exploratorias en ChatGPT no se utilizan como sustitución de `gpt-4.1` API ni como latencia/costo API.

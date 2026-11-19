@@ -127,3 +127,15 @@ Implementado en `src/prunin_ai/monitoring/mlops.py` y `scripts/mlops_pipeline.py
 - Docker CLI está instalada, pero no había daemon local disponible. La construcción y el smoke test del contenedor se verificaron en el job `quality` de GitHub Actions para el commit correspondiente.
 - No existe un clúster Kubernetes local (no hay kind, minikube ni contexto de kubectl). El manifiesto se valida estáticamente con `tests/test_deployment_manifests.py`; la prueba con `kubectl` se omite si no hay clúster.
 - No se probaron balanceo, caída de pods ni rollback en un clúster.
+
+## Comprobación de drift recurrente en CI (demostración sintética)
+
+El workflow [scheduled-demo-drift.yml](../.github/workflows/scheduled-demo-drift.yml) programa una comprobación semanal y permite ejecutarla manualmente. Genera la demo mediante `scripts/run_demo.sh`, crea un perfil con `scripts/check_drift.py`, calcula la comparación del lote de demostración y archiva los resultados como artefacto GitHub Actions de duración limitada. Se ejecuta con permisos de lectura sobre el repositorio y **no** llama al pipeline de reentrenamiento.
+
+**Límite científico:** al comparar el dataset demo contra sí mismo, esta comprobación valida la *automatización del instrumento y el registro de evidencia*, no la detección de drift en producción, ni la llegada de datos nuevos, ni el retraining continuo real. Es necesario incorporar una fuente de lotes nuevos autorizados, historial persistente de alertas y revisión humana del gate antes de afirmar operación continua. La primera ejecución programada solo se acredita cuando exista una corrida del workflow con resultado satisfactorio.
+
+## Prueba de balanceo y continuidad con dos contenedores Docker
+
+El script [docker_two_replica_failover.sh](../scripts/docker_two_replica_failover.sh) monta dos instancias de demostración de FastAPI detrás de nginx sobre una red temporal Docker. Solicita cuarenta respuestas para comprobar tráfico en ambos backends, detiene uno, verifica veinte solicitudes a través del balanceador y posteriormente restaura manualmente el contenedor. La prueba está incorporada en el workflow `quality` después del smoke test de imagen, de modo que su resultado puede auditarse en las ejecuciones de CI.
+
+**Ámbito preciso:** es una prueba de balanceo y tolerancia básica a la caída de una instancia en Docker, **no Kubernetes**, no autoescalado, no recuperación automática y no disponibilidad productiva. Su resultado solo podrá declararse exitoso cuando GitHub Actions lo haya ejecutado y registrado. Se mantienen pendientes las pruebas de HPA, actualización y recuperación automática en un clúster autorizado.

@@ -1,0 +1,62 @@
+name: scheduled-demo-drift-check
+
+# A recurring diagnostic smoke check on generated DEMO data only.
+# This is not production drift monitoring and never triggers retraining.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '20 10 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  monitor-demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - run: python -m pip install -r requirements.txt
+      - name: Create synthetic demonstration dataset and model
+        run: bash scripts/run_demo.sh
+      - name: Profile synthetic TRAIN and check demo batch drift
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p reports/monitoring/scheduled-demo
+          python scripts/check_drift.py \
+            --artifact artifacts/demo-0.1.0 \
+            --input data/processed/demo_core.csv \
+            --batch data/processed/demo_core.csv \
+            --profile-output reports/monitoring/scheduled-demo/train-profile.json \
+            --report-output reports/monitoring/scheduled-demo/drift-report.json \
+            > reports/monitoring/scheduled-demo/run-result.json
+      - name: Validate evidence contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          folder = Path("reports/monitoring/scheduled-demo")
+          profile = json.loads((folder / "train-profile.json").read_text())
+          report = json.loads((folder / "drift-report.json").read_text())
+          assert profile["artifact_version"] == "demo-0.1.0"
+          assert report["artifact_version"] == "demo-0.1.0"
+          assert report["retraining_triggered"] is False
+          assert report["input_hashes"]["current_batch_sha256"]
+          assert report["input_hashes"]["split_manifest_sha256"]
+          assert report["status"] == "complete"
+          print("Scheduled DEMO monitor: evidence validated (no retraining)")
+          PY
+      - name: Archive reproducible demo-monitor evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: synthetic-demo-drift-evidence
+          path: reports/monitoring/scheduled-demo/
+          if-no-files-found: warn
+          retention-days: 30

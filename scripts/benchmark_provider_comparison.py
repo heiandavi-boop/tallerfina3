@@ -310,7 +310,16 @@ def run(
     return rows, stops
 
 
-def summarize(rows: list[dict[str, Any]], providers: dict[str, dict[str, Any]], stops: list[dict[str, Any]], budget: BudgetGuard | None) -> dict[str, Any]:
+def summarize(
+    rows: list[dict[str, Any]],
+    providers: dict[str, dict[str, Any]],
+    stops: list[dict[str, Any]],
+    budget: BudgetGuard | None,
+    *,
+    expected_cases: int | None = None,
+    repeat_cases: int = 0,
+    repeats: int = 0,
+) -> dict[str, Any]:
     summary: dict[str, Any] = {"providers": {}, "budget": budget.snapshot() if budget else None, "budget_stops": stops}
     for provider, diagnosis in providers.items():
         entry: dict[str, Any] = {"available": bool(diagnosis.get("available")), "diagnosis": diagnosis}
@@ -319,7 +328,29 @@ def summarize(rows: list[dict[str, Any]], providers: dict[str, dict[str, Any]], 
                 entry[mode] = aggregate([row for row in rows if row["provider"] == provider and row["mode"] == mode])
         summary["providers"][provider] = entry
     summary["repeatability"] = repeatability([row for row in rows if row["mode"] == "repeatability"])
-    summary["comparison_status"] = "complete" if all(p.get("available") for p in providers.values()) else "incomplete_provider_unavailable"
+    expected_by_mode = {
+        "controlled": expected_cases,
+        "operational": expected_cases,
+        "repeatability": repeat_cases * repeats if expected_cases is not None else None,
+    }
+    expected_counts = {provider: {
+        mode: sum(row["provider"] == provider and row["mode"] == mode for row in rows)
+        for mode in expected_by_mode
+    } for provider in providers}
+    summary["execution_coverage"] = {
+        "expected_per_provider": expected_by_mode,
+        "actual_per_provider": expected_counts,
+        "complete": expected_cases is not None and all(
+            expected_counts[p][mode] == count
+            for p in providers for mode, count in expected_by_mode.items()
+        ),
+    }
+    if not all(p.get("available") for p in providers.values()):
+        summary["comparison_status"] = "incomplete_provider_unavailable"
+    elif stops or (expected_cases is not None and not summary["execution_coverage"]["complete"]):
+        summary["comparison_status"] = "incomplete_execution"
+    else:
+        summary["comparison_status"] = "complete"
     return summary
 
 
@@ -418,7 +449,7 @@ def render_report(summary: dict[str, Any], manifest: dict[str, Any]) -> str:
         "Ningún juez LLM ni evaluador humano participó en estas métricas.",
     ]
     if summary["comparison_status"] != "complete":
-        lines += ["", "**Comparación incompleta:** al menos un proveedor no estuvo disponible; la selección no puede apoyarse en una comparación empírica homogénea hasta ejecutar ambos."]
+        lines += ["", f"**Comparación incompleta ({summary['comparison_status']}):** un proveedor no estuvo disponible o la ejecución no cubrió todos los casos y repeticiones previstos. No se puede declarar una comparación empírica homogénea."]
     return "\n".join(lines) + "\n"
 
 
@@ -481,7 +512,7 @@ def main(argv: list[str] | None = None) -> int:
     settings = {"openai_model": args.openai_model, "ollama_model": args.ollama_model, "ollama_url": args.ollama_url, "ollama_timeout": args.ollama_timeout}
     rows, stops = run(cases, providers, settings, repeat_cases=args.repeat_cases, repeats=args.repeats, budget=budget)
     write_csv(output / "benchmark_results.csv", rows)
-    summary = summarize(rows, providers, stops, budget)
+    summary = summarize(rows, providers, stops, budget, expected_cases=len(cases), repeat_cases=args.repeat_cases, repeats=args.repeats)
     manifest = {
         "started_utc": started, "finished_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "git_commit": git_commit(), "artifact_version": runtime.version, "command": "python scripts/benchmark_provider_comparison.py " + " ".join(argv or sys.argv[1:]),

@@ -159,3 +159,46 @@ def test_openai_controlled_contract_limits_actions_in_prompt_and_validation(monk
     monkeypatch.setattr(ai.requests, "post", post)
     ai.generate_openai_grounded(PREDICTION, [], row=ROW, api_key="sk-x", max_actions=4, max_summary_chars=180)
     assert "no excedas 4 acciones" in captured["messages"][1]["content"]
+
+
+def test_benchmark_partial_execution_cannot_be_mislabeled_complete():
+    bench = _load()
+    providers = {"openai": {"available": True, "model": "gpt-4.1"},
+                 "ollama": {"available": True, "model": "qwen3:8b"}}
+    # Both providers are reachable, but the budget stopped half the run.
+    result = bench.summarize(
+        [{"provider": "openai", "mode": "controlled", "project_id": "A",
+          "generation_success": True, "schema_valid": True, "grounded": True,
+          "evidence_supported": True, "unsupported_numeric_claim": False,
+          "contradiction": False, "actionability": True, "follow_up_verifiable": True,
+          "timeout": False, "actions_generated": 1, "actions_accepted": 1,
+          "latency_ms": 100.0, "completion_tokens": 10, "cost_usd": .01}],
+        providers, [{"reason": "budget exhausted"}], None,
+        expected_cases=30, repeat_cases=5, repeats=3,
+    )
+    assert result["comparison_status"] == "incomplete_execution"
+    assert not result["execution_coverage"]["complete"]
+    assert result["execution_coverage"]["expected_per_provider"]["controlled"] == 30
+
+
+def test_benchmark_full_coverage_requires_each_provider_and_mode():
+    bench = _load()
+    providers = {"openai": {"available": True}, "ollama": {"available": True}}
+    template = {
+        "generation_success": True, "schema_valid": True, "grounded": True,
+        "evidence_supported": True, "unsupported_numeric_claim": False,
+        "contradiction": False, "actionability": True, "follow_up_verifiable": True,
+        "timeout": False, "actions_generated": 1, "actions_accepted": 1,
+        "latency_ms": 100.0, "completion_tokens": 10, "cost_usd": 0.0,
+        "response": "{}", "referenced_features": "cpi",
+    }
+    rows = [
+        {**template, "provider": provider, "mode": mode, "project_id": f"case-{i}"}
+        for provider in providers for mode in ("controlled", "operational", "repeatability")
+        for i in range(2 if mode != "repeatability" else 3)
+    ]
+    status = bench.summarize(
+        rows, providers, [], None, expected_cases=2, repeat_cases=1, repeats=3,
+    )
+    assert status["comparison_status"] == "complete"
+    assert status["execution_coverage"]["complete"] is True
