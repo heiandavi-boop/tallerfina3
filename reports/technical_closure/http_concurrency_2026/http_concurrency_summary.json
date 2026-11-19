@@ -97,7 +97,7 @@
     "Una sola máquina y un solo proceso API; no prueba balanceo ni escalabilidad horizontal.",
     "No se terminó ninguna instancia; la recuperación medida es tras una entrada inválida controlada.",
     "CPU y RSS son del proceso cliente, no del servidor API.",
-    "GenAI estuvo desactivada; esta prueba no mide latencia/capacidad de Ollama ni OpenAI."
+    "GenAI estuvo desactivada; esta prueba no mide latencia/capacidad del motor Ollama."
   ],
   "retraining_triggered": false
 }
