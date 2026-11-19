@@ -46,7 +46,13 @@ openai_guard = OpenAIGuard.from_env()
 @app.middleware("http")
 async def require_api_token(request: Request, call_next):
     token = configured_token()
-    if token and request.method != "OPTIONS" and requires_token(request.url.path) and not token_matches(request.headers.get("authorization"), token):
+    protected_path = request.method != "OPTIONS" and requires_token(request.url.path)
+    if protected_path and os.getenv("PRUNIN_ENV", "local").strip().lower() == "production" and not token:
+        return JSONResponse(
+            {"detail": "Autenticación no configurada para producción.", "code": "api_auth_not_configured"},
+            status_code=503,
+        )
+    if protected_path and token and not token_matches(request.headers.get("authorization"), token):
         return JSONResponse({"detail": "Autenticación requerida."}, status_code=401, headers={"WWW-Authenticate": "Bearer"})
     return await call_next(request)
 

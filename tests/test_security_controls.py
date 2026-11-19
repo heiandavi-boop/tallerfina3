@@ -31,6 +31,16 @@ def test_token_protects_api_but_keeps_probes_open(monkeypatch):
     assert not token_matches("secret-token", "secret-token")
 
 
+def test_production_fails_closed_when_api_token_is_not_configured(monkeypatch):
+    monkeypatch.setenv("PRUNIN_ENV", "production")
+    monkeypatch.delenv("PRUNIN_API_TOKEN", raising=False)
+    denied = client.get("/api/schema")
+    assert denied.status_code == 503
+    assert denied.json()["code"] == "api_auth_not_configured"
+    assert client.get("/api/ready").status_code == 200
+    assert client.get("/metrics").status_code == 200
+
+
 def test_openai_guard_rate_limits_per_client_and_enforces_daily_quota():
     now = [0.0]
     today = [date(2026, 1, 1)]
@@ -51,6 +61,31 @@ def test_predict_returns_429_without_calling_openai_when_limited(monkeypatch):
     assert response.status_code == 429
     assert response.headers["X-PRUNIN-Failure-Code"] == "openai_rate_limited"
     assert "sk-test" not in response.text
+
+
+def test_explicit_ollama_selection_cannot_override_server_disable_flag(monkeypatch):
+    monkeypatch.setenv("PRUNIN_ENABLE_OLLAMA", "0")
+    monkeypatch.setattr(ai.requests, "post", lambda *a, **k: pytest.fail("Disabled Ollama must not be called"))
+    result = ai.build_recommendations(ROW, PREDICTION, [], provider="ollama")
+    assert result["selected_provider"] == "ollama"
+    assert result["genai_attempted"] is False
+    assert result["genai_used"] is False
+    assert result["failure_code"] == "provider_disabled"
+
+
+def test_http_provider_header_cannot_bypass_disabled_ollama(monkeypatch):
+    monkeypatch.setenv("PRUNIN_ENABLE_OLLAMA", "0")
+    monkeypatch.setattr(ai.requests, "post", lambda *a, **k: pytest.fail("Disabled Ollama must not be called"))
+    response = client.post(
+        "/api/predict",
+        json=PRESETS["at_risk"],
+        headers={"X-PRUNIN-Provider": "ollama"},
+    )
+    assert response.status_code == 200
+    recommendations = response.json()["recommendations"]
+    assert recommendations["selected_provider"] == "ollama"
+    assert recommendations["genai_attempted"] is False
+    assert recommendations["failure_code"] == "provider_disabled"
 
 
 def test_cors_policy_rejects_wildcard_in_production():

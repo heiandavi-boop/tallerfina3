@@ -839,10 +839,8 @@ def ollama_recommendations(
     row: dict[str, Any],
     prediction: dict[str, Any],
     drivers: list[dict[str, Any]],
-    *,
-    force_enabled: bool = False,
 ) -> dict[str, Any] | None:
-    if not force_enabled and os.getenv("PRUNIN_ENABLE_OLLAMA", "0") != "1":
+    if os.getenv("PRUNIN_ENABLE_OLLAMA", "0") != "1":
         return None
     context = build_evidence_context(row, prediction, drivers)
     generated = generate_ollama_grounded(prediction, drivers, row=row)
@@ -934,10 +932,19 @@ def build_recommendations(
             "disclaimer": "Acciones generadas por OpenAI usando evidencia estructurada; validar antes de tomar decisiones.",
         }
     if selected == "ollama":
-        generated = ollama_recommendations(row, prediction, drivers, force_enabled=provider == "ollama")
+        generated = ollama_recommendations(row, prediction, drivers)
         if generated is not None:
             generated["selected_provider"] = "ollama"
             return generated
+        fallback = grounded_fallback(
+            row,
+            prediction,
+            drivers,
+            failure_code="provider_disabled",
+            failure_detail="Ollama está deshabilitado por la configuración del servidor.",
+        )
+        fallback["selected_provider"] = "ollama"
+        return fallback
     fallback = grounded_fallback(row, prediction, drivers)
     fallback["selected_provider"] = selected
     return fallback

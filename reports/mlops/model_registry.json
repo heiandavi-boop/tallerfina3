@@ -1,33 +1,265 @@
 {
-  "schema_version": 1,
-  "production": "demo-0.1.0",
+  "schema_version": 2,
   "models": [
     {
       "registered_at": "2026-11-19T00:46:05+00:00",
-      "approval": {
-        "approver": "comité académico PAIII",
-        "note": "versión evaluada y congelada"
-      },
+      "approval": null,
       "parent_version": null,
       "name": "prunin-core",
       "version": "0.9.0-academic",
       "algorithm": "LightGBM (health classifier, delay/cost regressors)",
       "dataset": {
         "data_source": "mendeley_2p5sz57wh2_v2",
-        "sha256": "32b7586db9dda0b3994573a3985c114dafe65dee93c948254b69f00d194c0ac3"
+        "sha256": "32b7586db9dda0b3994573a3985c114dafe65dee93c948254b69f00d194c0ac3",
+        "path": "data/processed/mendeley_core.csv"
       },
       "metrics": {
-        "evaluation_split": "TEST (frozen)",
-        "health_macro_f1_test": 0.5470548202603385,
-        "delay_mae_test": 32.17595573757554,
-        "cost_r2_test": 0.8297066199911258
+        "holdout": "TEST (frozen; never used for candidate selection)",
+        "row_level_snapshot_metrics": {
+          "health": {
+            "accuracy": 0.6783518399559512,
+            "balanced_accuracy": 0.582768010376126,
+            "macro_f1": 0.5470548202603385,
+            "weighted_f1": 0.6942235187775262,
+            "precision_macro": 0.5281202566776817,
+            "recall_macro": 0.582768010376126,
+            "precision_weighted": 0.7219397749983391,
+            "recall_weighted": 0.6783518399559512,
+            "labels": [
+              "at_risk",
+              "critical",
+              "healthy"
+            ],
+            "per_class": {
+              "at_risk": {
+                "precision": 0.8369488161066213,
+                "recall": 0.7275080108454524,
+                "f1": 0.7784004747148414,
+                "support": 8114
+              },
+              "critical": {
+                "precision": 0.3443579766536965,
+                "recall": 0.4544287548138639,
+                "f1": 0.39180962921970114,
+                "support": 779
+              },
+              "healthy": {
+                "precision": 0.4030539772727273,
+                "recall": 0.5663672654690619,
+                "f1": 0.470954356846473,
+                "support": 2004
+              }
+            },
+            "confusion_matrix": [
+              [
+                5903,
+                592,
+                1619
+              ],
+              [
+                363,
+                354,
+                62
+              ],
+              [
+                787,
+                82,
+                1135
+              ]
+            ],
+            "classification_report": {
+              "at_risk": {
+                "precision": 0.8369488161066213,
+                "recall": 0.7275080108454524,
+                "f1-score": 0.7784004747148414,
+                "support": 8114.0
+              },
+              "critical": {
+                "precision": 0.3443579766536965,
+                "recall": 0.4544287548138639,
+                "f1-score": 0.39180962921970114,
+                "support": 779.0
+              },
+              "healthy": {
+                "precision": 0.4030539772727273,
+                "recall": 0.5663672654690619,
+                "f1-score": 0.470954356846473,
+                "support": 2004.0
+              },
+              "accuracy": 0.6783518399559512,
+              "macro avg": {
+                "precision": 0.5281202566776817,
+                "recall": 0.582768010376126,
+                "f1-score": 0.5470548202603385,
+                "support": 10897.0
+              },
+              "weighted avg": {
+                "precision": 0.7219397749983391,
+                "recall": 0.6783518399559512,
+                "f1-score": 0.6942235187775262,
+                "support": 10897.0
+              }
+            }
+          },
+          "delay_days": {
+            "mae": 32.17595573757554,
+            "median_absolute_error": 29.11360308904004,
+            "rmse": 43.52880713694457,
+            "r2": 0.03305282047934266,
+            "absolute_error_percentiles": {
+              "p50": 29.11360308904004,
+              "p75": 40.19852125294494,
+              "p90": 68.83350050903232,
+              "p95": 88.20811757939708
+            },
+            "mape_percent": null,
+            "mape_status": "not reported; target contains zero or negative actual values"
+          },
+          "cost_overrun_ratio": {
+            "mae": 0.018027032862485026,
+            "median_absolute_error": 0.011649479198188359,
+            "rmse": 0.026432533568949177,
+            "r2": 0.8297066199911258,
+            "absolute_error_percentiles": {
+              "p50": 0.011649479198188359,
+              "p75": 0.025483187922191328,
+              "p90": 0.04373472325144494,
+              "p95": 0.057549580891124545
+            },
+            "mape_percent": null,
+            "mape_status": "not reported; target contains zero or negative actual values",
+            "mae_percentage_points": 1.8027032862485026
+          }
+        },
+        "project_level_latest_snapshot_metrics": {
+          "health": {
+            "accuracy": 0.7266666666666667,
+            "balanced_accuracy": 0.6824223458081726,
+            "macro_f1": 0.6275758334320115,
+            "weighted_f1": 0.7405357252418434,
+            "precision_macro": 0.6003878970927546,
+            "recall_macro": 0.6824223458081726,
+            "precision_weighted": 0.7737301994841527,
+            "recall_weighted": 0.7266666666666667,
+            "labels": [
+              "at_risk",
+              "critical",
+              "healthy"
+            ],
+            "per_class": {
+              "at_risk": {
+                "precision": 0.8854748603351955,
+                "recall": 0.7389277389277389,
+                "f1": 0.8055908513341804,
+                "support": 429
+              },
+              "critical": {
+                "precision": 0.38461538461538464,
+                "recall": 0.5681818181818182,
+                "f1": 0.45871559633027525,
+                "support": 44
+              },
+              "healthy": {
+                "precision": 0.5310734463276836,
+                "recall": 0.7401574803149606,
+                "f1": 0.618421052631579,
+                "support": 127
+              }
+            },
+            "confusion_matrix": [
+              [
+                317,
+                35,
+                77
+              ],
+              [
+                13,
+                25,
+                6
+              ],
+              [
+                28,
+                5,
+                94
+              ]
+            ],
+            "classification_report": {
+              "at_risk": {
+                "precision": 0.8854748603351955,
+                "recall": 0.7389277389277389,
+                "f1-score": 0.8055908513341804,
+                "support": 429.0
+              },
+              "critical": {
+                "precision": 0.38461538461538464,
+                "recall": 0.5681818181818182,
+                "f1-score": 0.45871559633027525,
+                "support": 44.0
+              },
+              "healthy": {
+                "precision": 0.5310734463276836,
+                "recall": 0.7401574803149606,
+                "f1-score": 0.618421052631579,
+                "support": 127.0
+              },
+              "accuracy": 0.7266666666666667,
+              "macro avg": {
+                "precision": 0.6003878970927546,
+                "recall": 0.6824223458081726,
+                "f1-score": 0.6275758334320115,
+                "support": 600.0
+              },
+              "weighted avg": {
+                "precision": 0.7737301994841527,
+                "recall": 0.7266666666666667,
+                "f1-score": 0.7405357252418434,
+                "support": 600.0
+              }
+            }
+          },
+          "delay_days": {
+            "mae": 27.71046834259029,
+            "median_absolute_error": 26.764043042885124,
+            "rmse": 37.238021288469284,
+            "r2": 0.07530489938405993,
+            "absolute_error_percentiles": {
+              "p50": 26.764043042885124,
+              "p75": 33.52334971276538,
+              "p90": 59.97350643276207,
+              "p95": 74.8558290586143
+            },
+            "mape_percent": null,
+            "mape_status": "not reported; target contains zero or negative actual values"
+          },
+          "cost_overrun_ratio": {
+            "mae": 0.0014715785054456153,
+            "median_absolute_error": 0.000538783876791113,
+            "rmse": 0.00598016858871776,
+            "r2": 0.9918156958562626,
+            "absolute_error_percentiles": {
+              "p50": 0.000538783876791113,
+              "p75": 0.0010088775053154597,
+              "p90": 0.0016493314088183043,
+              "p95": 0.0034050073013592885
+            },
+            "mape_percent": null,
+            "mape_status": "not reported; target contains zero or negative actual values",
+            "mae_percentage_points": 0.14715785054456154
+          }
+        }
       },
       "artifact_hashes": {
         "cost_overrun_ratio.joblib": "0881ac24d6780378fce8ca9fcfd0f03d5f89c7ef475a33c882ec01efff9c7ba6",
         "delay_days.joblib": "84924fc4ddfbcd3842dfc24686286bc9affc23a7f4024698607b678af78916b3",
         "health.joblib": "81dba769ecbcec2f64a312432ab5eb9720af3d37e5018f15249e821e1ca52c18"
       },
-      "status": "frozen_academic"
+      "status": "frozen_academic",
+      "configuration": {
+        "random_seed": 42,
+        "split_manifest_sha256": "ed8f9db66e254123e411e7d016e91c01563a58c11e3a7f337bd9592ab92db26c",
+        "metrics_source": "reports/0.9.0-academic/metrics.json"
+      },
+      "freeze_basis": "Preserved academic baseline; registry status is not an institutional approval."
     },
     {
       "registered_at": "2026-11-19T00:46:05+00:00",
@@ -41,7 +273,7 @@
         "generator_seed": 42
       },
       "metrics": {
-        "evaluation_split": "see artifacts/demo-0.1.0/metrics.json"
+        "evaluation_split": "synthetic demonstration; see artifacts/demo-0.1.0/metrics.json"
       },
       "artifact_hashes": {
         "cost_overrun_ratio.joblib": "681d3d66156524a39d62fb462e671d2b5ee6b961980c12a475920755486d0c4b",
@@ -49,7 +281,7 @@
         "final_status.joblib": "5eaa68373264cd26e9a0db87e8ea8b1475424d2635f19f6c66c16f5b35164e78",
         "health.joblib": "40d1f9ed2310ed10c4d7af9ba07559f62399bb231dd08129c68fc841ae3cb980"
       },
-      "status": "production"
+      "status": "demo_available"
     },
     {
       "registered_at": "2026-11-19T00:46:10+00:00",
@@ -166,6 +398,31 @@
       "action": "register",
       "version": "demo-candidate-2026",
       "status": "rejected_regression"
+    },
+    {
+      "timestamp": "2026-11-19T01:27:21+00:00",
+      "action": "schema_migration",
+      "version": "demo-0.1.0",
+      "removed_legacy_production_pointer": "demo-0.1.0",
+      "note": "No deployment environment was verified; production deployment set to null."
+    },
+    {
+      "timestamp": "2026-11-19T01:27:21+00:00",
+      "action": "metadata_corrected",
+      "version": "0.9.0-academic",
+      "note": "Separated snapshot-row and project-level TEST metrics; removed unsupported approval attribution."
+    },
+    {
+      "timestamp": "2026-11-19T01:27:21+00:00",
+      "action": "metadata_corrected",
+      "version": "demo-0.1.0",
+      "note": "Reclassified demo artifact; no production deployment was verified."
     }
-  ]
+  ],
+  "deployments": {
+    "demo": "demo-0.1.0",
+    "test": null,
+    "production": null
+  },
+  "selected_for_deployment": null
 }

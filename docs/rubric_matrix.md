@@ -14,7 +14,9 @@ Las brechas son los códigos `R6.1-Cr2`, `R6.2-Cr6`, `R7.2-Cr4`, `R7.2-Cr5` y `R
 
 Avance del 19-11-2026:
 
-- Las brechas se redujeron con evidencia ejecutada: benchmark de proveedores (solo Qwen medido), eficiencia en proceso, instrumento de productividad (NO MEDIDA), controles de seguridad del API y ciclo de registro y reentrenamiento con gate.
+- La comparación controlada y operativa de 30 casos midió Qwen3 8B en ambos modos: 30/30 aceptadas; OpenAI no se ejecutó porque faltaba la clave en el entorno del proceso. No se asigna ventaja comparativa ni se presenta costo OpenAI observado.
+- El benchmark HTTP real obtuvo 100/100 respuestas válidas por nivel de concurrencia (1/4/8/16), con p95 de 80.98 a 954.38 ms y throughput estable cerca de 23–24 req/s desde cuatro workers; productividad humana sigue NO MEDIDA.
+- También se ejecutaron el instrumento de productividad sin participantes, controles de seguridad del API, monitor offline TRAIN/VALIDATION y actualización del registro MLOps con estados y unidades de métricas explícitos.
 - Los cinco criterios siguen en PARCIAL porque faltan OpenAI real, participantes humanos, despliegue operado y retraining continuo.
 
 El resto de los criterios, incluso cuando existen elementos documentados, tienen límites de validación que deben declararse. [Criterios de sustentación](ORAL_EVIDENCE.md) y [manifiesto de entrega](DELIVERY_MANIFEST.md). Las referencias y rúbricas internas históricas de `reports/` son registros de evaluaciones anteriores; no se reinterpretan como calificación del instrumento oficial.

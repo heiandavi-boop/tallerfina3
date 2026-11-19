@@ -1,43 +1,48 @@
-# MLOps: registro de modelos y ciclo de reentrenamiento controlado
+# MLOps: registro, monitorización y reentrenamiento controlado
 
-Componentes: `src/prunin_ai/monitoring/mlops.py`, `scripts/mlops_pipeline.py`, `tests/test_mlops_pipeline.py`.
-Registro versionado: [`model_registry.json`](model_registry.json).
+Componentes: `src/prunin_ai/monitoring/mlops.py`, `scripts/mlops_pipeline.py`, `scripts/check_drift.py` y `tests/test_mlops_pipeline.py`.
+Registro local: [`model_registry.json`](model_registry.json), esquema 2.
 
-## Qué hace el pipeline
+## Semántica del registro
 
-1. **Bloqueado por defecto.** Sin `--authorize` termina con `BLOCKED` y no entrena nada.
-2. **Procedencia.** Exige un archivo `*.provenance.json` con `authorized: true` y el SHA-256 exacto del dataset. Rechaza el dataset académico Mendeley.
-3. **Activación.** Calcula PSI y missing rate frente a la referencia (`compare_feature_distributions`) y lo registra como `trigger`. Con `require_drift` exige que exista drift.
-4. **Split propio.** TRAIN/VALIDATION/TEST por `project_id`, sin fuga entre proyectos. La selección usa **solo VALIDATION**; el TEST académico congelado no se toca.
-5. **Entrenamiento aislado.** Los candidatos se escriben en `artifacts/candidates/<versión>` (ignorado por git). Las versiones congeladas no pueden reutilizarse ni sobrescribirse.
-6. **Gate de regresión.** Compara candidato y baseline sobre la misma VALIDATION: Health macro-F1 (mayor es mejor) y MAE de Delay y Cost (menor es mejor). Bloquea si alguna métrica empeora más de 2 % relativo.
-7. **Aprobación y promoción.** Solo un candidato `candidate_passed_gate` puede aprobarse, con responsable identificado. Solo uno `approved` puede promoverse.
-8. **Rollback.** `rollback` restaura la versión de producción anterior. Cada acción queda en `events`.
+- `0.9.0-academic`: `frozen_academic`; versión de investigación preservada. No representa aprobación institucional.
+- `demo-0.1.0`: `demo_available`; artefacto sintético disponible para demostración.
+- `demo-candidate-2026`: `rejected_regression`.
+- `deployments.production` y `deployments.test`: `null`; no se verificó despliegue en esos entornos.
+- `deployments.demo`: `demo-0.1.0`; referencia a la demo local/CI, no a producción.
+- `selected_for_deployment`: `null`. Seleccionar una versión tras aprobación registra una decisión de registro, no despliega un servicio.
 
-## Ejecución real (2026-11-19)
+La migración del esquema anterior retiró la atribución de aprobación al “comité académico” porque no había evidencia documental. También cambió el estado `production` de la demo a `demo_available` y eliminó el puntero de producción no verificado.
 
-```bash
-python scripts/mlops_pipeline.py init-registry
-python scripts/mlops_pipeline.py demo-cycle              # → BLOCKED (exit 3)
-python scripts/mlops_pipeline.py demo-cycle --authorize  # datos sintéticos seed 2026, 400 proyectos
-```
+## Métricas académicas y unidades
 
-Baseline: `demo-0.1.0`. Candidato: `demo-candidate-2026`. Evaluación sobre VALIDATION del nuevo dataset sintético.
+La versión académica conserva en el registro las métricas de `reports/0.9.0-academic/metrics.json` separadas por unidad, siempre sobre TEST congelado:
 
-| Modelo | Métrica | Candidato | Baseline | Cambio relativo | Gate |
-|---|---|---:|---:|---:|---|
-| Health | macro-F1 | 0.3292 | 0.3812 | −13.6 % | ✗ |
-| Delay | MAE (días) | 31.358 | 32.659 | +4.0 % (mejora) | ✓ |
-| Cost | MAE | 0.04768 | 0.04898 | +2.6 % (mejora) | ✓ |
+| Target | Snapshot rows (cada proyecto puede aportar varios snapshots) | Último snapshot por proyecto |
+|---|---:|---:|
+| Health | Macro-F1 0.547055 | Macro-F1 0.627576 |
+| Delay | MAE 32.175956 días | MAE 27.710468 días |
+| Cost | R² 0.829707 | R² 0.991816 |
 
-**Resultado: `rejected_regression`.** El candidato no se promovió y producción sigue en `demo-0.1.0`.
+La diferencia anterior del registro no era una contradicción de los resultados: se habían copiado métricas por snapshot y comparado con indicadores del informe calculados por proyecto, sin registrar esa distinción. El esquema 2 conserva ambas evaluaciones y el archivo fuente. Cost R² sigue condicionado por la estructura del generador sintético.
 
-El gate funcionó como se diseñó: el candidato mejoraba dos modelos, pero degradaba la clasificación de salud.
+## Monitorización offline
 
-**Drift registrado:** `drift_alert=true` en `methodology` y `project_type`. La referencia local `data/processed/demo_core.csv` se generó con una versión anterior del generador de demostración, que usaba otro vocabulario de categorías (`stage_gate` y `software` frente a `agile` y `r&d`). El PSI máximo (≈24) está inflado por las categorías ausentes en la referencia, que se recortan a ε. Este caso ilustra un cambio de esquema categórico, no una variación gradual.
+`scripts/check_drift.py` construye la referencia exclusivamente con proyectos TRAIN y compara un batch sin entrenar ni promover modelos. Genera un perfil fuera del directorio de artefactos académicos, un reporte JSON fechado con hashes, PSI y missing rate. La opción `--fail-on-alert` devuelve código 2 para una tarea de automatización cuando aparece una alerta. Una alerta describe cambio de datos y **no** confirma drift conceptual ni pérdida de desempeño.
 
-## Alcance y límites
+Ejecución registrada: comparación TRAIN vs. VALIDATION, 600 proyectos y 10.880 snapshots; no hubo features con alerta ni columnas faltantes. El reporte confirma `retraining_triggered: false`. Es una verificación retrospectiva reproducible, no monitorización empresarial continua.
 
-- Es una **demostración local de ciclo completo** con datos sintéticos separados del experimento académico. No es operación continua en producción: no hay scheduler, datos reales nuevos ni ground truth posterior.
-- El drift detectado es de **datos** (entradas). El drift conceptual y la pérdida de desempeño requieren outcomes reales que hoy no existen.
-- La versión `0.9.0-academic` figura como `frozen_academic`, con los hashes de sus `.joblib`. El pipeline no puede modificarla.
+## Ciclo de reentrenamiento controlado
+
+1. Bloqueado sin `--authorize`.
+2. Exige `*.provenance.json` con `authorized: true` y SHA-256 coincidente; rechaza Mendeley académico.
+3. Genera TRAIN/VALIDATION/TEST propios por `project_id`, sin solapamiento. La decisión utiliza solo VALIDATION; no abre el TEST académico.
+4. Entrena en `artifacts/candidates/<versión>`, ignorado por Git.
+5. El gate compara Health macro-F1 (mayor es mejor) y MAE de Delay/Cost (menor es mejor); rechaza degradación mayor a 2 % relativo.
+6. La aprobación requiere una persona responsable identificada. `select-for-deployment` solo selecciona en el registro; no despliega. `rollback-selection` revierte esa selección y no detiene/restaura un servicio.
+
+Demostración ejecutada con datos sintéticos nuevos (seed 2026, 400 proyectos): el candidato mejora Delay 4,0 % y Cost 2,6 %, pero Health baja 13,6 %. El gate marca `rejected_regression`; ninguna promoción ni despliegue ocurrió. La alerta PSI alta de `methodology`/`project_type` se debe a vocabularios incompatibles entre dos versiones del generador demo y no debe interpretarse como drift de una población real.
+
+## Límites
+
+No hay nuevos datos empresariales autorizados, scheduler conectado a una fuente operativa, ground truth, aprobación humana de candidatos ni despliegue productivo. Kubernetes no tiene contexto de clúster disponible. Docker está instalado, pero no hay daemon local; el CI de `main` sí construyó y ejecutó el smoke test de contenedor en el commit `868ea86435bde7412bcee36c0ead821f289b694f`.

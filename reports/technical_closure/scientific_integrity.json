@@ -1,0 +1,45 @@
+{
+  "status": "verified_unchanged",
+  "academic_artifacts_modified": false,
+  "hashes": [
+    {
+      "path": "data/processed/mendeley_core.csv",
+      "sha256": "32b7586db9dda0b3994573a3985c114dafe65dee93c948254b69f00d194c0ac3",
+      "matches_recorded_baseline": true
+    },
+    {
+      "path": "artifacts/0.9.0-academic/split_manifest.json",
+      "sha256": "ed8f9db66e254123e411e7d016e91c01563a58c11e3a7f337bd9592ab92db26c",
+      "matches_recorded_baseline": true
+    },
+    {
+      "path": "artifacts/0.9.0-academic/training_config_resolved.yaml",
+      "sha256": "e8049c4e9ef4015e3bbb52323620e4e8584fb557b580381442680397eb505b49",
+      "matches_recorded_baseline": true
+    },
+    {
+      "path": "artifacts/0.9.0-academic/health.joblib",
+      "sha256": "81dba769ecbcec2f64a312432ab5eb9720af3d37e5018f15249e821e1ca52c18",
+      "matches_recorded_baseline": true
+    },
+    {
+      "path": "artifacts/0.9.0-academic/delay_days.joblib",
+      "sha256": "84924fc4ddfbcd3842dfc24686286bc9affc23a7f4024698607b678af78916b3",
+      "matches_recorded_baseline": true
+    },
+    {
+      "path": "artifacts/0.9.0-academic/cost_overrun_ratio.joblib",
+      "sha256": "0881ac24d6780378fce8ca9fcfd0f03d5f89c7ef475a33c882ec01efff9c7ba6",
+      "matches_recorded_baseline": true
+    },
+    {
+      "path": "reports/0.9.0-academic/metrics.json",
+      "sha256": "5464f55fe9e8f507259c71141681bd5a3aad6d3764a79744a57a42f0f984f89a",
+      "matches_recorded_baseline": true
+    }
+  ],
+  "notes": [
+    "Current SHA-256 values were computed during this closure and match the recorded baseline.",
+    "New provider, HTTP, drift, and MLOps reports are independent of the frozen academic test results."
+  ]
+}

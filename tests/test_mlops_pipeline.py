@@ -2,6 +2,7 @@ import json
 
 import pytest
 
+from scripts.mlops_pipeline import init_registry
 from prunin_ai.config import load_config
 from prunin_ai.data.demo import generate_demo
 from prunin_ai.features.team_health import compute_team_health
@@ -36,6 +37,40 @@ def test_registry_rejects_overwriting_frozen_version(tmp_path):
         registry.register(entry)
 
 
+def test_registry_migration_does_not_claim_demo_is_production(tmp_path):
+    registry_path = tmp_path / "legacy.json"
+    registry_path.write_text(json.dumps({
+        "schema_version": 1,
+        "production": "demo-0.1.0",
+        "models": [
+            {"version": "0.9.0-academic", "status": "frozen_academic",
+             "approval": {"approver": "comité académico PAIII"}},
+            {"version": "demo-0.1.0", "status": "production"},
+        ],
+        "events": [],
+    }))
+    registry = ModelRegistry(registry_path)
+    assert registry.data["schema_version"] == 2
+    assert registry.data["deployments"] == {"demo": "demo-0.1.0", "test": None, "production": None}
+    assert registry.data["selected_for_deployment"] is None
+    assert registry.get("demo-0.1.0")["status"] == "demo_available"
+
+
+def test_init_registry_uses_both_academic_metric_units_and_no_false_approval(tmp_path):
+    registry = ModelRegistry(tmp_path / "registry.json")
+    init_registry(registry)
+    academic = registry.get("0.9.0-academic")
+    assert academic["approval"] is None
+    assert academic["status"] == "frozen_academic"
+    assert academic["metrics"]["holdout"].startswith("TEST")
+    assert academic["metrics"]["row_level_snapshot_metrics"]["health"]["macro_f1"] == pytest.approx(0.5470548202603385)
+    assert academic["metrics"]["project_level_latest_snapshot_metrics"]["health"]["macro_f1"] == pytest.approx(0.6275758334320115)
+    assert academic["metrics"]["project_level_latest_snapshot_metrics"]["delay_days"]["mae"] == pytest.approx(27.71046834259029)
+    assert academic["metrics"]["project_level_latest_snapshot_metrics"]["cost_overrun_ratio"]["r2"] == pytest.approx(0.9918156958562626)
+    assert registry.get("demo-0.1.0")["status"] == "demo_available"
+    assert registry.data["deployments"]["production"] is None
+
+
 def test_regression_gate_blocks_degradation():
     baseline = {"health": 0.60, "delay_days": 20.0, "cost_overrun_ratio": 0.05}
     assert regression_gate({"health": 0.61, "delay_days": 19.0, "cost_overrun_ratio": 0.05}, baseline)["passed"]
@@ -63,8 +98,8 @@ def test_full_cycle_gate_approval_promotion_and_rollback(tmp_path, cfg):
     train_core(add_targets(base_frame, cfg["target_rules"]), cfg, tmp_path / "baseline")
     _, path, prov = _dataset(tmp_path, cfg, 2, "new")
     registry = ModelRegistry(tmp_path / "r.json")
-    registry.register({"name": "m", "version": "base", "algorithm": "x", "dataset": {}, "metrics": {}, "status": "production"})
-    registry.data["production"] = "base"
+    registry.register({"name": "m", "version": "base", "algorithm": "x", "dataset": {}, "metrics": {}, "status": "approved"})
+    registry.data["selected_for_deployment"] = "base"
 
     result = run_retraining(
         dataset_path=path, provenance_path=prov, baseline_dir=tmp_path / "baseline", baseline_version="base",
@@ -78,10 +113,11 @@ def test_full_cycle_gate_approval_promotion_and_rollback(tmp_path, cfg):
     assert record["trigger"] is not None and "max_psi" in record["trigger"]
 
     with pytest.raises(RetrainingBlocked):
-        registry.promote("cand-1")
+        registry.select_for_deployment("cand-1")
     registry.approve("cand-1", "revisor")
-    registry.promote("cand-1")
-    assert registry.data["production"] == "cand-1"
-    assert registry.rollback() == "base"
-    assert registry.data["production"] == "base"
-    assert [e["action"] for e in registry.data["events"]][-3:] == ["approve", "promote", "rollback"]
+    registry.select_for_deployment("cand-1")
+    assert registry.data["selected_for_deployment"] == "cand-1"
+    assert registry.data.get("deployments", {}).get("production") is None
+    assert registry.rollback_selection() == "base"
+    assert registry.data["selected_for_deployment"] == "base"
+    assert [e["action"] for e in registry.data["events"]][-3:] == ["approve", "select_for_deployment", "rollback_selection"]

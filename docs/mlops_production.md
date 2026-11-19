@@ -63,11 +63,11 @@ TEST permanece reservado para evaluación final después de congelar la selecci�
 
 ## Limitación actual
 
-No existe todavía validación productiva, almacenamiento central de métricas, alertas reales, drift continuo/productivo ni retraining continuo con datos PRUNIN. Hay un detector académico offline y un aviso de entrada OOD basado en TRAIN; no es una monitorización central. Por integridad académica, no se presenta como operación ya desplegada.
+No existe validación productiva, almacenamiento central de métricas, alertas centralizadas, drift continuo/productivo ni retraining continuo con datos PRUNIN. Se añadió una CLI offline que genera reportes fechados con PSI, missing rate, validación de esquema y hashes, y permite devolver un código de alerta para integrarla con un scheduler autorizado. No implica monitorización central ni ejecución programada en este cierre.
 
 ## Separación entre implementación y operación pendiente
 
-Implementado: hashes/manifests, logging con prediction_id, endpoints y métricas locales, política documentada de retraining, empaquetado Docker y CI. No significa que exista retraining continuo en producción.
+Implementado: hashes/manifests, logging con prediction_id, endpoints y métricas locales, monitor offline invocable por CLI, registro local de modelos, política y pipeline de retraining bloqueado, empaquetado Docker y CI. El CI de `main` construyó la imagen demo y ejecutó el smoke test; Docker no se pudo ejecutar en este equipo porque no había daemon. No significa que exista retraining continuo en producción.
 
 Diseñado/pendiente: Prometheus centralizado, alertas reales, drift automático productivo, retraining continuo, infraestructura cloud y Kubernetes real. El HPA 3–10 requiere metrics-server; debe probarse carga y capacidad antes de operar. El Dockerfile requiere artefactos locales dentro del contexto; un clon solo con reportes no incluye los modelos pesados. No se construyó la imagen ni se desplegó un clúster durante este cierre.
 
@@ -91,7 +91,7 @@ Procedimiento diseñado, no ejecutado como operación productiva en esta auditor
 
 Los logs actuales registran identificador, versión, tiempos, motor y código de fallo, no el texto libre del proyecto. Los contadores son por proceso; no hay trazabilidad persistente empresarial ni coordinación multiworker. El escaneo de patrones de secretos es limitado y no sustituye revisión de seguridad. Las nuevas causas de rechazo de procedencia, contradicción y seguimiento se contabilizan como validación fallida, no como éxito GenAI.
 
-El Dockerfile ahora declara usuario 10001 y healthcheck HTTP de readiness; `.dockerignore` excluye `.git`, documentos y reportes del contexto. Las pruebas estáticas pasaron, pero el daemon Docker no estuvo disponible: estos cambios aún requieren build y smoke reales. Kubernetes permanece sin operar.
+El Dockerfile ahora declara usuario 10001 y healthcheck HTTP de readiness; `.dockerignore` excluye `.git`, documentos y reportes del contexto. El CI de `main` construyó y ejecutó el smoke test del contenedor con artefactos demo sintéticos. En esta auditoría el CLI Docker está instalado, pero no hay daemon local (`/var/run/docker.sock` ausente); Kubernetes permanece sin contexto configurado ni operación real.
 
 
 ## Verificación adicional del empaquetado para el nivel 4 de PAIII
@@ -100,6 +100,15 @@ El workflow `quality` contiene el paso `bash scripts/container_smoke.sh`, ejecut
 
 El resultado constituye evidencia reproducible de **construcción y arranque de Docker**, solo cuando el job del commit relevante termine en `success`. No es una prueba de balanceo Kubernetes, HPA ni actualización de modelos. La evaluación de nivel 4 para R7.2-Cr4/Cr6 sigue sujeta a ejecución y monitorización completas en un entorno autorizado. No usar expresiones como “clúster operado” ni “retraining continuo” sin evidencias.
 
+## Auditoría del registro local (noviembre de 2026)
+
+La auditoría identificó y corrigió dos ambigüedades en el esquema inicial:
+
+1. Los valores anteriormente registrados para Health, Delay y Cost eran métricas por snapshot, mientras que los indicadores destacados en el informe eran métricas por último snapshot del proyecto. El esquema 2 registra ambas unidades y su fuente (`reports/0.9.0-academic/metrics.json`): row-level Macro-F1 0.547055, Delay MAE 32.175956 días y Cost R² 0.829707; project-level Macro-F1 0.627576, Delay MAE 27.710468 días y Cost R² 0.991816. No se modificó ningún resultado académico.
+2. Se eliminó una atribución de aprobación al “comité académico PAIII” sin evidencia documental. `frozen_academic` describe preservación técnica, no una aprobación institucional. `demo-0.1.0` cambió de `production` a `demo_available`; los punteros `test` y `production` están vacíos. `select-for-deployment` cambia una selección del registro, no despliega ni verifica un servicio. `rollback-selection` tampoco equivale a rollback de un despliegue.
+
+El monitor se ejecutó sobre los 600 proyectos y 10.880 snapshots de VALIDATION frente a la referencia TRAIN: sin alerta PSI/missing ni columnas faltantes. La ejecución quedó en `reports/technical_closure/drift_monitoring_2026/`; no activó reentrenamiento. Es una comparación retrospectiva entre particiones, no observabilidad continua.
+
 ## Registro de modelos y ciclo de reentrenamiento controlado (noviembre de 2026)
 
 Implementado en `src/prunin_ai/monitoring/mlops.py` y `scripts/mlops_pipeline.py`, con pruebas en `tests/test_mlops_pipeline.py`:
@@ -107,14 +116,14 @@ Implementado en `src/prunin_ai/monitoring/mlops.py` y `scripts/mlops_pipeline.py
 - **Registro versionado** ([model_registry.json](../reports/mlops/model_registry.json)). Por versión guarda dataset y hash, configuración, métricas, estado, aprobación, versión padre, hashes de artefactos y un log de eventos. `0.9.0-academic` está en estado `frozen_academic` y no puede sobrescribirse.
 - **Reentrenamiento bloqueado por defecto.** Requiere `--authorize` y un archivo de procedencia con `authorized: true` y SHA-256 coincidente, y rechaza el dataset académico Mendeley.
 - **Ejecución del candidato.** Registra un trigger de drift (PSI y missing rate), entrena en `artifacts/candidates/` (ignorado por git) y compara candidato y baseline solo sobre VALIDATION.
-- **Gate de regresión (2 % relativo), aprobación humana, promoción y rollback**, cada uno registrado como evento.
+- **Gate de regresión (2 % relativo), aprobación humana, selección de release y rollback de selección**, cada uno registrado como evento. Son transiciones del registro, no despliegue ni rollback de un servicio.
 
-**Ejecución real:** con datos sintéticos de seed 2026, el candidato `demo-candidate-2026` quedó en `rejected_regression`, porque el macro-F1 de Health bajó un 13,6 %, aunque Delay y Cost mejoraron. Producción continúa en `demo-0.1.0`. Detalle en [reports/mlops/README.md](../reports/mlops/README.md).
+**Ejecución real:** con datos sintéticos de seed 2026, el candidato `demo-candidate-2026` quedó en `rejected_regression`, porque el macro-F1 de Health bajó un 13,6 %, aunque Delay y Cost mejoraron. El registro actual mantiene vacíos los punteros `test` y `production`; `demo-0.1.0` está etiquetada `demo_available`, no como despliegue. Detalle en [reports/mlops/README.md](../reports/mlops/README.md).
 
 **Límite:** es una demostración local del ciclo, no un reentrenamiento continuo programado. El drift conceptual y la pérdida de desempeño requieren ground truth real, que hoy no existe.
 
 ## Validación de despliegue en este cierre
 
-- Docker no pudo ejecutarse localmente: la instalación de Docker Desktop no tiene su ejecutable. La construcción y el smoke test del contenedor se verifican en el job `quality` de GitHub Actions.
+- Docker CLI está instalada, pero no había daemon local disponible. La construcción y el smoke test del contenedor se verificaron en el job `quality` de GitHub Actions para el commit correspondiente.
 - No existe un clúster Kubernetes local (no hay kind, minikube ni contexto de kubectl). El manifiesto se valida estáticamente con `tests/test_deployment_manifests.py`; la prueba con `kubectl` se omite si no hay clúster.
 - No se probaron balanceo, caída de pods ni rollback en un clúster.

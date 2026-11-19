@@ -1,0 +1,60 @@
+{
+  "scope": "technical_closure",
+  "branch": "feat/technical-closure",
+  "status": "partial",
+  "provider_comparison": {
+    "date": "2026-11-19",
+    "cases_per_mode": 30,
+    "ollama_model": "qwen3:8b",
+    "ollama_digest_prefix": "500a1f067a9f",
+    "ollama_quantization": "Q4_K_M",
+    "controlled_accepted": 30,
+    "operational_accepted": 30,
+    "openai_status": "openai_key_missing",
+    "openai_calls": 0,
+    "openai_cost_usd": 0.0,
+    "openai_estimated_budget_usd": 5.0
+  },
+  "http_concurrency": {
+    "requests_per_level": 100,
+    "levels": [1, 4, 8, 16],
+    "successes": [100, 100, 100, 100],
+    "throughput_requests_per_second": [20.14, 24.14, 23.42, 23.35],
+    "p95_latency_ms": [80.98, 200.88, 457.41, 954.38],
+    "instance_failure_tested": false
+  },
+  "drift_monitor": {
+    "reference_projects": 2800,
+    "comparison_projects": 600,
+    "comparison_snapshots": 10880,
+    "alerts": 0,
+    "retraining_triggered": false
+  },
+  "human_productivity": {
+    "status": "not_measured",
+    "participants": 0
+  },
+  "validation": {
+    "focused_tests": "19 passed",
+    "backend_suite": "216 passed, 1 skipped",
+    "frontend_tests": "22 passed",
+    "frontend_build": "passed",
+    "pip_check": "passed",
+    "compileall": "passed",
+    "original_promise": "passed",
+    "demo": "passed"
+  },
+  "github_actions_main": {
+    "workflow": "quality",
+    "head_sha": "868ea86435bde7412bcee36c0ead821f289b694f",
+    "run_id": "44434927424",
+    "conclusion": "success",
+    "current_branch_run": "pending"
+  },
+  "external_dependencies": {
+    "docker": "blocked_by_sandbox_config_read_and_missing_daemon",
+    "kubernetes": "no_context_or_cluster",
+    "openai": "key_unavailable_in_process"
+  },
+  "scientific_artifacts_modified": false
+}

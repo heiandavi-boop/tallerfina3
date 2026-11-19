@@ -1,0 +1,95 @@
+{
+  "status": "complete",
+  "reference_split": "TRAIN",
+  "reference_rows": 50772,
+  "current_rows": 10880,
+  "thresholds": {
+    "psi": 0.2,
+    "missing_rate_shift": 0.1
+  },
+  "alert": false,
+  "alert_features": [],
+  "features": {
+    "planned_duration_weeks": {
+      "kind": "numeric",
+      "psi": 0.009092515528159607,
+      "reference_missing_rate": 0.0,
+      "current_missing_rate": 0.0,
+      "missing_rate_shift": 0.0,
+      "alerts": []
+    },
+    "planned_budget": {
+      "kind": "numeric",
+      "psi": 0.004143596292174821,
+      "reference_missing_rate": 0.0,
+      "current_missing_rate": 0.0,
+      "missing_rate_shift": 0.0,
+      "alerts": []
+    },
+    "true_progress": {
+      "kind": "numeric",
+      "psi": 0.00021997768400985228,
+      "reference_missing_rate": 0.0,
+      "current_missing_rate": 0.0,
+      "missing_rate_shift": 0.0,
+      "alerts": []
+    },
+    "spi": {
+      "kind": "numeric",
+      "psi": 0.0028591427660259335,
+      "reference_missing_rate": 0.0,
+      "current_missing_rate": 0.0,
+      "missing_rate_shift": 0.0,
+      "alerts": []
+    },
+    "cpi": {
+      "kind": "numeric",
+      "psi": 0.006083466231982854,
+      "reference_missing_rate": 0.0,
+      "current_missing_rate": 0.0,
+      "missing_rate_shift": 0.0,
+      "alerts": []
+    },
+    "project_type": {
+      "kind": "categorical",
+      "psi": 0.01347980753133533,
+      "reference_missing_rate": 0.0,
+      "current_missing_rate": 0.0,
+      "missing_rate_shift": 0.0,
+      "alerts": []
+    },
+    "methodology": {
+      "kind": "categorical",
+      "psi": 0.004779238312331624,
+      "reference_missing_rate": 0.0,
+      "current_missing_rate": 0.0,
+      "missing_rate_shift": 0.0,
+      "alerts": []
+    }
+  },
+  "interpretation": "Input-distribution warning only; it does not change model predictions or trigger retraining.",
+  "generated_at_utc": "2026-11-19T01:35:16.686964+00:00",
+  "artifact_version": "0.9.0-academic",
+  "profile_path": "reports/monitoring/profiles/0.9.0-academic-train-profile.json",
+  "retraining_triggered": false,
+  "input_hashes": {
+    "reference_dataset_sha256": "32b7586db9dda0b3994573a3985c114dafe65dee93c948254b69f00d194c0ac3",
+    "split_manifest_sha256": "ed8f9db66e254123e411e7d016e91c01563a58c11e3a7f337bd9592ab92db26c",
+    "current_batch_sha256": "8001fdc1dc04bac867f88bf912b750f149b65a37fde18df19c71a6e9ce90a4fc"
+  },
+  "data_quality": {
+    "expected_feature_count": 7,
+    "missing_feature_columns": [],
+    "current_missing_rate_by_feature": {
+      "planned_duration_weeks": 0.0,
+      "planned_budget": 0.0,
+      "true_progress": 0.0,
+      "spi": 0.0,
+      "cpi": 0.0,
+      "project_type": 0.0,
+      "methodology": 0.0
+    },
+    "missing_schema_alert": false
+  },
+  "report_path": "reports/technical_closure/drift_monitoring_2026/drift-20261119T013516Z-8001fdc1.json"
+}
