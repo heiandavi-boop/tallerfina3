@@ -49,19 +49,62 @@ function StatusBar({ model, apiReady, result, genaiStatus }) {
     </div>;
 }
 
+
+function Sidebar({ mode, onProject, onCsv, onEvidence, result, genaiStatus }) {
+    return <aside className="prunin-sidebar" aria-label="Menú lateral">
+        <a className="sidebar-brand" href="#top" aria-label="PRUNIN AI Core, inicio">
+            <span className="sidebar-logo" aria-hidden="true">P</span>
+            <span>PRUNIN <small>AI Core</small></span>
+        </a>
+        <nav className="sidebar-nav" aria-label="Navegación principal">
+            <a href="#top" className="active"><span aria-hidden="true">⌂</span> Inicio</a>
+            <button type="button" className={mode === 'project' ? 'selected' : ''} onClick={() => onProject('workspace')}><span aria-hidden="true">⌕</span> Analizar proyecto</button>
+            <button type="button" className={mode === 'csv' ? 'selected' : ''} onClick={onCsv}><span aria-hidden="true">▦</span> Análisis CSV</button>
+            <a href={result ? '#simulation' : '#project'} onClick={() => onProject(result ? 'simulation' : 'project')}><span aria-hidden="true">☷</span> Simulación What-if</a>
+            <a href={result ? '#result' : '#workspace'} onClick={() => onProject(result ? 'result' : 'project')}><span aria-hidden="true">▥</span> Métricas</a>
+            <button type="button" onClick={onEvidence}><span aria-hidden="true">▤</span> Evidencia</button>
+            <a href="#ai-settings"><span aria-hidden="true">⚙</span> Configuración</a>
+        </nav>
+        <div className="sidebar-bottom">
+            <div className="sidebar-ollama" aria-label="Estado de Ollama">
+                <span className="sidebar-chip-symbol">✳</span>
+                <span><b>IA generativa local</b><small>Ollama · {genaiStatus?.model || 'modelo local'}</small><em className={genaiStatus?.available ? 'online' : 'offline'}>{genaiStatus?.available ? '● Disponible' : '○ No disponible'}</em></span>
+            </div>
+            <p>Proyecto Aplicado III<br/>Prototipo académico</p>
+        </div>
+    </aside>;
+}
+
 function AppHeader({ model, apiReady, result, genaiStatus, onTechnical }) {
     return <header className="app-header">
         <div className="header-inner">
-            <a className="brand" href="#top" aria-label="PRUNIN AI Core, inicio"><span className="brand-mark">P</span><span><strong>PRUNIN AI Core</strong><small>Predicción temprana de riesgo de proyectos</small></span></a>
-            <nav className="header-navigation" aria-label="Navegación principal">
-                <a href="#overview-title">Inicio</a>
-                <a href="#workspace">Analizar</a>
-                <a href="#methodology">Metodología</a>
-            </nav>
-            <div className="header-actions"><a className="header-cta" href="#workspace">Abrir análisis <span aria-hidden="true">↗</span></a>{result && <button type="button" className="evidence-button" onClick={onTechnical}>Ver evidencia técnica</button>}</div>
+            <div className="workspace-title"><span aria-hidden="true" className="workspace-title-icon">▥</span><strong>Panel de Riesgo de Proyectos</strong></div>
+            <div className="header-actions">
+                <span className="runtime-label"><i className={apiReady ? 'is-ready' : ''} />{model?.mode === 'synthetic_demo' ? 'Entorno: demostración' : 'Entorno: académico'}</span>
+                {result && <button type="button" className="evidence-button" onClick={onTechnical}>▤ Evidencia técnica</button>}
+            </div>
         </div>
-        <div className="header-inner status-wrap"><StatusBar model={model} apiReady={apiReady} result={result} genaiStatus={genaiStatus} /></div>
     </header>;
+}
+
+function DashboardMetrics({ result, genaiStatus }) {
+    const prediction = result?.prediction;
+    const health = prediction?.health;
+    const labels = { healthy: 'Saludable', at_risk: 'En riesgo', critical: 'Crítico' };
+    const percent = value => value == null || !Number.isFinite(Number(value)) ? '—' : `${(Number(value) * 100).toLocaleString('es-CO', { maximumFractionDigits: 1 })} %`;
+    const days = value => value == null ? '—' : `${Number(value).toLocaleString('es-CO', { maximumFractionDigits: 1 })} días`;
+    // Real, model-supplied values only; the fused score is NOT a calibrated probability.
+    const riskScore = prediction?.fused_risk_score;
+    const showRisk = riskScore != null && Number.isFinite(Number(riskScore));
+    const cost = prediction?.cost_overrun_ratio;
+    const costLabel = cost == null ? '—' : cost < 0 ? `${percent(Math.abs(cost))} ahorro` : percent(cost);
+    return <section className="dashboard-metrics" aria-label="Indicadores del proyecto">
+        <article className={`dashboard-metric risk-${health || 'empty'}`}><span className="metric-icon">⚠</span><div><small>Nivel de riesgo</small><strong>{health ? labels[health] || health : 'Sin evaluar'}</strong><span>{health ? 'Predicción del proyecto analizado' : 'Ejecuta el análisis para ver resultados'}</span></div></article>
+        <article className="dashboard-metric"><span className="metric-icon violet">◎</span><div><small>Indicador combinado de riesgo</small><strong>{showRisk ? percent(riskScore) : '—'}</strong><span>No es una probabilidad calibrada</span></div></article>
+        <article className="dashboard-metric"><span className="metric-icon blue">▣</span><div><small>Retraso estimado</small><strong>{days(prediction?.delay_days)}</strong><span>Estimación del modelo predictivo</span></div></article>
+        <article className="dashboard-metric"><span className="metric-icon orange">▥</span><div><small>Desviación de costo</small><strong>{costLabel}</strong><span>Respecto al presupuesto previsto</span></div></article>
+        <article className="dashboard-metric"><span className="metric-icon green">✳</span><div><small>Proveedor IA local</small><strong>Ollama</strong><span>{genaiStatus?.available ? 'Motor disponible' : 'Sin conexión confirmada'} · {genaiStatus?.model || 'modelo local'}</span></div></article>
+    </section>;
 }
 
 function PresentationOverview() {
@@ -110,6 +153,20 @@ function PresentationOverview() {
         </details>
         <p className="experiment-scope">Resultados de una evaluación académica con datos simulados externos publicados. No equivale a una validación empresarial ni a uso en producción.</p>
     </div>;
+}
+
+
+function DashboardBanner() {
+    return <section className="dashboard-banner" aria-label="Funciones de PRUNIN">
+        <h1>Detección temprana de riesgo,<br/>explicaciones con evidencia y<br/>recomendaciones accionables.</h1>
+        <div className="banner-features" aria-label="Capacidades">
+            <span>◎ <b>Anticipa<br/> riesgos</b></span>
+            <span>◇ <b>Entiende<br/> las señales</b></span>
+            <span>ϟ <b>Simula<br/> escenarios</b></span>
+            <span>▥ <b>Toma<br/> decisiones</b></span>
+        </div>
+        <div className="banner-waves" aria-hidden="true"/>
+    </section>;
 }
 
 function StepNav({ result, mode }) {
@@ -178,6 +235,9 @@ export default function Experience() {
         setComparison(null);
         setError('');
     };
+
+    const navigateToProject = (target = 'workspace') => { setMode('project'); setError(''); window.requestAnimationFrame(() => document.getElementById(target)?.scrollIntoView({ behavior: 'smooth' })); };
+    const navigateToCsv = () => { setMode('csv'); setError(''); window.requestAnimationFrame(() => document.getElementById('workspace')?.scrollIntoView({ behavior: 'smooth' })); };
 
     const genaiHeaders = () => ({ 'X-PRUNIN-Provider': genaiProvider });
 
@@ -291,11 +351,14 @@ export default function Experience() {
     if (!schema) return <div className="boot-screen"><span className="brand-mark">P</span><h1>PRUNIN AI Core</h1><p role={error ? 'alert' : 'status'}>{error || 'Conectando con la API…'}</p></div>;
     const loadingMessages = ['Evaluando el nivel de riesgo…', 'Identificando las señales más influyentes…', 'Ollama está preparando recomendaciones…'];
 
-    return <div id="top" className="app-shell">
+    return <div id="top" className="app-shell dashboard-shell">
+        <Sidebar mode={mode} onProject={navigateToProject} onCsv={navigateToCsv} onEvidence={() => setDrawerOpen(true)} result={result} genaiStatus={genaiStatus} />
+        <div className="dashboard-main">
         <AppHeader model={schema.model} apiReady={apiReady} result={result} genaiStatus={genaiStatus} onTechnical={() => setDrawerOpen(true)} />
         <main className="page-content">
             {schema.model.mode === 'synthetic_demo' && <aside className="mode-notice" role="note">Modelo de demostración con datos sintéticos. La versión académica se indicará aquí cuando esté cargada.</aside>}
-            <PresentationOverview />
+            <DashboardBanner />
+            <DashboardMetrics result={result} genaiStatus={genaiStatus} />
             <section className="workspace-intro" id="workspace" aria-labelledby="workspace-heading">
                 <div>
                     <p className="eyebrow">ESPACIO DE ANÁLISIS</p>
@@ -304,7 +367,7 @@ export default function Experience() {
                 </div>
                 <span className="workspace-index" aria-hidden="true">01 / 03</span>
             </section>
-            <section className="surface content-section ai-settings" aria-label="Configuración de inteligencia artificial">
+            <section className="surface content-section ai-settings" id="ai-settings" aria-label="Configuración de inteligencia artificial">
                 <div className="section-heading"><div><p className="eyebrow">CONFIGURACIÓN LOCAL</p><h2>Motor de recomendaciones</h2></div></div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
                     <label htmlFor="prunin-provider"><strong>Motor de IA</strong></label>
@@ -313,7 +376,7 @@ export default function Experience() {
                         <option value="none">Solo predicción (sin IA generativa)</option>
                     </select>
                 </div>
-                <p className="ai-settings-note">{genaiProvider === 'ollama' ? 'Recomendaciones con Qwen3 8B a través de Ollama local. Requiere el servicio disponible en el servidor.' : 'Se conservan las predicciones de riesgo, tiempo y costo, junto con las reglas de respaldo; no se ejecuta generación de texto.'}</p>
+                <p className="ai-settings-note">{genaiProvider === 'ollama' ? `Recomendaciones con ${genaiStatus?.model || 'el modelo configurado'} a través de Ollama local. Requiere el servicio disponible en el servidor.` : 'Se conservan las predicciones de riesgo, tiempo y costo, junto con las reglas de respaldo; no se ejecuta generación de texto.'}</p>
             </section>
             <div className="mode-switch" role="tablist" aria-label="Modo de análisis">
                 <button type="button" role="tab" aria-selected={mode === 'project'} className={mode === 'project' ? 'active' : ''} onClick={() => {
@@ -332,20 +395,28 @@ export default function Experience() {
             <StepNav result={result} mode={mode} />
             {error && mode === 'project' && <div className="error-banner" role="alert"><span>{error}</span><button type="button" aria-label="Cerrar mensaje" onClick={() => setError('')}>×</button></div>}
 
-            {mode === 'project' ? <>
+            {mode === 'project' ? <div className="dashboard-work-grid">
                 <ProjectForm schema={schema} values={values} onChange={change} onAnalyze={analyze} loading={loading} activePreset={activePreset} onPreset={choosePreset} coverage={coverage} importedSource={importedProjectSource} />
                 {loading && <div className="analysis-loading" role="status" aria-live="polite"><span className="spinner large" /><div><strong>{loadingMessages[loadingStage]}</strong><small>La predicción se ejecuta localmente y las recomendaciones usan Ollama cuando está habilitado.</small></div></div>}
-                <div ref={resultRef}><ResultHero result={result} schema={schema} /></div>
+                <div className="dashboard-result-slot" ref={resultRef}><ResultHero result={result} schema={schema} /></div>
+                <div className="dashboard-recommendation-slot">
+                    {result ? <RecommendationCard data={result.recommendations} fields={schema.fields} /> :
+                        <section className="surface dashboard-empty-recommendation" aria-label="Recomendaciones con evidencia">
+                            <div className="section-heading"><div><span className="step-number">✧</span><div><p className="eyebrow">IA LOCAL</p><h2>Recomendaciones con evidencia</h2></div></div></div>
+                            <p>Cuando evalúes el proyecto, aquí encontrarás las acciones priorizadas y su justificación. Las sugerencias generativas se validan contra los indicadores aportados.</p>
+                            <span className="dashboard-empty-pill">Sin análisis todavía</span>
+                        </section>}
+                </div>
                 {result && <>
-                    <DriversPanel drivers={result.drivers} fields={schema.fields} />
-                    <RecommendationCard data={result.recommendations} fields={schema.fields} />
-                    <ScenarioPanel schema={schema} values={values} onRun={simulate} loading={simulationLoading} comparison={comparison} />
-                    <div className="technical-action"><button type="button" className="evidence-button large-evidence" onClick={() => setDrawerOpen(true)}><span aria-hidden="true">⚙</span> Ver evidencia técnica</button></div>
+                    <div className="dashboard-driver-slot"><DriversPanel drivers={result.drivers} fields={schema.fields} /></div>
+                    <div className="dashboard-simulation-slot"><ScenarioPanel schema={schema} values={values} onRun={simulate} loading={simulationLoading} comparison={comparison} /></div>
+                    <div className="technical-action"><button type="button" className="evidence-button large-evidence" onClick={() => setDrawerOpen(true)}>▤ Ver evidencia técnica</button></div>
                 </>}
-            </> : <CsvAnalyzer onAnalyze={analyzeCsv} onOpenProject={openCsvProject} loading={csvLoading} results={csvResults} error={error} />}
+            </div> : <CsvAnalyzer onAnalyze={analyzeCsv} onOpenProject={openCsvProject} loading={csvLoading} results={csvResults} error={error} />}
 
             <footer className="app-footer"><strong>PRUNIN AI Core</strong><span>Proyecto académico · Análisis trazable · Las señales explican el modelo, no prueban causas</span></footer>
         </main>
+        </div>
         <TechnicalDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} result={result} model={schema.model} schema={schema} technicalError={technicalError} genaiStatus={genaiStatus} />
     </div>;
 }
