@@ -38,31 +38,8 @@ jobs:
           test -f /opt/prunin-staging/config.env
       - name: Build immutable image tagged to commit
         run: docker build -f Dockerfile.playground -t "prunin-ai-core:${GITHUB_SHA}" .
-      - name: Deploy staging replica with automatic restart
+      - name: Preflight candidate and promote with rollback
         env:
           COMMIT_SHA: ${{ github.sha }}
         shell: bash
-        run: |
-          set -euo pipefail
-          docker rm -f prunin-staging >/dev/null 2>&1 || true
-          docker run -d --name prunin-staging --restart unless-stopped \
-            --publish 127.0.0.1:18767:8000 \
-            --env-file /opt/prunin-staging/config.env \
-            --mount type=bind,source=/opt/prunin-academic-artifacts/0.9.0-academic,target=/app/artifacts/0.9.0-academic,readonly \
-            --env PRUNIN_ARTIFACT_DIR=/app/artifacts/0.9.0-academic \
-            "prunin-ai-core:${COMMIT_SHA}"
-          for _ in $(seq 1 40); do
-            if curl -fsS --max-time 3 http://127.0.0.1:18767/api/ready >/tmp/prunin-staging-ready.json; then
-              python - <<'PY'
-          import json
-          data=json.load(open("/tmp/prunin-staging-ready.json"))
-          assert data["status"] == "ready"
-          assert data.get("model_version") == "0.9.0-academic", data
-          PY
-              echo "STAGING DEPLOYMENT PASS: academic version ready"
-              exit 0
-            fi
-            sleep 3
-          done
-          docker logs prunin-staging --tail 100
-          exit 1
+        run: bash scripts/deploy_staging_safe.sh "prunin-ai-core:${COMMIT_SHA}"
