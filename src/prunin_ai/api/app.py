@@ -20,10 +20,10 @@ from fastapi.staticfiles import StaticFiles
 
 from .catalog import PRESETS
 from .model_runtime import ModelRuntime, ROOT, unused_what_if_changes
-from .recommendations import build_recommendations, check_ollama_status, check_openai_status, recommendations_not_requested, warmup_ollama
+from .recommendations import build_recommendations, check_ollama_status, recommendations_not_requested, warmup_ollama
 from .monitoring import monitoring
 from .schema import ProjectInput, WhatIfRequest
-from .security import OpenAIGuard, configured_token, requires_token, resolve_cors_origins, token_matches
+from .security import configured_token, requires_token, resolve_cors_origins, token_matches
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -40,7 +40,6 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="PRUNIN AI Core Playground", version="1.0.0", lifespan=lifespan)
 cors_origins = resolve_cors_origins()
 app.add_middleware(CORSMiddleware, allow_origins=cors_origins, allow_credentials=False, allow_methods=["*"], allow_headers=["*"])
-openai_guard = OpenAIGuard.from_env()
 
 
 @app.middleware("http")
@@ -73,14 +72,14 @@ def serialize(value: Any):
     return value
 
 
-def run_prediction(data: dict[str, Any], *, include_recommendations: bool = True, genai_provider: str | None = None, openai_api_key: str | None = None, openai_model: str | None = None) -> dict[str, Any]:
+def run_prediction(data: dict[str, Any], *, include_recommendations: bool = True, genai_provider: str | None = None) -> dict[str, Any]:
     started = time.perf_counter()
     prediction_id = str(uuid.uuid4())
     try:
         pred = runtime.predict(data)
         drivers = runtime.local_drivers(data, pred)
         ml_and_drivers_ms = round((time.perf_counter() - started) * 1000, 2)
-        recommendations = build_recommendations(data, pred, drivers, provider=genai_provider, api_key=openai_api_key, openai_model=openai_model) if include_recommendations else recommendations_not_requested()
+        recommendations = build_recommendations(data, pred, drivers, provider=genai_provider) if include_recommendations else recommendations_not_requested()
         elapsed = round((time.perf_counter() - started) * 1000, 2)
         genai_ms = recommendations.get("genai_latency_ms") if recommendations and recommendations.get("genai_attempted") else None
         model_metadata = runtime.metadata()
@@ -166,7 +165,7 @@ def genai_status():
 
 @app.get("/api/genai-providers")
 def genai_providers():
-    return {"ollama": check_ollama_status(), "openai": check_openai_status()}
+    return {"ollama": check_ollama_status()}
 
 
 @app.get("/api/monitoring")
@@ -212,24 +211,13 @@ def predict(
     request: Request,
     include_recommendations: bool = True,
     x_prunin_provider: str | None = Header(default=None),
-    x_prunin_openai_key: str | None = Header(default=None),
-    x_prunin_openai_model: str | None = Header(default=None),
 ):
-    if x_prunin_provider is not None and x_prunin_provider not in {"ollama", "openai", "none"}:
+    if x_prunin_provider is not None and x_prunin_provider not in {"ollama", "none"}:
         raise HTTPException(422, "Proveedor de IA no válido.")
-    if x_prunin_openai_key is not None and len(x_prunin_openai_key) > 300:
-        raise HTTPException(422, "La clave de API supera el límite permitido.")
-    if x_prunin_provider == "openai" and include_recommendations:
-        denied = openai_guard.acquire(request.client.host if request.client else "unknown")
-        if denied:
-            logger.warning(json.dumps({"event": "openai_request_denied", "failure_code": denied}))
-            raise HTTPException(429, "Límite de solicitudes a OpenAI alcanzado; intente más tarde o use Ollama/fallback.", headers={"X-PRUNIN-Failure-Code": denied, "Retry-After": "60"})
     try:
         return run_prediction(
             payload.model_dump(), include_recommendations=include_recommendations,
             genai_provider=x_prunin_provider,
-            openai_api_key=x_prunin_openai_key if x_prunin_provider == "openai" else None,
-            openai_model=x_prunin_openai_model if x_prunin_provider == "openai" else None,
         )
     except ValueError as exc:
         raise HTTPException(422, str(exc))
