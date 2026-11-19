@@ -107,6 +107,8 @@ def test_split_isolation_detects_train_contamination():
 
 
 def test_real_test_cases_are_identical_and_isolated():
+    if not (ARTIFACT / "split_manifest.json").exists() or not (ROOT / "data/processed/mendeley_core.csv").exists():
+        pytest.skip("Mendeley source data or active artifact split manifest is not available in this environment.")
     version_a, cases_a, isolation = runner.prepare(ARTIFACT, ROOT / "data/processed/mendeley_core.csv")
     _, cases_b, _ = runner.prepare(ARTIFACT, ROOT / "data/processed/mendeley_core.csv")
     assert isolation["ok"] and len(cases_a) == 30
