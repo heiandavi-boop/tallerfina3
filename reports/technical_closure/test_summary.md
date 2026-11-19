@@ -24,7 +24,6 @@ El primer intento completo dejó un fallo en `test_explicit_ollama_selection_doe
 
 - Docker: `docker info` indicó que `/var/run/docker.sock` no existe y el sandbox denegó la lectura de `~/.docker/config.json`. No se repitió el acceso ni se intentó eludir la política.
 - Kubernetes: no hay contexto configurado ni clúster disponible.
-- OpenAI real: no se realizó llamada porque la clave no estaba disponible en el entorno del proceso.
 - Productividad humana: no hay participantes; el resultado permanece NO MEDIDA.
 
 La prueba de Docker en GitHub Actions y la prueba estática de manifiestos son evidencias distintas y no se reportan como operación local de Docker o Kubernetes.
