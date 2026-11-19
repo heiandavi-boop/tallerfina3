@@ -14,3 +14,5 @@
 | Cierre técnico | [`technical_audit.md`](technical_audit.md), [`technical_audit.json`](technical_audit.json) | Resumen verificable de resultados, límites y dependencias |
 
 Los archivos de la comparación no contienen credenciales. Los reportes mantienen separados benchmark controlado, operativo, evaluación histórica y pruebas HTTP.
+
+| Evaluación local Qwen | [Qwen 2026](../genai/qwen_local_2026/README.md) | 30 casos en dos modos y 15 repeticiones, con entradas y respuestas registradas | 
