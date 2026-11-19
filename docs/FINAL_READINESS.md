@@ -1,5 +1,7 @@
 # Cierre final PRUNIN AI Core
 
+La entrega actual utiliza Ollama/Qwen3 8B como único motor generativo habilitable, además de la opción de predicción supervisada sin generación. Los resultados científicos del artefacto académico siguen congelados. Las cifras de pruebas indicadas a continuación pertenecen a las ejecuciones citadas; la validación del commit final de entrega debe comprobarse separadamente en GitHub Actions.
+
 
 ## Verificaciones ejecutadas
 
