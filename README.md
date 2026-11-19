@@ -123,7 +123,7 @@ Dataset sintético, severidad Critical todavía limitada, Delay débil, caveat E
 - [Revisión actual de 27 criterios y limitación de rúbrica oficial](reports/audit_2026-11-08/rubric_review.json)
 - [Rúbrica institucional PAIII: 27 criterios, nivel 4 y brechas](docs/RUBRICA_OFICIAL_PAIII_2026.md)
 - [Estado de cumplimiento, alcance y límites](docs/rubric_matrix.md)
-- [Cierre, evidencias y pendientes](docs/FINAL_READINESS.md)
+- [Estado verificable de entrega y brechas abiertas](docs/ESTADO_VERIFICACION_ENTREGA.md)
 - [Matriz histórica previa de 27 criterios](reports/rubric_final/rubric_final.md)
 - [Resultados predictivos congelados](reports/0.9.0-academic/)
 - [Resultados GenAI](reports/genai/)
