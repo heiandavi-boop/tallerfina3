@@ -2851,6 +2851,11 @@ body { background:#f5f7fc; background-image:none; }
 .dashboard-work-grid {display:grid;grid-template-columns:minmax(0,1.06fr) minmax(0,1fr);gap:13px;align-items:start;}
 .dashboard-work-grid .surface {min-width:0;margin:0;}
 .dashboard-work-grid .project-card {grid-column:1;grid-row:1;}
+/* The project card is a narrow dashboard column: stack Proyecto/Ejecución so inputs and sliders keep a usable width. */
+.dashboard-work-grid .project-card .field-groups {grid-template-columns:minmax(0,1fr);}
+.dashboard-work-grid .project-card .range-heading {flex-wrap:wrap;align-items:flex-start;}
+.dashboard-work-grid .project-card .range-heading .field-label {flex:1 1 auto;min-width:0;}
+.dashboard-work-grid .project-card .range-heading output {flex:0 0 auto;}
 .dashboard-result-slot {grid-column:2;grid-row:1;min-width:0;scroll-margin-top:100px;}
 .dashboard-result-slot .surface {height:100%;}
 .dashboard-driver-slot {grid-column:1;min-width:0;}
@@ -2924,3 +2929,40 @@ body { background:#f5f7fc; background-image:none; }
   .dashboard-work-grid .technical-action {grid-column:1 / -1;}
   .dashboard-work-grid>.analysis-loading {grid-column:1 / -1;}
 }
+
+/* Result/recommendation cards live in narrow dashboard columns: drop fixed minimum widths so content stacks instead of overflowing. */
+.dashboard-work-grid .risk-alert-banner,
+.dashboard-work-grid .result-summary-grid {grid-template-columns:minmax(0,1fr);}
+.dashboard-work-grid .result-hero {min-width:0;padding:18px;}
+.dashboard-work-grid .result-hero h3 {font-size:30px;overflow-wrap:anywhere;}
+.dashboard-work-grid .business-status {flex-wrap:wrap;}
+.dashboard-work-grid .metric-grid {grid-template-columns:repeat(auto-fit,minmax(130px,1fr));}
+.dashboard-work-grid .surface :where(p,small,strong,h2,h3) {overflow-wrap:break-word;}
+
+/* Comparación de modelos IA (solo lectura) */
+.model-comparison { margin-top: 24px; }
+.model-comparison .mc-intro, .model-comparison .mc-note { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+.mc-warning { background: var(--amber-pale); border-radius: 10px; padding: 10px 14px; margin: 10px 0; }
+.mc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin: 14px 0; }
+.mc-card { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; background: var(--paper); min-width: 0; }
+.mc-card h3 { font-size: 14px; margin: 4px 0 10px; }
+.mc-card h3 + .mc-bars { margin-bottom: 12px; }
+.mc-bars { display: grid; gap: 10px; }
+.mc-bar-row { display: grid; gap: 4px; }
+.mc-bar-label { font-size: 12px; font-weight: 600; color: var(--ink); }
+.mc-bar-group { display: grid; gap: 3px; }
+.mc-bar { position: relative; display: flex; justify-content: space-between; gap: 8px; align-items: center; height: 22px; padding: 0 8px; border-radius: 6px; background: var(--canvas); overflow: hidden; font-size: 11px; }
+.mc-bar i { position: absolute; inset: 0 auto 0 0; border-radius: 6px; opacity: .22; }
+.mc-bar-0 i { background: #2563eb; }
+.mc-bar-1 i { background: #ea580c; }
+.mc-bar b, .mc-bar em { position: relative; font-style: normal; white-space: nowrap; }
+.mc-bar em { font-weight: 700; }
+.mc-table-wrap { overflow-x: auto; }
+.mc-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.mc-table th, .mc-table td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: right; }
+.mc-table th:first-child, .mc-table td:first-child { text-align: left; }
+.mc-table .mc-total td { font-weight: 700; }
+.mc-verdict { margin-top: 12px; padding: 12px 14px; border-radius: 10px; background: var(--amber-pale); }
+.mc-verdict.has-winner { background: var(--green-pale); }
+.mc-verdict ul { margin: 6px 0 0; padding-left: 18px; font-size: 13px; }
+.mc-verdict p { margin: 6px 0 0; font-size: 12px; color: var(--muted); }

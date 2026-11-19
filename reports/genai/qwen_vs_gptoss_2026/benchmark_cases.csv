@@ -1,0 +1,31 @@
+case_id,order,split,health,risk_drivers,allowed_features,repeat_case,evidence_sha256,prompt_sha256
+mendeley::PROJ_0760,1,test,at_risk,1,"[""cpi""]",False,28c6c4a86caf89b02021ce51e7a69e9844240680c14136fc9cdcece70e9ec73b,69d690938605f6107dd697caf9848d19e6649482b354ef01ba6a735f26cb59bc
+mendeley::PROJ_2717,2,test,at_risk,1,"[""cpi""]",False,0e0d03c5e0de8e393e5358aca874c193ff26f0d2c7533952bc8213179aaa72f4,5ce695b2e63682bafd6caa0c18570b29d671e95b4ba61236de0d1885f9a6621f
+mendeley::PROJ_0062,3,test,at_risk,1,"[""cpi""]",False,24f5dad09f3ecc1cc7676a8e79d0970bb3c804da6fb3521f8031e6978311898a,72bdaef44223a460a17a40922d01f9b395e2624cd0efc6322960b7e3a6f78e03
+mendeley::PROJ_0539,4,test,at_risk,1,"[""cpi""]",False,a5292708e5bec66b90a4fad0b35de3d01b42d529bb1107b7d7147411d226c5e3,26e914dfa05e2523454c8dc50c6f049f80cd5d4b38d669d7486d9dc15fc6714d
+mendeley::PROJ_2331,5,test,at_risk,1,"[""cpi""]",False,53c9ee69e4b9aad7f7eeed03e3452d12c595b22696314eacced7972a03b4a7b0,8599b49cf300a9ff236f798b5d3734a2773b4b5d91f7057f43d91b3e74708833
+mendeley::PROJ_0840,6,test,critical,3,"[""cpi"", ""planned_budget"", ""planned_duration_weeks""]",True,c48b40531eaea091c0dbb085c37cd108e7f6aec88a72aacced8cd25e4bca4bfd,dc679f59991cc9a9d5b8f0a752aad60adc7993ba075f92957f53a16f9886cc45
+mendeley::PROJ_0757,7,test,at_risk,1,"[""cpi""]",False,161e5ac8b044dcd9b542bc184c91709d99923b062056fe51c70652f57afb02bb,3fffa435cd5544992a4774ecb26284e681a3d4ba480fa3462178c98c6375692e
+mendeley::PROJ_3943,8,test,at_risk,1,"[""cpi""]",False,f495e99999966357dcfb5e6f55a2e086018880627986cad8062d2936b9f4f1d0,f94dbc0c97708a77278c40d1b029296e817976c72182f2dcc7f4be8c4592f7e5
+mendeley::PROJ_0223,9,test,critical,1,"[""planned_duration_weeks""]",False,b2f54dba24c015d45fff9d524045f109b8c8a03c7641f331085cec04ebbdf5fa,ec32fa4317e04efb45a79215a1e25a4cf2c39fb4e1c90208971219406e369769
+mendeley::PROJ_1423,10,test,at_risk,1,"[""cpi""]",False,5e47ea6f5a74254f34440825276406752ebc8ad1f8be345040a41bc9faa83b23,adadca6e641f42909792274f57ef8f2465cbbc9853969f95a7bef0b672628a14
+mendeley::PROJ_1238,11,test,at_risk,1,"[""cpi""]",True,b4a212e69883566507b0c2f74853c422c4c1cbd93ccdabb92937c9e0cce70554,271e3cb39d574dec8b1ee6f60e7f03313c3e94cb82ba3918d78a22107c1edb03
+mendeley::PROJ_3932,12,test,at_risk,2,"[""cpi"", ""true_progress""]",False,396ab27da9c7580a50b7e025c89c589029632b8168a6358bf1263f0304b9e8a7,6c04e53a370b12304bffa1d6c8c3afd69ed86f763eb7f1890c4a1d43be166e9e
+mendeley::PROJ_3573,13,test,at_risk,2,"[""cpi"", ""true_progress""]",False,2fcdf893d2a22dc950a302c9493a5b2a57efc9d10a3f13f7c82fb810d36de68c,aebcc184dbcfa2af35a9256bff41bb423b75af11ee5477eda9cfdb25caa2f52f
+mendeley::PROJ_3973,14,test,at_risk,1,"[""cpi""]",False,90407fd2b1c80dbc4be7c035d529b2218036468862b6219ab7198e7b1b843c5d,bcc1ac9680ba992f98a95b2351005a0475017ac86e4ce9bafe9d6694bddfaffc
+mendeley::PROJ_2414,15,test,at_risk,1,"[""planned_duration_weeks""]",False,5181b5db46cb232b32f2e7bf762377f37c17c310fb44c6582a91d7a6d6ce3464,e707c632765587fb4d2be5dc09a5f71b890cd7cb8401d41fea1729f25ee7456f
+mendeley::PROJ_3604,16,test,critical,2,"[""planned_budget"", ""planned_duration_weeks""]",False,f77b388f64e09bfe29f094718975a99c3343fe9e748e84ccc169dd59306d1ebf,58292f8dc31f0de90f1abdd506bf4a32ff67750d32d13f1a791a4efe1c67f4f4
+mendeley::PROJ_0953,17,test,critical,3,"[""cpi"", ""planned_duration_weeks"", ""true_progress""]",True,0a4c0b3151e3e2ed5e7945e2f8dfd09714018b4b3475755068b7a76e6590f999,a3ed9d08e63e7a2fe26a3a75f33da264c1dd66a9c1214db8d4ff6fc6015b8fd0
+mendeley::PROJ_3737,18,test,at_risk,1,"[""cpi""]",True,99e8477d072e95c44461eb8c3ee27113c065eb75f1cab3a3839fa2e4be86589d,dd65363025a23fe34427036dde4ab1b3319ef3092ed6d3fc3ebfd9562ad451dd
+mendeley::PROJ_2856,19,test,at_risk,1,"[""planned_budget""]",False,d9c2875e68b7b9d8e1570db71f47de4be0a70b57cebbddac953a3fb8bb6c9d2b,328e74628db61ad32abe64c1a58f763316b295f3505ff654576374f415bd9b28
+mendeley::PROJ_3967,20,test,at_risk,2,"[""cpi"", ""true_progress""]",False,f1c19cab5ca45bdfb48f9654754651307d73d923d859b077aa9ab0ae1c84cd8f,c37520384b3271051c2916ea209f8607b3230b9c42f76e2bf4177e8ab79425b4
+mendeley::PROJ_0556,21,test,critical,1,"[""planned_budget""]",True,0ed1fa4f9a19d5ef1de7c16643f479c5368ad4fbaa212b50114ae66ac57f41ea,7899bbf515df2f4d87c62cfde7916aa97688c564ea0e16a8e2955808e49e60b4
+mendeley::PROJ_1660,22,test,at_risk,1,"[""planned_duration_weeks""]",False,4baad4d77679ae3f8debd35a7f894e34666c9a03749165f1e300db5d70e4509e,c39f5eac8ebbd1b2485be2964d2d2b141c1fec41a62bfa461eca16303cfdc746
+mendeley::PROJ_1293,23,test,at_risk,1,"[""planned_budget""]",False,be2488cc374aa6fea3935b336e5feead5725a6cfb8eb22220e406604e8a58f80,f95ce04556d018b231cf1eafb11bb5155dd67b5c2dbfc1a5336856e97d08a616
+mendeley::PROJ_0927,24,test,at_risk,1,"[""cpi""]",False,7d91e39d75902dd29ff988794d0518a6b6fd414000a281412c4228b368acdd5a,d4d22c94a81e5aa11c098939af989eb2ed0e5f8dc429f319df7865d06fc09412
+mendeley::PROJ_2892,25,test,at_risk,1,"[""cpi""]",False,e4b5b3975a675573fb3f70c3859847316f343348663e6ec996e7fa971b8cf0d3,813e8d2d5b1469f8066969e9a940fd27d757babd18123c5dc8a283b8f2c0806b
+mendeley::PROJ_1789,26,test,at_risk,1,"[""cpi""]",False,f17368e623154a55526e86ae49c0841b6ecd3080480d8e8d26591aa67d0b41b9,a5a0f5dc6d2ba6c272ac6c2eaf2f7645730ec7e93d14f2d12756c1b8545aaba7
+mendeley::PROJ_2399,27,test,critical,2,"[""cpi"", ""planned_budget"", ""planned_duration_weeks""]",False,2fc2e0ab2fae6e07541f596fb370bd859326919cff651e37ba180638489dfd24,9299485c8256cd16905ade834b860c098d1c1a4d4f4b00f2814f8aeb2de3ed24
+mendeley::PROJ_0211,28,test,at_risk,1,"[""cpi""]",False,ddd1e7cfb6bcf8068fd20f993888bf4c5fa584e88a5cf3936c2fc07accd3793d,943c37120939a8617fb86063feb63e4d1c7ba402f78a020cf729463a80b00048
+mendeley::PROJ_3837,29,test,critical,2,"[""cpi"", ""planned_budget"", ""planned_duration_weeks""]",False,aea0f516adc56f7c8b5b1f126f2c3b46571204856ff4beeef8120526bb472e94,2d5c6a7233693d4fb4f0d660236d06a4a3d59270187e9a39ada2ea842826d5d1
+mendeley::PROJ_3183,30,test,at_risk,1,"[""planned_duration_weeks""]",False,687fa548657c0b5623ebd0e2abf7438d3f7d530b03819183c1d92d674bd5b42c,f8a30bb63b387028d9ccaa8a6d7652a61c87dc0f7b8fa8f9bda02b509795bb3b

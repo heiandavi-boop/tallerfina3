@@ -1,0 +1,539 @@
+{
+  "cases": 30,
+  "configuration_differences": [
+    {
+      "parameter": "think",
+      "reason": "GPT-OSS no permite desactivar el razonamiento: con think=false Ollama devuelve contenido vacío. Se usa el nivel mínimo admitido (low).",
+      "values": {
+        "gpt-oss:20b": "low",
+        "qwen3:8b": false
+      }
+    },
+    {
+      "parameter": "num_predict",
+      "reason": "Mismo presupuesto; en GPT-OSS incluye los tokens de razonamiento, lo que reduce el margen de salida visible.",
+      "values": {
+        "gpt-oss:20b": 1200,
+        "qwen3:8b": 1200
+      }
+    },
+    {
+      "parameter": "tokenizer",
+      "reason": "El mismo prompt produce distinto número de tokens de entrada; los tokens/s no son directamente equivalentes.",
+      "values": {
+        "gpt-oss:20b": "propio",
+        "qwen3:8b": "propio"
+      }
+    },
+    {
+      "parameter": "prompt",
+      "reason": "No se adapta el prompt por modelo para preservar la igualdad de condiciones.",
+      "values": {
+        "gpt-oss:20b": "idéntico (incluye la directiva /no_think de Qwen)",
+        "qwen3:8b": "idéntico (incluye la directiva /no_think de Qwen)"
+      }
+    }
+  ],
+  "decision": {
+    "defensible": false,
+    "defensible_margin": 0.03,
+    "evidence_complete": true,
+    "margin": 0.006033,
+    "normalization": {
+      "actionability": "Media de actionability_rate, priority_valid_rate y follow_up_verifiable_rate.",
+      "grounding": "Tasa de respuestas aceptadas por el validador (grounded_rate).",
+      "json_compliance": "Media de json_valid_rate y schema_valid_rate.",
+      "latency": "Mediana más rápida / mediana del modelo (1.0 = más rápido).",
+      "repeatability": "Proporción de casos repetidos con igual aceptación, señales citadas y prioridades en todas las repeticiones.",
+      "robustness": "1 − tasa de fallos operativos (timeout, indisponibilidad, HTTP) en corridas principal y de repetición."
+    },
+    "ranking": [
+      "gpt-oss:20b",
+      "qwen3:8b"
+    ],
+    "reasons": [
+      "La diferencia ponderada (0.006) es menor que el margen defendible (0.03).",
+      "El ganador cambia en el análisis de sensibilidad: sin_latencia, latency_-50%."
+    ],
+    "scores": {
+      "gpt-oss:20b": {
+        "actionability": 0.988889,
+        "grounding": 0.966667,
+        "json_compliance": 1.0,
+        "latency": 1.0,
+        "repeatability": 1.0,
+        "robustness": 1.0
+      },
+      "qwen3:8b": {
+        "actionability": 1.0,
+        "grounding": 1.0,
+        "json_compliance": 1.0,
+        "latency": 0.811888,
+        "repeatability": 1.0,
+        "robustness": 1.0
+      }
+    },
+    "sensitivity": [
+      {
+        "scenario": "base",
+        "totals": {
+          "gpt-oss:20b": 0.987222,
+          "qwen3:8b": 0.981189
+        },
+        "weights": {
+          "actionability": 0.25,
+          "grounding": 0.3,
+          "json_compliance": 0.15,
+          "latency": 0.1,
+          "repeatability": 0.1,
+          "robustness": 0.1
+        },
+        "winner": "gpt-oss:20b"
+      },
+      {
+        "scenario": "pesos_iguales",
+        "totals": {
+          "gpt-oss:20b": 0.992593,
+          "qwen3:8b": 0.968648
+        },
+        "weights": {
+          "actionability": 0.166667,
+          "grounding": 0.166667,
+          "json_compliance": 0.166667,
+          "latency": 0.166667,
+          "repeatability": 0.166667,
+          "robustness": 0.166667
+        },
+        "winner": "gpt-oss:20b"
+      },
+      {
+        "scenario": "sin_latencia",
+        "totals": {
+          "gpt-oss:20b": 0.985802,
+          "qwen3:8b": 1.0
+        },
+        "weights": {
+          "actionability": 0.277778,
+          "grounding": 0.333333,
+          "json_compliance": 0.166667,
+          "latency": 0.0,
+          "repeatability": 0.111111,
+          "robustness": 0.111111
+        },
+        "winner": "qwen3:8b"
+      },
+      {
+        "scenario": "latencia_x2",
+        "totals": {
+          "gpt-oss:20b": 0.988384,
+          "qwen3:8b": 0.965798
+        },
+        "weights": {
+          "actionability": 0.227273,
+          "grounding": 0.272727,
+          "json_compliance": 0.136364,
+          "latency": 0.181818,
+          "repeatability": 0.090909,
+          "robustness": 0.090909
+        },
+        "winner": "gpt-oss:20b"
+      },
+      {
+        "scenario": "grounding_+50%",
+        "totals": {
+          "gpt-oss:20b": 0.984541,
+          "qwen3:8b": 0.983642
+        },
+        "weights": {
+          "actionability": 0.217391,
+          "grounding": 0.391304,
+          "json_compliance": 0.130435,
+          "latency": 0.086957,
+          "repeatability": 0.086957,
+          "robustness": 0.086957
+        },
+        "winner": "gpt-oss:20b"
+      },
+      {
+        "scenario": "grounding_-50%",
+        "totals": {
+          "gpt-oss:20b": 0.99085,
+          "qwen3:8b": 0.977869
+        },
+        "weights": {
+          "actionability": 0.294118,
+          "grounding": 0.176471,
+          "json_compliance": 0.176471,
+          "latency": 0.117647,
+          "repeatability": 0.117647,
+          "robustness": 0.117647
+        },
+        "winner": "gpt-oss:20b"
+      },
+      {
+        "scenario": "actionability_+50%",
+        "totals": {
+          "gpt-oss:20b": 0.987407,
+          "qwen3:8b": 0.983279
+        },
+        "weights": {
+          "actionability": 0.333333,
+          "grounding": 0.266667,
+          "json_compliance": 0.133333,
+          "latency": 0.088889,
+          "repeatability": 0.088889,
+          "robustness": 0.088889
+        },
+        "winner": "gpt-oss:20b"
+      },
+      {
+        "scenario": "actionability_-50%",
+        "totals": {
+          "gpt-oss:20b": 0.986984,
+          "qwen3:8b": 0.978501
+        },
+        "weights": {
+          "actionability": 0.142857,
+          "grounding": 0.342857,
+          "json_compliance": 0.171429,
+          "latency": 0.114286,
+          "repeatability": 0.114286,
+          "robustness": 0.114286
+        },
+        "winner": "gpt-oss:20b"
+      },
+      {
+        "scenario": "json_compliance_+50%",
+        "totals": {
+          "gpt-oss:20b": 0.988114,
+          "qwen3:8b": 0.982501
+        },
+        "weights": {
+          "actionability": 0.232558,
+          "grounding": 0.27907,
+          "json_compliance": 0.209302,
+          "latency": 0.093023,
+          "repeatability": 0.093023,
+          "robustness": 0.093023
+        },
+        "winner": "gpt-oss:20b"
+      },
+      {
+        "scenario": "json_compliance_-50%",
+        "totals": {
+          "gpt-oss:20b": 0.986186,
+          "qwen3:8b": 0.979664
+        },
+        "weights": {
+          "actionability": 0.27027,
+          "grounding": 0.324324,
+          "json_compliance": 0.081081,
+          "latency": 0.108108,
+          "repeatability": 0.108108,
+          "robustness": 0.108108
+        },
+        "winner": "gpt-oss:20b"
+      },
+      {
+        "scenario": "latency_+50%",
+        "totals": {
+          "gpt-oss:20b": 0.987831,
+          "qwen3:8b": 0.973127
+        },
+        "weights": {
+          "actionability": 0.238095,
+          "grounding": 0.285714,
+          "json_compliance": 0.142857,
+          "latency": 0.142857,
+          "repeatability": 0.095238,
+          "robustness": 0.095238
+        },
+        "winner": "gpt-oss:20b"
+      },
+      {
+        "scenario": "latency_-50%",
+        "totals": {
+          "gpt-oss:20b": 0.98655,
+          "qwen3:8b": 0.990099
+        },
+        "weights": {
+          "actionability": 0.263158,
+          "grounding": 0.315789,
+          "json_compliance": 0.157895,
+          "latency": 0.052632,
+          "repeatability": 0.105263,
+          "robustness": 0.105263
+        },
+        "winner": "qwen3:8b"
+      },
+      {
+        "scenario": "robustness_+50%",
+        "totals": {
+          "gpt-oss:20b": 0.987831,
+          "qwen3:8b": 0.982085
+        },
+        "weights": {
+          "actionability": 0.238095,
+          "grounding": 0.285714,
+          "json_compliance": 0.142857,
+          "latency": 0.095238,
+          "repeatability": 0.095238,
+          "robustness": 0.142857
+        },
+        "winner": "gpt-oss:20b"
+      },
+      {
+        "scenario": "robustness_-50%",
+        "totals": {
+          "gpt-oss:20b": 0.98655,
+          "qwen3:8b": 0.980199
+        },
+        "weights": {
+          "actionability": 0.263158,
+          "grounding": 0.315789,
+          "json_compliance": 0.157895,
+          "latency": 0.105263,
+          "repeatability": 0.105263,
+          "robustness": 0.052632
+        },
+        "winner": "gpt-oss:20b"
+      },
+      {
+        "scenario": "repeatability_+50%",
+        "totals": {
+          "gpt-oss:20b": 0.987831,
+          "qwen3:8b": 0.982085
+        },
+        "weights": {
+          "actionability": 0.238095,
+          "grounding": 0.285714,
+          "json_compliance": 0.142857,
+          "latency": 0.095238,
+          "repeatability": 0.142857,
+          "robustness": 0.095238
+        },
+        "winner": "gpt-oss:20b"
+      },
+      {
+        "scenario": "repeatability_-50%",
+        "totals": {
+          "gpt-oss:20b": 0.98655,
+          "qwen3:8b": 0.980199
+        },
+        "weights": {
+          "actionability": 0.263158,
+          "grounding": 0.315789,
+          "json_compliance": 0.157895,
+          "latency": 0.105263,
+          "repeatability": 0.052632,
+          "robustness": 0.105263
+        },
+        "winner": "gpt-oss:20b"
+      }
+    ],
+    "significance": {
+      "first_model": "qwen3:8b",
+      "only_first": 1,
+      "only_second": 0,
+      "p_value": 1.0,
+      "second_model": "gpt-oss:20b",
+      "test": "McNemar exacto sobre aceptación pareada (30 casos)"
+    },
+    "stable_under_sensitivity": false,
+    "totals": {
+      "gpt-oss:20b": 0.987222,
+      "qwen3:8b": 0.981189
+    },
+    "weights": {
+      "actionability": 0.25,
+      "grounding": 0.3,
+      "json_compliance": 0.15,
+      "latency": 0.1,
+      "repeatability": 0.1,
+      "robustness": 0.1
+    },
+    "weights_sum": 1.0,
+    "winner": null
+  },
+  "evaluation_type": "Indicadores automáticos del validador determinista de PRUNIN; sin evaluación semántica humana.",
+  "experiment_id": "qwen_vs_gptoss_2026",
+  "finished_utc": "2026-11-19T04:34:58+00:00",
+  "generation_parameters": {
+    "execution": "secuencial; un solo modelo residente en memoria",
+    "format": "JSON schema forzado (action_response_schema)",
+    "num_predict": 1200,
+    "prompt_builder": "prunin_ai.api.recommendations.build_grounded_prompt",
+    "stream": false,
+    "temperature": 0.1,
+    "think": {
+      "gpt-oss:20b": "low",
+      "qwen3:8b": false
+    },
+    "timeout_seconds": 180.0,
+    "validator": "prunin_ai.api.recommendations.validate_generated_payload",
+    "warmup": "1 llamada por modelo excluida de las métricas"
+  },
+  "hardware": {
+    "chip": "Apple M5 Pro",
+    "logical_cpu_count": 15,
+    "machine": "arm64",
+    "memory_gb": 24.0,
+    "platform": "macOS-27.2.1-arm64-arm-64bit",
+    "python_version": "3.12.15"
+  },
+  "models": {
+    "gpt-oss:20b": {
+      "display_name": "GPT-OSS 20B",
+      "metadata": {
+        "architecture": "gptoss",
+        "capabilities": [
+          "completion",
+          "tools",
+          "thinking"
+        ],
+        "context_length": 131072,
+        "digest": "17052f91a42e97930aa6e28a6c6c06a983e6a58dbb00434885a0cf5313e376f7",
+        "expert_count": 32,
+        "experts_used": 4,
+        "family": "gptoss",
+        "format": "gguf",
+        "modified_at": "2026-08-23T14:10:37.769923299-05:00",
+        "name": "gpt-oss:20b",
+        "parameter_count": 20914757184,
+        "parameter_size": "20.9B",
+        "quantization_level": "MXFP4",
+        "size_bytes": 13793441244
+      },
+      "metrics": {
+        "accepted": 29,
+        "accepted_rate": 0.966667,
+        "actionability_rate": 1.0,
+        "completion_tokens_mean": 144.733333,
+        "contradiction_rate": 0.0,
+        "failure_codes": {
+          "invalid_evidence_provenance": 1
+        },
+        "failures": 1,
+        "follow_up_verifiable_rate": 0.966667,
+        "grounded_rate": 0.966667,
+        "json_valid_rate": 1.0,
+        "latency_ms_max": 13373.41,
+        "latency_ms_mean": 7595.446667,
+        "latency_ms_median": 6972.545,
+        "latency_ms_p95": 10574.935,
+        "operational_error_rate": 0.0,
+        "priority_valid_rate": 1.0,
+        "repeatability": {
+          "cases": 5,
+          "consistent_case_rate": 1.0,
+          "identical_response_rate": 0.2,
+          "outcome_agreement_rate": 1.0,
+          "repeats_per_case": 3
+        },
+        "requests_main": 30,
+        "requests_repeat": 15,
+        "schema_valid_rate": 1.0,
+        "thinking_chars_mean": 77.866667,
+        "timeouts": 0,
+        "tokens_per_second": 30.936125,
+        "unsupported_numeric_claim_rate": 0.0
+      },
+      "resources": {
+        "context_length": 4096,
+        "resident_size_bytes": 12728076860,
+        "resident_vram_bytes": 12728076860
+      },
+      "think": "low",
+      "warmup": {
+        "failure_code": null,
+        "latency_ms": 13226.18,
+        "load_duration_ns": 6508941875,
+        "model": "gpt-oss:20b",
+        "timestamp_utc": "2026-11-19T04:29:26+00:00",
+        "unloaded_before": [
+          "qwen3:8b"
+        ]
+      }
+    },
+    "qwen3:8b": {
+      "display_name": "Qwen3 8B",
+      "metadata": {
+        "architecture": "qwen3",
+        "capabilities": [
+          "completion",
+          "tools",
+          "thinking"
+        ],
+        "context_length": 40960,
+        "digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+        "family": "qwen3",
+        "format": "gguf",
+        "modified_at": "2026-10-08T20:21:11.251055496-05:00",
+        "name": "qwen3:8b",
+        "parameter_count": 8190735360,
+        "parameter_size": "8.2B",
+        "quantization_level": "Q4_K_M",
+        "size_bytes": 5225388164
+      },
+      "metrics": {
+        "accepted": 30,
+        "accepted_rate": 1.0,
+        "actionability_rate": 1.0,
+        "completion_tokens_mean": 211.033333,
+        "contradiction_rate": 0.0,
+        "failure_codes": {},
+        "failures": 0,
+        "follow_up_verifiable_rate": 1.0,
+        "grounded_rate": 1.0,
+        "json_valid_rate": 1.0,
+        "latency_ms_max": 21254.66,
+        "latency_ms_mean": 10938.078333,
+        "latency_ms_median": 8588.065,
+        "latency_ms_p95": 20974.249,
+        "operational_error_rate": 0.0,
+        "priority_valid_rate": 1.0,
+        "repeatability": {
+          "cases": 5,
+          "consistent_case_rate": 1.0,
+          "identical_response_rate": 0.8,
+          "outcome_agreement_rate": 1.0,
+          "repeats_per_case": 3
+        },
+        "requests_main": 30,
+        "requests_repeat": 15,
+        "schema_valid_rate": 1.0,
+        "thinking_chars_mean": 0.0,
+        "timeouts": 0,
+        "tokens_per_second": 23.0837,
+        "unsupported_numeric_claim_rate": 0.0
+      },
+      "resources": {
+        "context_length": 4096,
+        "resident_size_bytes": 5919872122,
+        "resident_vram_bytes": 5919872122
+      },
+      "think": false,
+      "warmup": {
+        "failure_code": null,
+        "latency_ms": 12362.0,
+        "load_duration_ns": 2329192875,
+        "model": "qwen3:8b",
+        "timestamp_utc": "2026-11-19T04:20:41+00:00",
+        "unloaded_before": [
+          "qwen3:8b"
+        ]
+      }
+    }
+  },
+  "ollama_version": "0.33.2",
+  "repeat_case_ids": [
+    "mendeley::PROJ_0953",
+    "mendeley::PROJ_3737",
+    "mendeley::PROJ_0840",
+    "mendeley::PROJ_0556",
+    "mendeley::PROJ_1238"
+  ],
+  "repeats": 3,
+  "simulated": false,
+  "started_utc": "2026-11-19T04:20:29+00:00"
+}

@@ -14,14 +14,14 @@ python scripts/evaluate_genai.py \
   --cases 30 --output reports/genai/evidence-v2-evaluation-run1.json
 ```
 
-Requiere Ollama y el modelo solicitado disponibles. El timeout viene de `PRUNIN_OLLAMA_TIMEOUT_SECONDS` (default 30 s), o puede reemplazarse con `--timeout`. Si Ollama no está activo, el script genera `status=unavailable` y termina sin inventar métricas. Una evaluación completa escribe JSON y CSV bajo `reports/genai/`.
+Requiere Ollama y el modelo solicitado disponibles. El timeout viene de `PRUNIN_OLLAMA_TIMEOUT_SECONDS` (default 90 s), o puede reemplazarse con `--timeout`. Si Ollama no está activo, el script genera `status=unavailable` y termina sin inventar métricas. Una evaluación completa escribe JSON y CSV bajo `reports/genai/`.
 
 Comprobación local de integración, incluido API status y una generación grounded:
 
 ```bash
 export PRUNIN_ENABLE_OLLAMA=1
 export PRUNIN_OLLAMA_MODEL=qwen3:8b
-export PRUNIN_OLLAMA_TIMEOUT_SECONDS=30
+export PRUNIN_OLLAMA_TIMEOUT_SECONDS=90
 ./scripts/preflight_genai.sh
 ```
 
@@ -77,6 +77,35 @@ Son 29 respuestas aceptadas y una rechazada por cifra no soportada. Schema/featu
 `scripts/benchmark_genai_candidates.py` ejecuta 30 casos TEST comunes para cada tag Ollama instalado, usando el mismo `build_grounded_prompt`, `generate_ollama_grounded`/validador, JSON, temperatura 0.1, timeout y hardware de la corrida. No descarga modelos. El reporte comparativo generado en este cierre está en `reports/genai/comparison/`; su estado `partial` indica Qwen disponible y Gemma/Ministral `not_available`. Sus métricas pertenecen a una nueva corrida y no reemplazan el resultado oficial descrito arriba.
 
 `scripts/benchmark_genai_concurrency.py` ejecutó 30 casos por nivel en esta máquina. Resultado: éxito 96.67/93.33/73.33/36.67 %, timeout 0/0/26.67/63.33 %, p50 6256.955/12305.81/28567.37/30002.805 ms, p95 15337.88/23252.48/30003.31/30005.73 ms y throughput 0.1335/0.1402/0.1475/0.2499 req/s para concurrencia 1/2/4/8. Se observa throughput más alto junto con caída del éxito; no se infiere capacidad productiva. Tabla, hardware y datos crudos: `reports/genai/concurrency/`. Es una prueba local exploratoria, no una prueba productiva ni evidencia de escalabilidad. Si Ollama/modelo no están disponibles, los scripts registran el benchmark no ejecutado y terminan sin descargar nada.
+
+## Comparación Qwen3 8B vs. GPT-OSS 20B (2026)
+
+`scripts/run_local_model_comparison.py` amplía el benchmark anterior para dos modelos autorizados (`qwen3:8b`, `gpt-oss:20b`; cualquier otro se rechaza). Valida Ollama y los metadatos de cada modelo (digest, cuantización, tamaño, parámetros, versión) y se detiene con estado `blocked_missing_dependency` si falta alguno. Además:
+- Comprueba el aislamiento TRAIN/TEST.
+- Ejecuta secuencialmente 30 casos TEST y 5 × 3 repeticiones por modelo, con warm-up excluido.
+- Registra cada inferencia en `runs.jsonl` con SHA-256 por fila.
+- Solo marca el experimento como `complete` cuando no faltan ni sobran filas.
+
+Resultados reales (19-11-2026, Apple M5 Pro 24 GB, Ollama 0.33.2):
+
+| Indicador | Qwen3 8B | GPT-OSS 20B |
+|---|---:|---:|
+| Aceptadas (grounding) | 30/30 | 29/30 |
+| JSON / esquema válido | 100 % / 100 % | 100 % / 100 % |
+| Cifras no soportadas / contradicciones | 0 % / 0 % | 0 % / 0 % |
+| Accionabilidad / prioridad / seguimiento verificable | 100 / 100 / 100 % | 100 / 100 / 96,7 % |
+| Latencia mediana / p95 | 8,6 s / 21,0 s | 7,0 s / 10,6 s |
+| Timeouts / fallos operativos | 0 / 0 | 0 / 0 |
+| Repetibilidad (casos consistentes) | 100 % | 100 % |
+| Puntaje ponderado | 0,981 | 0,987 |
+
+**Interpretación crítica:**
+- La diferencia de aceptación (un único rechazo de GPT-OSS por procedencia de evidencia) no es significativa (McNemar exacto, p = 1,0).
+- La ventaja ponderada de GPT-OSS (0,006) proviene únicamente de la latencia y desaparece si se elimina ese criterio. Por eso no hay ganador defendible.
+- GPT-OSS reduce la cola de latencia (p95/mediana 1,52 frente a 2,44), pero duplica la memoria residente (11,9 frente a 5,5 GB) y varía más el texto entre repeticiones (20 % frente a 80 % de respuestas idénticas). Aun así, en ambos modelos se mantienen la aceptación, las señales y las prioridades.
+- Todos los indicadores son automáticos: el validador mide adherencia al contrato de evidencia, no utilidad gerencial, y no hubo evaluación semántica humana.
+
+Evidencia: [informe](../reports/genai/qwen_vs_gptoss_2026/comparison_report.md), [análisis crítico](../reports/genai/qwen_vs_gptoss_2026/critical_analysis.md) y [matriz](../reports/genai/qwen_vs_gptoss_2026/decision_matrix.csv). El frontend muestra estos resultados en **Comparación de modelos IA** mediante `GET /api/genai-comparison`, un endpoint de solo lectura que valida las huellas y nunca ejecuta inferencias.
 
 ## Eficiencia humana pendiente
 

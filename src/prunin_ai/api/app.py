@@ -18,6 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
+from ..genai_comparison import load_public_comparison
 from .catalog import PRESETS
 from .model_runtime import ModelRuntime, ROOT, unused_what_if_changes
 from .recommendations import build_recommendations, check_ollama_status, recommendations_not_requested, warmup_ollama
@@ -58,6 +59,7 @@ async def require_api_token(request: Request, call_next):
 
 runtime = ModelRuntime()
 logger = logging.getLogger("prunin.inference")
+GENAI_COMPARISON_DIR = ROOT / "reports" / "genai" / "qwen_vs_gptoss_2026"
 
 
 def serialize(value: Any):
@@ -166,6 +168,12 @@ def genai_status():
 @app.get("/api/genai-providers")
 def genai_providers():
     return {"ollama": check_ollama_status()}
+
+
+@app.get("/api/genai-comparison")
+def genai_comparison():
+    # Read-only view of a previously generated and validated experiment; never runs inference.
+    return load_public_comparison(GENAI_COMPARISON_DIR)
 
 
 @app.get("/api/monitoring")

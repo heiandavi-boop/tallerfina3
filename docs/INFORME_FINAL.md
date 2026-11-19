@@ -110,7 +110,7 @@ Se conserva Qwen por ejecución local, soporte de español, tamaño y compatibil
 
 El prompt restringe la respuesta a evidencia estructurada; el validador exige esquema JSON, features permitidas y ausencia de cifras nuevas no soportadas. Timeout, JSON inválido o evidencia no admitida activan fallback sin retirar la predicción ML. La trazabilidad distingue intento y uso GenAI, motor, error y tiempos. Groundedness es un proxy determinístico de ingeniería, no prueba de verdad semántica; una frase aceptada todavía puede ser incorrecta o poco útil. Se requiere revisión humana.
 
-Comparación ampliada de idioma, licencia, hardware, contexto y compatibilidad: `docs/genai_model_selection.md`. La selección operacional entre proveedores se describe en [ai_providers.md](ai_providers.md). Las credenciales y los datos enviados a la API deben cumplir las restricciones de acceso y tratamiento expuestas en [ethics_security.md](ethics_security.md). Las fichas de Google DeepMind (s. f.-a, s. f.-b) y Mistral AI (s. f.-a, s. f.-b) permiten comparar alternativas documentalmente; no se instalaron ni evaluaron otros modelos en este cierre.
+Comparación ampliada de idioma, licencia, hardware, contexto y compatibilidad: `docs/genai_model_selection.md`. La selección operacional entre proveedores se describe en [ai_providers.md](ai_providers.md). Las credenciales y los datos enviados a la API deben cumplir las restricciones de acceso y tratamiento expuestas en [ethics_security.md](ethics_security.md). Las fichas de Google DeepMind (s. f.-a, s. f.-b) y Mistral AI (s. f.-a, s. f.-b) permiten comparar alternativas documentalmente; Gemma y Ministral no se evaluaron. GPT-OSS 20B sí se comparó experimentalmente con Qwen3 8B (sección 17.5).
 
 ## 15. Automatización
 
@@ -208,6 +208,31 @@ En la repetibilidad, las respuestas fueron idénticas en las tres ejecuciones de
 
 
 La diferencia con la Tabla 2 (29/30 aceptadas y mediana de 3,1 s) se debe a otra fecha, otro contrato de salida y otra carga del equipo. La evaluación histórica se conserva sin cambios. Estas cifras se conservan como evidencia experimental descrita en el informe; el reporte externo de comparación de proveedores se retiró de la versión vigente del repositorio.
+
+### 17.5 Comparación experimental Qwen3 8B vs. GPT-OSS 20B (2026)
+
+Para sustentar la elección del modelo generativo se compararon dos arquitecturas locales distintas:
+- **Qwen3 8B**: transformer denso, Q4_K_M.
+- **GPT-OSS 20B**: mezcla de expertos con 4 de 32 expertos activos por token, MXFP4.
+
+Ambas recibieron los mismos 30 casos TEST, prompt, esquema, validador, temperatura 0,1 y presupuesto de 1200 tokens, en un Apple M5 Pro de 24 GB con Ollama 0.33.2. La ejecución fue secuencial e incluyó 5 casos × 3 repeticiones por modelo. GPT-OSS requirió `think=low` porque no admite desactivar el razonamiento.
+
+**Tabla 2c. Comparación automática (`reports/genai/qwen_vs_gptoss_2026/`).**
+
+| Indicador | Qwen3 8B | GPT-OSS 20B |
+|---|---:|---:|
+| Aceptadas / JSON válido | 30/30 · 100 % | 29/30 · 100 % |
+| Cifras no soportadas / contradicciones / timeouts | 0 / 0 / 0 | 0 / 0 / 0 |
+| Latencia mediana / p95 | 8588 / 20974 ms | 6973 / 10575 ms |
+| Memoria residente | 5,5 GB | 11,9 GB |
+| Repetibilidad (casos consistentes / textos idénticos) | 100 % / 80 % | 100 % / 20 % |
+| Puntaje ponderado (grounding 30, accionabilidad 25, JSON 15, latencia 10, robustez 10, repetibilidad 10) | 0,981 | 0,987 |
+
+![Matriz de decisión](../reports/genai/qwen_vs_gptoss_2026/charts/decision_matrix.png)
+
+La diferencia ponderada (0,006) no alcanza el margen defendible de 0,03 y se invierte al eliminar la latencia. McNemar exacto sobre la aceptación pareada da p = 1,0. Por tanto, **no se declara un ganador**.
+
+PRUNIN mantiene Qwen3 8B por continuidad, cero rechazos y menor memoria residente. GPT-OSS 20B queda documentado como alternativa más rápida si la latencia se vuelve prioritaria. Todos los indicadores son automáticos; no hubo evaluación semántica humana. Detalle, riesgos y amenazas a la validez: [informe](../reports/genai/qwen_vs_gptoss_2026/comparison_report.md) y [análisis crítico](../reports/genai/qwen_vs_gptoss_2026/critical_analysis.md).
 
 ## 18. Evaluación temporal
 
@@ -314,7 +339,7 @@ Es una demostración de ciclo completo, no un reentrenamiento continuo con datos
 
 ## 22. Limitaciones
 
-Los datos son sintéticos; por tanto, el cumplimiento del KPI es experimental y no empresarial. El desbalance afecta Health, la detección exacta de Critical es incompleta, Delay apenas mejora la mediana y Cost depende del generador EVM. La evaluación temprana tiene cobertura desigual. La fusión no está calibrada; drivers no son causales. El benchmark GenAI es pequeño y condicionado; sus validadores son proxies. La comparación empírica exhaustiva entre alternativas locales aún está pendiente; Qwen es el modelo con métricas completas. Docker CLI está instalada pero sin daemon local y no existe contexto Kubernetes; CI sí construyó y ejecutó el smoke test demo. El benchmark HTTP de una instancia mantuvo 100 % de éxito con 1/4/8/16 concurrencias, pero el p95 aumentó de 81 ms a 954 ms y el throughput se estabilizó alrededor de 23–24 req/s; no se probó caída de pod ni balanceo. No hay baseline humano ni validación empresarial. El protocolo humano se dejó preparado con plantilla vacía, sin resultados. La prueba manual balanceada de 99 filas comunicada por el autor no tiene resultados estructurados versionados identificados: no se incorpora como métrica oficial.
+Los datos son sintéticos; por tanto, el cumplimiento del KPI es experimental y no empresarial. El desbalance afecta Health, la detección exacta de Critical es incompleta, Delay apenas mejora la mediana y Cost depende del generador EVM. La evaluación temprana tiene cobertura desigual. La fusión no está calibrada; drivers no son causales. El benchmark GenAI es pequeño y condicionado; sus validadores son proxies. La comparación empírica cubre dos alternativas locales (Qwen3 8B y GPT-OSS 20B), sin ganador defendible y sin evaluación humana; no es exhaustiva. Docker CLI está instalada pero sin daemon local y no existe contexto Kubernetes; CI sí construyó y ejecutó el smoke test demo. El benchmark HTTP de una instancia mantuvo 100 % de éxito con 1/4/8/16 concurrencias, pero el p95 aumentó de 81 ms a 954 ms y el throughput se estabilizó alrededor de 23–24 req/s; no se probó caída de pod ni balanceo. No hay baseline humano ni validación empresarial. El protocolo humano se dejó preparado con plantilla vacía, sin resultados. La prueba manual balanceada de 99 filas comunicada por el autor no tiene resultados estructurados versionados identificados: no se incorpora como métrica oficial.
 
 ## 23. Conclusiones
 
@@ -322,7 +347,7 @@ La promesa principal se cumple **dentro del entorno experimental** cuando se mid
 
 Health ofrece señal multiclase útil en este benchmark: Macro F1 0.627576 frente a 0.277940 del baseline, aunque solo recupera 25 de 44 critical. Delay es el componente predictivo más débil: mejorar MAE de 27.850313 a 27.710468 días no respalda una promesa de precisión alta. Cost funciona muy bien internamente (R² 0.991816), con dependencia estructural CPI/progreso–outcome que impide extrapolar el rendimiento empresarial.
 
-El desempeño Health temprano mejora entre 20 y 80 % de avance, con cobertura de 236 a 599 proyectos; no demuestra anticipación universal. La evaluación histórica oficial de Qwen tuvo 29/30 respuestas aceptadas; una comparación posterior aceptó 30/30 en cada uno de dos modos, pero su utilidad profesional no está establecida. El rechazo histórico de una cifra no soportada muestra por qué los guardrails son necesarios; grounding sigue siendo un proxy.
+El desempeño Health temprano mejora entre 20 y 80 % de avance, con cobertura de 236 a 599 proyectos; no demuestra anticipación universal. La evaluación histórica oficial de Qwen tuvo 29/30 respuestas aceptadas; una comparación posterior aceptó 30/30 en cada uno de dos modos, pero su utilidad profesional no está establecida. Frente a GPT-OSS 20B, en los mismos 30 casos, la matriz multicriterio mostró un empate técnico (0,981 frente a 0,987), así que Qwen se mantiene por continuidad y menor memoria, no por superioridad demostrada. El rechazo histórico de una cifra no soportada muestra por qué los guardrails son necesarios; grounding sigue siendo un proxy.
 
 El aporte es una arquitectura que separa predicción, heurísticas y explicación con trazabilidad. La naturaleza sintética limita generalización; la eficiencia operacional local está cuantificada, pero no hay estudio controlado de usuarios ni validación prospectiva con proyectos reales. Se sostiene un prototipo académico reproducible para entrega y sustentación, no una solución productiva validada.
 

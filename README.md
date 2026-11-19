@@ -57,7 +57,18 @@ Concurrencia local, 30 casos por nivel: éxito 96.67/93.33/73.33/36.67 % en 1/2/
 
 La sección de acciones convierte señales permitidas en tarjetas con prioridad, acción, justificación y seguimiento. Evaluación previa de acciones V3: 20 casos, `action_structure_valid_rate` y `follow_up_present_rate` 100 %, sin claims numéricos no soportados, timeouts o JSON inválido; mediana 7054.585 ms, p95 17741.41 ms. No mide utilidad humana. [Reporte y ejemplos](reports/genai/action_recommendations/README.md). La evaluación oficial Qwen anterior permanece intacta.
 
-Revisión posterior `evidence-v2`: [ocho casos diagnósticos reales](reports/audit_2026-11-08/recommendations-evidence-v2-r2.json), 8/8 aceptados con procedencia; no es una muestra held-out ni reemplaza los benchmarks anteriores. La primera corrida fallida se conserva para trazabilidad. Los scripts de evaluación rechazan destinos existentes. Gemma/Ministral siguen ausentes; el tag futuro correcto es `ministral-3:8b`. No hay comparación empírica completa ni ganador demostrado.
+Revisión posterior `evidence-v2`: [ocho casos diagnósticos reales](reports/audit_2026-11-08/recommendations-evidence-v2-r2.json), 8/8 aceptados con procedencia; no es una muestra held-out ni reemplaza los benchmarks anteriores. La primera corrida fallida se conserva para trazabilidad. Los scripts de evaluación rechazan destinos existentes. Gemma/Ministral siguen fuera de alcance.
+
+**Comparación Qwen3 8B vs. GPT-OSS 20B** ([informe](reports/genai/qwen_vs_gptoss_2026/comparison_report.md)): mismos 30 casos TEST, prompt, validador y hardware (M5 Pro 24 GB), 5 casos × 3 repeticiones. Resultados:
+
+| | Qwen3 8B | GPT-OSS 20B |
+|---|---:|---:|
+| Aceptadas | 30/30 | 29/30 |
+| Mediana / p95 | 8,6 / 21,0 s | 7,0 / 10,6 s |
+| Memoria | 5,5 GB | 11,9 GB |
+| Puntaje ponderado | 0,981 | 0,987 |
+
+Es un empate técnico: la diferencia es menor que el margen de 0,03 y McNemar da p = 1,0, así que no hay ganador defendible. Qwen sigue configurado. La vista **Comparación de modelos IA** del dashboard solo lee resultados validados. Para reproducir: `PYTHONPATH=src python scripts/run_local_model_comparison.py --models qwen3:8b gpt-oss:20b --cases 30 --repeats 3 --output-dir reports/genai/qwen_vs_gptoss_2026`.
 
 [Cierre de cuatro brechas](reports/recommendations_closure_2026-11-08/README.md): CSV bancario → análisis individual → Qwen real → JSON descargado y comparado en Chrome; también fallback real por conexión fallida. Grounding contextual reforzado y 174 tests backend/21 frontend aprobados. Modelos y resultados científicos intactos. La descarga del navegador integrado de VS Code conserva una limitación documentada.
 
