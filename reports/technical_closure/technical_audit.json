@@ -10,17 +10,35 @@
     "ollama_quantization": "Q4_K_M",
     "controlled_accepted": 30,
     "operational_accepted": 30,
-    "openai_status": "openai_key_missing",
-    "openai_calls": 0,
-    "openai_cost_usd": 0.0,
-    "openai_estimated_budget_usd": 5.0
+    "scope": "qwen_local_only_historical_run",
+    "alternative_models_compared": false
   },
   "http_concurrency": {
     "requests_per_level": 100,
-    "levels": [1, 4, 8, 16],
-    "successes": [100, 100, 100, 100],
-    "throughput_requests_per_second": [20.14, 24.14, 23.42, 23.35],
-    "p95_latency_ms": [80.98, 200.88, 457.41, 954.38],
+    "levels": [
+      1,
+      4,
+      8,
+      16
+    ],
+    "successes": [
+      100,
+      100,
+      100,
+      100
+    ],
+    "throughput_requests_per_second": [
+      20.14,
+      24.14,
+      23.42,
+      23.35
+    ],
+    "p95_latency_ms": [
+      80.98,
+      200.88,
+      457.41,
+      954.38
+    ],
     "instance_failure_tested": false
   },
   "drift_monitor": {
@@ -55,7 +73,7 @@
   "external_dependencies": {
     "docker": "blocked_by_sandbox_config_read_and_missing_daemon",
     "kubernetes": "no_context_or_cluster",
-    "openai": "key_unavailable_in_process"
+    "local_model_comparison": "other_local_candidates_not_compared"
   },
   "scientific_artifacts_modified": false
 }
