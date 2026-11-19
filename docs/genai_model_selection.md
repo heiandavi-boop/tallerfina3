@@ -12,7 +12,6 @@ La arquitectura separa los tres modelos LightGBM congelados (Health, Delay, Cost
 | Qwen3 8B | Instalado y evaluado en Ollama | Medido en dos pruebas independientes |
 | Gemma 3 4B | No disponible en la corrida de candidatos | Sin mediciones; no se atribuye rendimiento |
 | Ministral 3 8B | No disponible en la corrida de candidatos | Sin mediciones; no se atribuye rendimiento |
-| gpt-oss:20b | Detectado entre modelos locales instalados durante diagnóstico | No ejecutado en el mismo benchmark; falta comparación homogénea |
 
 Esta lista documenta alternativas posibles, no una comparación exhaustiva ejecutada. Para cerrar R6.1-Cr2 en Nivel 4 se necesita correr candidatos compatibles con el mismo conjunto de casos, formato, condiciones y validador; registrar velocidad, aceptación, contradicciones, pertinencia, consumo de recursos y repetibilidad. No mezclar mediciones con esquemas distintos.
 
