@@ -20,8 +20,8 @@ def check(root: Path) -> list[str]:
     manifest_path = comparison / "execution_manifest.json"
     productivity_path = root / "reports/human_validation/productivity_summary.json"
     rubric_path = root / "docs/RUBRICA_OFICIAL_PAIII_2026.md"
-    presentation_path = root / "docs/PRESENTACION_FINAL.md"
-    for path in (summary_path, manifest_path, productivity_path, rubric_path, presentation_path):
+    report_path = root / "docs/INFORME_FINAL.md"
+    for path in (summary_path, manifest_path, productivity_path, rubric_path, report_path):
         if not path.is_file():
             issues.append(f"Missing evidence: {path.relative_to(root)}")
     if issues:
@@ -48,7 +48,7 @@ def check(root: Path) -> list[str]:
     if set(summary.get("models", {})) != expected:
         issues.append("Benchmark summary model list is incomplete or unexpected")
     rubric = rubric_path.read_text(encoding="utf-8")
-    presentation = presentation_path.read_text(encoding="utf-8")
+    report = report_path.read_text(encoding="utf-8")
     cr2 = next((line for line in rubric.splitlines() if line.startswith("| R6.1-Cr2 |")), "")
     if "qwen_vs_gptoss_2026" not in cr2 or "DEMOSTRADO CON LIMITACIONES" not in cr2:
         issues.append("Rubric R6.1-Cr2 must cite the measured comparison and retain its limitations")
@@ -58,10 +58,11 @@ def check(root: Path) -> list[str]:
     if productivity.get("complete_participants", 0) < productivity.get("min_participants", 6):
         if productivity.get("status") != "NO MEDIDA":
             issues.append("Human productivity cannot be reported measured without sufficient participants")
-        if "Productividad humana NO MEDIDA" not in presentation:
-            issues.append("Presentation must disclose that human productivity has not been measured")
-    if "Qwen3 8B vs. GPT-OSS 20B" not in presentation:
-        issues.append("Presentation must disclose the actual paired model comparison")
+        if "Productividad humana: NO MEDIDA" not in report and "Productividad humana NO MEDIDA" not in report:
+            issues.append("Public academic report must disclose that human productivity has not been measured")
+    selection = root / "docs/genai_model_selection.md"
+    if not selection.is_file() or "Qwen3 8B vs. GPT-OSS 20B" not in selection.read_text(encoding="utf-8"):
+        issues.append("Public model selection must disclose the actual paired model comparison")
     return issues
 
 
