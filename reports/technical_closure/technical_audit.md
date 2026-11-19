@@ -27,7 +27,7 @@ Este cierre continúa en `feat/technical-closure` desde `main` sin descartar arc
 | `scripts/run_demo.sh` | Correcto; 3.200 filas / 400 proyectos sintéticos |
 | Docker local | No validado: el sandbox denegó leer `~/.docker/config.json`; además, `/var/run/docker.sock` no existe |
 | Kubernetes local | No operado; sin contexto/clúster disponible |
-| GitHub Actions | `quality` en `main` pasó en `868ea86435bde7412bcee36c0ead821f289b694f` ([run 44434927424](https://github.com/heiandavi-boop/tallerfina3/actions/runs/44434927424)); aún no valida esta rama |
+| GitHub Actions | PR [#5](https://github.com/heiandavi-boop/tallerfina3/pull/5) pasó antes del merge; `quality` también pasó en el merge commit `f77329cf9bb5973f99923cd03e54063987dd582c` ([run 44439664881](https://github.com/heiandavi-boop/tallerfina3/actions/runs/44439664881)) |
 
 El primer recorrido de la suite completa encontró un test antiguo que esperaba que una solicitud explícita llamara a Ollama con la bandera del servidor desactivada. Se actualizó el test de no mutación del entorno para ejecutarse con Ollama habilitado; la prohibición de anular la bandera queda cubierta por pruebas de seguridad. La suite completa se repitió y pasó.
 

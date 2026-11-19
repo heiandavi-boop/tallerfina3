@@ -11,7 +11,7 @@ Estado de evidencia para la entrega académica. El archivo oficial [PAIII 2026](
 | Backend | Local en esta rama: 216 passed, 1 skipped; pruebas focalizadas de los cambios: 19 passed. |
 | Dependencias/sintaxis Python | `pip check`: sin dependencias rotas; `compileall -q src scripts tests`: correcto. |
 | KPI original | `scripts/validate_original_promise.py --check`: `PROMISE VALIDATION: OK`; detección de cohorte completa al 60 %: 0.758985. |
-| CI de `main` | Workflow `quality` del commit `868ea86435bde7412bcee36c0ead821f289b694f`: success, run [44434927424](https://github.com/heiandavi-boop/tallerfina3/actions/runs/44434927424). Es anterior a los cambios actuales; el CI de esta rama queda pendiente de publicar. |
+| Publicación y CI | PR [#5](https://github.com/heiandavi-boop/tallerfina3/pull/5) pasó CI antes de fusionarse. El merge commit `f77329cf9bb5973f99923cd03e54063987dd582c` pasó `quality`, run [44439664881](https://github.com/heiandavi-boop/tallerfina3/actions/runs/44439664881). Las modificaciones documentales posteriores también deben pasar CI. |
 | Preflight demo | `RESULTADO: LISTO PARA DEMO`, artifact `0.9.0-academic`. |
 | Preflight GenAI | `RESULTADO: OLLAMA READY`; Qwen3 8B disponible durante esta corrida local. |
 | Manifiesto Kubernetes | YAML parseable y pruebas estáticas Deployment/Service/HPA/PDB, probes, recursos, no-root, rootfs read-only con `/tmp` acotado, cierre graceful y selectores. No hay `kubectl` ni cluster operado. |
@@ -70,4 +70,4 @@ La correspondencia actual con el documento institucional está en [RUBRICA_OFICI
 
 ## Veredicto
 
-Los gates locales del repositorio pasan y el proyecto está **preparado para entrega académica**, sujeto a que GitHub Actions `quality` termine `success` en el commit final publicado de `main` y a completar los pendientes humanos. No está listo para producción ni validado con empresas. El veredicto “Listo para entrega académica” solo se usa tras comprobar ese CI exacto; el resultado y SHA se verifican en el historial del repositorio, no se copian de runs anteriores.
+Los gates locales del repositorio y el workflow `quality` del merge commit registrado pasan; el proyecto está **preparado para entrega académica**, sujeto a completar los pendientes humanos y volver a validar cualquier cambio posterior en `main`. No está listo para producción ni validado con empresas. El resultado más reciente debe comprobarse en el historial del repositorio, no extrapolarse de runs anteriores.
