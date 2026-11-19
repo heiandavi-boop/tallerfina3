@@ -175,8 +175,8 @@ describe('Playground ejecutivo', () => {
   it('presenta la marca, modos principales y solo variables ML en el formulario inicial', async () => {
     await openProject();
     expect(within(screen.getByRole('banner')).getByText('PRUNIN AI Core')).toBeTruthy();
-    expect(document.querySelector('.tagline').textContent.replace(/\s+/g, ' ')).toContain('Anticipa · Explica · Recomienda · Simula');
-    expect(screen.getByRole('heading', { name: '¿Podemos detectar un proyecto en riesgo antes de que sea demasiado tarde?' })).toBeTruthy();
+    expect(screen.getByRole('navigation', { name: 'Navegación principal' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /Anticipa riesgos.*Toma mejores decisiones/i })).toBeTruthy();
     expect(screen.getByText(/Detectar tempranamente ≥75 %/)).toBeTruthy();
     expect(screen.getByText('75,9 %')).toBeTruthy();
     expect(screen.getByRole('tab', { name: 'Analizar proyecto' }).getAttribute('aria-selected')).toBe('true');
