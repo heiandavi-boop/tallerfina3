@@ -41,7 +41,7 @@ Desarrollar y evaluar un prototipo reproducible de apoyo a la gestión capaz de 
 
 ## 9. Alcance
 
-La entrega comprende un prototipo académico: Health/Delay/Cost, Final Status derivado, Team Health heurístico, CSV, What-if y generación opcional de recomendaciones mediante Ollama/Qwen3 8B u OpenAI API, según selección del usuario. Se conservan arquitectura, modelos, pesos, reglas y resultados del experimento 0.9.0-academic. No incluye nuevos modelos, infraestructura cloud, clúster activo ni validación empresarial. La documentación no equipara completitud del repositorio con acreditación automática de Nivel 4.
+La entrega comprende un prototipo académico: Health/Delay/Cost, Final Status derivado, Team Health heurístico, CSV, What-if y generación opcional de recomendaciones mediante Ollama/Qwen3 8B si el servidor habilita la generación. Se conservan arquitectura, modelos, pesos, reglas y resultados del experimento 0.9.0-academic. No incluye nuevos modelos, infraestructura cloud, clúster activo ni validación empresarial. La documentación no equipara completitud del repositorio con acreditación automática de Nivel 4.
 
 ### Canales y medios para la audiencia
 
@@ -49,7 +49,7 @@ El informe se dirige al profesor/mentor y evaluador técnico, con una lectura em
 
 ## 10. Arquitectura
 
-React/Vite envía entradas validadas a FastAPI (FastAPI, s. f.). `ModelRuntime` carga manifest, configuración y pipelines LightGBM. `PruninAcademicBrain` devuelve predicciones crudas y calcula reglas operativas independientes. El runtime añade la política de presentación de Delay. Los drivers se calculan mediante perturbaciones hacia referencias. El usuario puede seleccionar Ollama/Qwen3 8B u OpenAI API para procesar evidencia estructurada; un validador acepta o rechaza las acciones generadas. El fallback determinístico conserva disponibilidad. `/api/ready`, `/api/monitoring` y `/metrics` aportan observabilidad local. Evidencia: `src/prunin_ai/api/`, `inference/brain.py` y `frontend/src/`.
+React/Vite envía entradas validadas a FastAPI (FastAPI, s. f.). `ModelRuntime` carga manifest, configuración y pipelines LightGBM. `PruninAcademicBrain` devuelve predicciones crudas y calcula reglas operativas independientes. El runtime añade la política de presentación de Delay. Los drivers se calculan mediante perturbaciones hacia referencias. El usuario puede habilitar Ollama/Qwen3 8B para procesar evidencia estructurada; un validador acepta o rechaza las acciones generadas. El fallback determinístico conserva disponibilidad. `/api/ready`, `/api/monitoring` y `/metrics` aportan observabilidad local. Evidencia: `src/prunin_ai/api/`, `inference/brain.py` y `frontend/src/`.
 
 **Figura 1. Arquitectura híbrida implementada.**
 
@@ -65,10 +65,8 @@ flowchart LR
   L --> F
   O --> E[Evidencia estructurada]
   D --> E
-  E --> S{Proveedor de IA}
-  S -->|Local| Q[Ollama / Qwen3 8B]
-  S -->|API| G[OpenAI API]
-  G --> V[Validación de esquema y grounding]
+  E --> Q[Ollama / Qwen3 8B local]
+  Q --> V[Validación de esquema y grounding]
   Q --> V[Validación de esquema y grounding]
   V --> X[Explicación y recomendación revisables]
   V --> B[Fallback determinístico ante rechazo o fallo]
@@ -104,11 +102,11 @@ La elección de LightGBM responde al problema tabular y a la integración con pi
 
 ## 14. IA generativa
 
-La capa generativa acepta **Ollama/Qwen3 8B** (ejecución local) u **OpenAI API** (servicio externo), ambos a partir de evidencia estructurada. No predice Health, Delay ni Cost; estos modelos LightGBM permanecen congelados. CSV y What-if ejecutan ML sin generación; la generación opcional pertenece al análisis individual. El fallback `grounded_fallback` es determinístico y no se etiqueta como IA generativa.
+La capa generativa utiliza **Ollama/Qwen3 8B** en el entorno local con evidencia estructurada. No predice Health, Delay ni Cost; estos modelos LightGBM permanecen congelados. CSV y What-if ejecutan ML sin generación; la generación opcional pertenece al análisis individual. El fallback `grounded_fallback` es determinístico y no se etiqueta como IA generativa.
 
-La evaluación histórica con Qwen precede la integración de OpenAI. En una comparación posterior de 30 casos, Qwen se midió en modos controlado y operativo; OpenAI no se ejecutó porque `OPENAI_API_KEY` no estaba disponible en el proceso. Por tanto, las tasas, latencias y costos de OpenAI siguen sin medirse. La revisión local del 8 de noviembre añade el contrato `evidence-v2`: separa drivers predictivos, señales operativas observadas e indicadores heurísticos, con procedencia explícita. La ausencia de drivers positivos no descarta desviaciones observadas. Las reglas configuradas son triggers heurísticos de revisión, no aprendidos de TEST; no alteran las predicciones congeladas. La corrida diagnóstica independiente de ocho casos con Qwen real y el caso bancario antes/después se conservan en `reports/audit_2026-11-08/`; no sustituyen los resultados oficiales de la Tabla 2 ni demuestran utilidad humana. Véase [arquitectura](architecture.md) y [evaluación actual](genai_evaluation.md).
+La evaluación histórica de Qwen se mantiene congelada. Una corrida posterior independiente midió Qwen en 30 casos controlados y operativos; sus métricas no representan modelos alternativos. La revisión local del 8 de noviembre añade el contrato `evidence-v2`: separa drivers predictivos, señales operativas observadas e indicadores heurísticos, con procedencia explícita. La ausencia de drivers positivos no descarta desviaciones observadas. Las reglas configuradas son triggers heurísticos de revisión, no aprendidos de TEST; no alteran las predicciones congeladas. La corrida diagnóstica independiente de ocho casos con Qwen real y el caso bancario antes/después se conservan en `reports/audit_2026-11-08/`; no sustituyen los resultados oficiales de la Tabla 2 ni demuestran utilidad humana. Véase [arquitectura](architecture.md) y [evaluación actual](genai_evaluation.md).
 
-Se conserva Qwen por ejecución local, soporte de español, tamaño y compatibilidad operativa (Qwen Team, 2025). Un benchmark separado de candidatos locales quedó `partial`: Gemma 3 4B y Ministral 3 8B constaban `not_available` y no se descargaron. Sus resultados de Qwen (29/30, mediana 6336.35 ms) corresponden a otra corrida y no se combinan con la comparación OpenAI/Ollama del 19 de noviembre ni sustituyen la evaluación oficial congelada.
+Se conserva Qwen por ejecución local, soporte de español, tamaño y compatibilidad operativa (Qwen Team, 2025). Un benchmark separado de candidatos locales quedó `partial`: Gemma 3 4B y Ministral 3 8B constaban `not_available` y no se descargaron. Sus resultados de Qwen (29/30, mediana 6336.35 ms) corresponden a otra corrida y no se combinan con la segunda ejecución local de Qwen del 19 de noviembre ni sustituyen la evaluación oficial congelada.
 
 El prompt restringe la respuesta a evidencia estructurada; el validador exige esquema JSON, features permitidas y ausencia de cifras nuevas no soportadas. Timeout, JSON inválido o evidencia no admitida activan fallback sin retirar la predicción ML. La trazabilidad distingue intento y uso GenAI, motor, error y tiempos. Groundedness es un proxy determinístico de ingeniería, no prueba de verdad semántica; una frase aceptada todavía puede ser incorrecta o poco útil. Se requiere revisión humana.
 
@@ -193,9 +191,9 @@ Para evitar sesgo por cobertura temprana se usa además una métrica estricta de
 
 Esta métrica formaliza la promesa original; no reentrena, no cambia labels, thresholds ni TEST. Evidencia: `reports/promise_validation/` y `scripts/validate_original_promise.py`.
 
-### 17.4 Comparación de proveedores generativos (2026)
+### 17.4 Evaluación adicional del motor generativo local (2026)
 
-`scripts/benchmark_provider_comparison.py` ejecuta los mismos 30 casos de la Tabla 2 en dos modos: **controlado**, con un contrato común de 4 acciones y 180 caracteres, y **operativo**, con la configuración real de la aplicación (OpenAI 8 acciones; Ollama 4). Añade una prueba de repetibilidad de 5 casos × 3 ejecuciones. El presupuesto estimado de OpenAI es USD 5, con un margen de 1,5× y bloqueo previo a cada llamada. Este contador no equivale a un límite de facturación.
+Una corrida complementaria de Qwen3 8B utilizó 30 casos TEST elegibles bajo dos configuraciones locales, cada una con máximo cuatro acciones y 180 caracteres de resumen. Se midió latencia y aceptación del contrato, además de una repetibilidad de cinco casos en tres iteraciones. Esta evidencia complementa, sin sobrescribir, la evaluación histórica.
 
 **Tabla 2b. Qwen3 8B (`500a1f067a9f`, Q4_K_M, Ollama 0.33.2), ejecución del 19-11-2026.**
 
@@ -208,9 +206,8 @@ Esta métrica formaliza la promesa original; no reentrena, no cambia labels, thr
 
 En la repetibilidad, las respuestas fueron idénticas en las tres ejecuciones de los cinco casos, con un coeficiente de variación mediano de latencia de 0,11.
 
-OpenAI **no se ejecutó**: la clave no era accesible para el proceso del experimento (`openai_key_missing`). No hay filas fabricadas y el gasto fue de 0 USD. Por lo tanto, la comparación empírica homogénea sigue pendiente.
 
-La diferencia con la Tabla 2 (29/30 aceptadas y mediana de 3,1 s) se debe a otra fecha, otro contrato de salida y otra carga del equipo. La evaluación histórica se conserva sin cambios. Evidencia: [comparison_report.md](../reports/genai/provider_comparison_2026/comparison_report.md).
+La diferencia con la Tabla 2 (29/30 aceptadas y mediana de 3,1 s) se debe a otra fecha, otro contrato de salida y otra carga del equipo. La evaluación histórica se conserva sin cambios. Estas cifras se conservan como evidencia experimental descrita en el informe; el reporte externo de comparación de proveedores se retiró de la versión vigente del repositorio.
 
 ## 18. Evaluación temporal
 
@@ -295,9 +292,9 @@ La [matriz ética](ethics_security.md) distingue impactos, mitigaciones implemen
 
 - Token Bearer opcional en el backend (`PRUNIN_API_TOKEN`); health, readiness y métricas permanecen abiertos.
 - Rechazo de CORS `*` cuando `PRUNIN_ENV=production`.
-- Límite por cliente y diario para solicitudes con OpenAI, con respuesta 429 y `Retry-After`.
+- Permisos y validación de proveedores admitidos por servidor; la selección remota no puede activar Ollama cuando está deshabilitado.
 
-En uso local el token puede quedar sin configurar; con `PRUNIN_ENV=production` las rutas protegidas responden HTTP 503 si falta `PRUNIN_API_TOKEN`. Health, readiness y métricas siguen abiertos para probes. El límite OpenAI es por IP par/minuto y por proceso/día, no una cuota distribuida ni un límite de facturación. La selección del cliente tampoco puede anular `PRUNIN_ENABLE_OLLAMA=0`: una petición explícita usa fallback determinístico y no llama al transporte Ollama. Esto no sustituye identidad por usuario, HTTPS terminado en el despliegue ni auditoría empresarial. Evidencia: `src/prunin_ai/api/security.py`, `src/prunin_ai/api/recommendations.py` y `tests/test_security_controls.py`.
+En uso local el token puede quedar sin configurar; con `PRUNIN_ENV=production` las rutas protegidas responden HTTP 503 si falta `PRUNIN_API_TOKEN`. Health, readiness y métricas siguen abiertos para probes. La selección del cliente tampoco puede anular `PRUNIN_ENABLE_OLLAMA=0`: una petición explícita usa fallback determinístico y no llama al transporte Ollama. Esto no sustituye identidad por usuario, HTTPS terminado en el despliegue ni auditoría empresarial. Evidencia: `src/prunin_ai/api/security.py`, `src/prunin_ai/api/recommendations.py` y `tests/test_security_controls.py`.
 
 ## 21. MLOps
 
@@ -317,7 +314,7 @@ Es una demostración de ciclo completo, no un reentrenamiento continuo con datos
 
 ## 22. Limitaciones
 
-Los datos son sintéticos; por tanto, el cumplimiento del KPI es experimental y no empresarial. El desbalance afecta Health, la detección exacta de Critical es incompleta, Delay apenas mejora la mediana y Cost depende del generador EVM. La evaluación temprana tiene cobertura desigual. La fusión no está calibrada; drivers no son causales. El benchmark GenAI es pequeño y condicionado; sus validadores son proxies. La comparación empírica OpenAI/Ollama quedó parcial porque la clave de OpenAI no era accesible para el proceso del benchmark; solo Qwen tiene resultados medidos. Docker CLI está instalada pero sin daemon local y no existe contexto Kubernetes; CI sí construyó y ejecutó el smoke test demo. El benchmark HTTP de una instancia mantuvo 100 % de éxito con 1/4/8/16 concurrencias, pero el p95 aumentó de 81 ms a 954 ms y el throughput se estabilizó alrededor de 23–24 req/s; no se probó caída de pod ni balanceo. No hay baseline humano ni validación empresarial. El protocolo humano se dejó preparado con plantilla vacía, sin resultados. La prueba manual balanceada de 99 filas comunicada por el autor no tiene resultados estructurados versionados identificados: no se incorpora como métrica oficial.
+Los datos son sintéticos; por tanto, el cumplimiento del KPI es experimental y no empresarial. El desbalance afecta Health, la detección exacta de Critical es incompleta, Delay apenas mejora la mediana y Cost depende del generador EVM. La evaluación temprana tiene cobertura desigual. La fusión no está calibrada; drivers no son causales. El benchmark GenAI es pequeño y condicionado; sus validadores son proxies. La comparación empírica exhaustiva entre alternativas locales aún está pendiente; Qwen es el modelo con métricas completas. Docker CLI está instalada pero sin daemon local y no existe contexto Kubernetes; CI sí construyó y ejecutó el smoke test demo. El benchmark HTTP de una instancia mantuvo 100 % de éxito con 1/4/8/16 concurrencias, pero el p95 aumentó de 81 ms a 954 ms y el throughput se estabilizó alrededor de 23–24 req/s; no se probó caída de pod ni balanceo. No hay baseline humano ni validación empresarial. El protocolo humano se dejó preparado con plantilla vacía, sin resultados. La prueba manual balanceada de 99 filas comunicada por el autor no tiene resultados estructurados versionados identificados: no se incorpora como métrica oficial.
 
 ## 23. Conclusiones
 
@@ -362,3 +359,5 @@ Qwen. (s. f.). *Qwen3-8B* [Ficha de modelo]. Hugging Face. Recuperado el 8 de no
 The Kubernetes Authors. (s. f.). *Deployments*. Recuperado el 8 de noviembre de 2026, de https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 
 Verificación de URLs y alcance: [referencias consolidadas](references.md). La página oficial Mendeley confirma título, autor, versión y DOI. Aunque el extractor no obtuvo el abstract de NeurIPS, OpenAlex confirma el metadata bibliográfico de LightGBM; no se inventa DOI. Las fichas de modelos sustentan datos documentales, no resultados PRUNIN.
+
+La evidencia íntegra de la corrida local se conserva, sin regeneración de respuestas, en [Qwen local 2026](../reports/genai/qwen_local_2026/README.md).

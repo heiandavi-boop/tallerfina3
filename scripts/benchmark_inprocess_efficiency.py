@@ -159,11 +159,13 @@ def scenario_invalid_inputs(client, case: dict[str, Any]) -> dict[str, Any]:
 
 
 def scenario_genai_timeout(client, cases: list[dict[str, Any]], size: int = 10) -> dict[str, Any]:
-    """Injects requests.Timeout into the OpenAI transport: predictions must still succeed via fallback."""
+    """Injects requests.Timeout into the local Ollama transport; predictions must still succeed via fallback."""
     import requests
     from prunin_ai.api import recommendations as ai
 
     original = ai.requests.post
+    old_enabled = os.environ.get("PRUNIN_ENABLE_OLLAMA")
+    os.environ["PRUNIN_ENABLE_OLLAMA"] = "1"
 
     def raise_timeout(*args, **kwargs):
         raise requests.Timeout("injected timeout")
@@ -172,15 +174,19 @@ def scenario_genai_timeout(client, cases: list[dict[str, Any]], size: int = 10) 
     try:
         latencies, fallbacks, failures = [], 0, 0
         for case in cases[:size]:
-            ms, response = timed(lambda: client.post("/api/predict", json=case, headers={"X-PRUNIN-Provider": "openai", "X-PRUNIN-OpenAI-Key": "sk-benchmark-not-real"}))
+            ms, response = timed(lambda: client.post("/api/predict", json=case, headers={"X-PRUNIN-Provider": "ollama"}))
             latencies.append(ms)
             if response.status_code != 200:
                 failures += 1
                 continue
             recommendation = response.json()["recommendations"]
-            fallbacks += recommendation.get("genai_used") is False and recommendation.get("failure_code") == "openai_timeout"
+            fallbacks += recommendation.get("genai_used") is False and recommendation.get("failure_code") == "ollama_timeout"
     finally:
         ai.requests.post = original
+        if old_enabled is None:
+            os.environ.pop("PRUNIN_ENABLE_OLLAMA", None)
+        else:
+            os.environ["PRUNIN_ENABLE_OLLAMA"] = old_enabled
     return {"scenario": "genai_timeout_fault_injection", "requests": size, "successes": size - failures, "failures": failures,
             "deterministic_fallbacks": fallbacks, "fallback_rate": round(fallbacks / size, 3), **latency_stats(latencies)}
 
@@ -194,13 +200,9 @@ def git_sha() -> str | None:
 
 def run(cases: list[dict[str, Any]]) -> dict[str, Any]:
     os.environ.setdefault("PRUNIN_ENABLE_OLLAMA", "0")
-    os.environ["PRUNIN_OPENAI_RATE_LIMIT_PER_MIN"] = "1000"
     from fastapi.testclient import TestClient
 
     from prunin_ai.api import app as app_module
-    from prunin_ai.api.security import OpenAIGuard
-
-    app_module.openai_guard = OpenAIGuard(per_minute=1000, daily_max=1000)
     with TestClient(app_module.app) as client:
         for case in cases[:3]:
             client.post("/api/predict?include_recommendations=false", json=case)  # warm-up, excluded

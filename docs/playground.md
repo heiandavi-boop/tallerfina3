@@ -112,8 +112,8 @@ La URL local es http://localhost:8000; run_playground.sh muestra LAN cuando disp
 
 El valor ml_inference_ms incluye ML y drivers, igual a timing.ml_and_drivers_ms; no etiquetarlo como tiempo puro del predictor. Timing.total_ms incluye la generación cuando se intenta. El límite CSV de 100 filas no es throughput bajo carga. La matriz completa distingue evidencia técnica, comunicación escrita y desempeño oral pendiente.
 
-## Elegir OpenAI u Ollama desde el navegador
+## Activar Ollama desde el navegador
 
-Al inicio del Playground elige **Ollama — local** o **OpenAI — API de ChatGPT**; la elección se aplica al próximo análisis individual, incluso cuando se abre un proyecto desde el CSV. Con OpenAI, introduce el identificador de modelo y pega tu API key en el campo protegido. No se guarda ni persiste tras refrescar la pestaña. Alternativamente, ejecuta el servidor con `OPENAI_API_KEY` en su entorno para no pegarla cada vez. No pegues claves en el chat, GitHub ni archivos públicos.
+Al inicio del Playground elige **Ollama — local** o **Solo predicción**. El servidor Ollama debe estar operativo y habilitado mediante `PRUNIN_ENABLE_OLLAMA=1`. La opción se aplica al próximo análisis individual, incluso al abrir un proyecto desde el CSV. No se solicitan claves de servicios de inferencia externos.
 
-La selección afecta **únicamente a la generación de recomendaciones**, no reentrena Health, Delay ni Cost. OpenAI procesa la evidencia estructurada mediante API y factura tokens a la cuenta correspondiente. Si el proveedor falla, se indica el código de error y se entrega respaldo determinístico. Nunca se debe usar la opción de OpenAI desde un HTTP remoto sin HTTPS.
+La selección solo afecta la generación de recomendaciones; Health, Delay y Cost mantienen su resultado supervisado. Ante fallos de conexión, timeout o rechazo de la validación, se usa respaldo determinístico. La interfaz presenta el estado del motor y la disponibilidad de la API.

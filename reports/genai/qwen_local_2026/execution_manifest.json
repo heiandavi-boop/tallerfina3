@@ -1,0 +1,31 @@
+{
+  "source_commit": "dd5875ad6446a4d333cfce1a495c73e8130af873",
+  "source_note": "Recorded local Qwen execution; rows extracted from previously versioned experimental dataset without regenerating model responses.",
+  "started_utc": "2026-11-19T00:26:38+00:00",
+  "finished_utc": "2026-11-19T00:38:44+00:00",
+  "artifact_version": "0.9.0-academic",
+  "inputs": {
+    "artifact": "artifacts/0.9.0-academic",
+    "split_manifest_sha256": "ed8f9db66e254123e411e7d016e91c01563a58c11e3a7f337bd9592ab92db26c",
+    "dataset_sha256": "32b7586db9dda0b3994573a3985c114dafe65dee93c948254b69f00d194c0ac3"
+  },
+  "case_selection": "Últimos snapshots TEST con al menos un driver que aumenta el riesgo; orden aleatorio con random_state=42 (mismo criterio que la evaluación histórica Qwen).",
+  "cases": 30,
+  "repeat_cases": 5,
+  "repeats": 3,
+  "hardware": {
+    "platform": "macOS-27.2.1-arm64-arm-64bit",
+    "processor": "arm",
+    "logical_cpu_count": 15,
+    "python_version": "3.12.15"
+  },
+  "generation_parameters": {
+    "ollama": {
+      "temperature": 0.1,
+      "num_predict": 1200,
+      "think": false,
+      "format": "JSON schema forzado",
+      "timeout_seconds": 120
+    }
+  }
+}

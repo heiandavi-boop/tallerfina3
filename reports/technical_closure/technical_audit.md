@@ -2,15 +2,15 @@
 
 ## Alcance
 
-Este cierre continúa en `feat/technical-closure` desde `main` sin descartar archivos locales. Se revisaron las correcciones de seguridad, el presupuesto OpenAI, el benchmark de proveedores, la plantilla de productividad, MLOps y monitorización. La evidencia separa resultados académicos congelados, pruebas técnicas locales y dependencias externas no disponibles.
+Este cierre continúa en `feat/technical-closure` desde `main` sin descartar archivos locales. Se revisaron las correcciones de seguridad, el contrato del motor local y la evaluación Qwen, la plantilla de productividad, MLOps y monitorización. La evidencia separa resultados académicos congelados, pruebas técnicas locales y dependencias externas no disponibles.
 
 ## Hallazgos y cambios verificados
 
-- **Seguridad:** las rutas API protegidas fallan cerrado en producción cuando falta `PRUNIN_API_TOKEN`; health, readiness y métricas siguen disponibles para probes. El cliente no puede habilitar Ollama si el servidor tiene `PRUNIN_ENABLE_OLLAMA=0`. Las cuotas OpenAI existentes son por IP par/minuto y por proceso/día, no distribuidas.
+- **Seguridad:** las rutas API protegidas fallan cerrado en producción cuando falta `PRUNIN_API_TOKEN`; health, readiness y métricas siguen disponibles para probes. El cliente no puede habilitar Ollama si el servidor tiene `PRUNIN_ENABLE_OLLAMA=0`. Los controles de acceso permanecen; faltan límites de tráfico distribuidos del motor local.
 - **Registro MLOps:** el esquema 2 separa métricas por snapshot y por proyecto, elimina una aprobación sin evidencia y representa `demo-0.1.0` como `demo_available`. Los punteros `test` y `production` están vacíos. La selección/rollback del registro no se presenta como despliegue de servicio.
 - **Monitorización offline:** la comparación TRAIN frente a VALIDATION cubrió 600 proyectos y 10.880 snapshots; no reportó alertas PSI/missing ni columnas ausentes. No activó entrenamiento.
 - **HTTP real:** el benchmark concurrente obtuvo 100/100 respuestas válidas en cada nivel 1/4/8/16. Throughput: 20.14/24.14/23.42/23.35 req/s; p95: 80.98/200.88/457.41/954.38 ms. El aumento de latencia y throughput plano no demuestra escalabilidad horizontal. La prueba de recuperación fue después de una entrada inválida, no de detener una instancia.
-- **Proveedores:** el 19-11-2026, Qwen3 8B (`500a1f067a9f`, Q4_K_M) aceptó 30/30 casos tanto en modo controlado como operativo. OpenAI no se ejecutó porque `OPENAI_API_KEY` no estaba disponible en el proceso; se registraron cero llamadas y USD 0. El presupuesto experimental estimado era USD 5; no representa un tope de facturación garantizado.
+- **Generación local:** la ejecución complementaria de Qwen3 8B (`500a1f067a9f`, Q4_K_M) obtuvo 30/30 casos aceptados en dos configuraciones locales; no se completó una comparación homogénea de alternativas locales.
 - **Productividad humana:** NO MEDIDA; no se registraron participantes ni respuestas humanas.
 
 ## Validación automatizada
@@ -37,7 +37,7 @@ No se modificaron dataset, split, configuración académica, modelos `.joblib` n
 
 ## Pendientes que condicionan afirmaciones de nivel superior
 
-- Ejecutar la comparación OpenAI real tras configurar la clave en el entorno autorizado del proceso.
+- Ejecutar comparación homogénea de modelos locales disponibles antes de declarar una elección exhaustiva.
 - Obtener revisión humana y participantes reales antes de reportar calidad semántica o productividad.
 - Validar Docker local cuando el sandbox permita leer el archivo de configuración Docker y acceder a un daemon.
 - Operar Kubernetes autorizado para verificar balanceo, recuperación, actualización y rollback.
@@ -49,5 +49,7 @@ No se modificaron dataset, split, configuración académica, modelos `.joblib` n
 - [Índice de evidencia](evidence_index.md)
 - [Integridad científica](scientific_integrity.json)
 - [Dependencias externas pendientes](remaining_external_dependencies.md)
-- [Comparación OpenAI/Ollama](../genai/provider_comparison_2026/comparison_report.md)
+- [Evaluación de modelos locales](../../docs/genai_model_selection.md)
 - [Auditoría de rúbrica](../../docs/RUBRICA_OFICIAL_PAIII_2026.md)
+
+- **Respuestas reales del motor local:** [Qwen 2026](../genai/qwen_local_2026/README.md), con 75 intentos originales y el manifiesto de ejecución.

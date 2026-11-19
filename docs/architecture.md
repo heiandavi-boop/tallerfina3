@@ -21,10 +21,8 @@ flowchart LR
   A --> S[Señales operativas con reglas configuradas]
   S --> E
   T --> E
-  E --> P{Proveedor seleccionado}
-  P -->|Local| Q[Ollama / Qwen3 8B]
-  P -->|API| G[OpenAI API]
-  G --> V[Validación de esquema y grounding]
+  E --> Q[Ollama / Qwen3 8B local]
+  Q --> V[Validación de esquema y grounding]
   Q --> V[Validación de esquema y grounding]
   V --> X[Acciones priorizadas: evidencia, acción, razón y seguimiento]
   V --> B[Fallback determinístico ante rechazo o fallo]
@@ -45,23 +43,21 @@ flowchart TD
   U[Entrada validada] --> S[Reglas operativas heurísticas]
   S --> E
   T[Team Health heurístico con cobertura suficiente] --> E
-  E --> P{Proveedor por solicitud}
-  P -->|Ollama| Q[Qwen3 8B local]
-  P -->|OpenAI| G[OpenAI API]
-  G --> V{JSON, feature/source, cifras y seguimiento válidos}
+  E --> Q[Qwen3 8B local]
+  Q --> V{JSON, feature/source, cifras y seguimiento válidos}
   Q --> V{JSON, feature/source, cifras y seguimiento válidos}
   V -->|Sí| R[Acciones estructuradas priorizadas]
   V -->|No / timeout| F[Fallback determinístico]
   R --> H[Revisión humana]
   F --> H
-  M --> P[Predicción ML siempre conservada]
+  M --> H[Predicción ML siempre conservada]
 ```
 
 Fuente: `recommendations.py`, `operational_signals.py`, `tests/test_genai_grounding.py`. El contrato `evidence-v2` distingue `model_driver` (sensibilidad local), `observed_operational_signal` (entrada observada evaluada con una regla heurística) y `heuristic_indicator` (Team Health determinístico). Se conservan también los drivers reductores como contexto, sin convertirlos en señales adversas. Cada recomendación requiere prioridad, título, `evidence_feature`, `evidence_source`, razón, acción ejecutable y seguimiento verificable. El esquema restringe campos y enums; Python comprueba la pareja feature/source del caso y cifras en todos los textos. No se usa `anyOf` para las parejas en la gramática Ollama: una prueba real mostró que omitía los campos comunes; esa restricción se verifica después de generar.
 
 `configs/operational_signals.yaml` contiene criterios de revisión versionados, no aprendidos ni calibrados contra TEST. SPI/CPI <1 son desfavorables en EVM; el trigger <0.95 incorpora una tolerancia heurística explícita. Los demás umbrales son heurísticos y requieren denominadores y líneas base comparables. Los faltantes no se imputan para generar señales; las prioridades no son probabilidades. Una sensibilidad positiva aislada no fuerza corrección cuando Health es healthy y no hay desviaciones observadas. Se distinguen `priority_signals`, `no_priority_signals` e `insufficient_evidence`, separados del estado del servicio generativo.
 
-Ollama conserva un timeout configurable (30 s por defecto), hasta cuatro acciones y un presupuesto de 1200 tokens. OpenAI usa un timeout independiente (120 s predeterminado), permite hasta ocho acciones y resúmenes de 1200 caracteres; el código no impone un límite pequeño de tokens de salida. `/api/genai-status` conserva el contrato Ollama y `/api/genai-providers` expone ambos estados de configuración, sin verificar saldo ni permisos. `genai_attempted`, `genai_used` y los códigos de error preservan trazabilidad. El presupuesto anterior de 400 tokens truncaba cuatro acciones con procedencia. Una salida inválida activa fallback sobre las mismas señales verificadas y añade `fallback_validation`; no cambia ML. Las comprobaciones de contradicción son patrones explícitos, no un detector semántico completo. Grounding es proxy, no utilidad humana, verdad ni causalidad. La concurrencia histórica es local y anterior a este contrato; no demuestra escalabilidad del contrato nuevo.
+Ollama conserva timeout configurable (30 s por defecto), hasta cuatro acciones y un presupuesto de 1200 tokens. Los endpoints `/api/genai-status` y `/api/genai-providers` exponen únicamente el estado del motor local. `genai_attempted`, `genai_used` y los códigos de error mantienen trazabilidad. Una salida inválida activa fallback sobre señales verificadas sin cambiar ML. Grounding es un proxy de esquema, procedencia y consistencia; no demuestra causalidad ni utilidad humana. La concurrencia histórica no acredita escalabilidad productiva.
 
 ## Figura A3. Pipeline académico reproducible
 

@@ -46,6 +46,5 @@ def test_public_presentation_describes_current_provider_contract():
     report = (ROOT / "docs/INFORME_FINAL.md").read_text(encoding="utf-8")
     presentation = (ROOT / "docs/PRESENTACION_FINAL.md").read_text(encoding="utf-8")
     for text in (report, presentation):
-        assert "OpenAI" in text
         assert "Ollama" in text
     assert "Mendeley" in presentation

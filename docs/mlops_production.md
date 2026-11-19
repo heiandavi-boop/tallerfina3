@@ -96,7 +96,7 @@ El Dockerfile ahora declara usuario 10001 y healthcheck HTTP de readiness; `.doc
 
 ## Verificación adicional del empaquetado para el nivel 4 de PAIII
 
-El workflow `quality` contiene el paso `bash scripts/container_smoke.sh`, ejecutado sobre artefactos **demo sintéticos** producidos por `scripts/run_demo.sh`. El script construye la imagen a partir del Dockerfile, inicia un contenedor temporal sin credenciales OpenAI, comprueba `/api/ready`, `/api/genai-providers` y `/metrics` y elimina el contenedor.
+El workflow `quality` contiene el paso `bash scripts/container_smoke.sh`, ejecutado sobre artefactos **demo sintéticos** producidos por `scripts/run_demo.sh`. El script construye la imagen a partir del Dockerfile, inicia un contenedor temporal sin credenciales de inferencia externa, comprueba `/api/ready`, `/api/genai-providers` y `/metrics` y elimina el contenedor.
 
 El resultado constituye evidencia reproducible de **construcción y arranque de Docker**, solo cuando el job del commit relevante termine en `success`. No es una prueba de balanceo Kubernetes, HPA ni actualización de modelos. La evaluación de nivel 4 para R7.2-Cr4/Cr6 sigue sujeta a ejecución y monitorización completas en un entorno autorizado. No usar expresiones como “clúster operado” ni “retraining continuo” sin evidencias.
 

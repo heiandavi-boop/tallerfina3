@@ -6,14 +6,14 @@ Comprobar desde la interfaz que PRUNIN recibe datos de un proyecto, calcula sus 
 ## Requisitos
 - Python y Node conforme a `requirements.txt` y `frontend/package-lock.json`.
 - Artefactos de `0.9.0-academic` en el directorio local configurado; los archivos pesados no se publican en este repositorio.
-- Para Ollama: servicio local y modelo configurado disponibles. Para OpenAI: acceso autorizado a la API y, cuando corresponda, clave en el entorno del servidor o en la interfaz local/HTTPS.
+- Para la generación opcional: servicio Ollama local y modelo configurado disponibles.
 - No cargar datos empresariales sensibles ni almacenar credenciales en Git.
 
 ## Secuencia verificable
 1. Instalar dependencias y ejecutar `./scripts/preflight_demo.sh` y `./scripts/run_playground.sh`.
 2. Abrir `http://localhost:8000` y confirmar `/api/ready`.
 3. Seleccionar un proyecto de ejemplo o introducir variables del modelo (`planned_duration_weeks`, `planned_budget`, `true_progress`, `spi`, `cpi`, `project_type`, `methodology`).
-4. Elegir **Ollama**, **OpenAI** o **solo predicción**. La selección afecta las recomendaciones, no Health/Delay/Cost.
+4. Elegir **Ollama** o **solo predicción**. La elección afecta las recomendaciones, no Health/Delay/Cost.
 5. Ejecutar el análisis y verificar estado Health, probabilidades, retraso, desviación de costo, drivers y calidad de entrada.
 6. Revisar recomendaciones: `engine`, prioridad, fuente de evidencia, acción, explicación y seguimiento. Si hay fallo de LLM, verificar el motor `grounded_fallback`.
 7. Probar un escenario What-if con variables aprendidas; comprobar que se mantienen independientes las predicciones comparadas.
@@ -29,7 +29,7 @@ Comprobar desde la interfaz que PRUNIN recibe datos de un proyecto, calcula sus 
 - Las salidas se contrastan con su contexto; la validación automática no demuestra causalidad ni utilidad empresarial.
 
 ## Alcance de las pruebas generativas
-Las pruebas CI de OpenAI utilizan transporte simulado. La comparación real de proveedores debe consignar modelo, fecha, conjunto de casos, latencia, consumo, costos y verificaciones de evidencia. Hasta disponer de esos resultados, no se sostiene superioridad de uno sobre otro.
+La evaluación de alternativas locales debe registrar modelo, digest, fecha, casos, aceptación, latencia y restricciones de hardware; no se atribuyen resultados a candidatos no ejecutados.
 
 ## Referencias de evidencia
 - [Informe final](INFORME_FINAL.md)
