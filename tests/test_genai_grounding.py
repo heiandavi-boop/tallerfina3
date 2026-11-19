@@ -445,6 +445,7 @@ def test_successful_ollama_payload_is_marked_as_genai(monkeypatch):
     }, ensure_ascii=False)
     def post(*args, **kwargs):
         assert kwargs["json"]["think"] is False
+        assert kwargs["json"]["keep_alive"] == "30m"
         response_schema = kwargs["json"]["format"]
         action_schema = response_schema["properties"]["recommendations"]
         assert action_schema["minItems"] == 1
@@ -454,7 +455,7 @@ def test_successful_ollama_payload_is_marked_as_genai(monkeypatch):
         assert item_properties["evidence_feature"]["enum"] == ["cpi"]
         assert kwargs["json"]["options"]["temperature"] == 0.1
         assert kwargs["json"]["options"]["num_predict"] == 1200
-        assert kwargs["timeout"] == 30
+        assert kwargs["timeout"] == 90
         return _ollama_response(content)
     monkeypatch.setattr(recommendations.requests, "post", post)
     result = recommendations.ollama_recommendations({}, PREDICTION, DRIVERS)
@@ -550,7 +551,7 @@ def test_ollama_unavailable_is_reported_without_claiming_model_available(monkeyp
 
 def test_ollama_timeout_uses_one_environment_default_and_supports_override(monkeypatch):
     monkeypatch.delenv("PRUNIN_OLLAMA_TIMEOUT_SECONDS", raising=False)
-    assert recommendations.ollama_timeout_seconds() == 30
+    assert recommendations.ollama_timeout_seconds() == 90
     monkeypatch.setenv("PRUNIN_OLLAMA_TIMEOUT_SECONDS", "18")
     assert recommendations.ollama_timeout_seconds() == 18
     assert recommendations.ollama_timeout_seconds(4) == 4
