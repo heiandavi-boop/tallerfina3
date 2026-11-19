@@ -96,7 +96,7 @@ describe('Playground ejecutivo', () => {
     expect(Array.from(select.options).map(option => option.value)).toEqual(['ollama', 'none']);
     const user = userEvent.setup();
     await user.selectOptions(select, 'ollama');
-    expect(screen.getByText(/Qwen3 8B a través de Ollama local/)).toBeTruthy();
+    expect(screen.getByText(/qwen3:8b a través de Ollama local/)).toBeTruthy();
     await user.selectOptions(select, 'none');
     expect(screen.getByText(/no se ejecuta generación de texto/)).toBeTruthy();
   });
