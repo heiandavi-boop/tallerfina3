@@ -46,10 +46,11 @@
   },
   "github_actions_main": {
     "workflow": "quality",
-    "head_sha": "868ea86435bde7412bcee36c0ead821f289b694f",
-    "run_id": "44434927424",
+    "head_sha": "f77329cf9bb5973f99923cd03e54063987dd582c",
+    "run_id": "44439664881",
     "conclusion": "success",
-    "current_branch_run": "pending"
+    "pr_id": 5,
+    "pr_checks": "passed"
   },
   "external_dependencies": {
     "docker": "blocked_by_sandbox_config_read_and_missing_daemon",
