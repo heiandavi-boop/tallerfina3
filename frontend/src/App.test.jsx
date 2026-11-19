@@ -59,6 +59,27 @@ async function openProject() {
 }
 
 describe('Playground ejecutivo', () => {
+  it('presenta una experiencia ejecutiva de acceso directo sin autenticación', async () => {
+    await openProject();
+    expect(screen.getByRole('heading', { name: /Anticipa riesgos.*Toma mejores decisiones/i })).toBeTruthy();
+    expect(screen.getByRole('navigation', { name: 'Navegación principal' })).toBeTruthy();
+    expect(screen.getByRole('link', { name: /Analizar un proyecto/ }).getAttribute('href')).toBe('#workspace');
+    expect(screen.getByRole('link', { name: /Conocer la metodología/ }).getAttribute('href')).toBe('#methodology');
+    expect(screen.getByRole('heading', { name: 'Del dato a la decisión' })).toBeTruthy();
+    expect(screen.getByText(/no necesitas crear una cuenta/i)).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /iniciar sesión|registrarse/i })).toBeNull();
+    expect(screen.queryByLabelText(/contraseña|correo electrónico/i)).toBeNull();
+  });
+
+  it('conserva Ollama local y el modo de predicción sin servicios externos', async () => {
+    await openProject();
+    const select = screen.getByLabelText('Motor de IA');
+    expect(Array.from(select.options).map(option => option.value)).toEqual(['ollama', 'none']);
+    expect(screen.getByText(/Qwen3 8B a través de Ollama local/)).toBeTruthy();
+    await userEvent.setup().selectOptions(select, 'none');
+    expect(screen.getByText(/no se ejecuta generación de texto/)).toBeTruthy();
+  });
+
   it('permite generar recomendaciones locales sin enviar credenciales externas', async () => {
     const user = userEvent.setup();
     await openProject();
