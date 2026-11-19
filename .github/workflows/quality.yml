@@ -25,6 +25,23 @@ jobs:
         run: npm test --prefix frontend -- --reporter=dot
       - name: Create local demo-only artifacts for API tests
         run: ./scripts/run_demo.sh
+      - name: Execute drift diagnostic on synthetic demo in CI
+        run: |
+          python scripts/check_drift.py \
+            --artifact artifacts/demo-0.1.0 \
+            --input data/processed/demo_core.csv \
+            --batch data/processed/demo_core.csv \
+            --profile-output ${{ runner.temp }}/prunin-demo-train-profile.json \
+            --report-output ${{ runner.temp }}/prunin-demo-drift.json \
+            > ${{ runner.temp }}/prunin-demo-drift-stdout.json
+      - name: Archive CI demo drift diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-synthetic-drift-check
+          path: ${{ runner.temp }}/prunin-demo-*.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Validate original promise KPI
         run: python scripts/validate_original_promise.py --check
       - name: Compile Python sources
