@@ -34,3 +34,61 @@ def test_gate_rejects_incomplete_or_simulated_results(tmp_path):
     findings = module.check(tmp_path)
     assert any("non-simulated" in issue for issue in findings)
     assert any("90 non-duplicated" in issue for issue in findings)
+
+
+def test_gate_rejects_risk_alert_metric_tampering(tmp_path):
+    """A modified numerator must not pass unnoticed in a future delivery."""
+    import shutil
+
+    for relative in (
+        "reports/genai/qwen_vs_gptoss_2026/benchmark_summary.json",
+        "reports/genai/qwen_vs_gptoss_2026/execution_manifest.json",
+        "reports/human_validation/productivity_summary.json",
+        "reports/promise_validation/risk_alert_metrics.json",
+        "docs/RUBRICA_OFICIAL_PAIII_2026.md",
+        "docs/INFORME_FINAL.md",
+        "docs/genai_model_selection.md",
+        "docs/mlops_production.md",
+        "docs/ESTADO_VERIFICACION_ENTREGA.md",
+        "README.md",
+    ):
+        destination = tmp_path / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, destination)
+
+    risk_path = tmp_path / "reports/promise_validation/risk_alert_metrics.json"
+    data = json.loads(risk_path.read_text(encoding="utf-8"))
+    for row in data["temporal"]:
+        if row["cutoff_percent"] == 60:
+            row["tp"] = 450
+    risk_path.write_text(json.dumps(data), encoding="utf-8")
+    findings = module.check(tmp_path)
+    assert any("numerator or denominator changed" in item for item in findings)
+
+
+def test_gate_rejects_stale_link_to_private_material(tmp_path):
+    """Presentation notes may not be linked as public delivery evidence."""
+    import shutil
+
+    for relative in (
+        "reports/genai/qwen_vs_gptoss_2026/benchmark_summary.json",
+        "reports/genai/qwen_vs_gptoss_2026/execution_manifest.json",
+        "reports/human_validation/productivity_summary.json",
+        "reports/promise_validation/risk_alert_metrics.json",
+        "docs/RUBRICA_OFICIAL_PAIII_2026.md",
+        "docs/INFORME_FINAL.md",
+        "docs/genai_model_selection.md",
+        "docs/mlops_production.md",
+        "docs/ESTADO_VERIFICACION_ENTREGA.md",
+        "README.md",
+    ):
+        destination = tmp_path / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, destination)
+
+    readme = tmp_path / "README.md"
+    readme.write_text(readme.read_text(encoding="utf-8") +
+                      "\\n[Private presentation](docs/FINAL_READINESS.md)\\n",
+                      encoding="utf-8")
+    findings = module.check(tmp_path)
+    assert any("Stale public link" in item for item in findings)
