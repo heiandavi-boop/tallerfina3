@@ -1,0 +1,68 @@
+name: staging-deployment
+
+# Deploy only on an explicitly provisioned, dedicated self-hosted staging runner.
+# Never claim production or deploy academic source datasets/credentials.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: prunin-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment: staging
+    runs-on: [self-hosted, linux, prunin-staging]
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate selected commit's reproducibility contract
+        run: |
+          python scripts/check_paiii_delivery_evidence.py
+          python scripts/validate_original_promise.py --check
+      - name: Verify runtime on staging host
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker info >/dev/null
+          test -d /opt/prunin-academic-artifacts/0.9.0-academic
+          for filename in health.joblib delay_days.joblib cost_overrun_ratio.joblib; do
+            test -s "/opt/prunin-academic-artifacts/0.9.0-academic/$filename"
+          done
+          test -f /opt/prunin-staging/config.env
+      - name: Build immutable image tagged to commit
+        run: docker build -f Dockerfile.playground -t "prunin-ai-core:${GITHUB_SHA}" .
+      - name: Deploy staging replica with automatic restart
+        env:
+          COMMIT_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker rm -f prunin-staging >/dev/null 2>&1 || true
+          docker run -d --name prunin-staging --restart unless-stopped \
+            --publish 127.0.0.1:18767:8000 \
+            --env-file /opt/prunin-staging/config.env \
+            --mount type=bind,source=/opt/prunin-academic-artifacts/0.9.0-academic,target=/app/artifacts/0.9.0-academic,readonly \
+            --env PRUNIN_ARTIFACT_DIR=/app/artifacts/0.9.0-academic \
+            "prunin-ai-core:${COMMIT_SHA}"
+          for _ in $(seq 1 40); do
+            if curl -fsS --max-time 3 http://127.0.0.1:18767/api/ready >/tmp/prunin-staging-ready.json; then
+              python - <<'PY'
+          import json
+          data=json.load(open("/tmp/prunin-staging-ready.json"))
+          assert data["status"] == "ready"
+          assert data.get("model_version") == "0.9.0-academic", data
+          PY
+              echo "STAGING DEPLOYMENT PASS: academic version ready"
+              exit 0
+            fi
+            sleep 3
+          done
+          docker logs prunin-staging --tail 100
+          exit 1
