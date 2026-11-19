@@ -35,6 +35,3 @@ Fuentes consultadas el 8 de noviembre de 2026. Se verificaron los registros de M
 Citas del informe: Hajihoseyni (2026), Ke et al. (2017), Ollama (s. f.), Pedregosa et al. (2011), Project Management Institute (2020), Qwen Team (2025), Google DeepMind (s. f.-a, s. f.-b), Mistral AI (s. f.-a, s. f.-b), FastAPI (s. f.) y The Kubernetes Authors (s. f.). Los reportes propios son evidencia interna versionada; no publicaciones externas.
 
 
-- OpenAI. (s. f.). *API reference: Chat Completions*. https://platform.openai.com/docs/api-reference/chat
-- OpenAI. (s. f.). *Models*. https://platform.openai.com/docs/models
-- OpenAI. (s. f.). *API pricing*. https://platform.openai.com/pricing
