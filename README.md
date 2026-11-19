@@ -114,7 +114,7 @@ Reproducción del entrenamiento: [docs/training.md](docs/training.md) y scripts/
 
 ## Limitaciones
 
-Dataset sintético, severidad Critical todavía limitada, Delay débil, caveat EVM de Cost, cobertura temprana desigual, fusión no calibrada y drivers no causales. No hay baseline humano medido ni validación prospectiva empresarial. Grounding es proxy y requiere revisión humana. La eficiencia del API no demuestra productividad humana; el [protocolo humano](docs/human_efficiency_validation.md), la [presentación](docs/PRESENTACION_FINAL.md) y la [matriz de evidencias orales](docs/ORAL_EVIDENCE.md) están documentados; la medición humana no se ha ejecutado. [Ética](docs/ethics_security.md). No está listo para producción.
+Dataset sintético, severidad Critical todavía limitada, Delay débil, caveat EVM de Cost, cobertura temprana desigual, fusión no calibrada y drivers no causales. No hay baseline humano medido ni validación prospectiva empresarial. Grounding es proxy y requiere revisión humana. La eficiencia del API no demuestra productividad humana; el [protocolo humano](docs/human_efficiency_validation.md), los materiales de exposición oral se conservan fuera de Git; la medición humana no se ha ejecutado. [Ética](docs/ethics_security.md). No está listo para producción.
 
 ## Estado de evaluación
 
@@ -127,9 +127,8 @@ Dataset sintético, severidad Critical todavía limitada, Delay débil, caveat E
 - [Matriz histórica previa de 27 criterios](reports/rubric_final/rubric_final.md)
 - [Resultados predictivos congelados](reports/0.9.0-academic/)
 - [Resultados GenAI](reports/genai/)
-- [Contenido académico de la presentación](docs/PRESENTACION_FINAL.md)
-- [Protocolo demostrable](docs/DEMO_PROTOCOL.md) y [evidencia de criterios orales](docs/ORAL_EVIDENCE.md)
-- [Manifiesto de entrega](docs/DELIVERY_MANIFEST.md)
+- [Protocolo técnico reproducible](docs/DEMO_PROTOCOL.md)
+- [Manifiesto de entrega y separación de materiales privados](docs/DELIVERY_MANIFEST.md)
 - [Referencias APA 7](docs/references.md)
 
 ## Motor de IA generativa local
