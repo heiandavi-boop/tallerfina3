@@ -4,7 +4,7 @@ Este cierre no inventa resultados de proveedores, participantes ni infraestructu
 
 | Dependencia | Estado observado | Requisito para completar |
 |---|---|---|
-| OpenAI API | `OPENAI_API_KEY` no está disponible en el proceso; cero llamadas y USD 0 | Configurar la clave mediante el mecanismo local autorizado y repetir los 30 casos bajo el presupuesto estimado existente de USD 5 |
+| Comparación de alternativas locales | Hay resultados reproducibles de Qwen, pero otras alternativas no estuvieron disponibles bajo protocolo homogéneo | Ejecutar modelos locales candidatos en la misma cohorte y contrato y guardar resultados reales |
 | Docker local | El sandbox bloqueó la lectura de `~/.docker/config.json`; `/var/run/docker.sock` tampoco existe | Permitir lectura del archivo de configuración Docker y acceso al socket en la política del sandbox; iniciar el daemon Docker. CI de GitHub ya es evidencia separada |
 | Kubernetes | Sin contexto ni clúster local | Proveer un clúster autorizado para probar readiness, balanceo, caída de instancia, rollout y rollback |
 | Productividad humana | Cero participantes y cero respuestas | Protocolo aprobado, consentimiento y participantes reales; hasta entonces reportar NO MEDIDA |
