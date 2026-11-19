@@ -12,4 +12,9 @@ El archivo institucional recibido **no incluye una evaluación individual del pr
 
 Las brechas son los códigos `R6.1-Cr2`, `R6.2-Cr6`, `R7.2-Cr4`, `R7.2-Cr5` y `R7.2-Cr6`. En el criterio `R7.2-Cr5`, el descriptor institucional exige **diseñar** mecanismos de tolerancia a fallos, balanceo y recuperación; el manifiesto aporta evidencia de diseño, pero no ejecución productiva. En `R7.2-Cr4` y `R7.2-Cr6` se exigen automatización y prácticas aplicadas, por lo que un diagrama no sustituye la prueba de operación.
 
+Avance del 19-11-2026:
+
+- Las brechas se redujeron con evidencia ejecutada: benchmark de proveedores (solo Qwen medido), eficiencia en proceso, instrumento de productividad (NO MEDIDA), controles de seguridad del API y ciclo de registro y reentrenamiento con gate.
+- Los cinco criterios siguen en PARCIAL porque faltan OpenAI real, participantes humanos, despliegue operado y retraining continuo.
+
 El resto de los criterios, incluso cuando existen elementos documentados, tienen límites de validación que deben declararse. [Criterios de sustentación](ORAL_EVIDENCE.md) y [manifiesto de entrega](DELIVERY_MANIFEST.md). Las referencias y rúbricas internas históricas de `reports/` son registros de evaluaciones anteriores; no se reinterpretan como calificación del instrumento oficial.

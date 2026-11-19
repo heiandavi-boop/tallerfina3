@@ -85,3 +85,14 @@ Para completar la comparación, obtener autorización, fijar los digests/cuantiz
 - Mistral AI. (s. f.-a). [Ministral 3 8B documentation](https://docs.mistral.ai/models/ministral-3-8b-25-12).
 
 Consulta/verificación documental: 8 de noviembre de 2026. APA consolidada y citas del informe: `references.md`. La evaluación oficial permanece intacta; la corrida comparativa nueva se conserva en `reports/genai/comparison/`.
+
+## Benchmark controlado y operativo (19 de noviembre de 2026)
+
+Arnés: `scripts/benchmark_provider_comparison.py`. Evidencia: [provider_comparison_2026](../reports/genai/provider_comparison_2026/comparison_report.md).
+
+- **Qwen3 8B** (`500a1f067a9f`, Q4_K_M): 30/30 respuestas aceptadas tanto en el modo controlado como en el operativo, sin cifras no soportadas ni timeouts. Latencia mediana de 8,1 s y 8,3 s (p95 de 19,8 s y 18,3 s). Las respuestas fueron estables en la repetición 5×3.
+- **OpenAI:** no ejecutado (`openai_key_missing`) y sin gasto. Para completarlo:
+  1. Exportar `OPENAI_API_KEY` en el entorno del proceso.
+  2. Ejecutar `python scripts/benchmark_provider_comparison.py --output-dir reports/genai/provider_comparison_2026_openai`.
+
+**Recomendación provisional:** Ollama local como proveedor por defecto, por privacidad, costo variable nulo y funcionamiento sin conectividad; OpenAI como opción configurable cuando la latencia o la calidad lo justifiquen y se acepte transferir indicadores. Esta recomendación no se apoya en una comparación homogénea hasta medir OpenAI.

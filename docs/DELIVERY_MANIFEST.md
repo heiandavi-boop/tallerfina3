@@ -9,6 +9,9 @@
 - `docs/genai_evaluation.md`, `docs/ai_providers.md`, `docs/ethics_security.md`: evaluación del componente generativo, selección de proveedor y riesgos.
 - `src/`, `frontend/`, `scripts/`, `tests/`, `configs/`: implementación y pruebas.
 - `reports/0.9.0-academic/`, `reports/promise_validation/` y reportes específicos de evaluación: evidencia experimental existente.
+- `reports/genai/provider_comparison_2026/`: benchmark OpenAI/Ollama (solo Ollama medido).
+- `reports/efficiency/inprocess_2026/` y `reports/human_validation/productivity_summary.json`: eficiencia técnica y estado NO MEDIDA de la productividad humana.
+- `reports/mlops/`: registro de modelos y ciclo de reentrenamiento demostrativo.
 - `docs/ORAL_EVIDENCE.md`: correspondencia entre recursos públicos y criterios orales por comprobar.
 
 ## Contenido privado/no publicado

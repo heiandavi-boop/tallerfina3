@@ -43,3 +43,15 @@ La validación de cifras y allow-list no demuestra ausencia de errores de signif
 Antes de incorporar proyectos reales o activar OpenAI en una instancia multiusuario: autenticación y autorización en FastAPI, HTTPS con control en servidor, límites de gasto y registros sin secretos, clasificación de datos y evaluación de contrato/tratamiento con proveedor. Después, acordar propósito/base de tratamiento; minimizar y clasificar datos; establecer acceso, retención/borrado y registro de auditoría; seudonimizar identificadores; validar moneda/magnitudes, categorías y distribución; obtener outcomes con revisión humana; evaluar temporalmente y por subgrupos. Estas acciones son pendientes productivos, sin añadir login, cloud ni nuevas funcionalidades en este cierre.
 
 La ausencia de datos reales impide fijar umbrales de drift, certificar representatividad o cuantificar daño residual. Se propone revisar métricas cuando existan outcomes aprobados, sin escoger modelos usando TEST congelado. Ver `mlops_production.md` y `model_card.md`.
+
+## Controles del API implementados (noviembre de 2026)
+
+| Riesgo | Control | Evidencia |
+|---|---|---|
+| Uso no autorizado del API | Token Bearer opcional en backend (`PRUNIN_API_TOKEN`); health, ready y metrics quedan públicos | `src/prunin_ai/api/security.py`, `tests/test_security_controls.py` |
+| Orígenes no confiables | `PRUNIN_ENV=production` rechaza `CORS *`; los orígenes son explícitos | ídem |
+| Costos y abuso de OpenAI | Límite por cliente por minuto y cuota diaria; respuesta 429 con `Retry-After` y código de fallo | ídem |
+| Gasto experimental | Presupuesto estimado (USD 5, margen 1,5×) que bloquea antes de cada llamada | `scripts/benchmark_provider_comparison.py` |
+| Fuga de claves | La clave se toma solo del entorno o de la sesión; los reportes registran presencia/ausencia, nunca el valor | `execution_manifest.json` |
+
+**Pendiente:** gestión de identidades multiusuario, HTTPS terminado en un despliegue real, persistencia distribuida de cuotas (hoy en memoria por proceso) y revisión humana externa de las recomendaciones.

@@ -193,6 +193,25 @@ Para evitar sesgo por cobertura temprana se usa además una métrica estricta de
 
 Esta métrica formaliza la promesa original; no reentrena, no cambia labels, thresholds ni TEST. Evidencia: `reports/promise_validation/` y `scripts/validate_original_promise.py`.
 
+### 17.4 Comparación de proveedores generativos (2026)
+
+`scripts/benchmark_provider_comparison.py` ejecuta los mismos 30 casos de la Tabla 2 en dos modos: **controlado**, con un contrato común de 4 acciones y 180 caracteres, y **operativo**, con la configuración real de la aplicación (OpenAI 8 acciones; Ollama 4). Añade una prueba de repetibilidad de 5 casos × 3 ejecuciones. El presupuesto estimado de OpenAI es USD 5, con un margen de 1,5× y bloqueo previo a cada llamada. Este contador no equivale a un límite de facturación.
+
+**Tabla 2b. Qwen3 8B (`500a1f067a9f`, Q4_K_M, Ollama 0.33.2), ejecución del 19-11-2026.**
+
+| Indicador | Controlado | Operativo |
+|---|---:|---:|
+| Éxito / esquema / fundamentación / accionabilidad | 30/30 | 30/30 |
+| Cifras no soportadas, contradicciones, timeouts | 0 | 0 |
+| Latencia mediana | 8114.68 ms | 8305.30 ms |
+| Latencia p95 | 19783.22 ms | 18347.63 ms |
+
+En la repetibilidad, las respuestas fueron idénticas en las tres ejecuciones de los cinco casos, con un coeficiente de variación mediano de latencia de 0,11.
+
+OpenAI **no se ejecutó**: la clave no era accesible para el proceso del experimento (`openai_key_missing`). No hay filas fabricadas y el gasto fue de 0 USD. Por lo tanto, la comparación empírica homogénea sigue pendiente.
+
+La diferencia con la Tabla 2 (29/30 aceptadas y mediana de 3,1 s) se debe a otra fecha, otro contrato de salida y otra carga del equipo. La evaluación histórica se conserva sin cambios. Evidencia: [comparison_report.md](../reports/genai/provider_comparison_2026/comparison_report.md).
+
 ## 18. Evaluación temporal
 
 La evaluación temporal se interpreta con dos denominadores. El **recall entre elegibles** mide desempeño dentro de proyectos que ya tienen snapshot antes del cutoff. La **detección de cohorte completa** usa como denominador fijo los 473 proyectos TEST que finalmente son At Risk/Critical y penaliza la falta de observación temprana.
@@ -245,11 +264,29 @@ La prueba GenAI concurrente local usó 30 casos por nivel, con warm-up excluido 
 
 El benchmark de API se ejecutó en macOS arm64, Python 3.12.15, artifact 0.9.0-academic; el SHA medido para esa corrida fue `e0beff14db7eab98f19c20ea90a3b3f7e4deea6b`. El API no expone workers, por lo que ese dato queda sin determinar. Estos resultados describen eficiencia operacional local. No demuestran productividad humana, ahorro laboral, producción ni rendimiento universal. Evidencia API: `reports/efficiency/`; benchmark GenAI comparativo/concurrente separado: `reports/genai/comparison/` y `reports/genai/concurrency/`; método: [protocolo](efficiency_evaluation.md).
 
+**Benchmark en proceso (2026).** `scripts/benchmark_inprocess_efficiency.py` mide la aplicación ASGI sin red. Resultados:
+
+- Lotes de 1, 10, 50 y 100 predicciones individuales: p50 de alrededor de 40 ms y unas 24,5 req/s, con 100 % de éxito.
+- CSV de 100 filas: 3765,9 ms, frente a 4077,4 ms para 100 solicitudes individuales (7,6 % menos).
+- Concurrencia de 1 a 16 sin fallos: el throughput se mantiene en 23–25 req/s y el p95 crece casi linealmente (×16,5), lo que indica un proceso saturado y no escalado horizontal.
+
+La inyección de timeouts generativos no bloqueó las predicciones. Evidencia: [report.md](../reports/efficiency/inprocess_2026/report.md).
+
+**Productividad humana: NO MEDIDA.** `scripts/productivity_study.py` implementa el estudio con condiciones manual y asistida, orden contrabalanceado, consentimiento, calidad de diagnóstico y de acciones, y no inferioridad de calidad. La mejora de tiempo se calcula como $(T_{manual}-T_{asistido})/T_{manual}\times100$. Exige al menos seis participantes reales; hoy hay cero, por lo que no se reporta ninguna mejora.
+
 ## 20. Riesgos éticos
 
 Se documentan privacidad, alucinaciones, sesgo de automatización, representatividad sintética, leakage, drift, OOD y falsa causalidad. El perfil TRAIN detecta algunos valores numéricos fuera de fences IQR y categorías no observadas; el detector PSI/missing-rate compara cohortes offline. Ninguno cubre todo shift o acredita control productivo. Ollama local reduce transferencia a terceros, pero no reemplaza controles de acceso y retención. La supervisión humana es obligatoria para decisiones de impacto. Team Health no debe usarse para evaluar salud mental ni individuos. Evidencia: `docs/ethics_security.md`, `docs/drift_monitoring.md` y tests.
 
 La [matriz ética](ethics_security.md) distingue impactos, mitigaciones implementadas y límites: faltantes y OOD no equivalen, logging no reemplaza auditoría empresarial y local no equivale a control de acceso.
+
+**Controles de seguridad del API (2026).** Se implementaron y probaron:
+
+- Token Bearer opcional en el backend (`PRUNIN_API_TOKEN`); health, readiness y métricas permanecen abiertos.
+- Rechazo de CORS `*` cuando `PRUNIN_ENV=production`.
+- Límite por cliente y diario para solicitudes con OpenAI, con respuesta 429 y `Retry-After`.
+
+No sustituyen la gestión de identidades, HTTPS terminado en el despliegue ni la auditoría empresarial. Evidencia: `src/prunin_ai/api/security.py` y `tests/test_security_controls.py`.
 
 ## 21. MLOps
 
@@ -257,11 +294,19 @@ La infraestructura académica incluye versionado, hashes SHA256, manifests, conf
 
 Dockerfile empaqueta frontend y API usando lockfile. El manifiesto Kubernetes define Deployment con tres réplicas, RollingUpdate, probes, requests/limits, Service, PDB, HPA 3–10, no-root, filesystem raíz de solo lectura con `/tmp` acotado y cierre graceful; los contratos se validaron estáticamente. Es diseño, no clúster activo ni prueba de producción. Requiere imagen con artefactos, dominio y recursos adecuados, metrics-server para HPA y observabilidad central antes de operar. No se montó infraestructura.
 
-The Kubernetes Authors (s. f.) documentan los mecanismos de despliegue utilizados conceptualmente; no es una evidencia de operación de PRUNIN. La política de retraining se activa con datos suficientes/aprobados y degradación o drift revisados; compara en VALIDATION y mantiene TEST congelado. El cierre no ejecutó retraining.
+The Kubernetes Authors (s. f.) documentan los mecanismos de despliegue utilizados conceptualmente; no es una evidencia de operación de PRUNIN. La política de retraining se activa con datos suficientes/aprobados y degradación o drift revisados; compara en VALIDATION y mantiene TEST congelado. Los modelos académicos no se reentrenaron; el ciclo demostrativo se describe a continuación.
+
+**Registro y reentrenamiento controlado (2026).**
+
+- `src/prunin_ai/monitoring/mlops.py` añade un registro versionado ([model_registry.json](../reports/mlops/model_registry.json)). Registra `0.9.0-academic` como `frozen_academic`, con los hashes de sus `.joblib`; esa versión no puede sobrescribirse.
+- El pipeline está bloqueado por defecto. Exige procedencia con hash, entrena candidatos en un directorio aislado, selecciona solo con VALIDATION, aplica un gate de regresión, pide aprobación humana y permite promoción y rollback.
+- Se ejecutó una demostración con datos sintéticos nuevos (seed 2026). El candidato mejoró el MAE de Delay (+4,0 %) y de Cost (+2,6 %), pero bajó el macro-F1 de Health un 13,6 %. El gate lo rechazó y producción no cambió.
+
+Es una demostración de ciclo completo, no un reentrenamiento continuo con datos reales. Evidencia: [README.md](../reports/mlops/README.md).
 
 ## 22. Limitaciones
 
-Los datos son sintéticos; por tanto, el cumplimiento del KPI es experimental y no empresarial. El desbalance afecta Health, la detección exacta de Critical es incompleta, Delay apenas mejora la mediana y Cost depende del generador EVM. La evaluación temprana tiene cobertura desigual. La fusión no está calibrada; drivers no son causales. El benchmark GenAI es pequeño y condicionado; sus validadores son proxies. La comparación empírica de candidatos quedó parcial porque solo Qwen estaba instalado. La concurrencia local elevó throughput pero degradó éxito y aumentó timeouts; no es prueba de escalabilidad. La eficiencia operacional se midió localmente, pero no hay baseline humano, validación empresarial ni clúster productivo. El protocolo humano se dejó preparado con plantilla vacía, sin resultados. La prueba manual balanceada de 99 filas comunicada por el autor no tiene resultados estructurados versionados identificados: no se incorpora como métrica oficial.
+Los datos son sintéticos; por tanto, el cumplimiento del KPI es experimental y no empresarial. El desbalance afecta Health, la detección exacta de Critical es incompleta, Delay apenas mejora la mediana y Cost depende del generador EVM. La evaluación temprana tiene cobertura desigual. La fusión no está calibrada; drivers no son causales. El benchmark GenAI es pequeño y condicionado; sus validadores son proxies. La comparación empírica OpenAI/Ollama quedó parcial porque la clave de OpenAI no era accesible para el proceso del benchmark; solo Qwen tiene resultados medidos. Docker no pudo ejecutarse localmente y no existe clúster Kubernetes, de modo que la robustez se valida en CI y estáticamente. La concurrencia local elevó throughput pero degradó éxito y aumentó timeouts; no es prueba de escalabilidad. La eficiencia operacional se midió localmente, pero no hay baseline humano, validación empresarial ni clúster productivo. El protocolo humano se dejó preparado con plantilla vacía, sin resultados. La prueba manual balanceada de 99 filas comunicada por el autor no tiene resultados estructurados versionados identificados: no se incorpora como métrica oficial.
 
 ## 23. Conclusiones
 
