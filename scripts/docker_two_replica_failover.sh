@@ -98,4 +98,28 @@ for _ in $(seq 1 40); do
   sleep 2
 done
 docker exec "$first" python -c "import urllib.request; assert urllib.request.urlopen('http://127.0.0.1:8000/api/ready', timeout=3).status == 200"
-echo "Two-replica Docker failover smoke: PASS (not Kubernetes, not auto-restart)"
+# Recover from an *unexpected process crash* using Docker's restart policy.
+# This is distinct from an operator-initiated docker stop, which does not auto-restart.
+docker update --restart unless-stopped "$first" >/dev/null
+before="$(docker inspect -f '{{.RestartCount}}' "$first")"
+# Docker restart manager requires the container to have run long enough
+# to avoid a restart loop; the earlier readiness/load checks provide this.
+docker kill --signal=SIGKILL "$first" >/dev/null
+recovered=0
+for _ in $(seq 1 45); do
+  after="$(docker inspect -f '{{.RestartCount}}' "$first" 2>/dev/null || echo 0)"
+  if [[ "$after" -gt "$before" ]] && docker exec "$first" python -c "import urllib.request; assert urllib.request.urlopen('http://127.0.0.1:8000/api/ready',timeout=2).status == 200" >/dev/null 2>&1; then
+    recovered=1
+    break
+  fi
+  sleep 2
+done
+if [[ "$recovered" != 1 ]]; then
+  echo "Docker policy did not recover crashed replica; FAIL"
+  docker logs "$first" --tail 50 || true
+  exit 1
+fi
+for _ in $(seq 1 20); do
+  curl -fsS --retry 2 --retry-delay 1 --max-time 10 "$url/api/ready" >/dev/null
+done
+echo "Two-replica Docker failover AND crash auto-restart smoke: PASS (Docker only, not Kubernetes)"
