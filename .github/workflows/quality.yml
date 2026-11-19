@@ -17,6 +17,19 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: python -m pip install -r requirements.txt
       - run: python -m pip check
+      - name: Static-check deployment and MLOps scripts
+        run: |
+          bash -n scripts/deploy_staging_safe.sh
+          bash -n scripts/docker_two_replica_failover.sh
+          bash -n scripts/verify_final_paiii.sh
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+          for name in ("quality.yml", "staging-deployment.yml", "monitored-academic-batch.yml", "scheduled-demo-drift.yml"):
+              obj = yaml.safe_load((Path(".github/workflows") / name).read_text(encoding="utf-8"))
+              assert isinstance(obj, dict) and "jobs" in obj, name
+          print("Workflow YAML parses successfully")
+          PY
       - name: Install frontend dependencies
         run: npm ci --prefix frontend
       - name: Build frontend
