@@ -37,3 +37,5 @@ Esta lista documenta alternativas posibles, no una comparación exhaustiva ejecu
 | Riesgo operacional | Latencia y timeouts aumentan bajo concurrencia; usar fallback determinístico |
 
 **Conclusión:** Qwen3 8B es la alternativa seleccionada y realmente implementada. La elección se justifica por las restricciones del prototipo; la comparación exhaustiva empírica con otros modelos locales y la calidad humana siguen pendientes. La rúbrica no exige un proveedor de nube.
+
+Los 75 intentos locales originales y sus entradas, métricas y manifiesto están disponibles en [la evidencia Qwen local](../reports/genai/qwen_local_2026/README.md).
