@@ -124,3 +124,5 @@ Reproducir con `PYTHONPATH=src python scripts/audit_closure.py recommendations -
 Una ejecución adicional del motor local Qwen3 8B (digest `500a1f067a9f`, Q4_K_M) midió 30 casos controlados y 30 casos operativos. Ambos grupos tuvieron 30/30 respuestas aceptadas por los validadores proxy, sin contradicciones, cifras no soportadas ni timeouts. Las medianas fueron 8114.68 ms y 8305.30 ms; las latencias p95 fueron 19783.22 ms y 18347.63 ms. La muestra de cinco casos por tres corridas conservó las respuestas y el conjunto de features; la mediana CV fue 0.1095.
 
 Esta corrida es independiente de la evaluación histórica congelada, no mide automáticamente utilidad profesional, y no equivale a una comparación homogénea con modelos alternativos. La selección y el plan de comparación local están en [selección de modelo](genai_model_selection.md). El Playground ofrece Ollama local o solo predicción; Health, Delay y Cost permanecen inalterados.
+
+Los resultados de los 30 casos, la repetibilidad y el manifiesto del experimento complementario están versionados en [Qwen local 2026](../reports/genai/qwen_local_2026/README.md).
