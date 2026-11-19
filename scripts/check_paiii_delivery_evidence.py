@@ -63,6 +63,58 @@ def check(root: Path) -> list[str]:
     selection = root / "docs/genai_model_selection.md"
     if not selection.is_file() or "Qwen3 8B vs. GPT-OSS 20B" not in selection.read_text(encoding="utf-8"):
         issues.append("Public model selection must disclose the actual paired model comparison")
+    # Delivery consistency: count rubric outcomes, verify KPI semantics, and avoid
+    # references to presentation notes intentionally removed from the public tree.
+    rubric_rows = [line.split("|") for line in rubric.splitlines()
+                   if line.startswith("| R6.") or line.startswith("| R7.")
+                   or line.startswith("| RA1-") or line.startswith("| RA2-")]
+    rubric_counts = {"DEMOSTRADO CON LIMITACIONES": 0,
+                     "PARCIAL": 0, "REQUIERE EVALUACIÓN HUMANA": 0}
+    for cells in rubric_rows:
+        if len(cells) < 7:
+            issues.append("Malformed rubric criterion row")
+            continue
+        status = cells[5].strip()
+        if status not in rubric_counts:
+            issues.append(f"Unexpected rubric status: {status}")
+        else:
+            rubric_counts[status] += 1
+    if len(rubric_rows) != 27 or rubric_counts != {
+        "DEMOSTRADO CON LIMITACIONES": 16,
+        "PARCIAL": 4, "REQUIERE EVALUACIÓN HUMANA": 7
+    }:
+        issues.append(f"Rubric counts changed; review evidence: {rubric_counts}")
+
+    promise_path = root / "reports/promise_validation/risk_alert_metrics.json"
+    if not promise_path.is_file():
+        issues.append("Missing risk-alert KPI report")
+    else:
+        try:
+            promise = json.loads(promise_path.read_text(encoding="utf-8"))
+            final_risk = promise["final"]["final_risk_projects"]
+            cutoff = next(row for row in promise["temporal"]
+                          if row.get("cutoff_percent") == 60)
+            if final_risk != 473 or cutoff.get("tp") != 359:
+                issues.append("Risk-alert numerator or denominator changed; revalidate slides")
+            if abs(cutoff.get("full_cohort_detection_rate", 0) -
+                   359 / 473) > 1e-10:
+                issues.append("Incorrect 60% Risk Alert detection metric")
+            if abs(promise["final"].get("exact_critical_recall", 0) -
+                   0.5681818181818182) > 1e-10:
+                issues.append("Critical exact recall changed; revalidate limitations")
+        except (KeyError, ValueError, StopIteration, TypeError, json.JSONDecodeError) as exc:
+            issues.append(f"Cannot verify risk-alert report: {exc}")
+
+    readme_path = root / "README.md"
+    mlops_path = root / "docs/mlops_production.md"
+    for path in (readme_path, report_path, mlops_path):
+        if path.is_file() and "FINAL_READINESS.md" in path.read_text(encoding="utf-8"):
+            issues.append(f"Stale public link to private notes: {path.relative_to(root)}")
+    delivery_status = root / "docs/ESTADO_VERIFICACION_ENTREGA.md"
+    if not delivery_status.is_file():
+        issues.append("Missing current delivery verification checklist")
+    if "Autor: completar" in report or "HEAD final exacto y CI se consignan" in report:
+        issues.append("Final academic report still contains outdated cover or CI placeholders")
     return issues
 
 
