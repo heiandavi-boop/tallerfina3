@@ -59,25 +59,17 @@ async function openProject() {
 }
 
 describe('Playground ejecutivo', () => {
-  it('permite seleccionar OpenAI y enviar la clave solamente como cabecera efímera', async () => {
+  it('permite generar recomendaciones locales sin enviar credenciales externas', async () => {
     const user = userEvent.setup();
     await openProject();
-    await user.selectOptions(screen.getByLabelText('Motor de IA'), 'openai');
-    await user.clear(screen.getByLabelText('Modelo OpenAI'));
-    await user.type(screen.getByLabelText('Modelo OpenAI'), 'gpt-4.1');
-    const keyInput = screen.getByLabelText(/API key/);
-    expect(keyInput.type).toBe('password');
-    await user.type(keyInput, 'sk-test-session-secret');
+    await user.selectOptions(screen.getByLabelText('Motor de IA'), 'ollama');
     await user.click(screen.getByRole('button', { name: 'Evaluar riesgo del proyecto' }));
     await screen.findByRole('heading', { name: '¿Este proyecto requiere atención?' });
     const calls = global.fetch.mock.calls.filter(([url]) => url.endsWith('/api/predict'));
     expect(calls).toHaveLength(1);
-    expect(calls[0][1].headers['X-PRUNIN-Provider']).toBe('openai');
-    expect(calls[0][1].headers['X-PRUNIN-OpenAI-Model']).toBe('gpt-4.1');
-    expect(calls[0][1].headers['X-PRUNIN-OpenAI-Key']).toBe('sk-test-session-secret');
-    expect(calls[0][1].body).not.toContain('sk-test-session-secret');
-    await user.click(screen.getByRole('button', { name: 'Borrar' }));
-    expect(keyInput.value).toBe('');
+    expect(calls[0][1].headers['X-PRUNIN-Provider']).toBe('ollama');
+    expect(Object.keys(calls[0][1].headers)).toEqual(['Content-Type', 'X-PRUNIN-Provider']);
+    expect(screen.queryByLabelText(/API key/i)).toBeNull();
   });
 
   it('muestra una sola vez el resumen sin acciones y conserva la procedencia de las acciones', () => {
