@@ -58,17 +58,17 @@ function Sidebar({ mode, onProject, onCsv, onEvidence, result, genaiStatus }) {
         </a>
         <nav className="sidebar-nav" aria-label="Navegación principal">
             <a href="#top" className="active"><span aria-hidden="true">⌂</span> Inicio</a>
-            <button type="button" className={mode === 'project' ? 'selected' : ''} onClick={onProject}><span aria-hidden="true">⌕</span> Analizar proyecto</button>
+            <button type="button" className={mode === 'project' ? 'selected' : ''} onClick={() => onProject('workspace')}><span aria-hidden="true">⌕</span> Analizar proyecto</button>
             <button type="button" className={mode === 'csv' ? 'selected' : ''} onClick={onCsv}><span aria-hidden="true">▦</span> Análisis CSV</button>
-            <a href={result ? '#simulation' : '#project'} onClick={onProject}><span aria-hidden="true">☷</span> Simulación What-if</a>
-            <a href={result ? '#result' : '#workspace'} onClick={onProject}><span aria-hidden="true">▥</span> Métricas</a>
+            <a href={result ? '#simulation' : '#project'} onClick={() => onProject(result ? 'simulation' : 'project')}><span aria-hidden="true">☷</span> Simulación What-if</a>
+            <a href={result ? '#result' : '#workspace'} onClick={() => onProject(result ? 'result' : 'project')}><span aria-hidden="true">▥</span> Métricas</a>
             <button type="button" onClick={onEvidence}><span aria-hidden="true">▤</span> Evidencia</button>
             <a href="#ai-settings"><span aria-hidden="true">⚙</span> Configuración</a>
         </nav>
         <div className="sidebar-bottom">
             <div className="sidebar-ollama" aria-label="Estado de Ollama">
                 <span className="sidebar-chip-symbol">✳</span>
-                <span><b>IA generativa local</b><small>Ollama · Qwen3 8B</small><em className={genaiStatus?.available ? 'online' : 'offline'}>{genaiStatus?.available ? '● Disponible' : '○ No disponible'}</em></span>
+                <span><b>IA generativa local</b><small>Ollama · {genaiStatus?.model || 'modelo local'}</small><em className={genaiStatus?.available ? 'online' : 'offline'}>{genaiStatus?.available ? '● Disponible' : '○ No disponible'}</em></span>
             </div>
             <p>Proyecto Aplicado III<br/>Prototipo académico</p>
         </div>
@@ -103,7 +103,7 @@ function DashboardMetrics({ result, genaiStatus }) {
         <article className="dashboard-metric"><span className="metric-icon violet">◎</span><div><small>Indicador combinado de riesgo</small><strong>{showRisk ? percent(riskScore) : '—'}</strong><span>No es una probabilidad calibrada</span></div></article>
         <article className="dashboard-metric"><span className="metric-icon blue">▣</span><div><small>Retraso estimado</small><strong>{days(prediction?.delay_days)}</strong><span>Estimación del modelo predictivo</span></div></article>
         <article className="dashboard-metric"><span className="metric-icon orange">▥</span><div><small>Desviación de costo</small><strong>{costLabel}</strong><span>Respecto al presupuesto previsto</span></div></article>
-        <article className="dashboard-metric"><span className="metric-icon green">✳</span><div><small>Proveedor IA local</small><strong>Ollama</strong><span>{genaiStatus?.available ? 'Motor disponible' : 'Sin conexión confirmada'} · Qwen3 8B</span></div></article>
+        <article className="dashboard-metric"><span className="metric-icon green">✳</span><div><small>Proveedor IA local</small><strong>Ollama</strong><span>{genaiStatus?.available ? 'Motor disponible' : 'Sin conexión confirmada'} · {genaiStatus?.model || 'modelo local'}</span></div></article>
     </section>;
 }
 
@@ -236,7 +236,7 @@ export default function Experience() {
         setError('');
     };
 
-    const navigateToProject = () => { setMode('project'); setError(''); window.requestAnimationFrame(() => document.getElementById('workspace')?.scrollIntoView({ behavior: 'smooth' })); };
+    const navigateToProject = (target = 'workspace') => { setMode('project'); setError(''); window.requestAnimationFrame(() => document.getElementById(target)?.scrollIntoView({ behavior: 'smooth' })); };
     const navigateToCsv = () => { setMode('csv'); setError(''); window.requestAnimationFrame(() => document.getElementById('workspace')?.scrollIntoView({ behavior: 'smooth' })); };
 
     const genaiHeaders = () => ({ 'X-PRUNIN-Provider': genaiProvider });
@@ -376,7 +376,7 @@ export default function Experience() {
                         <option value="none">Solo predicción (sin IA generativa)</option>
                     </select>
                 </div>
-                <p className="ai-settings-note">{genaiProvider === 'ollama' ? 'Recomendaciones con Qwen3 8B a través de Ollama local. Requiere el servicio disponible en el servidor.' : 'Se conservan las predicciones de riesgo, tiempo y costo, junto con las reglas de respaldo; no se ejecuta generación de texto.'}</p>
+                <p className="ai-settings-note">{genaiProvider === 'ollama' ? `Recomendaciones con ${genaiStatus?.model || 'el modelo configurado'} a través de Ollama local. Requiere el servicio disponible en el servidor.` : 'Se conservan las predicciones de riesgo, tiempo y costo, junto con las reglas de respaldo; no se ejecuta generación de texto.'}</p>
             </section>
             <div className="mode-switch" role="tablist" aria-label="Modo de análisis">
                 <button type="button" role="tab" aria-selected={mode === 'project'} className={mode === 'project' ? 'active' : ''} onClick={() => {
