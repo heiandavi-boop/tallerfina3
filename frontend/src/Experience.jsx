@@ -399,9 +399,16 @@ export default function Experience() {
                 <ProjectForm schema={schema} values={values} onChange={change} onAnalyze={analyze} loading={loading} activePreset={activePreset} onPreset={choosePreset} coverage={coverage} importedSource={importedProjectSource} />
                 {loading && <div className="analysis-loading" role="status" aria-live="polite"><span className="spinner large" /><div><strong>{loadingMessages[loadingStage]}</strong><small>La predicción se ejecuta localmente y las recomendaciones usan Ollama cuando está habilitado.</small></div></div>}
                 <div className="dashboard-result-slot" ref={resultRef}><ResultHero result={result} schema={schema} /></div>
+                <div className="dashboard-recommendation-slot">
+                    {result ? <RecommendationCard data={result.recommendations} fields={schema.fields} /> :
+                        <section className="surface dashboard-empty-recommendation" aria-label="Recomendaciones con evidencia">
+                            <div className="section-heading"><div><span className="step-number">✧</span><div><p className="eyebrow">IA LOCAL</p><h2>Recomendaciones con evidencia</h2></div></div></div>
+                            <p>Cuando evalúes el proyecto, aquí encontrarás las acciones priorizadas y su justificación. Las sugerencias generativas se validan contra los indicadores aportados.</p>
+                            <span className="dashboard-empty-pill">Sin análisis todavía</span>
+                        </section>}
+                </div>
                 {result && <>
                     <div className="dashboard-driver-slot"><DriversPanel drivers={result.drivers} fields={schema.fields} /></div>
-                    <div className="dashboard-recommendation-slot"><RecommendationCard data={result.recommendations} fields={schema.fields} /></div>
                     <div className="dashboard-simulation-slot"><ScenarioPanel schema={schema} values={values} onRun={simulate} loading={simulationLoading} comparison={comparison} /></div>
                     <div className="technical-action"><button type="button" className="evidence-button large-evidence" onClick={() => setDrawerOpen(true)}>▤ Ver evidencia técnica</button></div>
                 </>}
