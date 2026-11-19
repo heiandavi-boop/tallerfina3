@@ -53,7 +53,12 @@ function AppHeader({ model, apiReady, result, genaiStatus, onTechnical }) {
     return <header className="app-header">
         <div className="header-inner">
             <a className="brand" href="#top" aria-label="PRUNIN AI Core, inicio"><span className="brand-mark">P</span><span><strong>PRUNIN AI Core</strong><small>Predicción temprana de riesgo de proyectos</small></span></a>
-            <div className="header-actions"><span className="tagline">Anticipa <i>·</i> Explica <i>·</i> Recomienda <i>·</i> Simula</span>{result && <button type="button" className="evidence-button" onClick={onTechnical}><span aria-hidden="true">⚙</span> Ver evidencia técnica</button>}</div>
+            <nav className="header-navigation" aria-label="Navegación principal">
+                <a href="#overview-title">Inicio</a>
+                <a href="#workspace">Analizar</a>
+                <a href="#methodology">Metodología</a>
+            </nav>
+            <div className="header-actions"><a className="header-cta" href="#workspace">Abrir análisis <span aria-hidden="true">↗</span></a>{result && <button type="button" className="evidence-button" onClick={onTechnical}>Ver evidencia técnica</button>}</div>
         </div>
         <div className="header-inner status-wrap"><StatusBar model={model} apiReady={apiReady} result={result} genaiStatus={genaiStatus} /></div>
     </header>;
@@ -63,10 +68,14 @@ function PresentationOverview() {
     return <div className="presentation-overview">
         <section className="presentation-hero" aria-labelledby="overview-title">
             <div className="presentation-copy">
-                <p className="eyebrow">PRUNIN · ALERTA TEMPRANA PARA PROYECTOS</p>
-                <h1 id="overview-title">¿Podemos detectar un proyecto en riesgo antes de que sea demasiado tarde?</h1>
-                <p className="hero-lead">PRUNIN analiza señales de avance, cronograma y costo para ayudar al responsable del proyecto a decidir <strong>dónde intervenir antes del cierre</strong>.</p>
-                <div className="original-promise"><span>Promesa original</span><strong>Detectar tempranamente ≥75 % de los proyectos críticos o en alto riesgo.</strong></div>
+                <p className="eyebrow hero-kicker"><span className="kicker-mark" aria-hidden="true" /> INTELIGENCIA PREDICTIVA PARA PROYECTOS</p>
+                <h1 id="overview-title">Anticipa riesgos.<br/><span>Toma mejores decisiones.</span></h1>
+                <p className="hero-lead">Convierte los indicadores de tus proyectos en <strong>alertas tempranas, explicaciones y recomendaciones accionables</strong>. Una experiencia clara, desde el análisis inicial hasta la simulación.</p>
+                <div className="hero-actions">
+                    <a className="hero-primary-action" href="#workspace">Analizar un proyecto <span aria-hidden="true">↗</span></a>
+                    <a className="hero-secondary-action" href="#methodology">Conocer la metodología <span aria-hidden="true">↓</span></a>
+                </div>
+                <div className="original-promise"><span>Objetivo del proyecto</span><strong>Detectar tempranamente ≥75 % de los proyectos críticos o en alto riesgo.</strong></div>
             </div>
             <aside className="research-result" aria-label="Resultado principal del experimento">
                 <span>Resultado experimental</span>
@@ -76,7 +85,7 @@ function PresentationOverview() {
             </aside>
         </section>
 
-        <section className="plain-flow" aria-label="Cómo funciona PRUNIN">
+        <section className="plain-flow" id="methodology" aria-label="Cómo funciona PRUNIN">
             <article><span>1</span><div><strong>Observa</strong><p>Avance, cumplimiento del cronograma, comportamiento del costo, duración y presupuesto.</p></div></article>
             <article><span>2</span><div><strong>Detecta</strong><p>Activa una alerta cuando el nivel de riesgo queda <b>En riesgo</b> o <b>Crítico</b>.</p></div></article>
             <article><span>3</span><div><strong>Explica</strong><p>Muestra señales que empujan el riesgo y propone acciones revisables.</p></div></article>
@@ -287,8 +296,16 @@ export default function Experience() {
         <main className="page-content">
             {schema.model.mode === 'synthetic_demo' && <aside className="mode-notice" role="note">Modelo de demostración con datos sintéticos. La versión académica se indicará aquí cuando esté cargada.</aside>}
             <PresentationOverview />
-            <section className="surface content-section" aria-label="Configuración de inteligencia artificial">
-                <div className="section-heading"><div><p className="eyebrow">PROVEEDOR DE IA</p><h2>Selecciona cómo generar las recomendaciones</h2></div></div>
+            <section className="workspace-intro" id="workspace" aria-labelledby="workspace-heading">
+                <div>
+                    <p className="eyebrow">ESPACIO DE ANÁLISIS</p>
+                    <h2 id="workspace-heading">Del dato a la decisión</h2>
+                    <p>Elige un caso de ejemplo o introduce tus indicadores. La plataforma es de acceso directo: no necesitas crear una cuenta.</p>
+                </div>
+                <span className="workspace-index" aria-hidden="true">01 / 03</span>
+            </section>
+            <section className="surface content-section ai-settings" aria-label="Configuración de inteligencia artificial">
+                <div className="section-heading"><div><p className="eyebrow">CONFIGURACIÓN LOCAL</p><h2>Motor de recomendaciones</h2></div></div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
                     <label htmlFor="prunin-provider"><strong>Motor de IA</strong></label>
                     <select id="prunin-provider" value={genaiProvider} onChange={event => setGenaiProvider(event.target.value)}>
@@ -296,7 +313,7 @@ export default function Experience() {
                         <option value="none">Solo predicción (sin IA generativa)</option>
                     </select>
                 </div>
-                {genaiProvider === 'ollama' && <small>Ollama debe estar ejecutándose en el equipo servidor con el modelo instalado. El motor se selecciona para cada análisis, sin reiniciar PRUNIN.</small>}
+                <p className="ai-settings-note">{genaiProvider === 'ollama' ? 'Recomendaciones con Qwen3 8B a través de Ollama local. Requiere el servicio disponible en el servidor.' : 'Se conservan las predicciones de riesgo, tiempo y costo, junto con las reglas de respaldo; no se ejecuta generación de texto.'}</p>
             </section>
             <div className="mode-switch" role="tablist" aria-label="Modo de análisis">
                 <button type="button" role="tab" aria-selected={mode === 'project'} className={mode === 'project' ? 'active' : ''} onClick={() => {
@@ -317,7 +334,7 @@ export default function Experience() {
 
             {mode === 'project' ? <>
                 <ProjectForm schema={schema} values={values} onChange={change} onAnalyze={analyze} loading={loading} activePreset={activePreset} onPreset={choosePreset} coverage={coverage} importedSource={importedProjectSource} />
-                {loading && <div className="analysis-loading" role="status" aria-live="polite"><span className="spinner large" /><div><strong>{loadingMessages[loadingStage]}</strong><small>'La predicción se ejecuta localmente y las recomendaciones usan Ollama cuando está habilitado.'</small></div></div>}
+                {loading && <div className="analysis-loading" role="status" aria-live="polite"><span className="spinner large" /><div><strong>{loadingMessages[loadingStage]}</strong><small>La predicción se ejecuta localmente y las recomendaciones usan Ollama cuando está habilitado.</small></div></div>}
                 <div ref={resultRef}><ResultHero result={result} schema={schema} /></div>
                 {result && <>
                     <DriversPanel drivers={result.drivers} fields={schema.fields} />
