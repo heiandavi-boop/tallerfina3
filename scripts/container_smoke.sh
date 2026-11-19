@@ -43,9 +43,9 @@ python3 - <<'PY'
 import json
 from pathlib import Path
 p = json.loads(Path("/tmp/prunin-genai-providers.json").read_text())
-assert set(p) == {"ollama", "openai"}
-assert p["openai"].get("key_configured_on_server") is False
-print("GenAI provider status endpoint: OK (no API key)")
+assert set(p) == {"ollama"}
+assert p["ollama"]["provider"] == "ollama"
+print("GenAI provider status endpoint: OK (Ollama only)")
 PY
 curl --fail --silent --show-error --max-time 10 "http://127.0.0.1:${port}/metrics" | grep -q "prunin_"
 echo "Container smoke: PASS (demo models only; no external LLM, no Kubernetes claim)"
