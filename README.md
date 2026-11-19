@@ -138,3 +138,14 @@ PRUNIN utiliza **Ollama con Qwen3 8B** o la modalidad **Solo predicción**. La i
 En producción la API exige configurar `PRUNIN_API_TOKEN` para las rutas protegidas y rechaza CORS comodín. Ollama debe ejecutarse en un servidor confiable, protegido por controles de red adecuados. Consulta la [guía del motor local](docs/ai_providers.md), [riesgos](docs/ethics_security.md) y [evaluación](docs/genai_evaluation.md).
 
 Evidencia detallada de la ejecución complementaria local: [resultados Qwen](reports/genai/qwen_local_2026/README.md).
+
+
+## Verificación técnica final de PAIII (antes de sustentar)
+
+Ejecutar desde la raíz del clon local con dependencias y artefactos académicos instalados:
+
+```bash
+bash scripts/verify_final_paiii.sh
+```
+
+El comando ejecuta comprobaciones de rúbrica y métricas, pruebas backend/frontend, build y preflight **exigiendo `0.9.0-academic`**; no permite confundir artefactos sintéticos de demostración con los experimentales. **No reemplaza** el control de CI del commit final, una demo interactiva, evaluación humana de productividad, despliegue en producción ni los siete criterios de exposición oral. Estado comprobable y brechas abiertas: [verificación de entrega](docs/ESTADO_VERIFICACION_ENTREGA.md).
