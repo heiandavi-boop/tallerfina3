@@ -69,7 +69,7 @@ Esta presentación organiza los resultados y el recorrido demostrable. Los tiemp
 - **Ollama/Qwen3 8B**: evaluación histórica oficial de 30 casos con 29 respuestas aceptadas.
 - **Evaluación posterior de Qwen3 8B:** 30/30 aceptadas en dos configuraciones locales; mediana controlada 8,1 s.
 - **Comparación Qwen3 8B vs. GPT-OSS 20B** (mismos 30 casos TEST, M5 Pro 24 GB): 30/30 vs. 29/30 aceptadas; mediana 8,6 vs. 7,0 s; memoria 5,5 vs. 11,9 GB. Puntaje ponderado 0,981 vs. 0,987: **empate técnico, sin ganador defendible**. Qwen se mantiene por continuidad y menor memoria.
-- El usuario puede alternar proveedores sin cambiar las predicciones.
+- La versión de demostración mantiene Qwen3 8B como motor local predeterminado o permite usar solo predicción. El benchmark experimental compara Qwen con GPT-OSS, pero no cambia el modelo activo del producto.
 - Una respuesta inválida activa acciones de respaldo determinístico.
 
 **Evidencia:** [Evaluación GenAI](genai_evaluation.md), [proveedores](ai_providers.md), [comparación Qwen vs. GPT-OSS](../reports/genai/qwen_vs_gptoss_2026/comparison_report.md).
@@ -87,7 +87,7 @@ Esta presentación organiza los resultados y el recorrido demostrable. Los tiemp
 ## Diapositiva 10 — Ética, privacidad y control operativo
 - No usar datos empresariales sensibles sin autorización.
 - El motor local procesa las evidencias estructuradas dentro del equipo autorizado.
-- Claves solamente en memoria de sesión o entorno del servidor; nunca en repositorio.
+- La inferencia generativa es local: no se solicitan credenciales de un servicio generativo externo. Los tokens de acceso del servidor, si se configuran, no deben versionarse.
 - En producción, el API falla cerrado sin token y restringe CORS.
 - El cliente no puede habilitar Ollama cuando el servidor lo desactiva; un despliegue público aún requiere HTTPS e identidad multiusuario.
 - Los indicadores del modelo no prueban causalidad ni reemplazan decisiones profesionales.
@@ -98,8 +98,8 @@ Esta presentación organiza los resultados y el recorrido demostrable. Los tiemp
 - Fuente principal sintética externa; falta validación prospectiva con proyectos reales.
 - Delay ofrece mejora limitada frente al baseline.
 - Algunas señales son heurísticas y no provienen de variables supervisadas.
-- Productividad humana NO MEDIDA: el instrumento está listo, pero no hay participantes. La comparación exhaustiva entre modelos locales está pendiente.
-- MLOps: registro, gate de regresión y rollback demostrados con datos sintéticos (candidato rechazado). Docker se valida en CI; no hay clúster Kubernetes.
+- Productividad humana NO MEDIDA: el instrumento está listo, pero no hay participantes. Qwen3 y GPT-OSS sí se compararon experimentalmente; no existe evaluación semántica humana de sus recomendaciones.
+- MLOps: registro y gate de regresión demostrados con datos sintéticos (candidato rechazado); monitor demo automatizado en CI. Docker y balanceo con continuidad entre dos contenedores se validan en CI; no hay clúster Kubernetes operado, rollback productivo ni retraining continuo.
 
 **Evidencia:** [Matriz interna](rubric_matrix.md), [cierre](FINAL_READINESS.md).
 
@@ -107,7 +107,7 @@ Esta presentación organiza los resultados y el recorrido demostrable. Los tiemp
 - PRUNIN permite obtener predicciones replicables e información accionable documentada.
 - La meta operacional de detección temprana se cumple en el corte y denominador especificados, no en cualquier punto del proyecto.
 - Separar predicción, heurísticas, IA generativa y revisión humana mejora la trazabilidad.
-- Los proveedores generativos son intercambiables; los resultados científicos congelados permanecen intactos.
+- La selección de motores locales es configurable en el backend, aunque la aplicación mantiene Qwen como predeterminado; los resultados científicos congelados permanecen intactos.
 
 **Fuentes:** [Referencias](references.md).
 
