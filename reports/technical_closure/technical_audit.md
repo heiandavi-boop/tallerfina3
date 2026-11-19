@@ -51,3 +51,5 @@ No se modificaron dataset, split, configuración académica, modelos `.joblib` n
 - [Dependencias externas pendientes](remaining_external_dependencies.md)
 - [Evaluación de modelos locales](../../docs/genai_model_selection.md)
 - [Auditoría de rúbrica](../../docs/RUBRICA_OFICIAL_PAIII_2026.md)
+
+- **Respuestas reales del motor local:** [Qwen 2026](../genai/qwen_local_2026/README.md), con 75 intentos originales y el manifiesto de ejecución.
