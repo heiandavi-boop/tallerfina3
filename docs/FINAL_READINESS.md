@@ -1,6 +1,5 @@
 # Cierre final PRUNIN AI Core
 
-Estado de evidencia para la entrega académica. El archivo oficial [PAIII 2026](RUBRICA_OFICIAL_PAIII_2026.md) fue recibido y sus 27 descriptores máximos se contrastaron. No asigna calificación del mentor/invitado ni afirma validación empresarial/producción. La comparación OpenAI/Ollama usó 30 casos reales de TEST en modos controlado y operativo: Qwen3 8B fue medido, OpenAI quedó sin ejecutar por ausencia de clave en el proceso. Ninguna métrica académica se alteró. El SHA exacto de publicación y el run `quality` deben corresponder al `main` publicado; el identificador de workflow se comunica en la entrega final y no se reutiliza ningún run histórico.
 
 ## Verificaciones ejecutadas
 
@@ -24,7 +23,6 @@ Health Macro F1: **0.627576**. Delay MAE: **27.710468 días** frente a baseline 
 
 La evaluación Qwen oficial congelada no se modificó ni se reejecutó: 30 casos, 29/30 aceptadas, 1 claim numérico no soportado, mediana 3092.645 ms y p95 6634.72 ms.
 
-La comparación de proveedores del 19-11-2026 reportó Qwen3 8B 30/30 aceptadas en modo controlado (mediana 8114.68 ms, p95 19783.22 ms) y operativo (mediana 8305.3 ms, p95 18347.63 ms). OpenAI fue `openai_key_missing`, cero llamadas y USD 0; no es evidencia comparativa de calidad o latencia. Ver [reporte completo](../reports/genai/provider_comparison_2026/comparison_report.md).
 
 ## Benchmarks nuevos, separados
 
@@ -60,7 +58,6 @@ La correspondencia actual con el documento institucional está en [RUBRICA_OFICI
 
 - Completar autor, institución y portada.
 - Alinear la entrega pública con [manifiesto](DELIVERY_MANIFEST.md), [presentación](PRESENTACION_FINAL.md) y [protocolo de demo](DEMO_PROTOCOL.md); apuntes de ensayo y guiones privados se distribuyen fuera de Git.
-- Ejecutar prueba **real** de OpenAI y comparación equivalente con Qwen si se presentan resultados de ese proveedor.
 - Revisar renders, referencias y slides en el formato de entrega, incluidas las citas de la bibliografía de la rúbrica (RA1-F5 y RA1-Referencias).
 - Ejecutar y conservar el build/smoke del contenedor en el CI exacto del commit entregado; se trata de prueba de demo, no de Kubernetes productivo.
 - Ensayar y registrar una versión de 7/10/12 minutos.
