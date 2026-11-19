@@ -45,7 +45,7 @@ La entrega comprende un prototipo académico: Health/Delay/Cost, Final Status de
 
 ### Canales y medios para la audiencia
 
-El informe se dirige al profesor/mentor y evaluador técnico, con una lectura empresarial centrada en decisiones de gestión. GitHub permite revisar código, versiones y CI; el informe desarrolla problema, metodología e interpretación; la presentación resume mensajes centrales; el Playground muestra comportamiento observable; JSON/CSV conservan evidencia exacta; figuras facilitan comparar resultados. La combinación sirve a reproducibilidad, profundidad académica y síntesis ejecutiva. No se sustituye el argumento por terminales ni JSON completo. La presentación pública y el protocolo reproducible respaldan los recursos de exposición; voz, lenguaje no verbal y defensa espontánea requieren observación humana y preparación fuera del repositorio.
+El informe se dirige al profesor/mentor y evaluador técnico, con una lectura empresarial centrada en decisiones de gestión. GitHub permite revisar código, versiones y CI; el informe desarrolla problema, metodología e interpretación; la presentación resume mensajes centrales; el Playground muestra comportamiento observable; JSON/CSV conservan evidencia exacta; figuras facilitan comparar resultados. La combinación sirve a reproducibilidad, profundidad académica y síntesis ejecutiva. No se sustituye el argumento por terminales ni JSON completo. El protocolo técnico reproducible permanece publicado; el contenido de las diapositivas y la preparación oral se conservan exclusivamente en archivos personales fuera del repositorio. Voz, lenguaje no verbal y defensa espontánea requieren observación humana.
 
 ## 10. Arquitectura
 
