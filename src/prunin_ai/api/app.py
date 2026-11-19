@@ -13,9 +13,9 @@ from typing import Any
 import pandas as pd
 import qrcode
 import yaml
-from fastapi import FastAPI, File, HTTPException, UploadFile, Header
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile, Header
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, Response, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 from .catalog import PRESETS
@@ -23,6 +23,7 @@ from .model_runtime import ModelRuntime, ROOT, unused_what_if_changes
 from .recommendations import build_recommendations, check_ollama_status, check_openai_status, recommendations_not_requested, warmup_ollama
 from .monitoring import monitoring
 from .schema import ProjectInput, WhatIfRequest
+from .security import OpenAIGuard, configured_token, requires_token, resolve_cors_origins, token_matches
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -37,8 +38,19 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="PRUNIN AI Core Playground", version="1.0.0", lifespan=lifespan)
-cors_origins = [item.strip() for item in os.getenv("PRUNIN_CORS_ORIGINS", "*").split(",") if item.strip()]
-app.add_middleware(CORSMiddleware, allow_origins=cors_origins or ["*"], allow_credentials=False, allow_methods=["*"], allow_headers=["*"])
+cors_origins = resolve_cors_origins()
+app.add_middleware(CORSMiddleware, allow_origins=cors_origins, allow_credentials=False, allow_methods=["*"], allow_headers=["*"])
+openai_guard = OpenAIGuard.from_env()
+
+
+@app.middleware("http")
+async def require_api_token(request: Request, call_next):
+    token = configured_token()
+    if token and request.method != "OPTIONS" and requires_token(request.url.path) and not token_matches(request.headers.get("authorization"), token):
+        return JSONResponse({"detail": "Autenticación requerida."}, status_code=401, headers={"WWW-Authenticate": "Bearer"})
+    return await call_next(request)
+
+
 runtime = ModelRuntime()
 logger = logging.getLogger("prunin.inference")
 
@@ -191,6 +203,7 @@ def schema():
 @app.post("/api/predict")
 def predict(
     payload: ProjectInput,
+    request: Request,
     include_recommendations: bool = True,
     x_prunin_provider: str | None = Header(default=None),
     x_prunin_openai_key: str | None = Header(default=None),
@@ -200,6 +213,11 @@ def predict(
         raise HTTPException(422, "Proveedor de IA no válido.")
     if x_prunin_openai_key is not None and len(x_prunin_openai_key) > 300:
         raise HTTPException(422, "La clave de API supera el límite permitido.")
+    if x_prunin_provider == "openai" and include_recommendations:
+        denied = openai_guard.acquire(request.client.host if request.client else "unknown")
+        if denied:
+            logger.warning(json.dumps({"event": "openai_request_denied", "failure_code": denied}))
+            raise HTTPException(429, "Límite de solicitudes a OpenAI alcanzado; intente más tarde o use Ollama/fallback.", headers={"X-PRUNIN-Failure-Code": denied, "Retry-After": "60"})
     try:
         return run_prediction(
             payload.model_dump(), include_recommendations=include_recommendations,
