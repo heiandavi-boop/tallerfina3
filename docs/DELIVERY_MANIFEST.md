@@ -1,27 +1,36 @@
-# Manifiesto de entrega académica
+# Manifiesto de entrega académica: repositorio público y material local
 
-## Archivos públicos de la entrega
-- `README.md`: visión del problema, instrucciones y resultados.
-- `docs/INFORME_FINAL.md`: planteamiento, metodología, resultados, interpretación, conclusiones y referencias.
-- `docs/PRESENTACION_FINAL.md`: contenido académico de las 12 diapositivas, sin notas privadas de ensayo.
-- `docs/DEMO_PROTOCOL.md`: pasos reproducibles de la demostración.
-- `docs/architecture.md`, `docs/training.md`, `docs/datasets.md`, `docs/model_card.md`: diseño, entrenamiento, procedencia y limitaciones.
-- `docs/genai_evaluation.md`, `docs/ai_providers.md`, `docs/ethics_security.md`: evaluación del componente generativo, selección de proveedor y riesgos.
-- `src/`, `frontend/`, `scripts/`, `tests/`, `configs/`: implementación y pruebas.
-- `reports/0.9.0-academic/`, `reports/promise_validation/` y `reports/genai/qwen_local_2026/`: evidencia experimental y ejecución complementaria exclusivamente local.
-- `reports/efficiency/inprocess_2026/` y `reports/human_validation/productivity_summary.json`: eficiencia técnica y estado NO MEDIDA de la productividad humana.
-- `reports/mlops/`: registro de modelos y ciclo de reentrenamiento demostrativo.
-- `reports/technical_closure/`: benchmark HTTP individual/CSV y concurrencia, ejecución offline de drift y auditoría técnica. En HTTP hubo 100/100 respuestas válidas por nivel 1/4/8/16; no se operó un clúster ni se probó caída de una réplica.
-- `reports/technical_closure/technical_audit.md`, `technical_audit.json`, `test_summary.md`, `evidence_index.md`, `scientific_integrity.json` y `remaining_external_dependencies.md`: cierre reproducible, estado de validación, hashes académicos y límites no medidos.
-- `reports/monitoring/profiles/0.9.0-academic-train-profile.json`: perfil agregado de features TRAIN para los avisos OOD; no publica filas ni labels individuales.
-- `docs/ORAL_EVIDENCE.md`: correspondencia entre recursos públicos y criterios orales por comprobar.
+## Material que debe permanecer en GitHub
 
-## Contenido privado/no publicado
-Guiones literales, bancos personales de preguntas, notas de ensayo y registros de práctica. Se conservan en el paquete de estudio separado, no en `main`. Tampoco se publican credenciales, datasets pesados, artefactos de modelos con extensión `.joblib`, cachés, ni expedientes empresariales.
+- `README.md`: descripción, instrucciones de ejecución y resultados.
+- `docs/INFORME_FINAL.md`: documento técnico académico y conclusiones verificables.
+- `docs/DEMO_PROTOCOL.md`: comprobación técnica reproducible de la aplicación, **no** guion oral ni contenido de diapositivas.
+- `docs/RUBRICA_OFICIAL_PAIII_2026.md`: matriz de trazabilidad de evidencias y límites observados, sin atribución de nota oficial.
+- `docs/architecture.md`, `docs/training.md`, `docs/datasets.md`, `docs/model_card.md`: arquitectura, datos, preprocesamiento, entrenamiento y reproducibilidad.
+- `docs/genai_evaluation.md`, `docs/genai_model_selection.md`, `docs/ai_providers.md`, `docs/ethics_security.md`: integración, comparación experimental y restricciones éticas.
+- `src/`, `frontend/`, `scripts/`, `tests/`, `configs/`, `.github/workflows/`: implementación, pruebas y CI.
+- `reports/0.9.0-academic/`, `reports/promise_validation/`, `reports/genai/`: resultados científicos y comparativos con trazabilidad.
+- `reports/efficiency/`, `reports/technical_closure/`, `reports/mlops/`: benchmarks operativos, CI, evidencias MLOps y sus limitaciones.
+- `reports/human_validation/productivity_summary.json`: estado **NO MEDIDA**; no hay participantes ni se afirma productividad humana.
 
-## Estado de aceptación
+## Exclusivamente local: material de la presentación
 
-Los controles automatizados deben pasar sobre el commit de entrega; la reproducibilidad del experimento académico y las limitaciones de validación empresarial se conservan. La selección de Qwen es local y la comparación exhaustiva entre alternativas locales aún requiere experimentos reales.
+Los siguientes documentos se retiraron del árbol activo del repositorio y se conservan mediante una **copia fuera de Git**:
 
-## Ética de autoría
-La documentación describe el sistema y su evidencia verificable. No se incluyen transcripciones de trabajo ni instrucciones privadas de redacción. Debe cumplirse cualquier exigencia institucional de declaración de herramientas empleadas; retirar archivos de trabajo no sustituye una declaración de autoría cuando sea obligatoria.
+- `PRESENTACION_FINAL.md` — estructura y contenido de diapositivas.
+- `ORAL_EVIDENCE.md` — preparación y criterios de exposición oral.
+- `DEFENSA_PAIII_NIVEL4.md` — preguntas del jurado, respuestas y guía de defensa.
+
+Tampoco publicar notas personales, guiones literales, sesiones de ensayo, formatos de práctica, diapositivas PPTX/PDF, grabaciones, materiales de exposición ni bancos privados de preguntas. La ruta `material_privado/` y los nombres históricos de estas notas están ignorados en `.gitignore`.
+
+**Para recuperar los tres archivos originales:** desde una copia local de Git, ejecutar `git show 862d8747f76afa87eef525a8e470fbabbd49f389:docs/PRESENTACION_FINAL.md` (y cambiar el nombre para los otros dos archivos); guardar las salidas en una carpeta personal fuera del repositorio. Retirar archivos de `main` no reescribe el historial remoto.
+
+## Aclaraciones de entrega
+
+Este repositorio sigue siendo suficiente para revisión del **código y evidencia técnica**, pero los archivos de exposición oral se entregan por separado si la institución los exige. La fuente institucional original de la rúbrica también permanece fuera de Git.
+
+No se versionan contraseñas, credenciales, expedientes privados ni datasets/modelos pesados salvo los artefactos explícitamente autorizados.
+
+**Estado de aceptación:** la CI debe aprobar el commit final; no se deduce ninguna calificación docente por pasar pruebas automatizadas. La ausencia de productividad humana medida, uso empresarial y evaluación oral observada se declara en los documentos públicos.
+
+**Integridad de autoría:** cumplir las reglas institucionales de citación y declaración de herramientas, cuando correspondan. Separar notas privadas no equivale a borrar los commits históricos ni a ocultar contribuciones exigidas por las normas académicas.
