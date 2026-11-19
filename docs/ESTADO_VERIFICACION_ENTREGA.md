@@ -64,3 +64,10 @@ Las mejoras siguientes son **implementaciones versionadas, no pruebas de operaci
 4. **R7.2-Cr6 — MLOps.** `scripts/mlops_retraining_gate.py` y sus pruebas exigen drift completo, batch nuevo con SHA distinto al TRAIN, etiquetas verificadas y aprobadas, cohorte mínima y aprobación humana para declarar `ELIGIBLE_FOR_CANDIDATE_TRAINING`. Nunca reentrena ni promueve automáticamente. `.github/workflows/monitored-academic-batch.yml` permite analizar manualmente un **batch nuevo** desde un runner de staging; requiere archivos autorizados en `/opt/prunin-staging/data/`. Un estado `BLOCKED` es la salida esperada cuando falta evidencia, no un error que deba ocultarse. El workflow semanal de datos demo sigue siendo exclusivamente un smoke test, no seguimiento productivo.
 
 **Verificación final obligatoria:** ejecutar pruebas locales y CI del SHA exacto, y aportar trazas de operaciones en staging, mediciones humanas y datasets nuevos antes de modificar los estados oficiales de la rúbrica. La ausencia de cualquiera de esas evidencias deja la brecha abierta.
+
+
+## Revisión adicional de cierre
+
+- La publicación de staging ahora usa `scripts/deploy_staging_safe.sh`: primero arranca un candidato en puerto de prueba y verifica `/api/ready` y versión `0.9.0-academic`. Solo después sustituye el servicio de staging; si la nueva instancia no alcanza readiness, intenta recuperar la imagen anterior. **El cambio del puerto local no es cero-downtime**; no hay evidencia de ejecución en un host habilitado ni recuperación automática de Kubernetes.
+- `quality.yml` ahora inspecciona sintaxis Bash de los scripts de despliegue y pruebas y valida parseo YAML de los workflows. Una prueba estática solo demuestra que los archivos son parseables, no que el despliegue o recuperación funcionen.
+- La tabla de rúbrica **no cambia automáticamente sus estados** por estas modificaciones. Para declarar Nivel 4 se requiere evidencia de ejecución en entorno real, datos y decisiones humanas pertinentes, además de evaluación docente.
