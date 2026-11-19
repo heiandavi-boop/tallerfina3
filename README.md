@@ -126,3 +126,5 @@ Dataset sintético, severidad Critical todavía limitada, Delay débil, caveat E
 PRUNIN utiliza **Ollama con Qwen3 8B** o la modalidad **Solo predicción**. La interfaz no solicita credenciales de proveedores de inferencia externos y el backend solo habilita Ollama si `PRUNIN_ENABLE_OLLAMA=1`. El contrato genera hasta cuatro acciones con evidencia, justificación y seguimiento. Ante fallos o salidas inválidas se conserva la predicción y se activa el respaldo determinístico.
 
 En producción la API exige configurar `PRUNIN_API_TOKEN` para las rutas protegidas y rechaza CORS comodín. Ollama debe ejecutarse en un servidor confiable, protegido por controles de red adecuados. Consulta la [guía del motor local](docs/ai_providers.md), [riesgos](docs/ethics_security.md) y [evaluación](docs/genai_evaluation.md).
+
+Evidencia detallada de la ejecución complementaria local: [resultados Qwen](reports/genai/qwen_local_2026/README.md).
