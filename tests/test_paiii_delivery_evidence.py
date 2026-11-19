@@ -27,7 +27,7 @@ def test_gate_rejects_incomplete_or_simulated_results(tmp_path):
     human = tmp_path / "reports/human_validation/productivity_summary.json"
     human.parent.mkdir(parents=True)
     human.write_bytes((ROOT / "reports/human_validation/productivity_summary.json").read_bytes())
-    for path in ("docs/RUBRICA_OFICIAL_PAIII_2026.md", "docs/PRESENTACION_FINAL.md"):
+    for path in ("docs/RUBRICA_OFICIAL_PAIII_2026.md", "docs/INFORME_FINAL.md", "docs/genai_model_selection.md"):
         destination = tmp_path / path
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_bytes((ROOT / path).read_bytes())
