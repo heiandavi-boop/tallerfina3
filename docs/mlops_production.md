@@ -8,7 +8,7 @@ La versión académica incluye:
 - SHA256 de datos;
 - split manifest;
 - configuración de entrenamiento resuelta y model card;
-- workflow CI en GitHub Actions (resultado por commit en FINAL_READINESS.md);
+- workflow CI en GitHub Actions; cada ejecución debe comprobarse para el SHA exacto en la pestaña Actions (véase `docs/ESTADO_VERIFICACION_ENTREGA.md`);
 - `/api/health` y `/api/ready`;
 - `/api/monitoring`;
 - `/metrics` scrapeable en formato Prometheus;
