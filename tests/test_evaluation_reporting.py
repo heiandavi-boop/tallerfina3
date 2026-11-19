@@ -313,7 +313,16 @@ def test_current_audit_distinguishes_internal_rubric_and_unmeasured_requirements
     counts = Counter(row["final_state"] for row in rows)
     assert all(counts[state] == number for state, number in report["state_counts"].items())
     assert all(row["final_state"] == "REQUIERE EVALUACION HUMANA" for row in rows if row["code"].startswith("RA2-"))
-    assert all((ROOT / path).exists() for row in rows for path in row["evidence"])
+    # Historical audit references to oral decks remain as provenance, but those files
+    # are intentionally local-only and not required in the published tree.
+    private_oral = {
+        "docs/PRESENTACION_FINAL.md",
+        "docs/ORAL_EVIDENCE.md",
+        "docs/DEFENSA_PAIII_NIVEL4.md",
+    }
+    assert all((ROOT / path).exists() for row in rows for path in row["evidence"] if path not in private_oral)
+    manifest = (ROOT / "docs/DELIVERY_MANIFEST.md").read_text(encoding="utf-8")
+    assert all(path.rsplit("/", 1)[-1] in manifest for path in private_oral)
 
 
 def test_action_recommendation_report_contains_new_structure_metrics():
