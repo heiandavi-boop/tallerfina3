@@ -5,15 +5,41 @@ La versión académica utiliza **Ollama con Qwen3 8B** para convertir evidencia 
 
 La arquitectura separa los tres modelos LightGBM congelados (Health, Delay, Cost) de la capa generativa. Qwen no calcula las predicciones ni reemplaza la revisión profesional. El motor genera máximo cuatro acciones con evidencia verificable y seguimiento, y el validador puede rechazar la generación y ofrecer respaldo determinístico.
 
-## Alternativas locales de estudio
+## Alternativas locales comparadas
 
-| Candidato local | Disponibilidad documentada | Resultado de PRUNIN |
+| Candidato local | Arquitectura | Estado en PRUNIN |
 |---|---|---|
-| Qwen3 8B | Instalado y evaluado en Ollama | Medido en dos pruebas independientes |
-| Gemma 3 4B | No disponible en la corrida de candidatos | Sin mediciones; no se atribuye rendimiento |
-| Ministral 3 8B | No disponible en la corrida de candidatos | Sin mediciones; no se atribuye rendimiento |
+| Qwen3 8B (`500a1f067a9f`, Q4_K_M) | Transformer denso, 8,2 B parámetros, razonamiento desactivable | Modelo de producción; medido en la comparación 2026 |
+| GPT-OSS 20B (`17052f91a42e`, MXFP4) | Mezcla de expertos, 20,9 B totales, 4 de 32 expertos activos por token, razonamiento obligatorio | Medido en la comparación 2026 bajo las mismas condiciones |
+| Gemma 3 / Ministral 3 | — | Fuera de alcance por decisión del proyecto; sin mediciones ni rendimiento atribuido |
 
-Esta lista documenta alternativas posibles, no una comparación exhaustiva ejecutada. Para cerrar R6.1-Cr2 en Nivel 4 se necesita correr candidatos compatibles con el mismo conjunto de casos, formato, condiciones y validador; registrar velocidad, aceptación, contradicciones, pertinencia, consumo de recursos y repetibilidad. No mezclar mediciones con esquemas distintos.
+## Comparación experimental Qwen3 8B vs. GPT-OSS 20B (noviembre de 2026)
+
+Comando reproducible (no descarga modelos, no sobrescribe un experimento completo y reanuda corridas interrumpidas con verificación SHA-256 por fila):
+
+```bash
+PYTHONPATH=src python scripts/run_local_model_comparison.py \
+  --models qwen3:8b gpt-oss:20b --cases 30 --repeats 3 \
+  --output-dir reports/genai/qwen_vs_gptoss_2026
+```
+
+Ambos modelos recibieron los mismos 30 casos TEST (sin solape con TRAIN/VALIDATION), el mismo prompt, esquema JSON, validador, temperatura 0,1, `num_predict` 1200 y hardware (Apple M5 Pro, 24 GB), con ejecución secuencial, warm-up excluido y 5 casos × 3 repeticiones por modelo. Diferencia registrada: GPT-OSS no admite `think=false` (devuelve contenido vacío), por lo que se usó su nivel mínimo `low`.
+
+| Indicador (automático) | Qwen3 8B | GPT-OSS 20B |
+|---|---:|---:|
+| Aceptadas / JSON válido / esquema | 30/30 · 100 % · 100 % | 29/30 · 100 % · 100 % |
+| Cifras no soportadas / contradicciones / timeouts | 0 / 0 / 0 | 0 / 0 / 0 |
+| Motivo de rechazo | — | 1 × `invalid_evidence_provenance` |
+| Latencia media / mediana / p95 (ms) | 10938 / 8588 / 20974 | 7595 / 6973 / 10575 |
+| Tokens generados por segundo | 23,1 | 30,9 |
+| Memoria residente (`/api/ps`) | 5,5 GB | 11,9 GB |
+| Repetibilidad: casos consistentes / respuestas idénticas | 100 % / 80 % | 100 % / 20 % |
+
+**Matriz ponderada** (grounding 30 %, accionabilidad 25 %, JSON 15 %, latencia 10 %, robustez 10 %, repetibilidad 10 %): Qwen3 8B **0,981**, GPT-OSS 20B **0,987**. La diferencia (0,006) es menor que el margen defendible de 0,03 y el orden se invierte al eliminar la latencia o reducir su peso a la mitad; McNemar exacto sobre aceptación pareada: p = 1,0. **No se declara un ganador defendible.**
+
+![Matriz de decisión](../reports/genai/qwen_vs_gptoss_2026/charts/decision_matrix.png)
+
+Evidencia completa: [informe](../reports/genai/qwen_vs_gptoss_2026/comparison_report.md), [análisis crítico](../reports/genai/qwen_vs_gptoss_2026/critical_analysis.md), [conclusiones](../reports/genai/qwen_vs_gptoss_2026/conclusions.md), [datos crudos](../reports/genai/qwen_vs_gptoss_2026/benchmark_raw.csv) y [manifiesto](../reports/genai/qwen_vs_gptoss_2026/execution_manifest.json).
 
 ## Evidencia existente
 
@@ -23,7 +49,7 @@ Esta lista documenta alternativas posibles, no una comparación exhaustiva ejecu
 
 **Benchmark de candidatos locales:** Qwen3 8B produjo 29/30 aceptaciones en un experimento adicional, mientras que los otros candidatos de ese experimento no estuvieron disponibles. Consultar `reports/genai/comparison/` para el detalle real de esa corrida.
 
-## Matriz de decisión
+## Matriz cualitativa de restricciones (Qwen3 8B)
 
 | Criterio | Valor y limitación de Qwen3 8B |
 |---|---|
@@ -35,6 +61,6 @@ Esta lista documenta alternativas posibles, no una comparación exhaustiva ejecu
 | Reproducibilidad | Digest de modelo y parámetros documentados; los resultados varían con el entorno |
 | Riesgo operacional | Latencia y timeouts aumentan bajo concurrencia; usar fallback determinístico |
 
-**Conclusión:** Qwen3 8B es la alternativa seleccionada y realmente implementada. La elección se justifica por las restricciones del prototipo; la comparación exhaustiva empírica con otros modelos locales y la calidad humana siguen pendientes. La rúbrica no exige un proveedor de nube.
+**Conclusión:** la comparación medida muestra un empate técnico: GPT-OSS 20B es más rápido (mediana −19 %, p95 −50 %) y Qwen3 8B no tuvo rechazos y usa menos de la mitad de memoria residente. Con esa evidencia, PRUNIN **mantiene Qwen3 8B** como modelo configurado por continuidad, cero rechazos en el contrato de evidencia y menor huella en un equipo de 24 GB; no es una afirmación de superioridad. GPT-OSS 20B es una alternativa viable si la latencia pasa a ser prioritaria y hay memoria disponible. La comparación cubre dos alternativas locales y la calidad semántica humana sigue pendiente. La rúbrica no exige un proveedor de nube.
 
 Los 75 intentos locales originales y sus entradas, métricas y manifiesto están disponibles en [la evidencia Qwen local](../reports/genai/qwen_local_2026/README.md).

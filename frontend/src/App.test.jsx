@@ -455,3 +455,41 @@ describe('Playground ejecutivo', () => {
     expect(await screen.findByText(/Datos incompletos: no se alcanza la cobertura mínima/)).toBeTruthy();
   });
 });
+
+describe('Comparación de modelos IA', () => {
+  const metrics = (accepted, latency) => ({ accepted_rate: accepted, json_valid_rate: 1, schema_valid_rate: 1, grounded_rate: accepted, actionability_rate: 1, follow_up_verifiable_rate: 1, unsupported_numeric_claim_rate: 1 - accepted, contradiction_rate: 0, operational_error_rate: 0, latency_ms_median: latency, latency_ms_mean: latency, latency_ms_p95: latency * 1.5, repeatability: { consistent_case_rate: .8 } });
+  const comparison = (decision, valid = true) => ({
+    status: 'complete', valid, errors: valid ? [] : ['Estado del experimento: incomplete.'], cases: 30, repeat_cases: 5, repeats: 3, ollama_version: '0.33.2', hardware: { chip: 'Apple M5 Pro', memory_gb: 24 },
+    models: { 'qwen3:8b': { display_name: 'Qwen3 8B', metrics: metrics(.9, 9000) }, 'gpt-oss:20b': { display_name: 'GPT-OSS 20B', metrics: metrics(.5, 7000) } },
+    decision: { weights: { grounding: .3 }, scores: { 'qwen3:8b': { grounding: .9 }, 'gpt-oss:20b': { grounding: .5 } }, totals: { 'qwen3:8b': .9, 'gpt-oss:20b': .6 }, ...decision },
+  });
+  const serve = body => { global.fetch = vi.fn(() => jsonResponse(body)); };
+
+  it('reads pre-generated results only and shows a recommendation only when defensible', async () => {
+    const { ModelComparison } = await import('./components/ModelComparison.jsx');
+    serve(comparison({ defensible: true, winner: 'qwen3:8b', reasons: ['Qwen3 8B supera por 0.300.'] }));
+    render(<ModelComparison />);
+    expect(await screen.findByText('Modelo recomendado: Qwen3 8B')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Comparación de modelos IA' })).toBeTruthy();
+    expect(screen.getByText('Total ponderado')).toBeTruthy();
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(global.fetch.mock.calls[0][0]).toMatch(/\/api\/genai-comparison$/);
+    expect(global.fetch.mock.calls[0][1]).toBeUndefined();
+  });
+
+  it('withholds the recommendation when evidence is not defensible or not validated', async () => {
+    const { ModelComparison } = await import('./components/ModelComparison.jsx');
+    serve(comparison({ defensible: false, winner: null, reasons: ['La diferencia ponderada es menor que el margen defendible.'] }));
+    render(<ModelComparison />);
+    expect(await screen.findByText(/Sin modelo recomendado/)).toBeTruthy();
+    cleanup();
+    serve(comparison({ defensible: true, winner: 'qwen3:8b', reasons: [] }, false));
+    render(<ModelComparison />);
+    expect(await screen.findByText(/Resultados no validados/)).toBeTruthy();
+    expect(screen.queryByText(/Modelo recomendado:/)).toBeNull();
+    cleanup();
+    serve({ status: 'not_available', valid: false, errors: [] });
+    render(<ModelComparison />);
+    expect(await screen.findByText(/esta vista no lanza inferencias/)).toBeTruthy();
+  });
+});

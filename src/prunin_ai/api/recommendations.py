@@ -129,7 +129,9 @@ ACTION_VERBS = {
     "prioriza", "redistribuye", "registra", "revisa", "verifica",
 }
 
-DEFAULT_OLLAMA_TIMEOUT_SECONDS = 30.0
+# Covers a cold model load (several GB into memory) plus generation on a laptop.
+DEFAULT_OLLAMA_TIMEOUT_SECONDS = 90.0
+DEFAULT_OLLAMA_KEEP_ALIVE = "30m"
 _NUMERIC_CLAIM = re.compile(r"(?<![\w.])[+-]?(?:\d+(?:[.,]\d+)?|[.,]\d+)\s*(%)?")
 _STATUS_LOCK = threading.Lock()
 _LAST_GENAI_ERROR: dict[str, str] | None = None
@@ -569,7 +571,16 @@ def generate_ollama_grounded(
     row: dict[str, Any] | None = None,
     max_actions: int = 4,
     max_summary_chars: int = 180,
+    think: bool | str = False,
+    temperature: float = 0.1,
+    num_predict: int = 1200,
 ) -> dict[str, Any]:
+    """Generate validated recommendations with a local Ollama model.
+
+    ``think`` defaults to ``False`` (application behaviour). Reasoning models such as
+    gpt-oss cannot disable reasoning and return empty content with ``False``; the
+    comparison harness passes ``"low"`` for them and records the difference.
+    """
     model = model or os.getenv("PRUNIN_OLLAMA_MODEL", "qwen3:8b")
     url = url or os.getenv("PRUNIN_OLLAMA_URL", "http://localhost:11434/api/chat")
     timeout = ollama_timeout_seconds(timeout)
@@ -585,8 +596,9 @@ def generate_ollama_grounded(
                 "messages": [{"role": "user", "content": prompt}],
                 "stream": False,
                 "format": action_response_schema(allowed_features, context, max_actions=max_actions, max_summary_chars=max_summary_chars),
-                "think": False,
-                "options": {"temperature": 0.1, "num_predict": 1200},
+                "think": think,
+                "keep_alive": os.getenv("PRUNIN_OLLAMA_KEEP_ALIVE", DEFAULT_OLLAMA_KEEP_ALIVE),
+                "options": {"temperature": temperature, "num_predict": num_predict},
             },
             timeout=timeout,
         )
@@ -594,11 +606,14 @@ def generate_ollama_grounded(
         response_payload = response.json()
         message = response_payload.get("message") if isinstance(response_payload, dict) else None
         content = message.get("content") if isinstance(message, dict) else None
+        usage = _ollama_usage(response_payload, message)
         if not isinstance(content, str) or not content.strip():
             raw_response = str(getattr(response, "text", ""))
-            return _generation_failure(
+            failure = _generation_failure(
                 model, allowed_features, started, "invalid_json", "Ollama devolvió contenido vacío o sin campo message.content.", raw_response=raw_response
             )
+            failure["usage"] = usage
+            return failure
         raw_response = content
         parsed = json.loads(content)
         validation = validate_generated_payload(parsed, allowed_features, prediction=prediction, drivers=drivers, context=context, max_actions=max_actions, max_summary_chars=max_summary_chars)
@@ -616,10 +631,7 @@ def generate_ollama_grounded(
             "failure_detail": failure_detail,
             "error": failure_code,
             "raw_response": raw_response,
-            "usage": {
-                "prompt_tokens": response_payload.get("prompt_eval_count"),
-                "completion_tokens": response_payload.get("eval_count"),
-            },
+            "usage": usage,
         }
     except requests.exceptions.Timeout as exc:
         return _generation_failure(model, allowed_features, started, "ollama_timeout", str(exc), raw_response=raw_response)
@@ -634,6 +646,21 @@ def generate_ollama_grounded(
     except Exception as exc:
         return _generation_failure(model, allowed_features, started, "http_error", f"Fallo inesperado de Ollama: {exc}", raw_response=raw_response)
 
+
+
+def _ollama_usage(response_payload: Any, message: Any) -> dict[str, Any]:
+    payload = response_payload if isinstance(response_payload, dict) else {}
+    thinking = message.get("thinking") if isinstance(message, dict) else None
+    return {
+        "prompt_tokens": payload.get("prompt_eval_count"),
+        "completion_tokens": payload.get("eval_count"),
+        "eval_duration_ns": payload.get("eval_duration"),
+        "prompt_eval_duration_ns": payload.get("prompt_eval_duration"),
+        "load_duration_ns": payload.get("load_duration"),
+        "total_duration_ns": payload.get("total_duration"),
+        "done_reason": payload.get("done_reason"),
+        "thinking_chars": len(thinking) if isinstance(thinking, str) else 0,
+    }
 
 
 def _generation_failure(

@@ -61,11 +61,11 @@ Si se desea habilitar generación local con Ollama:
 ```bash
 export PRUNIN_ENABLE_OLLAMA=1
 export PRUNIN_OLLAMA_MODEL=qwen3:8b
-export PRUNIN_OLLAMA_TIMEOUT_SECONDS=30
+export PRUNIN_OLLAMA_TIMEOUT_SECONDS=90
 ./scripts/run_playground.sh
 ```
 
-`GET /api/genai-status` consulta `/api/tags` con timeout corto y confirma que el modelo esté instalado. El timeout es configurable y compartido por API y benchmark mediante `PRUNIN_OLLAMA_TIMEOUT_SECONDS` (default 30 s). `PRUNIN_OLLAMA_WARMUP=1` habilita warm-up acotado al iniciar; está apagado por defecto y no se activa en CI. `PRUNIN_GENAI_DEBUG=1` agrega raw response, JSON parseado y validación al campo técnico; no se devuelve por defecto.
+`GET /api/genai-status` consulta `/api/tags` con timeout corto y confirma que el modelo esté instalado. El timeout es configurable y compartido por API y benchmark mediante `PRUNIN_OLLAMA_TIMEOUT_SECONDS` (default 90 s, suficiente para cargar el modelo en frío y generar). Cada solicitud pide a Ollama mantener el modelo en memoria con `PRUNIN_OLLAMA_KEEP_ALIVE` (default `30m`) para evitar recargas entre análisis. `PRUNIN_OLLAMA_WARMUP=1` habilita warm-up acotado al iniciar; está apagado por defecto y no se activa en CI. `PRUNIN_GENAI_DEBUG=1` agrega raw response, JSON parseado y validación al campo técnico; no se devuelve por defecto.
 
 Cada acción aceptada presenta prioridad, título, señal permitida, procedencia, qué hacer, por qué y qué revisar después. `evidence-v2` separa sensibilidad predictiva, señales operativas observadas e indicadores heurísticos. `configs/operational_signals.yaml` define triggers de revisión no calibrados: SPI/CPI <0.95, utilización >1.05, capacidad <0.90, productividad <0.85, retrabajo >0.10, defectos >0.08, alcance >0.10, dependencias >7 días, exposición >0.30 y gobierno <0.60. SPI/CPI <1 son desfavorables según EVM; 0.95 y los demás cortes son tolerancias heurísticas, no umbrales entrenados ni evidencia empresarial. No se evaluaron contra TEST para optimizar métricas.
 

@@ -1,0 +1,22 @@
+category,metric,label,qwen3:8b,gpt-oss:20b
+Calidad,accepted_rate,Respuestas aceptadas,1.0,0.966667
+Calidad,json_valid_rate,JSON válido,1.0,1.0
+Calidad,schema_valid_rate,Esquema válido,1.0,1.0
+Calidad,grounded_rate,Grounding,1.0,0.966667
+Confiabilidad,unsupported_numeric_claim_rate,Alucinaciones numéricas,0.0,0.0
+Confiabilidad,contradiction_rate,Contradicciones,0.0,0.0
+Confiabilidad,failures,Respuestas rechazadas (de 30),0,1
+Recomendaciones,actionability_rate,Accionabilidad,1.0,1.0
+Recomendaciones,priority_valid_rate,Prioridad válida y ordenada,1.0,1.0
+Recomendaciones,follow_up_verifiable_rate,Seguimiento verificable,1.0,0.966667
+Rendimiento,latency_ms_mean,Latencia media (ms),10938.078333,7595.446667
+Rendimiento,latency_ms_median,Latencia mediana (ms),8588.065,6972.545
+Rendimiento,latency_ms_p95,Latencia p95 (ms),20974.249,10574.935
+Rendimiento,tokens_per_second,Tokens generados por segundo,23.0837,30.936125
+Rendimiento,completion_tokens_mean,Tokens generados por respuesta,211.033333,144.733333
+Rendimiento,thinking_chars_mean,Caracteres de razonamiento por respuesta,0.0,77.866667
+Estabilidad,timeouts,Timeouts (principal + repetición),0,0
+Estabilidad,operational_error_rate,Tasa de fallos operativos,0.0,0.0
+Estabilidad,repeat_consistent,Casos repetidos consistentes,1.0,1.0
+Estabilidad,repeat_outcome,Acuerdo de aceptación entre repeticiones,1.0,1.0
+Estabilidad,repeat_identical,Respuestas idénticas entre repeticiones,0.8,0.2

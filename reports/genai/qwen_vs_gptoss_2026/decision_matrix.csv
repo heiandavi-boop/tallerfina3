@@ -1,0 +1,8 @@
+criterion,label,weight,qwen3:8b_score,qwen3:8b_weighted,gpt-oss:20b_score,gpt-oss:20b_weighted
+grounding,Grounding,0.3,1.0,0.3,0.966667,0.29
+actionability,Accionabilidad,0.25,1.0,0.25,0.988889,0.247222
+json_compliance,Cumplimiento JSON,0.15,1.0,0.15,1.0,0.15
+latency,Latencia,0.1,0.811888,0.081189,1.0,0.1
+robustness,Robustez,0.1,1.0,0.1,1.0,0.1
+repeatability,Repetibilidad,0.1,1.0,0.1,1.0,0.1
+total,Total,1.0,,0.981189,,0.987222

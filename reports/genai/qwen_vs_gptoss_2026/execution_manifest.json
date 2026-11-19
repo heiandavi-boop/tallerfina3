@@ -1,0 +1,227 @@
+{
+  "experiment_id": "qwen_vs_gptoss_2026",
+  "status": "complete",
+  "simulated": false,
+  "started_utc": "2026-11-19T04:20:29+00:00",
+  "finished_utc": "2026-11-19T04:34:58+00:00",
+  "models": [
+    "qwen3:8b",
+    "gpt-oss:20b"
+  ],
+  "model_metadata": {
+    "qwen3:8b": {
+      "name": "qwen3:8b",
+      "digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+      "size_bytes": 5225388164,
+      "modified_at": "2026-10-08T20:21:11.251055496-05:00",
+      "family": "qwen3",
+      "format": "gguf",
+      "parameter_size": "8.2B",
+      "quantization_level": "Q4_K_M",
+      "context_length": 40960,
+      "capabilities": [
+        "completion",
+        "tools",
+        "thinking"
+      ],
+      "architecture": "qwen3",
+      "parameter_count": 8190735360
+    },
+    "gpt-oss:20b": {
+      "name": "gpt-oss:20b",
+      "digest": "17052f91a42e97930aa6e28a6c6c06a983e6a58dbb00434885a0cf5313e376f7",
+      "size_bytes": 13793441244,
+      "modified_at": "2026-08-23T14:10:37.769923299-05:00",
+      "family": "gptoss",
+      "format": "gguf",
+      "parameter_size": "20.9B",
+      "quantization_level": "MXFP4",
+      "context_length": 131072,
+      "capabilities": [
+        "completion",
+        "tools",
+        "thinking"
+      ],
+      "architecture": "gptoss",
+      "parameter_count": 20914757184,
+      "expert_count": 32,
+      "experts_used": 4
+    }
+  },
+  "ollama_version": "0.33.2",
+  "environment_warnings": [],
+  "hardware": {
+    "platform": "macOS-27.2.1-arm64-arm-64bit",
+    "machine": "arm64",
+    "chip": "Apple M5 Pro",
+    "memory_gb": 24.0,
+    "logical_cpu_count": 15,
+    "python_version": "3.12.15"
+  },
+  "artifact_version": "0.9.0-academic",
+  "inputs": {
+    "artifact": "artifacts/0.9.0-academic",
+    "split_manifest_sha256": "ed8f9db66e254123e411e7d016e91c01563a58c11e3a7f337bd9592ab92db26c",
+    "dataset_sha256": "32b7586db9dda0b3994573a3985c114dafe65dee93c948254b69f00d194c0ac3"
+  },
+  "case_selection": "Último snapshot de cada proyecto TEST con al menos un driver que aumenta el riesgo; orden aleatorio random_state=42 (prepare_cases).",
+  "split_check": {
+    "all_cases_in_test": true,
+    "train_overlap": [],
+    "validation_overlap": [],
+    "unique_cases": true,
+    "ok": true
+  },
+  "case_ids": [
+    "mendeley::PROJ_0760",
+    "mendeley::PROJ_2717",
+    "mendeley::PROJ_0062",
+    "mendeley::PROJ_0539",
+    "mendeley::PROJ_2331",
+    "mendeley::PROJ_0840",
+    "mendeley::PROJ_0757",
+    "mendeley::PROJ_3943",
+    "mendeley::PROJ_0223",
+    "mendeley::PROJ_1423",
+    "mendeley::PROJ_1238",
+    "mendeley::PROJ_3932",
+    "mendeley::PROJ_3573",
+    "mendeley::PROJ_3973",
+    "mendeley::PROJ_2414",
+    "mendeley::PROJ_3604",
+    "mendeley::PROJ_0953",
+    "mendeley::PROJ_3737",
+    "mendeley::PROJ_2856",
+    "mendeley::PROJ_3967",
+    "mendeley::PROJ_0556",
+    "mendeley::PROJ_1660",
+    "mendeley::PROJ_1293",
+    "mendeley::PROJ_0927",
+    "mendeley::PROJ_2892",
+    "mendeley::PROJ_1789",
+    "mendeley::PROJ_2399",
+    "mendeley::PROJ_0211",
+    "mendeley::PROJ_3837",
+    "mendeley::PROJ_3183"
+  ],
+  "repeat_case_ids": [
+    "mendeley::PROJ_0953",
+    "mendeley::PROJ_3737",
+    "mendeley::PROJ_0840",
+    "mendeley::PROJ_0556",
+    "mendeley::PROJ_1238"
+  ],
+  "repeat_selection": "Los 5 casos con menor SHA-256 de 'prunin-repeat-v1:<case_id>' (independiente de los resultados).",
+  "repeats": 3,
+  "generation_parameters": {
+    "prompt_builder": "prunin_ai.api.recommendations.build_grounded_prompt",
+    "validator": "prunin_ai.api.recommendations.validate_generated_payload",
+    "format": "JSON schema forzado (action_response_schema)",
+    "temperature": 0.1,
+    "num_predict": 1200,
+    "timeout_seconds": 180.0,
+    "stream": false,
+    "execution": "secuencial; un solo modelo residente en memoria",
+    "warmup": "1 llamada por modelo excluida de las métricas",
+    "think": {
+      "qwen3:8b": false,
+      "gpt-oss:20b": "low"
+    }
+  },
+  "configuration_differences": [
+    {
+      "parameter": "think",
+      "values": {
+        "qwen3:8b": false,
+        "gpt-oss:20b": "low"
+      },
+      "reason": "GPT-OSS no permite desactivar el razonamiento: con think=false Ollama devuelve contenido vacío. Se usa el nivel mínimo admitido (low)."
+    },
+    {
+      "parameter": "num_predict",
+      "values": {
+        "qwen3:8b": 1200,
+        "gpt-oss:20b": 1200
+      },
+      "reason": "Mismo presupuesto; en GPT-OSS incluye los tokens de razonamiento, lo que reduce el margen de salida visible."
+    },
+    {
+      "parameter": "tokenizer",
+      "values": {
+        "qwen3:8b": "propio",
+        "gpt-oss:20b": "propio"
+      },
+      "reason": "El mismo prompt produce distinto número de tokens de entrada; los tokens/s no son directamente equivalentes."
+    },
+    {
+      "parameter": "prompt",
+      "values": {
+        "qwen3:8b": "idéntico (incluye la directiva /no_think de Qwen)",
+        "gpt-oss:20b": "idéntico (incluye la directiva /no_think de Qwen)"
+      },
+      "reason": "No se adapta el prompt por modelo para preservar la igualdad de condiciones."
+    }
+  ],
+  "warmups": [
+    {
+      "model": "qwen3:8b",
+      "timestamp_utc": "2026-11-19T04:20:41+00:00",
+      "unloaded_before": [
+        "qwen3:8b"
+      ],
+      "latency_ms": 12362.0,
+      "failure_code": null,
+      "load_duration_ns": 2329192875
+    },
+    {
+      "model": "gpt-oss:20b",
+      "timestamp_utc": "2026-11-19T04:29:26+00:00",
+      "unloaded_before": [
+        "qwen3:8b"
+      ],
+      "latency_ms": 13226.18,
+      "failure_code": null,
+      "load_duration_ns": 6508941875
+    }
+  ],
+  "resources": {
+    "qwen3:8b": {
+      "resident_size_bytes": 5919872122,
+      "resident_vram_bytes": 5919872122,
+      "context_length": 4096
+    },
+    "gpt-oss:20b": {
+      "resident_size_bytes": 12728076860,
+      "resident_vram_bytes": 12728076860,
+      "context_length": 4096
+    }
+  },
+  "human_evaluation": "No realizada. Todas las métricas son indicadores automáticos del validador.",
+  "completeness": {
+    "expected": 90,
+    "present": 90,
+    "missing": 0,
+    "duplicates": 0,
+    "unexpected": 0,
+    "complete": true
+  },
+  "output_sha256": {
+    "benchmark_cases.csv": "981cbc385cf521e32ba29c09c0000bdfd66139f8017a57984a7764ee908f0985",
+    "benchmark_raw.csv": "45ddf6ceb36aa4b78ea4bd58f716beee6cbe71d0ec24e7d165823a11d97dfcb8",
+    "benchmark_summary.json": "dde5a863925ea29d2f5789b0c9373977e555744c29ace8b0a35a734cb60b1306",
+    "model_comparison.csv": "bf5d7fc00d0414833ef9d2b9419c75648c395ea972d92c1daca612b0e5a433c7",
+    "decision_matrix.csv": "ff893516c8a63d598a8cf06204dca9f999390998bc9ea29e69fb22ba2bbf31de",
+    "comparison_report.md": "a35554cf5dc079c910b083d8bc31a6cc9cfba3b3a1875bb965fba6885ab2dc4c",
+    "critical_analysis.md": "f4038492b0f569cd3c97370be3361de1c9879c48f5074000eee821b5ceb8eb4e",
+    "conclusions.md": "388bc97d0df22dbcd3904c27fa656e5abd0e3b1d7684b5e9db885e6c6bd5faa1",
+    "charts/quality_comparison.png": "9684d379a0022d1ae7edf49b4d9f5f07f12b7ba0d28fa8f990f6974521326c8c",
+    "charts/grounding_comparison.png": "c048c73b7eefd99248b0b4a753bb94acd0f814faa6be2260f043e870329444bd",
+    "charts/latency_comparison.png": "76ed9586997b629c7c4103e40b644c9bcc2a2e5be930b5888eae4573b83b5bc3",
+    "charts/reliability_comparison.png": "e7955ebb17c7adbff5585af10b1451f32a1574a6fb474fb7c73af4069ac0f53d",
+    "charts/decision_matrix.png": "e362073a716e07367c7528998fc14fef698c0c2b105525231d245067633bb5a0"
+  },
+  "reports_regenerated_utc": [
+    "2026-11-19T04:35:52+00:00",
+    "2026-11-19T04:36:13+00:00"
+  ]
+}

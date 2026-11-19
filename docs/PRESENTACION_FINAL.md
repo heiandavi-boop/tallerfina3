@@ -68,10 +68,11 @@ Esta presentación organiza los resultados y el recorrido demostrable. Los tiemp
 - La generación utiliza evidencia estructurada, procedencia de cada señal, prioridad y seguimiento.
 - **Ollama/Qwen3 8B**: evaluación histórica oficial de 30 casos con 29 respuestas aceptadas.
 - **Evaluación posterior de Qwen3 8B:** 30/30 aceptadas en dos configuraciones locales; mediana controlada 8,1 s.
+- **Comparación Qwen3 8B vs. GPT-OSS 20B** (mismos 30 casos TEST, M5 Pro 24 GB): 30/30 vs. 29/30 aceptadas; mediana 8,6 vs. 7,0 s; memoria 5,5 vs. 11,9 GB. Puntaje ponderado 0,981 vs. 0,987: **empate técnico, sin ganador defendible**. Qwen se mantiene por continuidad y menor memoria.
 - El usuario puede alternar proveedores sin cambiar las predicciones.
 - Una respuesta inválida activa acciones de respaldo determinístico.
 
-**Evidencia:** [Evaluación GenAI](genai_evaluation.md), [proveedores](ai_providers.md), [comparación 2026](../reports/genai/provider_comparison_2026/comparison_report.md).
+**Evidencia:** [Evaluación GenAI](genai_evaluation.md), [proveedores](ai_providers.md), [comparación Qwen vs. GPT-OSS](../reports/genai/qwen_vs_gptoss_2026/comparison_report.md).
 
 ## Diapositiva 9 — Demostración funcional
 1. Elegir un caso de prueba y ejecutar la predicción.

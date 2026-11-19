@@ -4,6 +4,7 @@ import { ResultHero, DriversPanel, RecommendationCard } from './components/Analy
 import { ScenarioPanel } from './components/ScenarioPanel.jsx';
 import { CsvAnalyzer } from './components/CsvAnalyzer.jsx';
 import { TechnicalDrawer } from './components/TechnicalDrawer.jsx';
+import { ModelComparison } from './components/ModelComparison.jsx';
 
 const API = import.meta.env.VITE_API_URL || '';
 
@@ -63,6 +64,7 @@ function Sidebar({ mode, onProject, onCsv, onEvidence, result, genaiStatus }) {
             <a href={result ? '#simulation' : '#project'} onClick={() => onProject(result ? 'simulation' : 'project')}><span aria-hidden="true">☷</span> Simulación What-if</a>
             <a href={result ? '#result' : '#workspace'} onClick={() => onProject(result ? 'result' : 'project')}><span aria-hidden="true">▥</span> Métricas</a>
             <button type="button" onClick={onEvidence}><span aria-hidden="true">▤</span> Evidencia</button>
+            <a href="#model-comparison"><span aria-hidden="true">⚖</span> Comparación de modelos IA</a>
             <a href="#ai-settings"><span aria-hidden="true">⚙</span> Configuración</a>
         </nav>
         <div className="sidebar-bottom">
@@ -413,6 +415,8 @@ export default function Experience() {
                     <div className="technical-action"><button type="button" className="evidence-button large-evidence" onClick={() => setDrawerOpen(true)}>▤ Ver evidencia técnica</button></div>
                 </>}
             </div> : <CsvAnalyzer onAnalyze={analyzeCsv} onOpenProject={openCsvProject} loading={csvLoading} results={csvResults} error={error} />}
+
+            <ModelComparison />
 
             <footer className="app-footer"><strong>PRUNIN AI Core</strong><span>Proyecto académico · Análisis trazable · Las señales explican el modelo, no prueban causas</span></footer>
         </main>
