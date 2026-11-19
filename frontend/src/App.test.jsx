@@ -197,7 +197,7 @@ describe('Playground ejecutivo', () => {
     await openProject();
     expect(screen.getByRole('link', { name: 'PRUNIN AI Core, inicio' })).toBeTruthy();
     expect(screen.getByRole('navigation', { name: 'Navegación principal' })).toBeTruthy();
-    expect(screen.getByRole('heading', { name: /Anticipa riesgos.*Toma mejores decisiones/i })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /Detección temprana de riesgo/i })).toBeTruthy();
     expect(screen.getByRole('region', { name: 'Indicadores del proyecto' })).toBeTruthy();
     expect(screen.getByText('Indicador combinado de riesgo')).toBeTruthy();
     expect(screen.getByText('Sin evaluar')).toBeTruthy();
@@ -286,7 +286,7 @@ describe('Playground ejecutivo', () => {
   it('muestra Qwen3 conectado antes de analizar según el endpoint de estado', async () => {
     installFetch({ genaiStatus: { enabled: true, provider: 'ollama', model: 'qwen3:8b', available: true, last_error: null } });
     await openProject();
-    expect(screen.getByText('IA generativa local disponible')).toBeTruthy();
+    expect(screen.getByText('● Disponible')).toBeTruthy();
   });
 
   it('explica de forma moderada el timeout de Qwen y confirma el uso de respaldo', async () => {
