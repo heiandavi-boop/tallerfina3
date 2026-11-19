@@ -59,8 +59,8 @@ La correspondencia actual con el documento institucional está en [RUBRICA_OFICI
 ## Pendientes humanos antes de entregar
 
 - Completar autor, institución y portada.
-- Alinear la entrega pública con [manifiesto](DELIVERY_MANIFEST.md), [presentación](PRESENTACION_FINAL.md) y [protocolo de demo](DEMO_PROTOCOL.md); apuntes de ensayo y guiones privados se distribuyen fuera de Git.
-- Revisar renders, referencias y slides en el formato de entrega, incluidas las citas de la bibliografía de la rúbrica (RA1-F5 y RA1-Referencias).
+- Alinear la entrega pública con [manifiesto](DELIVERY_MANIFEST.md) y [protocolo técnico de demo](DEMO_PROTOCOL.md); la presentación, criterios orales, guía de defensa, apuntes y guiones se conservan exclusivamente fuera de Git.
+- Revisar el documento público y sus referencias; revisar las diapositivas por separado en la carpeta personal local, sin versionarlas en Git.
 - Ejecutar y conservar el build/smoke del contenedor en el CI exacto del commit entregado; se trata de prueba de demo, no de Kubernetes productivo.
 - Ensayar y registrar una versión de 7/10/12 minutos.
 - Practicar voz, pausas, volumen, postura, contacto visual y defensa espontánea.
