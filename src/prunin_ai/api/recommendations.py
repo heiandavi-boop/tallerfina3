@@ -636,6 +636,119 @@ def generate_ollama_grounded(
 
 
 
+def _generation_failure(
+    model: str,
+    allowed_features: set[str],
+    started: float,
+    failure_code: str,
+    failure_detail: str,
+    *,
+    raw_response: str = "",
+) -> dict[str, Any]:
+    latency_ms = round((time.perf_counter() - started) * 1000, 2)
+    _set_last_genai_error(failure_code, failure_detail)
+    validation = {
+        "schema_valid": False,
+        "evidence_features_valid": False,
+        "referenced_evidence_features": [],
+        "allowed_evidence_features": sorted(allowed_features),
+        "allowed_numeric_values": [],
+        "allowed_numeric_percentages": [],
+        "unsupported_numeric_claim": False,
+        "actionability": False,
+        "action_structure_valid": False,
+        "follow_up_present": False,
+        "grounded": False,
+        "failure_code": failure_code,
+        "failure_detail": failure_detail,
+    }
+    return {
+        "ok": False,
+        "model": model,
+        "latency_ms": latency_ms,
+        "payload": None,
+        "validation": validation,
+        "failure_code": failure_code,
+        "failure_detail": failure_detail,
+        "error": failure_code,
+        "raw_response": raw_response,
+    }
+
+
+def grounded_fallback(
+    row: dict[str, Any],
+    prediction: dict[str, Any],
+    drivers: list[dict[str, Any]],
+    *,
+    genai_attempted: bool = False,
+    genai_failure_reason: str | None = None,
+    failure_code: str | None = None,
+    failure_detail: str | None = None,
+    genai_latency_ms: float | None = None,
+    validation: dict[str, Any] | None = None,
+    debug: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    context = build_evidence_context(row, prediction, drivers)
+    risk_drivers = context["actionable_evidence"]
+    recommendations: list[dict[str, str]] = []
+    for driver in risk_drivers:
+        name = str(driver.get("feature"))
+        guidance = ACTION_GUIDANCE.get(name)
+        if guidance is None:
+            continue
+        if any(item["evidence_feature"] == name for item in recommendations):
+            continue
+        recommendations.append({
+            **guidance,
+            "priority": driver.get("priority", guidance["priority"]),
+            "evidence_feature": name,
+            "evidence_source": driver["source"],
+            "reason": driver.get("reason") or f"{driver.get('label', name)} aparece entre las señales que incrementan el riesgo en esta inferencia; esto muestra asociación, no causalidad.",
+        })
+    recommendations = sorted(recommendations, key=_recommendation_sort_key)[:4]
+    actions = [item["action"] for item in recommendations]
+    reasons = [item["reason"] for item in recommendations]
+    evidence_features = [item["evidence_feature"] for item in recommendations]
+    allowed_features = sorted({str(item["feature"]) for item in risk_drivers})
+    if not risk_drivers:
+        summary = "La evidencia disponible es insuficiente para descartar desviaciones; completar los indicadores y sus líneas base." if context["status"] == "insufficient_evidence" else "No se identifican acciones correctivas prioritarias con la evidencia disponible; mantener seguimiento periódico."
+    elif not recommendations:
+        summary = "No hay una acción de respaldo catalogada para estas señales; validar la evidencia con el equipo del proyecto."
+    else:
+        summary = "Estas acciones responden a las señales de mayor riesgo detectadas."
+    result = {
+        "engine": "grounded_fallback",
+        "evidence_context": context,
+        "evidence_status": context["status"],
+        "genai_attempted": genai_attempted,
+        "genai_used": False,
+        "genai_failure_reason": genai_failure_reason or failure_detail or failure_code,
+        "failure_code": failure_code,
+        "failure_detail": failure_detail or genai_failure_reason,
+        "genai_latency_ms": genai_latency_ms,
+        "evidence_features": list(dict.fromkeys(evidence_features))[:5],
+        "allowed_evidence_features": validation.get("allowed_evidence_features", allowed_features) if validation else allowed_features,
+        "referenced_evidence_features": validation.get("referenced_evidence_features", []) if validation else [],
+        "recommendations": recommendations,
+        "fallback_validation": validate_generated_payload({"summary": summary, "recommendations": recommendations}, set(allowed_features), prediction=prediction, drivers=drivers, context=context),
+        "reasons": reasons[:5],
+        "actions": list(dict.fromkeys(actions))[:4],
+        "summary": summary,
+        "grounding": validation or {
+            "source": "local_model_sensitivity",
+            "structured_evidence_only": True,
+            "raw_project_text_sent_to_llm": False,
+            "schema_valid": False,
+            "grounded": False,
+            "actionability": bool(actions),
+        },
+        "disclaimer": "Recomendaciones generadas únicamente a partir de señales observadas y sensibilidad local del modelo; no reemplazan el criterio del director del proyecto.",
+    }
+    if os.getenv("PRUNIN_GENAI_DEBUG", "0") == "1" and debug:
+        result["genai_debug"] = debug
+    return result
+
+
 def ollama_recommendations(
     row: dict[str, Any],
     prediction: dict[str, Any],
