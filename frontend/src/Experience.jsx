@@ -31,7 +31,7 @@ function StatusBar({ model, apiReady, result, genaiStatus }) {
     const evidenceFailures = new Set(['unknown_evidence_feature', 'unsupported_numeric_claim', 'empty_recommendations_with_risk_drivers', 'grounding_validation_failed', 'invalid_evidence_provenance', 'contradictory_claim', 'non_actionable_recommendation', 'non_verifiable_follow_up']);
     const formatFailures = new Set(['invalid_json', 'invalid_schema']);
     const genaiText = genai
-        ? genai.genai_used ? (genai.engine?.startsWith('openai:') ? 'OpenAI activo' : 'IA generativa local activa')
+        ? genai.genai_used ? 'IA generativa local activa'
             : !genai.genai_attempted ? 'IA generativa desactivada · respuesta de respaldo'
                 : genai.failure_code === 'ollama_timeout' ? 'La IA generativa no respondió a tiempo · respaldo activo'
                     : evidenceFailures.has(genai.failure_code) ? 'Respuesta de IA rechazada por validación de evidencia · respaldo activo'
@@ -132,9 +132,6 @@ export default function Experience() {
     const [apiReady, setApiReady] = useState(false);
     const [genaiStatus, setGenaiStatus] = useState(null);
     const [genaiProvider, setGenaiProvider] = useState('ollama');
-    const [openaiApiKey, setOpenaiApiKey] = useState('');
-    const [openaiModel, setOpenaiModel] = useState('gpt-4.1');
-    const [showOpenaiKey, setShowOpenaiKey] = useState(false);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [loadingStage, setLoadingStage] = useState(0);
     const resultRef = useRef(null);
@@ -173,22 +170,10 @@ export default function Experience() {
         setError('');
     };
 
-    // The secret exists only in React component memory. No localStorage, cookie,
-    // analytics or output JSON contains it. Requests go through our backend.
-    const genaiHeaders = () => ({
-        'X-PRUNIN-Provider': genaiProvider,
-        ...(genaiProvider === 'openai' ? {
-            'X-PRUNIN-OpenAI-Model': openaiModel.trim(),
-            ...(openaiApiKey.trim() ? { 'X-PRUNIN-OpenAI-Key': openaiApiKey.trim() } : {}),
-        } : {}),
-    });
-    const insecureRemote = genaiProvider === 'openai'
-        && window.location.protocol !== 'https:'
-        && !['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname);
+    const genaiHeaders = () => ({ 'X-PRUNIN-Provider': genaiProvider });
 
     const analyze = async () => {
         if (loading || coverage.ratio < coverage.minimum) return;
-        if (insecureRemote) { setError('OpenAI requiere HTTPS cuando PRUNIN se abre desde otro equipo.'); return; }
         setLoading(true);
         setLoadingStage(0);
         setError('');
@@ -255,7 +240,6 @@ export default function Experience() {
     };
 
     const openCsvProject = async row => {
-        if (insecureRemote) { setError('OpenAI requiere HTTPS cuando PRUNIN se abre desde otro equipo.'); return; }
         const actualInput = row?.prediction?.input || row?.input || null;
         if (!actualInput || row.error) {
             setError('No fue posible abrir esta fila porque sus datos no son válidos.');
@@ -296,7 +280,7 @@ export default function Experience() {
     };
 
     if (!schema) return <div className="boot-screen"><span className="brand-mark">P</span><h1>PRUNIN AI Core</h1><p role={error ? 'alert' : 'status'}>{error || 'Conectando con la API…'}</p></div>;
-    const loadingMessages = ['Evaluando el nivel de riesgo…', 'Identificando las señales más influyentes…', genaiProvider === 'openai' ? 'OpenAI está analizando las señales…' : 'Ollama está preparando recomendaciones…'];
+    const loadingMessages = ['Evaluando el nivel de riesgo…', 'Identificando las señales más influyentes…', 'Ollama está preparando recomendaciones…'];
 
     return <div id="top" className="app-shell">
         <AppHeader model={schema.model} apiReady={apiReady} result={result} genaiStatus={genaiStatus} onTechnical={() => setDrawerOpen(true)} />
@@ -309,22 +293,9 @@ export default function Experience() {
                     <label htmlFor="prunin-provider"><strong>Motor de IA</strong></label>
                     <select id="prunin-provider" value={genaiProvider} onChange={event => setGenaiProvider(event.target.value)}>
                         <option value="ollama">Ollama — local</option>
-                        <option value="openai">OpenAI — API de ChatGPT</option>
                         <option value="none">Solo predicción (sin IA generativa)</option>
                     </select>
                 </div>
-                {genaiProvider === 'openai' && <div style={{ display: 'grid', gap: '0.75rem', maxWidth: '650px' }}>
-                    <label htmlFor="prunin-openai-model"><strong>Modelo OpenAI</strong></label>
-                    <input id="prunin-openai-model" value={openaiModel} onChange={event => setOpenaiModel(event.target.value)} placeholder="gpt-4.1" autoComplete="off" />
-                    <label htmlFor="prunin-openai-key"><strong>API key (opcional si ya está configurada en el servidor)</strong></label>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <input id="prunin-openai-key" style={{ flex: 1, minWidth: 0 }} type={showOpenaiKey ? 'text' : 'password'} value={openaiApiKey} onChange={event => setOpenaiApiKey(event.target.value)} placeholder="sk-…" autoComplete="off" spellCheck={false} />
-                        <button type="button" onClick={() => setShowOpenaiKey(value => !value)}>{showOpenaiKey ? 'Ocultar' : 'Mostrar'}</button>
-                        <button type="button" onClick={() => setOpenaiApiKey('')}>Borrar</button>
-                    </div>
-                    <small>La clave se mantiene solo durante esta sesión de pantalla y se envía únicamente a tu backend para cada análisis. No se guarda en el navegador ni se incluye en el informe JSON. La API de OpenAI tiene facturación independiente de ChatGPT.</small>
-                    {insecureRemote && <p role="alert" style={{ color: '#b45309' }}>Para usar OpenAI desde otro dispositivo, sirve PRUNIN mediante HTTPS. No envíes la clave por HTTP externo.</p>}
-                </div>}
                 {genaiProvider === 'ollama' && <small>Ollama debe estar ejecutándose en el equipo servidor con el modelo instalado. El motor se selecciona para cada análisis, sin reiniciar PRUNIN.</small>}
             </section>
             <div className="mode-switch" role="tablist" aria-label="Modo de análisis">
@@ -346,7 +317,7 @@ export default function Experience() {
 
             {mode === 'project' ? <>
                 <ProjectForm schema={schema} values={values} onChange={change} onAnalyze={analyze} loading={loading} activePreset={activePreset} onPreset={choosePreset} coverage={coverage} importedSource={importedProjectSource} />
-                {loading && <div className="analysis-loading" role="status" aria-live="polite"><span className="spinner large" /><div><strong>{loadingMessages[loadingStage]}</strong><small>{genaiProvider === 'openai' ? 'El análisis con OpenAI depende del modelo seleccionado y del servicio externo.' : 'La predicción se ejecuta localmente y las recomendaciones usan el proveedor seleccionado.'}</small></div></div>}
+                {loading && <div className="analysis-loading" role="status" aria-live="polite"><span className="spinner large" /><div><strong>{loadingMessages[loadingStage]}</strong><small>'La predicción se ejecuta localmente y las recomendaciones usan Ollama cuando está habilitado.'</small></div></div>}
                 <div ref={resultRef}><ResultHero result={result} schema={schema} /></div>
                 {result && <>
                     <DriversPanel drivers={result.drivers} fields={schema.fields} />
