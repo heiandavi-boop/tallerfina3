@@ -1,0 +1,58 @@
+name: monitored-academic-batch
+
+# Requires a dedicated staging runner and locally mounted authorized academic data.
+# This monitors a *new independent batch*, never the TRAIN file against itself.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  monitor:
+    environment: staging
+    runs-on: [self-hosted, linux, prunin-staging]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install audited dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Check external inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s /opt/prunin-staging/data/mendeley_core.csv
+          test -s /opt/prunin-staging/data/new_batch.csv
+          test -s /opt/prunin-academic-artifacts/0.9.0-academic/feature_manifest.json
+          test -s /opt/prunin-academic-artifacts/0.9.0-academic/split_manifest.json
+      - name: Compare real new batch with academic TRAIN reference
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "${RUNNER_TEMP}/prunin-monitor"
+          python scripts/check_drift.py \
+            --artifact /opt/prunin-academic-artifacts/0.9.0-academic \
+            --input /opt/prunin-staging/data/mendeley_core.csv \
+            --batch /opt/prunin-staging/data/new_batch.csv \
+            --profile-output "${RUNNER_TEMP}/prunin-monitor/train_profile.json" \
+            --report-output "${RUNNER_TEMP}/prunin-monitor/drift_report.json" \
+            > "${RUNNER_TEMP}/prunin-monitor/monitor_stdout.json"
+      - name: Decide retraining readiness (fail-closed, no model promotion)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/mlops_retraining_gate.py \
+            --drift-report "${RUNNER_TEMP}/prunin-monitor/drift_report.json" \
+            --output "${RUNNER_TEMP}/prunin-monitor/candidate_decision.json" \
+            || test "$?" -eq 2
+      - name: Archive diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: monitored-academic-batch-evidence
+          path: ${{ runner.temp }}/prunin-monitor/
+          if-no-files-found: warn
+          retention-days: 30
