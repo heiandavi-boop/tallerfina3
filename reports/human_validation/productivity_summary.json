@@ -1,0 +1,10 @@
+{
+  "results_file": "reports/human_validation/results.csv",
+  "formula": "(T_manual - T_asistido) / T_manual * 100",
+  "quality_non_inferiority_margin": 0.25,
+  "observations": 0,
+  "complete_participants": 0,
+  "min_participants": 6,
+  "status": "NO MEDIDA",
+  "reason": "insufficient_real_participants"
+}
