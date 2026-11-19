@@ -44,6 +44,8 @@ jobs:
           retention-days: 14
       - name: Validate original promise KPI
         run: python scripts/validate_original_promise.py --check
+      - name: Check PAIII rubric and evidence consistency
+        run: python scripts/check_paiii_delivery_evidence.py
       - name: Compile Python sources
         run: python -m compileall -q src scripts tests
       - name: Run tests
