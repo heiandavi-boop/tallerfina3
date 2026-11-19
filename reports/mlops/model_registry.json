@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "production": "demo-0.1.0",
+  "models": [
+    {
+      "registered_at": "2026-11-19T00:46:05+00:00",
+      "approval": {
+        "approver": "comité académico PAIII",
+        "note": "versión evaluada y congelada"
+      },
+      "parent_version": null,
+      "name": "prunin-core",
+      "version": "0.9.0-academic",
+      "algorithm": "LightGBM (health classifier, delay/cost regressors)",
+      "dataset": {
+        "data_source": "mendeley_2p5sz57wh2_v2",
+        "sha256": "32b7586db9dda0b3994573a3985c114dafe65dee93c948254b69f00d194c0ac3"
+      },
+      "metrics": {
+        "evaluation_split": "TEST (frozen)",
+        "health_macro_f1_test": 0.5470548202603385,
+        "delay_mae_test": 32.17595573757554,
+        "cost_r2_test": 0.8297066199911258
+      },
+      "artifact_hashes": {
+        "cost_overrun_ratio.joblib": "0881ac24d6780378fce8ca9fcfd0f03d5f89c7ef475a33c882ec01efff9c7ba6",
+        "delay_days.joblib": "84924fc4ddfbcd3842dfc24686286bc9affc23a7f4024698607b678af78916b3",
+        "health.joblib": "81dba769ecbcec2f64a312432ab5eb9720af3d37e5018f15249e821e1ca52c18"
+      },
+      "status": "frozen_academic"
+    },
+    {
+      "registered_at": "2026-11-19T00:46:05+00:00",
+      "approval": null,
+      "parent_version": null,
+      "name": "prunin-core",
+      "version": "demo-0.1.0",
+      "algorithm": "LightGBM (health classifier, delay/cost regressors)",
+      "dataset": {
+        "data_source": "demo_synthetic_smoke_test",
+        "generator_seed": 42
+      },
+      "metrics": {
+        "evaluation_split": "see artifacts/demo-0.1.0/metrics.json"
+      },
+      "artifact_hashes": {
+        "cost_overrun_ratio.joblib": "681d3d66156524a39d62fb462e671d2b5ee6b961980c12a475920755486d0c4b",
+        "delay_days.joblib": "407d937c4e7cf55594ca61424dfbeec7aeec45c5a9a6e82c6b8112e49e9b4d2e",
+        "final_status.joblib": "5eaa68373264cd26e9a0db87e8ea8b1475424d2635f19f6c66c16f5b35164e78",
+        "health.joblib": "40d1f9ed2310ed10c4d7af9ba07559f62399bb231dd08129c68fc841ae3cb980"
+      },
+      "status": "production"
+    },
+    {
+      "registered_at": "2026-11-19T00:46:10+00:00",
+      "approval": null,
+      "parent_version": "demo-0.1.0",
+      "name": "prunin-core",
+      "version": "demo-candidate-2026",
+      "algorithm": "LightGBM (health classifier, delay/cost regressors)",
+      "dataset": {
+        "path": "retraining_seed2026.csv",
+        "sha256": "4313b0111cc0b246553b6e2bba0d5a6f1e2962bfaeefb648ecddd421f57dc9a7",
+        "data_source": "demo_synthetic_retraining_seed2026",
+        "rows": 3200,
+        "projects": 400
+      },
+      "configuration": {
+        "random_seed": 42,
+        "model": {
+          "classification": {
+            "n_estimators": 350,
+            "learning_rate": 0.04,
+            "num_leaves": 31,
+            "max_depth": -1,
+            "min_child_samples": 20,
+            "reg_alpha": 0.1,
+            "reg_lambda": 0.2
+          },
+          "regression": {
+            "n_estimators": 400,
+            "learning_rate": 0.035,
+            "num_leaves": 31,
+            "max_depth": -1,
+            "min_child_samples": 20,
+            "reg_alpha": 0.1,
+            "reg_lambda": 0.2
+          }
+        }
+      },
+      "metrics": {
+        "evaluation_split": "VALIDATION (candidate split)",
+        "candidate": {
+          "health": 0.3292098377812664,
+          "delay_days": 31.357927049230383,
+          "cost_overrun_ratio": 0.04768316651177409
+        },
+        "baseline": {
+          "health": 0.38118128248105165,
+          "delay_days": 32.65864157558503,
+          "cost_overrun_ratio": 0.048980922337582805
+        }
+      },
+      "artifact_hashes": {
+        "cost_overrun_ratio.joblib": "c216871cb6ecfd793c54aaaedc5637cbb6fecd74bf61196a53dbfd0596401d0d",
+        "delay_days.joblib": "2ba2fb7d204bb22d5b1a81f86f90ef02d8960bf0533d26908c220c8efaa58bba",
+        "final_status.joblib": "5ddb9141a9953b22779dd39d71fb0ab0ce4e007ffdda12aefa17d2fcb5055c1a",
+        "health.joblib": "c6fb73419ee781be18dc3f5eeeec05958efbfbb435cff6ac326c23db6c956755"
+      },
+      "gate": {
+        "tolerance": 0.02,
+        "passed": false,
+        "checks": {
+          "health": {
+            "metric": "macro_f1",
+            "direction": "higher",
+            "candidate": 0.3292098377812664,
+            "baseline": 0.38118128248105165,
+            "relative_improvement": -0.13634311832289073,
+            "passed": false
+          },
+          "delay_days": {
+            "metric": "mae",
+            "direction": "lower",
+            "candidate": 31.357927049230383,
+            "baseline": 32.65864157558503,
+            "relative_improvement": 0.03982757590649561,
+            "passed": true
+          },
+          "cost_overrun_ratio": {
+            "metric": "mae",
+            "direction": "lower",
+            "candidate": 0.04768316651177409,
+            "baseline": 0.048980922337582805,
+            "relative_improvement": 0.026495128386199385,
+            "passed": true
+          }
+        }
+      },
+      "trigger": {
+        "drift_alert": true,
+        "alert_features": [
+          "methodology",
+          "project_type"
+        ],
+        "max_psi": 24.057946723696173
+      },
+      "status": "rejected_regression"
+    }
+  ],
+  "events": [
+    {
+      "timestamp": "2026-11-19T00:46:05+00:00",
+      "action": "register",
+      "version": "0.9.0-academic",
+      "status": "frozen_academic"
+    },
+    {
+      "timestamp": "2026-11-19T00:46:05+00:00",
+      "action": "register",
+      "version": "demo-0.1.0",
+      "status": "production"
+    },
+    {
+      "timestamp": "2026-11-19T00:46:10+00:00",
+      "action": "register",
+      "version": "demo-candidate-2026",
+      "status": "rejected_regression"
+    }
+  ]
+}

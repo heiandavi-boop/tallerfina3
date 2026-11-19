@@ -99,3 +99,22 @@ El Dockerfile ahora declara usuario 10001 y healthcheck HTTP de readiness; `.doc
 El workflow `quality` contiene el paso `bash scripts/container_smoke.sh`, ejecutado sobre artefactos **demo sintéticos** producidos por `scripts/run_demo.sh`. El script construye la imagen a partir del Dockerfile, inicia un contenedor temporal sin credenciales OpenAI, comprueba `/api/ready`, `/api/genai-providers` y `/metrics` y elimina el contenedor.
 
 El resultado constituye evidencia reproducible de **construcción y arranque de Docker**, solo cuando el job del commit relevante termine en `success`. No es una prueba de balanceo Kubernetes, HPA ni actualización de modelos. La evaluación de nivel 4 para R7.2-Cr4/Cr6 sigue sujeta a ejecución y monitorización completas en un entorno autorizado. No usar expresiones como “clúster operado” ni “retraining continuo” sin evidencias.
+
+## Registro de modelos y ciclo de reentrenamiento controlado (noviembre de 2026)
+
+Implementado en `src/prunin_ai/monitoring/mlops.py` y `scripts/mlops_pipeline.py`, con pruebas en `tests/test_mlops_pipeline.py`:
+
+- **Registro versionado** ([model_registry.json](../reports/mlops/model_registry.json)). Por versión guarda dataset y hash, configuración, métricas, estado, aprobación, versión padre, hashes de artefactos y un log de eventos. `0.9.0-academic` está en estado `frozen_academic` y no puede sobrescribirse.
+- **Reentrenamiento bloqueado por defecto.** Requiere `--authorize` y un archivo de procedencia con `authorized: true` y SHA-256 coincidente, y rechaza el dataset académico Mendeley.
+- **Ejecución del candidato.** Registra un trigger de drift (PSI y missing rate), entrena en `artifacts/candidates/` (ignorado por git) y compara candidato y baseline solo sobre VALIDATION.
+- **Gate de regresión (2 % relativo), aprobación humana, promoción y rollback**, cada uno registrado como evento.
+
+**Ejecución real:** con datos sintéticos de seed 2026, el candidato `demo-candidate-2026` quedó en `rejected_regression`, porque el macro-F1 de Health bajó un 13,6 %, aunque Delay y Cost mejoraron. Producción continúa en `demo-0.1.0`. Detalle en [reports/mlops/README.md](../reports/mlops/README.md).
+
+**Límite:** es una demostración local del ciclo, no un reentrenamiento continuo programado. El drift conceptual y la pérdida de desempeño requieren ground truth real, que hoy no existe.
+
+## Validación de despliegue en este cierre
+
+- Docker no pudo ejecutarse localmente: la instalación de Docker Desktop no tiene su ejecutable. La construcción y el smoke test del contenedor se verifican en el job `quality` de GitHub Actions.
+- No existe un clúster Kubernetes local (no hay kind, minikube ni contexto de kubectl). El manifiesto se valida estáticamente con `tests/test_deployment_manifests.py`; la prueba con `kubectl` se omite si no hay clúster.
+- No se probaron balanceo, caída de pods ni rollback en un clúster.

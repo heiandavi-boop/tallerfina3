@@ -324,7 +324,7 @@ def _is_concrete_action(action: str) -> bool:
     return verb in ACTION_VERBS
 
 
-def action_response_schema(allowed_features: set[str], context: dict[str, Any] | None = None) -> dict[str, Any]:
+def action_response_schema(allowed_features: set[str], context: dict[str, Any] | None = None, *, max_actions: int = 4, max_summary_chars: int = 180) -> dict[str, Any]:
     has_risk_drivers = bool(allowed_features)
     recommendation_schema = {
         "type": "object",
@@ -347,11 +347,11 @@ def action_response_schema(allowed_features: set[str], context: dict[str, Any] |
     return {
         "type": "object",
         "properties": {
-            "summary": {"type": "string", "minLength": 1, "maxLength": 180},
+            "summary": {"type": "string", "minLength": 1, "maxLength": max_summary_chars},
             "recommendations": {
                 "type": "array",
                 "minItems": 1 if has_risk_drivers else 0,
-                "maxItems": 4 if has_risk_drivers else 0,
+                "maxItems": max_actions if has_risk_drivers else 0,
                 "items": recommendation_schema,
             },
         },
@@ -567,12 +567,14 @@ def generate_ollama_grounded(
     url: str | None = None,
     timeout: float | None = None,
     row: dict[str, Any] | None = None,
+    max_actions: int = 4,
+    max_summary_chars: int = 180,
 ) -> dict[str, Any]:
     model = model or os.getenv("PRUNIN_OLLAMA_MODEL", "qwen3:8b")
     url = url or os.getenv("PRUNIN_OLLAMA_URL", "http://localhost:11434/api/chat")
     timeout = ollama_timeout_seconds(timeout)
     context = build_evidence_context(row or {}, prediction, drivers)
-    prompt, allowed_features = build_grounded_prompt(prediction, drivers, row=row)
+    prompt, allowed_features = build_grounded_prompt(prediction, drivers, row=row, max_actions=max_actions, max_summary_chars=max_summary_chars)
     started = time.perf_counter()
     raw_response = ""
     try:
@@ -582,7 +584,7 @@ def generate_ollama_grounded(
                 "model": model,
                 "messages": [{"role": "user", "content": prompt}],
                 "stream": False,
-                "format": action_response_schema(allowed_features, context),
+                "format": action_response_schema(allowed_features, context, max_actions=max_actions, max_summary_chars=max_summary_chars),
                 "think": False,
                 "options": {"temperature": 0.1, "num_predict": 1200},
             },
@@ -599,7 +601,7 @@ def generate_ollama_grounded(
             )
         raw_response = content
         parsed = json.loads(content)
-        validation = validate_generated_payload(parsed, allowed_features, prediction=prediction, drivers=drivers, context=context)
+        validation = validate_generated_payload(parsed, allowed_features, prediction=prediction, drivers=drivers, context=context, max_actions=max_actions, max_summary_chars=max_summary_chars)
         latency_ms = (time.perf_counter() - started) * 1000
         failure_code = validation.get("failure_code")
         failure_detail = validation.get("failure_detail")
@@ -614,6 +616,10 @@ def generate_ollama_grounded(
             "failure_detail": failure_detail,
             "error": failure_code,
             "raw_response": raw_response,
+            "usage": {
+                "prompt_tokens": response_payload.get("prompt_eval_count"),
+                "completion_tokens": response_payload.get("eval_count"),
+            },
         }
     except requests.exceptions.Timeout as exc:
         return _generation_failure(model, allowed_features, started, "ollama_timeout", str(exc), raw_response=raw_response)
@@ -649,12 +655,14 @@ def generate_openai_grounded(
     row: dict[str, Any] | None = None,
     api_key: str | None = None,
     model: str | None = None,
+    max_actions: int = 8,
+    max_summary_chars: int = 1200,
 ) -> dict[str, Any]:
     """OpenAI is contacted exclusively by the backend; keys are never persisted."""
     model = model or os.getenv("PRUNIN_OPENAI_MODEL", "gpt-4.1")
     key = api_key or os.getenv("OPENAI_API_KEY")
     context = build_evidence_context(row or {}, prediction, drivers)
-    prompt, allowed_features = build_grounded_prompt(prediction, drivers, row=row, max_actions=8, max_summary_chars=1200)
+    prompt, allowed_features = build_grounded_prompt(prediction, drivers, row=row, max_actions=max_actions, max_summary_chars=max_summary_chars)
     prompt = prompt.removeprefix("/no_think\n")  # Ollama-specific directive; never restrict OpenAI reasoning.
     started = time.perf_counter()
     if not key:
@@ -690,7 +698,7 @@ def generate_openai_grounded(
         if not isinstance(raw, str) or not raw.strip():
             return _generation_failure(model, allowed_features, started, "invalid_json", "OpenAI no devolvió contenido JSON.")
         parsed = json.loads(raw)
-        validation = validate_generated_payload(parsed, allowed_features, prediction=prediction, drivers=drivers, context=context, max_actions=8, max_summary_chars=1200)
+        validation = validate_generated_payload(parsed, allowed_features, prediction=prediction, drivers=drivers, context=context, max_actions=max_actions, max_summary_chars=max_summary_chars)
         failure_code = validation.get("failure_code")
         failure_detail = validation.get("failure_detail")
         _set_last_genai_error(failure_code, failure_detail)

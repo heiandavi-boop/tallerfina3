@@ -67,11 +67,11 @@ Esta presentación organiza los resultados y el recorrido demostrable. Los tiemp
 ## Diapositiva 8 — Recomendaciones fundamentadas
 - La generación utiliza evidencia estructurada, procedencia de cada señal, prioridad y seguimiento.
 - **Ollama/Qwen3 8B**: evaluación histórica oficial de 30 casos con 29 respuestas aceptadas; no es una evaluación de OpenAI.
-- **OpenAI API**: integración implementada y probada mediante mocks; faltan pruebas reales y comparación de costos/latencia con una cuenta autorizada.
+- **Benchmark 2026** (mismos 30 casos, controlado y operativo): Qwen3 8B 30/30 aceptadas, mediana 8,1 s. **OpenAI no medido**: la clave no estaba accesible para el proceso; gasto 0 USD.
 - El usuario puede alternar proveedores sin cambiar las predicciones.
 - Una respuesta inválida activa acciones de respaldo determinístico.
 
-**Evidencia:** [Evaluación GenAI](genai_evaluation.md), [proveedores](ai_providers.md).
+**Evidencia:** [Evaluación GenAI](genai_evaluation.md), [proveedores](ai_providers.md), [comparación 2026](../reports/genai/provider_comparison_2026/comparison_report.md).
 
 ## Diapositiva 9 — Demostración funcional
 1. Elegir un caso de prueba y ejecutar la predicción.
@@ -96,8 +96,8 @@ Esta presentación organiza los resultados y el recorrido demostrable. Los tiemp
 - Fuente principal sintética externa; falta validación prospectiva con proyectos reales.
 - Delay ofrece mejora limitada frente al baseline.
 - Algunas señales son heurísticas y no provienen de variables supervisadas.
-- Falta medir utilidad humana, comparación real OpenAI/Ollama y carga productiva.
-- MLOps, Docker y Kubernetes requieren pruebas operativas adicionales.
+- Productividad humana NO MEDIDA: el instrumento está listo, pero no hay participantes. La comparación con OpenAI está pendiente de la clave.
+- MLOps: registro, gate de regresión y rollback demostrados con datos sintéticos (candidato rechazado). Docker se valida en CI; no hay clúster Kubernetes.
 
 **Evidencia:** [Matriz interna](rubric_matrix.md), [cierre](FINAL_READINESS.md).
 
