@@ -2,7 +2,7 @@
 
 | Área | Evidencia | Interpretación |
 |---|---|---|
-| Benchmark de proveedores | [`comparison_report.md`](../genai/provider_comparison_2026/comparison_report.md), `benchmark_cases.csv`, `benchmark_results.csv`, `benchmark_summary.json`, `execution_manifest.json` | Qwen medido en dos modos; OpenAI no ejecutado |
+| Evaluación del motor local | [Selección](../../docs/genai_model_selection.md), [evaluación](../../docs/genai_evaluation.md) | Qwen medido realmente; comparación exhaustiva de alternativas locales pendiente |
 | HTTP individual/CSV | [`operational_benchmark.md`](http_single_2026/operational_benchmark.md), `operational_benchmark_summary.json`, `operational_benchmark_raw.csv` | Medición local de una instancia; no es productividad humana |
 | HTTP concurrente | [`http_concurrency_summary.json`](http_concurrency_2026/http_concurrency_summary.json), `http_concurrency_raw.csv` | 100/100 respuestas por nivel; p95 aumenta y throughput se estabiliza |
 | Robustez de entrada | [`robustness_checks.json`](http_single_2026/robustness_checks.json) | Errores de entrada controlados; no prueba de falla de instancia |
