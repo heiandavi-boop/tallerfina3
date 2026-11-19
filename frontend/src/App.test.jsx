@@ -61,14 +61,33 @@ async function openProject() {
 describe('Playground ejecutivo', () => {
   it('presenta una experiencia ejecutiva de acceso directo sin autenticación', async () => {
     await openProject();
-    expect(screen.getByRole('heading', { name: /Anticipa riesgos.*Toma mejores decisiones/i })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /Detección temprana de riesgo/i })).toBeTruthy();
     expect(screen.getByRole('navigation', { name: 'Navegación principal' })).toBeTruthy();
-    expect(screen.getByRole('link', { name: /Analizar un proyecto/ }).getAttribute('href')).toBe('#workspace');
-    expect(screen.getByRole('link', { name: /Conocer la metodología/ }).getAttribute('href')).toBe('#methodology');
+    expect(screen.getByRole('button', { name: /Analizar proyecto/ })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Análisis CSV/ })).toBeTruthy();
+    expect(screen.getByLabelText('Menú lateral')).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Del dato a la decisión' })).toBeTruthy();
     expect(screen.getByText(/no necesitas crear una cuenta/i)).toBeTruthy();
     expect(screen.queryByRole('button', { name: /iniciar sesión|registrarse/i })).toBeNull();
     expect(screen.queryByLabelText(/contraseña|correo electrónico/i)).toBeNull();
+  });
+
+  it('solo muestra indicadores reales antes y después del análisis', async () => {
+    const user = userEvent.setup();
+    await openProject();
+    expect(screen.getByText('Sin evaluar')).toBeTruthy();
+    expect(screen.getByText('No es una probabilidad calibrada')).toBeTruthy();
+    await user.click(screen.getByRole('button', { name: 'Evaluar riesgo del proyecto' }));
+    await screen.findByRole('heading', { name: '¿Este proyecto requiere atención?' });
+    expect(screen.getByRole('region', { name: 'Indicadores del proyecto' })).toBeTruthy();
+    expect(screen.queryByText('78%')).toBeNull();
+  });
+
+  it('permite acceder al análisis CSV sin iniciar sesión', async () => {
+    const user = userEvent.setup();
+    await openProject();
+    await user.click(screen.getByRole('button', { name: /Análisis CSV/ }));
+    expect(screen.getByRole('tab', { name: 'Analizar varios proyectos' }).getAttribute('aria-selected')).toBe('true');
   });
 
   it('conserva Ollama local y el modo de predicción sin servicios externos', async () => {
@@ -176,14 +195,15 @@ describe('Playground ejecutivo', () => {
 
   it('presenta la marca, modos principales y solo variables ML en el formulario inicial', async () => {
     await openProject();
-    expect(within(screen.getByRole('banner')).getByText('PRUNIN AI Core')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'PRUNIN AI Core, inicio' })).toBeTruthy();
     expect(screen.getByRole('navigation', { name: 'Navegación principal' })).toBeTruthy();
     expect(screen.getByRole('heading', { name: /Anticipa riesgos.*Toma mejores decisiones/i })).toBeTruthy();
-    expect(screen.getByText(/Detectar tempranamente ≥75 %/)).toBeTruthy();
-    expect(screen.getByText('75,9 %')).toBeTruthy();
+    expect(screen.getByRole('region', { name: 'Indicadores del proyecto' })).toBeTruthy();
+    expect(screen.getByText('Indicador combinado de riesgo')).toBeTruthy();
+    expect(screen.getByText('Sin evaluar')).toBeTruthy();
     expect(screen.getByRole('tab', { name: 'Analizar proyecto' }).getAttribute('aria-selected')).toBe('true');
     expect(screen.getByRole('tab', { name: 'Analizar varios proyectos' })).toBeTruthy();
-    expect(screen.getByText('IA generativa desactivada')).toBeTruthy();
+    expect(screen.getByText('Sin conexión confirmada', { exact: false })).toBeTruthy();
     expect(screen.getByLabelText(/Cumplimiento del cronograma \(SPI\)/)).toBeTruthy();
     expect(Array.from(document.querySelector('#field-project_type').options).map(option => option.value)).toEqual(['construction', 'healthcare', 'it', 'manufacturing', 'marketing', 'r&d']);
     expect(Array.from(document.querySelector('#field-methodology').options).map(option => option.value)).toEqual(['agile', 'hybrid', 'kanban', 'scrum', 'waterfall']);
