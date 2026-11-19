@@ -1,0 +1,103 @@
+{
+  "status": "complete",
+  "generated_at_utc": "2026-11-19T01:33:34.766552+00:00",
+  "measurement": "real_local_http",
+  "environment": {
+    "os": "macOS-27.2.1-arm64-arm-64bit",
+    "python": "3.12.15",
+    "machine": "arm64",
+    "api_url": "http://127.0.0.1:8001",
+    "artifact_version": "0.9.0-academic",
+    "dataset_source": "Mendeley Data 2p5sz57wh2 version 2",
+    "api_mode": "configured",
+    "genai_enabled": false,
+    "trained_features": [
+      "planned_duration_weeks",
+      "planned_budget",
+      "true_progress",
+      "spi",
+      "cpi",
+      "project_type",
+      "methodology"
+    ]
+  },
+  "cases_file": "reports/efficiency/benchmark_cases.csv",
+  "case_count": 100,
+  "requests_per_level": 100,
+  "concurrency": [
+    {
+      "workers": 1,
+      "requests": 100,
+      "successes": 100,
+      "failures": 0,
+      "success_rate": 1.0,
+      "latency_p50_ms": 42.454312002519146,
+      "latency_p95_ms": 80.98402115283534,
+      "latency_mean_ms": 49.38725413987413,
+      "latency_max_ms": 274.66895899851806,
+      "throughput_requests_per_s": 20.13628320247767,
+      "wall_time_s": 4.966159791976679,
+      "process_cpu_s": 0.19910799999999998,
+      "process_peak_rss_bytes": 112312320
+    },
+    {
+      "workers": 4,
+      "requests": 100,
+      "successes": 100,
+      "failures": 0,
+      "success_rate": 1.0,
+      "latency_p50_ms": 164.34191649022978,
+      "latency_p95_ms": 200.87814645230537,
+      "latency_mean_ms": 164.2311657796381,
+      "latency_max_ms": 209.01200000662357,
+      "throughput_requests_per_s": 24.144238649400513,
+      "wall_time_s": 4.141774832998635,
+      "process_cpu_s": 0.15262399999999998,
+      "process_peak_rss_bytes": 112738304
+    },
+    {
+      "workers": 8,
+      "requests": 100,
+      "successes": 100,
+      "failures": 0,
+      "success_rate": 1.0,
+      "latency_p50_ms": 333.1229585164692,
+      "latency_p95_ms": 457.41115689743305,
+      "latency_mean_ms": 338.27501336985733,
+      "latency_max_ms": 540.068959002383,
+      "throughput_requests_per_s": 23.420266890099203,
+      "wall_time_s": 4.269806166994385,
+      "process_cpu_s": 0.12873200000000004,
+      "process_peak_rss_bytes": 113049600
+    },
+    {
+      "workers": 16,
+      "requests": 100,
+      "successes": 100,
+      "failures": 0,
+      "success_rate": 1.0,
+      "latency_p50_ms": 645.64983350283,
+      "latency_p95_ms": 954.3755395992775,
+      "latency_mean_ms": 667.3052054303116,
+      "latency_max_ms": 1196.3756250042934,
+      "throughput_requests_per_s": 23.35079421049829,
+      "wall_time_s": 4.282509583979845,
+      "process_cpu_s": 0.13392799999999996,
+      "process_peak_rss_bytes": 113770496
+    }
+  ],
+  "controlled_error_recovery": {
+    "controlled_invalid_input_status": 422,
+    "health_after_invalid_input_status": 200,
+    "valid_prediction_after_invalid_input_status": 200,
+    "recovered": true,
+    "scope": "Recovery after a controlled request error; no API process or instance was stopped."
+  },
+  "limitations": [
+    "Una sola máquina y un solo proceso API; no prueba balanceo ni escalabilidad horizontal.",
+    "No se terminó ninguna instancia; la recuperación medida es tras una entrada inválida controlada.",
+    "CPU y RSS son del proceso cliente, no del servidor API.",
+    "GenAI estuvo desactivada; esta prueba no mide latencia/capacidad de Ollama ni OpenAI."
+  ],
+  "retraining_triggered": false
+}

@@ -87,7 +87,8 @@ Esta presentación organiza los resultados y el recorrido demostrable. Los tiemp
 - No usar datos empresariales sensibles sin autorización.
 - En modo OpenAI se transmiten al proveedor externo las señales estructuradas.
 - Claves solamente en memoria de sesión o entorno del servidor; nunca en repositorio.
-- El acceso público requiere autenticación, HTTPS, límites de consumo y política de seguridad.
+- En producción, el API falla cerrado si falta el token; el límite OpenAI vigente es por IP par/minuto y por proceso/día, no una cuota distribuida.
+- El cliente no puede habilitar Ollama cuando el servidor lo desactiva; un despliegue público aún requiere HTTPS e identidad multiusuario.
 - Los indicadores del modelo no prueban causalidad ni reemplazan decisiones profesionales.
 
 **Evidencia:** [Ética y seguridad](ethics_security.md).

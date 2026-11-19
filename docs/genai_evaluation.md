@@ -119,12 +119,20 @@ El caso bancario IT/híbrido reprodujo con el código de HEAD y Qwen real el res
 
 Reproducir con `PYTHONPATH=src python scripts/audit_closure.py recommendations --output <RUTA_NUEVA.json>`. El script rechaza destinos existentes y registra entrada, predicción, drivers completos/positivos, contexto, prompt, raw response, JSON, validación, motor y acciones. Los campos bancarios no suministrados no se adivinan: se separa el caso con campos aportados de la variante IT/híbrida explícita. Los reportes oficiales y V1/V2/V3 históricos permanecen intactos. Las cifras históricas de concurrencia no se trasladan al presupuesto nuevo de tokens.
 
+## Comparación de proveedores: actualización del 19 de noviembre de 2026
+
+Se ejecutaron los mismos 30 casos en modo controlado y operativo. Qwen3 8B (`500a1f067a9f`, Q4_K_M) obtuvo 30/30 respuestas aceptadas en cada modo, con esquema, groundedness proxy y accionabilidad 1.0; cero cifras no soportadas, contradicciones o timeouts. En modo controlado la mediana fue 8114.68 ms y p95 19783.22 ms; en modo operativo, 8305.3 ms y 18347.63 ms. La muestra repetible de cinco casos por tres corridas tuvo respuesta, esquema, aceptación y features idénticos; mediana CV de latencia 0.1095.
+
+OpenAI no se ejecutó: `OPENAI_API_KEY` no estaba disponible en el entorno de este proceso (`openai_key_missing`). Se registraron cero llamadas y USD 0 de costo real; el presupuesto estimado configurado era USD 5. Por ello no hay latencia, tasa de aceptación ni costo unitario observado para OpenAI y no se concluye qué proveedor ofrece mejor calidad. El control de costo previo a cada llamada no es una garantía de facturación máxima.
+
+La corrida controlada limita la forma de salida a cuatro acciones y 180 caracteres por acción; la operativa conserva el límite de cuatro acciones de Ollama. Son métricas determinísticas de estructura y groundedness, no evaluación semántica, utilidad humana ni validación empresarial. Ver el [reporte con método y decisión](../reports/genai/provider_comparison_2026/comparison_report.md), [casos](../reports/genai/provider_comparison_2026/benchmark_cases.csv), [resultados](../reports/genai/provider_comparison_2026/benchmark_results.csv), [resumen](../reports/genai/provider_comparison_2026/benchmark_summary.json) y [manifest](../reports/genai/provider_comparison_2026/execution_manifest.json).
+
 
 ## Integración posterior: OpenAI API y Ollama seleccionables
 
 El Playground permite escoger el proveedor para cada análisis individual, manteniendo Health, Delay y Cost inalterados. El componente Ollama conserva el presupuesto y los reportes anteriores. OpenAI utiliza el endpoint Chat Completions de la API, un modelo configurable por el usuario y validación de evidencia similar; admite hasta ocho acciones y un resumen más extenso.
 
-**Estado de evidencia (18 de noviembre de 2026):** las pruebas de integración de OpenAI se ejecutaron con transporte y respuesta simulados; el workflow del commit `d7f2cb7846` pasó. **No existe todavía una corrida experimental real de OpenAI** en el conjunto TEST, ni comparación controlada de calidad, costos, latencia o utilidad humana frente a Qwen. Por tanto, las tasas y tiempos históricos anteriores se atribuyen solo a Qwen.
+**Estado histórico al 18 de noviembre de 2026:** las pruebas de integración de OpenAI se ejecutaron con transporte y respuesta simulados; el workflow del commit `d7f2cb7846` pasó. En esa fecha aún no existía una corrida real de OpenAI. La actualización del 19 de noviembre que sigue intentó el benchmark real y documentó por qué no pudo ejecutarse.
 
 Protocolo propuesto: seleccionar los mismos casos TEST elegibles, congelar evidencia de entrada, fijar versión de cada proveedor, parámetros disponibles y fecha, ejecutar al menos 30 intentos por alternativa, registrar éxito, formato, groundedness proxy, acciones aceptadas, tiempo extremo a extremo, consumo/costo y errores; incluir una revisión humana ciega de pertinencia. No mezclar métricas de esquemas distintos sin aclarar sus límites.
 

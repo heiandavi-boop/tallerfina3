@@ -22,7 +22,7 @@ from ..training.core import _split_groups, train_core
 from .drift import build_reference_profile, compare_feature_distributions
 
 FROZEN_VERSIONS = frozenset({"0.9.0-academic"})
-REGISTRY_SCHEMA_VERSION = 1
+REGISTRY_SCHEMA_VERSION = 2
 GATED_TARGETS = {
     "health": ("macro_f1", "higher"),
     "delay_days": ("mae", "lower"),
@@ -54,7 +54,41 @@ class ModelRegistry:
         if self.path.is_file():
             self.data = json.loads(self.path.read_text(encoding="utf-8"))
         else:
-            self.data = {"schema_version": REGISTRY_SCHEMA_VERSION, "production": None, "models": [], "events": []}
+            self.data = {
+                "schema_version": REGISTRY_SCHEMA_VERSION,
+                "deployments": {"demo": None, "test": None, "production": None},
+                "selected_for_deployment": None,
+                "models": [],
+                "events": [],
+            }
+        self._migrate()
+
+    def _migrate(self) -> None:
+        """Converts the former ambiguous production pointer into explicit deployment states."""
+        self.data.setdefault("models", [])
+        self.data.setdefault("events", [])
+        if self.data.get("schema_version", 1) >= REGISTRY_SCHEMA_VERSION:
+            return
+
+        old_production = self.data.pop("production", None)
+        demo_version = old_production if old_production and old_production.startswith("demo-") else None
+        if demo_version:
+            demo = self.get(demo_version)
+            if demo is not None and demo.get("status") == "production":
+                demo["status"] = "demo_available"
+        self.data["deployments"] = {
+            "demo": demo_version,
+            "test": None,
+            "production": None,
+        }
+        self.data["selected_for_deployment"] = None
+        self.data["schema_version"] = REGISTRY_SCHEMA_VERSION
+        self._event(
+            "schema_migration",
+            demo_version or "registry",
+            removed_legacy_production_pointer=old_production,
+            note="No deployment environment was verified; production deployment set to null.",
+        )
 
     def save(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
@@ -94,33 +128,41 @@ class ModelRegistry:
         self._event("approve", version, approver=approver)
         return record
 
-    def promote(self, version: str) -> dict[str, Any]:
+    def select_for_deployment(self, version: str) -> dict[str, Any]:
         record = self.get(version)
         if record is None:
             raise KeyError(version)
         if record["status"] != "approved":
-            raise RetrainingBlocked("La promoción requiere aprobación humana previa.")
-        previous = self.data.get("production")
-        record["status"] = "production"
-        record["previous_production"] = previous
-        if previous and (prev := self.get(previous)) and prev["version"] not in FROZEN_VERSIONS:
-            prev["status"] = "archived"
-        self.data["production"] = version
-        self._event("promote", version, previous=previous)
+            raise RetrainingBlocked("La selección para despliegue requiere aprobación humana previa.")
+        previous = self.data.get("selected_for_deployment")
+        record["status"] = "selected_for_deployment"
+        record["previous_selected_for_deployment"] = previous
+        self.data["selected_for_deployment"] = version
+        self._event(
+            "select_for_deployment",
+            version,
+            previous=previous,
+            deployment_performed=False,
+        )
         return record
 
-    def rollback(self) -> str:
-        current = self.data.get("production")
+    def rollback_selection(self) -> str | None:
+        """Reverts the registry selection only; it does not roll back a running service."""
+        current = self.data.get("selected_for_deployment")
         record = self.get(current) if current else None
-        previous = record.get("previous_production") if record else None
-        if not previous:
-            raise RetrainingBlocked("No existe versión anterior para rollback.")
-        record["status"] = "rolled_back"
-        prev = self.get(previous)
-        if prev is not None and prev["version"] not in FROZEN_VERSIONS:
-            prev["status"] = "production"
-        self.data["production"] = previous
-        self._event("rollback", previous, from_version=current)
+        if record is None:
+            raise RetrainingBlocked("No existe una selección de versión para revertir.")
+        previous = record.get("previous_selected_for_deployment")
+        record["status"] = "approved"
+        self.data["selected_for_deployment"] = previous
+        if previous and (prev := self.get(previous)):
+            prev["status"] = "selected_for_deployment"
+        self._event(
+            "rollback_selection",
+            previous or current,
+            from_version=current,
+            deployment_rollback_performed=False,
+        )
         return previous
 
 

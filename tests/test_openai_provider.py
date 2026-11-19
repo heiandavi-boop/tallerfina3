@@ -58,8 +58,8 @@ def test_missing_key_uses_grounded_fallback(monkeypatch):
     assert result["recommendations"]
 
 
-def test_explicit_ollama_selection_does_not_mutate_process_env(monkeypatch):
-    monkeypatch.setenv("PRUNIN_ENABLE_OLLAMA", "0")
+def test_explicit_ollama_selection_does_not_mutate_process_env_when_enabled(monkeypatch):
+    monkeypatch.setenv("PRUNIN_ENABLE_OLLAMA", "1")
     called = []
 
     def stub(prediction, drivers, *, row=None):
@@ -73,7 +73,7 @@ def test_explicit_ollama_selection_does_not_mutate_process_env(monkeypatch):
     assert called
     assert result["selected_provider"] == "ollama"
     assert result["genai_attempted"]
-    assert ai.os.environ["PRUNIN_ENABLE_OLLAMA"] == "0"
+    assert ai.os.environ["PRUNIN_ENABLE_OLLAMA"] == "1"
 
 
 def test_openai_extended_validation_keeps_grounding_rules():

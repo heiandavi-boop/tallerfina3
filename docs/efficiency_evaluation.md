@@ -88,3 +88,38 @@ El resultado cuantifica capacidad operacional del proceso automatizado en un equ
 No se cronometra a personas, no hay baseline humano ni estudio controlado de usuarios; por tanto, no se afirma ahorro de tiempo, productividad humana o retorno de inversión. Una medición humana futura es opcional y necesitaría protocolo pareado, varios usuarios/casos, calidad de respuesta y condiciones registradas.
 
 **Conclusión defendible:** PRUNIN demuestra eficiencia operacional reproducible mediante latencia, throughput y procesamiento batch sobre proyectos del TEST académico. Estas mediciones caracterizan el proceso automatizado en un entorno local; no representan productividad humana ni rendimiento productivo.
+
+## Benchmark HTTP y concurrencia (19 de noviembre de 2026)
+
+Se añadieron dos mediciones en una API local real en `127.0.0.1:8001`, con el artefacto académico `0.9.0-academic`, GenAI apagada y las siete features del contrato. No se usó `TestClient` en estas mediciones. Evidencias completas: [`http_single_2026`](../reports/technical_closure/http_single_2026/) y [`http_concurrency_2026`](../reports/technical_closure/http_concurrency_2026/).
+
+### Individual frente a CSV
+
+El benchmark existente de API se ejecutó nuevamente, en un directorio nuevo. Usó los mismos proyectos para individual secuencial y CSV, 3 warm-ups, 10 repeticiones en N=1/10/25 y 5 en N=50/100. Ambos modos tuvieron 100 % de éxito y GenAI apagada.
+
+| N | Individual mediana | CSV mediana | Reducción observada |
+|---:|---:|---:|---:|
+| 1 | 43.524 ms | 44.552 ms | −2.36 % (CSV más lento) |
+| 10 | 424.292 ms | 401.056 ms | 5.48 % |
+| 25 | 1052.618 ms | 994.869 ms | 5.49 % |
+| 50 | 2106.241 ms | 1980.560 ms | 5.97 % |
+| 100 | 4238.277 ms | 3979.903 ms | 6.10 % |
+
+El CSV reduce moderadamente el overhead desde N=10; procesa las filas secuencialmente. No es paralelización ni mejora de productividad humana.
+
+### Carga concurrente
+
+El nuevo `scripts/benchmark_http_concurrency.py` envió 100 solicitudes por nivel (400 en total), distribuyendo los mismos 100 casos TEST, con 1/4/8/16 workers y timeout de 30 s. Cada respuesta fue validada para los campos Health, Delay y Cost.
+
+| Concurrencia | Éxitos | p50 | p95 | Máximo | Throughput |
+|---:|---:|---:|---:|---:|---:|
+| 1 | 100/100 | 42.45 ms | 80.98 ms | 274.67 ms | 20.14 req/s |
+| 4 | 100/100 | 164.34 ms | 200.88 ms | 209.01 ms | 24.14 req/s |
+| 8 | 100/100 | 333.12 ms | 457.41 ms | 540.07 ms | 23.42 req/s |
+| 16 | 100/100 | 645.65 ms | 954.38 ms | 1196.38 ms | 23.35 req/s |
+
+El throughput llega a ~24 req/s con 4 workers y luego se mantiene prácticamente plano, mientras p95 crece cerca de 11.8× entre concurrencia 1 y 16. Esto muestra saturación de un proceso en esta máquina, no balanceo horizontal. La medición no identifica de forma aislada si el cuello de botella es CPU de LightGBM, el event loop, el threadpool o la serialización; se necesitaría perfilado del servidor para atribuirlo.
+
+La sonda de error devolvió 422 para una categoría inválida y después obtuvo HTTP 200 tanto en health como en una predicción válida. **No se detuvo el proceso ni se simuló la caída de un pod**, para no interrumpir servicios existentes; no equivale a prueba de recuperación de instancia.
+
+La CPU y RSS guardados por el runner son del proceso cliente, no del servidor. Los resultados son locales y de una sola ejecución; el CI y el benchmark histórico conservan su independencia.

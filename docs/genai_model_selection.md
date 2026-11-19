@@ -35,7 +35,7 @@ El selector actual no reemplaza la evaluación documental de modelos locales: in
 | Costo variable por tokens | Sin facturación externa por tokens; sí hay costo computacional | Uso facturado según modelo y volumen |
 | Modelo usado en la versión | `qwen3:8b` | Identificador configurable; valor por defecto `gpt-4.1` |
 | Formato y validación | Respuesta estructurada y validador, hasta cuatro acciones | JSON validado con el mismo principio de evidencia, hasta ocho acciones |
-| Evaluación empírica del componente PRUNIN | 30 casos reales ejecutados localmente, 29 aceptados en evaluación histórica | **No realizada**; solo pruebas de transporte con respuestas simuladas |
+| Evaluación empírica del componente PRUNIN | Evaluación histórica congelada: 29/30; benchmark comparativo posterior: 30/30 en modo controlado y operativo | **No realizada**; solo pruebas de transporte con respuestas simuladas |
 | Dependencias/riesgos | Recursos de memoria, proceso Ollama, latencia local | Clave, conectividad, costo, permisos del modelo y privacidad externa |
 | Escenario recomendado | Sensibilidad de datos y operación local, bajo restricciones de hardware | Uso autorizado de servicios externos y necesidad de flexibilidad en selección de modelos |
 
