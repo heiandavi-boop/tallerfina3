@@ -24,7 +24,7 @@ Esta presentación organiza los resultados y el recorrido demostrable. Los tiemp
 - React/Vite captura información estructurada; FastAPI valida solicitudes.
 - Tres modelos LightGBM predicen Health, Delay y Cost.
 - Drivers locales y señales operativas generan evidencia etiquetada.
-- La generación de recomendaciones puede utilizar **Ollama/Qwen3 8B** u **OpenAI API**, a elección del usuario.
+- La generación de recomendaciones puede utilizar **Ollama/Qwen3 8B** local cuando está habilitado.
 - Validador de evidencia y fallback determinístico antes de presentar acciones.
 - Team Health es heurístico; Final Status deriva de Health.
 
@@ -66,8 +66,8 @@ Esta presentación organiza los resultados y el recorrido demostrable. Los tiemp
 
 ## Diapositiva 8 — Recomendaciones fundamentadas
 - La generación utiliza evidencia estructurada, procedencia de cada señal, prioridad y seguimiento.
-- **Ollama/Qwen3 8B**: evaluación histórica oficial de 30 casos con 29 respuestas aceptadas; no es una evaluación de OpenAI.
-- **Benchmark 2026** (mismos 30 casos, controlado y operativo): Qwen3 8B 30/30 aceptadas, mediana 8,1 s. **OpenAI no medido**: la clave no estaba accesible para el proceso; gasto 0 USD.
+- **Ollama/Qwen3 8B**: evaluación histórica oficial de 30 casos con 29 respuestas aceptadas.
+- **Evaluación posterior de Qwen3 8B:** 30/30 aceptadas en dos configuraciones locales; mediana controlada 8,1 s.
 - El usuario puede alternar proveedores sin cambiar las predicciones.
 - Una respuesta inválida activa acciones de respaldo determinístico.
 
@@ -76,7 +76,7 @@ Esta presentación organiza los resultados y el recorrido demostrable. Los tiemp
 ## Diapositiva 9 — Demostración funcional
 1. Elegir un caso de prueba y ejecutar la predicción.
 2. Examinar nivel de riesgo, probabilidades, retraso, costo y señales.
-3. Seleccionar Ollama u OpenAI, si el proveedor está disponible.
+3. Seleccionar Ollama o solo predicción, según el estado del servidor.
 4. Revisar recomendaciones y referencias de evidencia.
 5. Simular un escenario What-if y probar una fila de CSV.
 6. Consultar versión, resultado JSON y trazabilidad de los controles.
@@ -85,9 +85,9 @@ Esta presentación organiza los resultados y el recorrido demostrable. Los tiemp
 
 ## Diapositiva 10 — Ética, privacidad y control operativo
 - No usar datos empresariales sensibles sin autorización.
-- En modo OpenAI se transmiten al proveedor externo las señales estructuradas.
+- El motor local procesa las evidencias estructuradas dentro del equipo autorizado.
 - Claves solamente en memoria de sesión o entorno del servidor; nunca en repositorio.
-- En producción, el API falla cerrado si falta el token; el límite OpenAI vigente es por IP par/minuto y por proceso/día, no una cuota distribuida.
+- En producción, el API falla cerrado sin token y restringe CORS.
 - El cliente no puede habilitar Ollama cuando el servidor lo desactiva; un despliegue público aún requiere HTTPS e identidad multiusuario.
 - Los indicadores del modelo no prueban causalidad ni reemplazan decisiones profesionales.
 
@@ -97,7 +97,7 @@ Esta presentación organiza los resultados y el recorrido demostrable. Los tiemp
 - Fuente principal sintética externa; falta validación prospectiva con proyectos reales.
 - Delay ofrece mejora limitada frente al baseline.
 - Algunas señales son heurísticas y no provienen de variables supervisadas.
-- Productividad humana NO MEDIDA: el instrumento está listo, pero no hay participantes. La comparación con OpenAI está pendiente de la clave.
+- Productividad humana NO MEDIDA: el instrumento está listo, pero no hay participantes. La comparación exhaustiva entre modelos locales está pendiente.
 - MLOps: registro, gate de regresión y rollback demostrados con datos sintéticos (candidato rechazado). Docker se valida en CI; no hay clúster Kubernetes.
 
 **Evidencia:** [Matriz interna](rubric_matrix.md), [cierre](FINAL_READINESS.md).
