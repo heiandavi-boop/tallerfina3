@@ -2909,3 +2909,18 @@ body { background:#f5f7fc; background-image:none; }
   .dashboard-metric strong {font-size:17px;}
   .dashboard-banner h1 {font-size:20px;}
 }
+
+/* Three-column alignment mirrors the supplied project / alert / recommendations reference. */
+.dashboard-empty-recommendation {min-height:280px;}
+.dashboard-empty-recommendation p {color:#65718c;font-size:13px;line-height:1.7;}
+.dashboard-empty-pill {display:inline-flex;margin-top:18px;border:1px solid #e5defc;border-radius:99px;padding:8px 12px;background:#f7f3ff;color:#6246aa;font-size:12px;font-weight:700;}
+@media (min-width:1481px) {
+  .dashboard-work-grid {grid-template-columns:minmax(0,1.04fr) minmax(0,.98fr) minmax(0,1.09fr);}
+  .dashboard-work-grid .project-card {grid-column:1;grid-row:1;}
+  .dashboard-result-slot {grid-column:2;grid-row:1;}
+  .dashboard-recommendation-slot {grid-column:3;grid-row:1;}
+  .dashboard-driver-slot {grid-column:1 / 3;grid-row:2;}
+  .dashboard-simulation-slot {grid-column:2 / 4;grid-row:3;}
+  .dashboard-work-grid .technical-action {grid-column:1 / -1;}
+  .dashboard-work-grid>.analysis-loading {grid-column:1 / -1;}
+}
