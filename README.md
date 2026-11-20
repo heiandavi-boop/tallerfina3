@@ -68,7 +68,7 @@ Revisión posterior `evidence-v2`: [ocho casos diagnósticos reales](reports/aud
 | Memoria | 5,5 GB | 11,9 GB |
 | Puntaje ponderado | 0,981 | 0,987 |
 
-Es un empate técnico: la diferencia es menor que el margen de 0,03 y McNemar da p = 1,0, así que no hay ganador defendible. Qwen sigue configurado. La vista **Comparación de modelos IA** del dashboard solo lee resultados validados. Para reproducir: `PYTHONPATH=src python scripts/run_local_model_comparison.py --models qwen3:8b gpt-oss:20b --cases 30 --repeats 3 --output-dir reports/genai/qwen_vs_gptoss_2026`.
+Es un empate técnico: la diferencia es menor que el margen de 0,03 y McNemar da p = 1,0, así que no hay ganador defendible. Qwen sigue configurado como predeterminado; el análisis individual permite elegir entre Qwen3 8B y GPT-OSS 20B si ambos están instalados. El frontend envía `X-PRUNIN-Model` y el backend configura `think=false` para Qwen o `think=low` para GPT-OSS. La vista **Comparación de modelos IA** del dashboard solo lee resultados validados. Para reproducir: `PYTHONPATH=src python scripts/run_local_model_comparison.py --models qwen3:8b gpt-oss:20b --cases 30 --repeats 3 --output-dir reports/genai/qwen_vs_gptoss_2026`.
 
 [Cierre de cuatro brechas](reports/recommendations_closure_2026-11-08/README.md): CSV bancario → análisis individual → Qwen real → JSON descargado y comparado en Chrome; también fallback real por conexión fallida. Grounding contextual reforzado y 174 tests backend/21 frontend aprobados. Modelos y resultados científicos intactos. La descarga del navegador integrado de VS Code conserva una limitación documentada.
 
@@ -133,7 +133,7 @@ Dataset sintético, severidad Critical todavía limitada, Delay débil, caveat E
 
 ## Motor de IA generativa local
 
-PRUNIN utiliza **Ollama con Qwen3 8B** o la modalidad **Solo predicción**. La interfaz no solicita credenciales de proveedores de inferencia externos y el backend solo habilita Ollama si `PRUNIN_ENABLE_OLLAMA=1`. El contrato genera hasta cuatro acciones con evidencia, justificación y seguimiento. Ante fallos o salidas inválidas se conserva la predicción y se activa el respaldo determinístico.
+PRUNIN utiliza **Ollama con Qwen3 8B o GPT-OSS 20B** (Qwen predeterminado) o la modalidad **Solo predicción**. Las opciones no instaladas aparecen deshabilitadas. La interfaz no solicita credenciales de proveedores de inferencia externos y el backend solo habilita Ollama si `PRUNIN_ENABLE_OLLAMA=1`. El contrato genera hasta cuatro acciones con evidencia, justificación y seguimiento. Ante fallos o salidas inválidas se conserva la predicción y se activa el respaldo determinístico.
 
 En producción la API exige configurar `PRUNIN_API_TOKEN` para las rutas protegidas y rechaza CORS comodín. Ollama debe ejecutarse en un servidor confiable, protegido por controles de red adecuados. Consulta la [guía del motor local](docs/ai_providers.md), [riesgos](docs/ethics_security.md) y [evaluación](docs/genai_evaluation.md).
 
