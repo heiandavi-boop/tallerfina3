@@ -21,7 +21,7 @@ Los siguientes documentos se retiraron del árbol activo del repositorio y se co
 - `ORAL_EVIDENCE.md` — preparación y criterios de exposición oral.
 - `DEFENSA_PAIII_NIVEL4.md` — preguntas del jurado, respuestas y guía de defensa.
 
-Tampoco publicar notas personales, guiones literales, sesiones de ensayo, formatos de práctica, diapositivas PPTX/PDF, grabaciones, materiales de exposición ni bancos privados de preguntas. La ruta `material_privado/` y los nombres históricos de estas notas están ignorados en `.gitignore`.
+Tampoco publicar notas personales, guiones literales, DOCX privados de exposición o costos, JSON individuales de inferencia, sesiones de ensayo, formatos de práctica, diapositivas PPTX/PDF, grabaciones, materiales de exposición ni bancos privados de preguntas. Se retiraron del árbol activo `Guion_PRUNIN.docx`, `Costos_PRUNIN.docx` y un JSON individual `prunin-*.json`, sin reescribir el historial de Git. La ruta `material_privado/` y los nombres históricos de estas notas están ignorados en `.gitignore`.
 
 **Para recuperar los tres archivos originales:** desde una copia local de Git, ejecutar `git show 862d8747f76afa87eef525a8e470fbabbd49f389:docs/PRESENTACION_FINAL.md` (y cambiar el nombre para los otros dos archivos); guardar las salidas en una carpeta personal fuera del repositorio. Retirar archivos de `main` no reescribe el historial remoto.
 
