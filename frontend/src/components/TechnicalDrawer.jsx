@@ -29,7 +29,7 @@ export function TechnicalDrawer({ open, onClose, result, model, schema, technica
         ['Tiempo total', result?.timing?.total_ms == null ? result?.inference_ms == null ? '—' : `${Number(result.inference_ms).toLocaleString('es-CO')} ms` : `${Number(result.timing.total_ms).toLocaleString('es-CO')} ms`],
         ['Origen de drivers', result?.driver_source === 'local_model_sensitivity' ? 'Sensibilidad local del modelo' : result?.driver_source || '—'],
         ['Prediction ID', result?.prediction_id || '—'], ['Motor de recomendaciones', engineLabel(recommendation?.engine)],
-        ['Estado de GenAI', recommendation ? recommendation.genai_used ? 'Qwen3 utilizado' : recommendation.genai_attempted ? 'Intentado; respaldo utilizado' : 'Desactivada; respaldo utilizado' : genaiStatus?.enabled ? genaiStatus.available ? `Disponible · ${genaiStatus.model}` : 'No disponible' : 'Desactivada'],
+        ['Estado de GenAI', recommendation ? recommendation.genai_used ? `Utilizado: ${engineLabel(recommendation.engine)}` : recommendation.genai_attempted ? 'Intentado; respaldo utilizado' : 'Desactivada; respaldo utilizado' : genaiStatus?.enabled ? genaiStatus.available ? `Disponible · ${genaiStatus.model}` : 'No disponible' : 'Desactivada'],
         ['Ollama disponible', genaiStatus ? String(genaiStatus.available) : '—'],
         ['Último error GenAI', genaiStatus?.last_error?.failure_detail || '—'],
         ['GenAI attempted', recommendation ? String(recommendation.genai_attempted) : '—'],
