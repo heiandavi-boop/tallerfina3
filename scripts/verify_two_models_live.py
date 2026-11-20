@@ -42,7 +42,7 @@ def main() -> int:
     row = {key: float(value) if key in NUMERIC else value
            for key, value in rows[0].items() if value is not None and value != ""}
     base = args.api.rstrip("/")
-    headers = {"X-PRUNIN-API-Token": args.token} if args.token else {}
+    headers = {"Authorization": f"Bearer {args.token}"} if args.token else {}
     try:
         response = requests.get(base + "/api/genai-models", headers=headers, timeout=15)
         response.raise_for_status()
