@@ -13,7 +13,7 @@ Comprobar desde la interfaz que PRUNIN recibe datos de un proyecto, calcula sus 
 1. Instalar dependencias y ejecutar `./scripts/preflight_demo.sh` y `./scripts/run_playground.sh`.
 2. Abrir `http://localhost:8000` y confirmar `/api/ready`.
 3. Seleccionar un proyecto de ejemplo o introducir variables del modelo (`planned_duration_weeks`, `planned_budget`, `true_progress`, `spi`, `cpi`, `project_type`, `methodology`).
-4. Elegir **Ollama** o **solo predicción**. La elección afecta las recomendaciones, no Health/Delay/Cost.
+4. Elegir **Ollama** o **solo predicción**. Con Ollama habilitado, elegir Qwen3 8B o GPT-OSS 20B entre los modelos instalados. La elección afecta las recomendaciones, no Health/Delay/Cost. Para verificar ambos mediante API, ejecutar `python scripts/verify_two_models_live.py --csv /ruta/al/proyecto.csv` con la API y Ollama activos.
 5. Ejecutar el análisis y verificar estado Health, probabilidades, retraso, desviación de costo, drivers y calidad de entrada.
 6. Revisar recomendaciones: `engine`, prioridad, fuente de evidencia, acción, explicación y seguimiento. Si hay fallo de LLM, verificar el motor `grounded_fallback`.
 7. Probar un escenario What-if con variables aprendidas; comprobar que se mantienen independientes las predicciones comparadas.
