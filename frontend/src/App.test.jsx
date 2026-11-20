@@ -493,3 +493,48 @@ describe('Comparación de modelos IA', () => {
     expect(await screen.findByText(/esta vista no lanza inferencias/)).toBeTruthy();
   });
 });
+
+
+describe('Selector local Qwen3 / GPT-OSS', () => {
+  it('muestra ambos modelos y transmite al backend el modelo seleccionado', async () => {
+    installFetch({ genaiStatus: { enabled: true, provider: 'ollama', model: 'qwen3:8b', available: true, last_error: null } });
+    const originalFetch = global.fetch;
+    global.fetch = vi.fn((url, options) => {
+      if (url.endsWith('/api/genai-models')) {
+        return jsonResponse({ default: 'qwen3:8b', models: [
+          { id: 'qwen3:8b', display_name: 'Qwen3 8B', installed: true },
+          { id: 'gpt-oss:20b', display_name: 'GPT-OSS 20B', installed: true },
+        ] });
+      }
+      return originalFetch(url, options);
+    });
+    const user = userEvent.setup();
+    await openProject();
+    const selector = await screen.findByLabelText('Modelo');
+    expect(Array.from(selector.options).map(option => option.value)).toEqual(['qwen3:8b', 'gpt-oss:20b']);
+    await user.selectOptions(selector, 'gpt-oss:20b');
+    await user.click(screen.getByRole('button', { name: 'Evaluar riesgo del proyecto' }));
+    await screen.findByRole('heading', { name: '¿Este proyecto requiere atención?' });
+    const calls = global.fetch.mock.calls.filter(([url]) => url.endsWith('/api/predict'));
+    expect(calls).toHaveLength(1);
+    expect(calls[0][1].headers['X-PRUNIN-Provider']).toBe('ollama');
+    expect(calls[0][1].headers['X-PRUNIN-Model']).toBe('gpt-oss:20b');
+  });
+
+  it('no permite seleccionar un modelo que Ollama no tiene instalado', async () => {
+    installFetch();
+    const originalFetch = global.fetch;
+    global.fetch = vi.fn((url, options) => {
+      if (url.endsWith('/api/genai-models')) {
+        return jsonResponse({ default: 'qwen3:8b', models: [
+          { id: 'qwen3:8b', display_name: 'Qwen3 8B', installed: true },
+          { id: 'gpt-oss:20b', display_name: 'GPT-OSS 20B', installed: false },
+        ] });
+      }
+      return originalFetch(url, options);
+    });
+    await openProject();
+    const selector = await screen.findByLabelText('Modelo');
+    expect(selector.querySelector('option[value="gpt-oss:20b"]').disabled).toBe(true);
+  });
+});
