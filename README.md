@@ -89,7 +89,7 @@ Para activar GenAI local, con Ollama y qwen3:8b instalados:
 PRUNIN_ENABLE_OLLAMA=1 PRUNIN_OLLAMA_MODEL=qwen3:8b ./scripts/run_playground.sh
 ```
 
-Ejecutar `./scripts/preflight_genai.sh` por separado con Ollama y API activos. Si Ollama falla, ML y fallback permanecen disponibles. `/api/genai-status` muestra estado; timeout por defecto 30 s configurable. El benchmark comparativo y la concurrencia son scripts manuales; no descargan modelos y la prueba local no se llama productiva.
+Para comprobar ambos modelos de forma operativa sobre un CSV de un solo proyecto, ejecutar `python scripts/verify_two_models_live.py --csv /ruta/al/proyecto.csv` con API y Ollama activos. El script no descarga modelos, no reentrena y exige que ambos generen recomendaciones validadas conservando iguales predicciones ML. Ejecutar `./scripts/preflight_genai.sh` por separado con Ollama y API activos. Si Ollama falla, ML y fallback permanecen disponibles. `/api/genai-status` muestra estado; timeout por defecto 30 s configurable. El benchmark comparativo y la concurrencia son scripts manuales; no descargan modelos y la prueba local no se llama productiva.
 
 Demo: análisis individual, probabilidades, drivers, What-if, CSV hasta 100 filas, JSON descargable con prediction_id y versión. Delay presenta `max(0, delay_days_raw)` y conserva raw en detalle técnico; métricas históricas no cambian. Cost negativo puede representar ahorro. Team Health del CSV se oculta si ninguna fila tiene score, aparece si alguna lo tiene.
 
