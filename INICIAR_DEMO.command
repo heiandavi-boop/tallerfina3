@@ -17,8 +17,8 @@ if [ "$PRUNIN_ENABLE_OLLAMA" = "1" ]; then
       done
     fi
     if ! ollama list 2>/dev/null | grep -q "^${PRUNIN_OLLAMA_MODEL}"; then
-      echo "Descargando modelo ${PRUNIN_OLLAMA_MODEL}..."
-      ollama pull "$PRUNIN_OLLAMA_MODEL" || echo "No se pudo descargar el modelo; se usará el respaldo determinístico." >&2
+      echo "Modelo ${PRUNIN_OLLAMA_MODEL} no instalado; se usará el respaldo determinístico." >&2
+      echo "Instálalo manualmente si se necesita: ollama pull ${PRUNIN_OLLAMA_MODEL}" >&2
     fi
     # Precarga el modelo para la primera consulta
     curl -fs http://localhost:11434/api/generate -d "{\"model\":\"${PRUNIN_OLLAMA_MODEL}\",\"keep_alive\":\"30m\"}" >/dev/null 2>&1 || true
