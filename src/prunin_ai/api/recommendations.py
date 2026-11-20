@@ -10,6 +10,7 @@ from typing import Any
 
 import requests
 
+from ..genai_comparison import MODEL_PROFILES
 from .operational_signals import build_evidence_context
 
 
@@ -195,6 +196,17 @@ def check_ollama_status(*, timeout: float = 3.0) -> dict[str, Any]:
         result["last_error"] = {"failure_code": "ollama_unavailable", "failure_detail": str(exc)}
         _set_last_genai_error("ollama_unavailable", str(exc))
     return result
+
+
+def installed_ollama_models(*, timeout: float = 3.0) -> set[str]:
+    base_url = os.getenv("PRUNIN_OLLAMA_URL", "http://localhost:11434/api/chat")
+    tags_url = base_url.rsplit("/api/", 1)[0] + "/api/tags" if "/api/" in base_url else base_url.rstrip("/") + "/api/tags"
+    try:
+        response = requests.get(tags_url, timeout=timeout)
+        response.raise_for_status()
+        return {str(item.get("name", "")) for item in response.json().get("models", []) if isinstance(item, dict)}
+    except (ValueError, requests.exceptions.RequestException):
+        return set()
 
 
 def warmup_ollama() -> dict[str, Any]:
@@ -780,11 +792,13 @@ def ollama_recommendations(
     row: dict[str, Any],
     prediction: dict[str, Any],
     drivers: list[dict[str, Any]],
+    model: str | None = None,
 ) -> dict[str, Any] | None:
     if os.getenv("PRUNIN_ENABLE_OLLAMA", "0") != "1":
         return None
     context = build_evidence_context(row, prediction, drivers)
-    generated = generate_ollama_grounded(prediction, drivers, row=row)
+    extra = {"think": MODEL_PROFILES[model]["think"]} if model in MODEL_PROFILES else {}
+    generated = generate_ollama_grounded(prediction, drivers, row=row, model=model, **extra)
     if not generated["ok"]:
         return grounded_fallback(
             row,
@@ -831,12 +845,15 @@ def build_recommendations(
     drivers: list[dict[str, Any]],
     *,
     provider: str | None = None,
+    model: str | None = None,
 ) -> dict[str, Any]:
+    if model is not None and model not in MODEL_PROFILES:
+        raise ValueError("Modelo de IA no válido.")
     selected = provider or ("ollama" if os.getenv("PRUNIN_ENABLE_OLLAMA", "0") == "1" else "none")
     if selected not in {"ollama", "none"}:
         raise ValueError("Proveedor de IA no válido.")
     if selected == "ollama":
-        generated = ollama_recommendations(row, prediction, drivers)
+        generated = ollama_recommendations(row, prediction, drivers, model=model)
         if generated is not None:
             generated["selected_provider"] = "ollama"
             return generated

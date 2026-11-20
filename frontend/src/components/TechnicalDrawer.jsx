@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 const finalStatusLabels = { derived_from_health: 'Derivado de Health', independent_model: 'Modelo independiente' };
-const engineLabel = engine => engine?.startsWith('ollama:') ? `Qwen3 8B (${engine.slice(7)})` : engine === 'grounded_fallback' ? 'Motor de respaldo' : engine || '—';
+const engineLabel = engine => engine?.startsWith('ollama:') ? `Ollama (${engine.slice(7)})` : engine === 'grounded_fallback' ? 'Motor de respaldo' : engine || '—';
 
 export function TechnicalDrawer({ open, onClose, result, model, schema, technicalError, genaiStatus }) {
     const [showJson, setShowJson] = useState(false);

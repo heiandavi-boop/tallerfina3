@@ -18,10 +18,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
-from ..genai_comparison import load_public_comparison
+from ..genai_comparison import MODEL_PROFILES, load_public_comparison
 from .catalog import PRESETS
 from .model_runtime import ModelRuntime, ROOT, unused_what_if_changes
-from .recommendations import build_recommendations, check_ollama_status, recommendations_not_requested, warmup_ollama
+from .recommendations import build_recommendations, check_ollama_status, installed_ollama_models, recommendations_not_requested, warmup_ollama
 from .monitoring import monitoring
 from .schema import ProjectInput, WhatIfRequest
 from .security import configured_token, requires_token, resolve_cors_origins, token_matches
@@ -74,14 +74,14 @@ def serialize(value: Any):
     return value
 
 
-def run_prediction(data: dict[str, Any], *, include_recommendations: bool = True, genai_provider: str | None = None) -> dict[str, Any]:
+def run_prediction(data: dict[str, Any], *, include_recommendations: bool = True, genai_provider: str | None = None, genai_model: str | None = None) -> dict[str, Any]:
     started = time.perf_counter()
     prediction_id = str(uuid.uuid4())
     try:
         pred = runtime.predict(data)
         drivers = runtime.local_drivers(data, pred)
         ml_and_drivers_ms = round((time.perf_counter() - started) * 1000, 2)
-        recommendations = build_recommendations(data, pred, drivers, provider=genai_provider) if include_recommendations else recommendations_not_requested()
+        recommendations = build_recommendations(data, pred, drivers, provider=genai_provider, model=genai_model) if include_recommendations else recommendations_not_requested()
         elapsed = round((time.perf_counter() - started) * 1000, 2)
         genai_ms = recommendations.get("genai_latency_ms") if recommendations and recommendations.get("genai_attempted") else None
         model_metadata = runtime.metadata()
@@ -165,6 +165,20 @@ def genai_status():
     return check_ollama_status()
 
 
+@app.get("/api/genai-models")
+def genai_models():
+    status = check_ollama_status()
+    installed = installed_ollama_models()
+    default = status["model"]
+    return {
+        "default": default,
+        "models": [
+            {"id": model, "display_name": profile["display_name"], "installed": model in installed or f"{model}:latest" in installed}
+            for model, profile in MODEL_PROFILES.items()
+        ],
+    }
+
+
 @app.get("/api/genai-providers")
 def genai_providers():
     return {"ollama": check_ollama_status()}
@@ -219,13 +233,16 @@ def predict(
     request: Request,
     include_recommendations: bool = True,
     x_prunin_provider: str | None = Header(default=None),
+    x_prunin_model: str | None = Header(default=None),
 ):
+    if x_prunin_model is not None and x_prunin_model not in MODEL_PROFILES:
+        raise HTTPException(422, "Modelo de IA no válido.")
     if x_prunin_provider is not None and x_prunin_provider not in {"ollama", "none"}:
         raise HTTPException(422, "Proveedor de IA no válido.")
     try:
         return run_prediction(
             payload.model_dump(), include_recommendations=include_recommendations,
-            genai_provider=x_prunin_provider,
+            genai_provider=x_prunin_provider, genai_model=x_prunin_model,
         )
     except ValueError as exc:
         raise HTTPException(422, str(exc))

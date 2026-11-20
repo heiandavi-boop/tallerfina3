@@ -51,7 +51,7 @@ function StatusBar({ model, apiReady, result, genaiStatus }) {
 }
 
 
-function Sidebar({ mode, onProject, onCsv, onEvidence, result, genaiStatus }) {
+function Sidebar({ mode, onProject, onCsv, onComparison, onEvidence, result, genaiStatus }) {
     return <aside className="prunin-sidebar" aria-label="Menú lateral">
         <a className="sidebar-brand" href="#top" aria-label="PRUNIN AI Core, inicio">
             <span className="sidebar-logo" aria-hidden="true">P</span>
@@ -64,8 +64,8 @@ function Sidebar({ mode, onProject, onCsv, onEvidence, result, genaiStatus }) {
             <a href={result ? '#simulation' : '#project'} onClick={() => onProject(result ? 'simulation' : 'project')}><span aria-hidden="true">☷</span> Simulación What-if</a>
             <a href={result ? '#result' : '#workspace'} onClick={() => onProject(result ? 'result' : 'project')}><span aria-hidden="true">▥</span> Métricas</a>
             <button type="button" onClick={onEvidence}><span aria-hidden="true">▤</span> Evidencia</button>
-            <a href="#model-comparison"><span aria-hidden="true">⚖</span> Comparación de modelos IA</a>
-            <a href="#ai-settings"><span aria-hidden="true">⚙</span> Configuración</a>
+            <button type="button" className={mode === 'comparison' ? 'selected' : ''} onClick={onComparison}><span aria-hidden="true">⚖</span> Comparación de modelos IA</button>
+            <button type="button" onClick={() => onProject('ai-settings')}><span aria-hidden="true">⚙</span> Configuración</button>
         </nav>
         <div className="sidebar-bottom">
             <div className="sidebar-ollama" aria-label="Estado de Ollama">
@@ -200,6 +200,8 @@ export default function Experience() {
     const [apiReady, setApiReady] = useState(false);
     const [genaiStatus, setGenaiStatus] = useState(null);
     const [genaiProvider, setGenaiProvider] = useState('ollama');
+    const [genaiModels, setGenaiModels] = useState([]);
+    const [genaiModel, setGenaiModel] = useState('');
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [loadingStage, setLoadingStage] = useState(0);
     const resultRef = useRef(null);
@@ -217,6 +219,7 @@ export default function Experience() {
             setApiReady(ready);
             setGenaiStatus(genai);
             setGenaiProvider(genai?.enabled ? 'ollama' : 'none');
+            fetch(`${API}/api/genai-models`).then(r => r.ok ? r.json() : null).then(m => { if (active && m?.models) { setGenaiModels(m.models); setGenaiModel(m.models.some(x => x.id === m.default) ? m.default : m.models[0]?.id || ''); } }).catch(() => null);
         }).catch(() => { if (active) setError('No fue posible conectar con PRUNIN. Verifica que la API esté disponible.'); });
         return () => { active = false; };
     }, []);
@@ -239,9 +242,10 @@ export default function Experience() {
     };
 
     const navigateToProject = (target = 'workspace') => { setMode('project'); setError(''); window.requestAnimationFrame(() => document.getElementById(target)?.scrollIntoView({ behavior: 'smooth' })); };
+    const navigateToComparison = () => { setMode('comparison'); setError(''); window.scrollTo({ top: 0, behavior: 'smooth' }); };
     const navigateToCsv = () => { setMode('csv'); setError(''); window.requestAnimationFrame(() => document.getElementById('workspace')?.scrollIntoView({ behavior: 'smooth' })); };
 
-    const genaiHeaders = () => ({ 'X-PRUNIN-Provider': genaiProvider });
+    const genaiHeaders = () => ({ 'X-PRUNIN-Provider': genaiProvider, ...(genaiProvider === 'ollama' && genaiModel ? { 'X-PRUNIN-Model': genaiModel } : {}) });
 
     const analyze = async () => {
         if (loading || coverage.ratio < coverage.minimum) return;
@@ -354,11 +358,12 @@ export default function Experience() {
     const loadingMessages = ['Evaluando el nivel de riesgo…', 'Identificando las señales más influyentes…', 'Ollama está preparando recomendaciones…'];
 
     return <div id="top" className="app-shell dashboard-shell">
-        <Sidebar mode={mode} onProject={navigateToProject} onCsv={navigateToCsv} onEvidence={() => setDrawerOpen(true)} result={result} genaiStatus={genaiStatus} />
+        <Sidebar mode={mode} onProject={navigateToProject} onCsv={navigateToCsv} onComparison={navigateToComparison} onEvidence={() => setDrawerOpen(true)} result={result} genaiStatus={genaiStatus} />
         <div className="dashboard-main">
         <AppHeader model={schema.model} apiReady={apiReady} result={result} genaiStatus={genaiStatus} onTechnical={() => setDrawerOpen(true)} />
         <main className="page-content">
             {schema.model.mode === 'synthetic_demo' && <aside className="mode-notice" role="note">Modelo de demostración con datos sintéticos. La versión académica se indicará aquí cuando esté cargada.</aside>}
+            {mode === 'comparison' ? <ModelComparison /> : <>
             <DashboardBanner />
             <DashboardMetrics result={result} genaiStatus={genaiStatus} />
             <section className="workspace-intro" id="workspace" aria-labelledby="workspace-heading">
@@ -377,8 +382,14 @@ export default function Experience() {
                         <option value="ollama">Ollama — local</option>
                         <option value="none">Solo predicción (sin IA generativa)</option>
                     </select>
+                    {genaiProvider === 'ollama' && genaiModels.length > 0 && <>
+                        <label htmlFor="prunin-model"><strong>Modelo</strong></label>
+                        <select id="prunin-model" value={genaiModel} onChange={event => setGenaiModel(event.target.value)}>
+                            {genaiModels.map(m => <option key={m.id} value={m.id} disabled={!m.installed}>{m.display_name}{m.installed ? '' : ' (no instalado)'}</option>)}
+                        </select>
+                    </>}
                 </div>
-                <p className="ai-settings-note">{genaiProvider === 'ollama' ? `Recomendaciones con ${genaiStatus?.model || 'el modelo configurado'} a través de Ollama local. Requiere el servicio disponible en el servidor.` : 'Se conservan las predicciones de riesgo, tiempo y costo, junto con las reglas de respaldo; no se ejecuta generación de texto.'}</p>
+                <p className="ai-settings-note">{genaiProvider === 'ollama' ? `Recomendaciones con ${genaiModel || genaiStatus?.model || 'el modelo configurado'} a través de Ollama local. Requiere el servicio disponible en el servidor.` : 'Se conservan las predicciones de riesgo, tiempo y costo, junto con las reglas de respaldo; no se ejecuta generación de texto.'}</p>
             </section>
             <div className="mode-switch" role="tablist" aria-label="Modo de análisis">
                 <button type="button" role="tab" aria-selected={mode === 'project'} className={mode === 'project' ? 'active' : ''} onClick={() => {
@@ -416,7 +427,7 @@ export default function Experience() {
                 </>}
             </div> : <CsvAnalyzer onAnalyze={analyzeCsv} onOpenProject={openCsvProject} loading={csvLoading} results={csvResults} error={error} />}
 
-            <ModelComparison />
+            </>}
 
             <footer className="app-footer"><strong>PRUNIN AI Core</strong><span>Proyecto académico · Análisis trazable · Las señales explican el modelo, no prueban causas</span></footer>
         </main>
